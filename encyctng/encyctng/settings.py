@@ -88,8 +88,12 @@ WSGI_APPLICATION = 'encyctng.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE": "django.db.backends.postgresql",
+        'NAME': config.get('database', 'name'),
+        'HOST': config.get('database', 'host'),
+        'PORT': config.get('database', 'port'),
+        'USER': config.get('database', 'username'),
+        'PASSWORD': config.get('database', 'password'),
     }
 }
 
