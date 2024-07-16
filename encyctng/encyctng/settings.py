@@ -10,23 +10,36 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import configparser
 from pathlib import Path
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+# User-configurable settings are located in the following files.
+# Files appearing *later* in the list override earlier files.
+CONFIG_FILES = [
+    '/etc/encyc/encyctng.cfg',
+    '/etc/encyc/encyctng-local.cfg'
+]
+config = configparser.ConfigParser()
+configs_read = config.read(CONFIG_FILES)
+if not configs_read:
+    print(f'Cannot read config files! {CONFIG_FILES}')
+    sys.exit(1)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4(z5&v59+wtx-r3^lhs63&7sl$!hbyzjks-y)m%8og&llxyt*-'
+SECRET_KEY = config.get('security', 'secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config.get('debug', 'debug')
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in config.get('security', 'allowed_hosts').strip().split(',')
+]
 
 # Application definition
 
@@ -115,7 +128,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_ROOT = config.get('media', 'static_root')
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
