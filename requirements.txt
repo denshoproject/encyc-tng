@@ -2,5 +2,6 @@
 
 django
 psycopg
+wagtail
 
 bpython
