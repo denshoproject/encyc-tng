@@ -1,7 +1,7 @@
 # apt-get install postgresql-client-15 python3-venv python3-pip
 
-django
+Django>=4.2,<5.1
 psycopg
-wagtail
+wagtail>=6.1,<6.2
 
 bpython
