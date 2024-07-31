@@ -1,7 +1,17 @@
-# apt-get install postgresql-client-15 python3-venv python3-pip
+# apt-get install postgresql-client-15 python3-venv python3-pip ffmpeg
 
-Django>=4.2,<5.1
+beautifulsoup4
+django-click
+Django
 psycopg
-wagtail>=6.1,<6.2
+wagtail>=6.0,<6.1
+wagtailmedia
+
+# migration utils
+httpx
+python-dateutil
+#git+https://github.com/denshoproject/encyc-core.git@wagtail
+git+file:///opt/encyc-core@wagtail
+walrus
 
 bpython

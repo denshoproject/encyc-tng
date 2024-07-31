@@ -1,0 +1,23 @@
+{% load wagtailimages_tags %}
+{{ self }}
+<table border="1" width="500">
+  <tr>
+    <td>
+      {% image self.display fill-500x320 loading="lazy" %}
+      <figcaption>
+        <p>
+          CAPTION {{ self.caption }}
+          {% if self.caption2 %}<br/>CAPTION2 {{ self.caption2 }}{% endif %}
+        </p>
+        {% if self.courtesy %}<p>COURTESY {{ self.courtesy }}</p>{% endif %}
+      </figcaption>
+      <p>
+        {{ self.document }}<br/>
+        EXTENSION {{ self.document.file_extension }}<br/>
+        SIZE {{ self.document.size }}<br/>
+        DOWNLOAD <a href="{{ self.document.url }}">{{ self.document.url }}</a><br/>
+        EXT_URL <a href="{{ self.ext_url }}">{{ self.ext_url }}</a><br/>
+      </p>
+    </td>
+  </tr>
+</table>

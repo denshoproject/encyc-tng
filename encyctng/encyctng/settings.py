@@ -67,9 +67,11 @@ INSTALLED_APPS = [
     'wagtail.sites',
     'wagtail.snippets',
     'wagtail.users',
+    'wagtailmedia',
     #
     'home',
     'editors',
+    'encyclopedia',
     'search',
 ]
 
