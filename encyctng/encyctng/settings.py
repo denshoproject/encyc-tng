@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'wagtail.users',
     #
     'home',
+    'editors',
     'search',
 ]
 
