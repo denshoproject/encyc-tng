@@ -1,0 +1,15 @@
+{% extends "encyclopedia/base.html" %}
+{% load wagtailcore_tags %}
+
+
+{% block content %}
+
+<h1>Authors</h1>
+
+<div id="authors">
+  {% for author in authors %}
+  <a href="{{ author.id }}">{{ author }}</a><br/>
+  {% endfor %}
+</div><!-- /authors -->
+
+{% endblock %}{# content #}
