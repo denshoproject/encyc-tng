@@ -1,0 +1,15 @@
+{% extends "encyclopedia/base.html" %}
+{% load wagtailcore_tags %}
+
+
+{% block content %}
+
+<h1>Contents</h1>
+
+<div id="articles">
+  {% for article in articles %}
+  <a href="{{ article.url }}">{{ article }}</a><br/>
+  {% endfor %}
+</div><!-- /articles -->
+
+{% endblock %}{# content #}
