@@ -106,20 +106,24 @@ def wagtail_import_authors(debug):
         click.echo(f"{n}/{num} {title=}")
         family_name = title.split()[-1]
         given_name = ' '.join(title.split()[:-1])
+        display_name = title
         mwauthor = LegacyPage.get(mw, title)
         if debug: click.echo(f"{mwauthor=}")
         try:
             wtauthor = Author.objects.get(
                 family_name=family_name,
-                given_name=given_name
+                given_name=given_name,
+                display_name=display_name,
             )
         except Author.DoesNotExist:
             wtauthor = Author(
                 family_name=family_name,
                 given_name=given_name,
+                display_name=display_name,
             )
         wtauthor.family_name = family_name
         wtauthor.given_name = given_name
+        wtauthor.display_name = display_name
         wtauthor.description = mwauthor.description
         if debug: click.echo(f"{wtauthor=}")
         result = wtauthor.save()
@@ -138,9 +142,9 @@ for name,articles in author_articles.items():
         print(f"{n}/{len(mw_author_titles)} {title=}")
         family_name = title.split()[-1]
         given_name = ' '.join(title.split()[:-1])
-        name = f"{family_name} {given_name}"
+        display_name = title
         mwauthor = LegacyPage.get(mw, title)
-        author_articles[name] = mwauthor.author_articles
+        author_articles[display_name] = mwauthor.author_articles
     return author_articles
 
 

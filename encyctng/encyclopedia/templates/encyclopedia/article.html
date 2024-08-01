@@ -27,7 +27,7 @@
         Author{{ authors | pluralize }}:
         {% for author in authors %}
           {% image author.author_image fill-40x40 style="vertical-align: middle" %}
-          {{ author.display_name }}
+          <a href="{% url "encyc-author" author.id %}">{{ author.display_name }}</a>
         {% endfor %}
       </p>
     {% endif %}
