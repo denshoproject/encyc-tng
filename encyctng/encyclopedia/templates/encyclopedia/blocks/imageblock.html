@@ -2,8 +2,11 @@
 <table border="1" width="500">
   <tr>
     <td>
-  {% image self.image fill-500x320 loading="lazy" %}
-  <figcaption>{{ self.caption }} - {{ self.attribution }}</figcaption>
+      {% image self.image fill-500x320 loading="lazy" %}
+      <figcaption>{{ self.caption }} - {{ self.attribution }}</figcaption>
+      <p>
+        <a href="{% url "encyc-source" "image" self.image.id %}">More info</a>
+      </p>
     </td>
   </tr>
 </table>

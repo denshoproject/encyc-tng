@@ -1,0 +1,42 @@
+{% extends "encyclopedia/base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+
+{% block content %}
+
+<h3>
+  <a href="{{ article.url }}">{{ article }}</a>
+</h3>
+<p>
+  <video width="{{ source.video.width }}"
+         height="{{ source.video.height }}"
+         poster="/media/{{ source.video.thumbnail }}"
+         controls>
+    <source src="/media/{{ source.video.file }}" type="video/mp4"/>
+    Your browser does not support the video tag.
+  </video>
+</p>
+<p>
+<!-- source.video {{ source.video }}<br/> -->
+<!-- source.video.title {{ source.video.title }}<br/> -->
+<!-- source.video.file {{ source.video.file }}<br/> -->
+<!-- source.video.thumbnail {{ source.video.thumbnail }}<br/> -->
+{{ source.video.width }}x{{ source.video.height }}
+{{ source.video.duration }}sec
+{{ source.video.file.get_file_size }}
+</p>
+<p>
+<!-- source.source_id {{ source.source_id }}<br/> -->
+{{ source.caption }}
+{% if source.caption2 %}<br/>{{ source.caption2 }}{% endif %}
+{% if source.courtesy %}<br/>{{ source.courtesy }}{% endif %}
+</p>
+{% if source.transcript %}<p>
+  <a href="/media/{{ source.transcript.file }}">Transcript</a>
+</p>{% endif %}
+{% if source.ext_url %}<p>
+  <a href="{{ source.ext_url }}">{{ source.ext_url }}</a>
+</p>{% endif %}
+{% if source.creative_commons %}<p>CREATIVE_COMMONS</p>{% endif %}
+
+{% endblock %}{# content #}
