@@ -756,7 +756,7 @@ from encyc import wiki
 from editors.models import Author
 from encyclopedia import migration
 
-authors = Author.objects.all()
+authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
 
 sources_by_headword = migration.load_psms_sources_jsonl(jsonl_path)
 sources_collection = Collection.objects.get(name='Article Images')
@@ -769,7 +769,7 @@ index_page = migration.wagtail_index_page()
 mw = wiki.MediaWiki()
 mwpage,mwtext = migration.load_mwpage(mw, title)
 
-migration.wagtail_import_article(mw, mwpage, mwtext, authors, sources_collection, sources_by_headword, index_page)
+migration.wagtail_import_article(mw, mwpage, mwtext, authors_by_names, sources_collection, sources_by_headword, index_page)
 
 article_blocks = migration.mwtext_to_streamblocks(mw, mwtext)
 
@@ -817,8 +817,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
     jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
     print(f"{jsonl_path=}")
     
-    authors = Author.objects.all()
-    print(f"{len(authors)=}")
+    authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
     
     sources_by_headword = load_psms_sources_jsonl(jsonl_path)
     sources_collection = Collection.objects.get(name='Article Images')
@@ -839,7 +838,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
     print('importing...')
     article = wagtail_import_article(
         mw, mwpage, mwtext,
-        authors,
+        authors_by_names,
         sources_collection, sources_by_headword,
         index_page
     )
@@ -848,18 +847,23 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
 def wagtail_index_page(title='Encyclopedia'):
     return ArticlesIndexPage.objects.get(title='Encyclopedia')
     
-def wagtail_import_article(mw, mwpage, mwtext, authors, sources_collection, sources_by_headword, index_page):
+def wagtail_import_article(mw, mwpage, mwtext, authors_by_names, sources_collection, sources_by_headword, index_page):
     # resource guide page?
     #if mwpage.published_rg:
-    
+
+    article_authors = [
+        authors_by_names[f"{family_name},{given_name}"]
+        for family_name,given_name in mwpage.authors['parsed']
+    ]
+
     databoxes = wikipage.extract_databoxes(mwpage.body)
 
     # assemble wagtail article
     article = Article(
         title=mwpage.title,
         description=mwpage.description,
-        authors=authors,
-        #lastmod=,
+        authors=article_authors,
+        #lastmod=mwpage.lastmod,
         body='',
     )
     
