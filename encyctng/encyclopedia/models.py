@@ -56,6 +56,12 @@ class ArticleTagPage(Page):
         return context
 
 
+ENCYCLOPEDIA_CATEGORIES = [
+    'arts', 'camps', 'chroniclers', 'communities', 'definitions', 'events',
+    'legal', 'military', 'newspapers', 'organizations', 'people', 'postwar',
+    'prewar', 'redress', 'resettlement',
+]
+
 class Article(Page):
     description = RichTextField(blank=True)
     body = StreamField([
@@ -95,6 +101,18 @@ class Article(Page):
 
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
     subpage_types = []
+
+    @staticmethod
+    def articles_by_tag():
+        """Dict of Articles grouped by tag"""
+        tags_articles = {tag: [] for tag in ENCYCLOPEDIA_CATEGORIES}
+        for article in Article.objects.filter(live=True).order_by('title'):
+            for tag in article.tags.all():
+                if str(tag) in ENCYCLOPEDIA_CATEGORIES:
+                    tags_articles[str(tag)].append(
+                        (article.url, article.title)
+                    )
+        return tags_articles
 
 
 # Article -> sources ---------------------------------------------------

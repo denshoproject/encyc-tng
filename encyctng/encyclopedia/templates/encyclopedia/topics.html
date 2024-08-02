@@ -1,0 +1,19 @@
+{% extends "encyclopedia/base.html" %}
+{% load wagtailcore_tags %}
+
+
+{% block content %}
+
+<h1>Topics</h1>
+
+{% for tag,articles in tags_articles.items %}{% if articles %}
+<a name="{{ tag }}"></a>
+<h2>{{ tag | capfirst }}</h2>
+<p>
+  {% for url,title in articles %}
+  <a href="{{ url }}">{{ title }}</a>{% if not forloop.last %},{% endif %}
+  {% endfor %}
+</p>
+{% endif %}{% endfor %}
+
+{% endblock %}{# content #}

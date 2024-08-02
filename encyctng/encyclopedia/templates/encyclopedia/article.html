@@ -38,7 +38,7 @@
       <div class="tags">
         <h3>Tags</h3>
         {% for tag in tags %}
-          <a href="{% slugurl 'tags' %}?tag={{ tag }}">{{ tag }}</a>
+          <a href="{% url "encyc-topics" %}#{{ tag }}">{{ tag }}</a>
         {% endfor %}
       </div>
     {% endif %}

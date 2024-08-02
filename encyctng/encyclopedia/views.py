@@ -13,6 +13,11 @@ def articles(request):
         'articles': Article.objects.filter(live=True).order_by('title'),
     })
 
+def topics(request):
+    return render(request,  'encyclopedia/topics.html', {
+        'tags_articles': Article.articles_by_tag(),
+    })
+
 def source(request, source_type, source_id):
     """
     # cannot search for source_id in Article.body (only stores pk)
