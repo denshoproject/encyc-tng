@@ -6,10 +6,15 @@
 
 <h1>{{ author.display_name }}</h1>
 
-<div id="articles">
+<p>
+{{ author.description }}
+</p>
+
+<h3>By this author</h3>
+<ul>
   {% for article in articles %}
-  <a href="{{ article.url }}">{{ article }}</a><br/>
+  <li><a href="{{ article.url }}">{{ article }}</a></li>
   {% endfor %}
-</div><!-- /articles -->
+</ul><!-- /articles -->
 
 {% endblock %}{# content #}
