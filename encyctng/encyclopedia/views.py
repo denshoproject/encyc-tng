@@ -49,7 +49,7 @@ source = images[0]
 
 def authors(request, template_name='encyclopedia/authors.html'):
     return render(request, template_name, {
-        'authors': Author.objects.all().order_by('family_name','given_name'),
+        'authors_articles': Article.articles_by_author(),
     })
 
 def author(request, author_id):

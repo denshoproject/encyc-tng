@@ -6,10 +6,10 @@
 
 <h1>Authors</h1>
 
-<p id="authors">
-  {% for author in authors %}
-  <a href="{{ author.id }}">{{ author }}</a><br/>
-  {% endfor %}
-</p><!-- /authors -->
+<p>
+  {% for name,author in authors_articles.items %}{% if author.articles %}
+  <a href="{{ author.author_id }}">{{ author.display_name }}</a><br/>
+  {% endif %}{% endfor %}
+</p>
 
 {% endblock %}{# content #}

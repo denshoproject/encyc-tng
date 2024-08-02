@@ -15,6 +15,7 @@ from wagtail.models import Page, Orderable
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
 
+from editors.models import Author
 from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
     ImageBlock, VideoBlock, DocumentBlock,
@@ -101,6 +102,26 @@ class Article(Page):
 
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
     subpage_types = []
+
+    @staticmethod
+    def articles_by_author():
+        """List of Articles grouped by author"""
+        def format_name(author):
+            return f"{author.family_name},{author.given_name}"
+        authors_articles = {
+            f"{author.family_name},{author.given_name}": {
+                'author_id': author.id,
+                'display_name': author.display_name,
+                'articles': [],
+            }
+            for author in Author.objects.all().order_by('family_name','given_name')
+        }
+        for article in Article.objects.filter(live=True).order_by('title'):
+            for author in article.authors.all():
+                authors_articles[format_name(author)]['articles'].append(
+                    article.title
+                )
+        return authors_articles
 
     @staticmethod
     def articles_by_initial():
