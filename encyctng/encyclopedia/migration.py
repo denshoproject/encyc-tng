@@ -866,7 +866,9 @@ def wagtail_import_article(mw, mwpage, mwtext, authors_by_names, sources_collect
         #lastmod=mwpage.lastmod,
         body='',
     )
-    
+
+    [article.tags.add(tag.lower()) for tag in mwpage.categories]
+
     sources_blocks = streamfield_media_blocks(
         mwpage.title,
         sources_by_headword,
