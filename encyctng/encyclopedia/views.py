@@ -10,7 +10,7 @@ from encyclopedia.models import Article, ArticleSources
 
 def articles(request):
     return render(request,  'encyclopedia/articles.html', {
-        'articles': Article.objects.filter(live=True).order_by('title'),
+        'initials_articles': Article.articles_by_initial(),
     })
 
 def topics(request):

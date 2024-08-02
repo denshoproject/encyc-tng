@@ -6,10 +6,13 @@
 
 <h1>Contents</h1>
 
-<p id="articles">
-  {% for article in articles %}
-  <a href="{{ article.url }}">{{ article }}</a><br/>
+{% for initial,articles in initials_articles.items %}{% if articles %}
+<h2>{{ initial | capfirst }}</h2>
+<p>
+  {% for url,title in articles %}
+  <a href="{{ url }}">{{ title }}</a>{% if not forloop.last %},{% endif %}
   {% endfor %}
 </p>
+{% endif %}{% endfor %}
 
 {% endblock %}{# content #}

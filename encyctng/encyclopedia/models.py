@@ -103,6 +103,17 @@ class Article(Page):
     subpage_types = []
 
     @staticmethod
+    def articles_by_initial():
+        """List of Articles grouped by initial letter of title"""
+        import string
+        tags_initials = {letter.upper(): [] for letter in string.ascii_lowercase}
+        for article in Article.objects.filter(live=True).order_by('title'):
+            tags_initials[article.title[0]].append(
+                (article.url, article.title)
+            )
+        return tags_initials
+
+    @staticmethod
     def articles_by_tag():
         """Dict of Articles grouped by tag"""
         tags_articles = {tag: [] for tag in ENCYCLOPEDIA_CATEGORIES}
