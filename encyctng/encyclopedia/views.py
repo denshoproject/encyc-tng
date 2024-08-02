@@ -8,8 +8,8 @@ from editors.models import Author
 from encyclopedia.models import Article
 
 
-def contents(request):
-    return render(request,  'encyclopedia/contents.html', {
+def articles(request):
+    return render(request,  'encyclopedia/articles.html', {
         'articles': Article.objects.filter(live=True).order_by('title'),
     })
 
