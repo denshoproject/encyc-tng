@@ -1,5 +1,5 @@
 {% extends "encyclopedia/base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load encyclopedia_tags wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-article{% endblock %}
 
@@ -47,6 +47,8 @@
   <div class="description">
     {{ page.description | richtext }}
   </div>
+
+  {% article_toc page %}
 
   <div class="body">
     {{ page.body }}

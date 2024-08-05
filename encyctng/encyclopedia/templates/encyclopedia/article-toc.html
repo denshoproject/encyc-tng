@@ -1,0 +1,9 @@
+<div class="toc">
+  <h2>Contents</h2>
+  <p>
+  {% for heading in headings %}
+  {% if heading.size != 'h2' %}&mdash;{% endif %}
+  <a href="{{ heading.url }}">{{ heading.heading_text }}</a></br>
+  {% endfor %}
+  </p>
+</div>
