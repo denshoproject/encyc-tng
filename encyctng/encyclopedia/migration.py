@@ -438,6 +438,17 @@ def reset_articles():
     """TODO Delete all encyclopedia.models.Article objects incl revisions"""
     pass
 
+def load_mwtitles(mw):
+    """Map MediaWiki titles to original title text and Wagtail slug titles
+    """
+    return {
+        page.normalize_title(page.page_title): {
+            'title': page.page_title,
+            'slug': slugify(page.page_title)
+        }
+        for page in [page for page in mw.mw.allpages()]
+    }
+
 def load_mwpage(mw, title):
     mwpage = LegacyPage.get(mw,title)
     mwtext = mw.mw.pages[title].text()
@@ -463,9 +474,9 @@ def load_mwpages(title: str=None, verbose: bool=False) -> list[str]:
         mwpages.append( load_mwpage(mw,title) )
     return mwpages
 
-def mwtext_to_streamblocks(mw, mwtext: str) -> list[str]:
+def mwtext_to_streamblocks(mw, mwtext: str, mw_titles, url_prefix) -> list[str]:
     mwtext_cleaned = clean_mediawiki_text(mwtext)
-    mwhtml = render_mediawiki_text(mw, mwtext_cleaned)
+    mwhtml = render_mediawiki_text(mw, mwtext_cleaned, mw_titles, url_prefix)
     streamfield_blocks = html_to_streamfield(mwhtml)
     merged_blocks = merge_streamfield_blocks(streamfield_blocks)
     return merged_blocks
@@ -490,7 +501,7 @@ def clean_mediawiki_text(mw_txt: str) -> str:
         mw_txt = mw_txt.replace('\n\n\n', '\n\n')
     return mw_txt.strip()
 
-def render_mediawiki_text(mw, mwtext: str) -> str:
+def render_mediawiki_text(mw, mwtext: str, mw_titles, url_prefix) -> str:
     """Render Mediawiki source text to HTML
     Before parsing, hide <ref> tags used for footnotes because needed later.
     """
@@ -528,7 +539,27 @@ def render_mediawiki_text(mw, mwtext: str) -> str:
     for chunk in soup.body.contents:
         if type(chunk) == NavigableString and chunk.strip() in ['',None]:
             chunk.extract()
+    # rewrite MediaWiki internal URLs to Wagtail slug URLs
+    # example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
+    soup,notmatched = rewrite_internal_urls(soup, mw_titles, url_prefix)
     return str(soup)
+
+def rewrite_internal_urls(soup, mw_titles, url_prefix):
+    """Rewrite MediaWiki internal URLs to Wagtail slug URLs
+
+    example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
+    """
+    notmatched = []
+    for tag in [
+        tag for tag in soup.find_all('a') if tag['href'].find(url_prefix) == 0
+    ]:
+        # url_prefix must include preceding AND following slashes e.g. "/wiki/"
+        title = tag['href'].replace(url_prefix, '')
+        if mw_titles.get(title):
+            tag['href'] = f"{url_prefix}{mw_titles[title]['slug']}"
+        else:
+            notmatched.append(tag)
+    return soup,notmatched
 
 def html_to_streamfield(html: str, debug: bool=False) -> list[str]:
     """Convert HTML into list of StreamField (role,html) tuples
@@ -746,6 +777,7 @@ def _mw_databox(mw_page):
 def wagtail_import_articles():
     """
 
+url_prefix = '/wiki/'
 title = 'Manzanar'; slug = 'manzanar'
 #title = 'Ruth Asawa'; slug = 'ruth-asawa'
 jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
@@ -767,11 +799,13 @@ source_pks_by_filename = migration.source_keys_by_filename(
 index_page = migration.wagtail_index_page()
 
 mw = wiki.MediaWiki()
+mw_titles = migration.load_mwtitles(mw)
+
 mwpage,mwtext = migration.load_mwpage(mw, title)
 
-migration.wagtail_import_article(mw, mwpage, mwtext, authors_by_names, sources_collection, sources_by_headword, index_page)
+migration.wagtail_import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page)
 
-article_blocks = migration.mwtext_to_streamblocks(mw, mwtext)
+article_blocks = migration.mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
 
 sources_blocks = migration.streamfield_media_blocks(
     mwpage.title,
@@ -810,7 +844,8 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
 #        wagtail_import_article(mwpage, index_page)
 #    # resource guide page?
 #    if mwpage.published_rg:
-    
+
+    url_prefix = '/wiki/'
     title = 'Manzanar'; slug = 'manzanar'
     #title = 'Ruth Asawa'; slug = 'ruth-asawa'
     print(f"{title=}")
@@ -831,6 +866,8 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
     print(f"{index_page=}")
     
     mw = wiki.MediaWiki()
+    mw_titles = load_mwtitles(mw)
+
     mwpage,mwtext = load_mwpage(mw, title)
     print(f"{mw=}")
     print('loaded')
@@ -838,6 +875,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
     print('importing...')
     article = wagtail_import_article(
         mw, mwpage, mwtext,
+        mw_titles, url_prefix,
         authors_by_names,
         sources_collection, sources_by_headword,
         index_page
@@ -846,8 +884,8 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
 
 def wagtail_index_page(title='Encyclopedia'):
     return ArticlesIndexPage.objects.get(title='Encyclopedia')
-    
-def wagtail_import_article(mw, mwpage, mwtext, authors_by_names, sources_collection, sources_by_headword, index_page):
+
+def wagtail_import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page):
     # resource guide page?
     #if mwpage.published_rg:
 
@@ -878,8 +916,8 @@ def wagtail_import_article(mw, mwpage, mwtext, authors_by_names, sources_collect
         )
     )
     # TODO databoxes = []
-    article_blocks = mwtext_to_streamblocks(mw, mwtext)
-    
+    article_blocks = mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
+
     article.body = json.dumps(
         sources_blocks + article_blocks
     )
