@@ -44,6 +44,8 @@ ALLOWED_HOSTS = [
     for host in config.get('security', 'allowed_hosts').strip().split(',')
 ]
 
+CACHE_TIMEOUT = 60 * 15
+
 
 # Application definition
 

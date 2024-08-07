@@ -438,17 +438,6 @@ def reset_articles():
     """TODO Delete all encyclopedia.models.Article objects incl revisions"""
     pass
 
-def load_mwtitles(mw):
-    """Map MediaWiki titles to original title text and Wagtail slug titles
-    """
-    return {
-        page.normalize_title(page.page_title): {
-            'title': page.page_title,
-            'slug': slugify(page.page_title)
-        }
-        for page in [page for page in mw.mw.allpages()]
-    }
-
 def load_mwpage(mw, title):
     mwpage = LegacyPage.get(mw,title)
     mwtext = mw.mw.pages[title].text()
@@ -787,6 +776,7 @@ from encyc.models.legacy import Page as LegacyPage
 from encyc import wiki
 from editors.models import Author
 from encyclopedia import migration
+from encyclopedia.models import load_mediawiki_titles
 
 authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
 
@@ -799,7 +789,7 @@ source_pks_by_filename = migration.source_keys_by_filename(
 index_page = migration.wagtail_index_page()
 
 mw = wiki.MediaWiki()
-mw_titles = migration.load_mwtitles(mw)
+mw_titles = load_mediawiki_titles(mw)
 
 mwpage,mwtext = migration.load_mwpage(mw, title)
 
