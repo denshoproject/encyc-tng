@@ -67,25 +67,8 @@ def help():
 def reset(debug, model):
     """Reset data in Wagtail database"""
     if model == 'author':
-        reset_authors()
+        Authors.reset()
 
-
-# authors --------------------------------------------------------------
-
-"""
-mwauthor.__dict__={
-    'url_title': 'Kaori Akiyama',
-    'title': 'Kaori Akiyama',
-    'title_sort': 'akiyamakaori',
-    'body': '<div class="mw-parser-output">\n <p>\n  <b>\n   Kaori Akiyama\n  </b>\n  is a Ph.D. student at the Graduate University for Advanced Study in Japanese contemporary history focusing on Japanese in Hawai\'i. Her interests are historical representation in exhibits, and also wartime experiences of Japanese people in Hawai\'i.\n </p>\n <!-- \nNewPP limit report\nCached time: 20240523205402\nCache expiry: 86400\nDynamic content: false\nComplications: []\nCPU time usage: 0.004 seconds\nReal time usage: 0.008 seconds\nPreprocessor visited node count: 6/1000000\nPost‐expand include size: 158/2097152 bytes\nTemplate argument size: 0/2097152 bytes\nHighest expansion depth: 2/40\nExpensive parser function count: 0/100\nUnstrip recursion depth: 0/20\nUnstrip post‐expand size: 0/5000000 bytes\nExtLoops count: 0\n-->\n <!--\nTransclusion expansion time report (%,ms,calls,template)\n100.00%    5.628      1 Template:Published\n100.00%    5.628      1 -total\n-->\n <!-- Saved in parser cache with key encycmw:pcache:idhash:3281-0!canonical and timestamp 20240523205402 and revision id 16698\n -->\n</div>\n<div class="toplink">\n <a href="#top">\n  <i class="icon-chevron-up">\n  </i>\n  Top\n </a>\n</div>\n',
-    'description': "Kaori Akiyama\n  \n  is a Ph.D. student at the Graduate University for Advanced Study in Japanese contemporary history focusing on Japanese in Hawai'i. Her interests are historical representation in exhibits, and also wartime experiences of Japanese people in Hawai'i.",
-    'author_articles': ['Japanese Immigrants in the United States and the War Era (exhibition)']
-}
-"""
-
-def reset_authors():
-    """TODO Delete all editors.models.Author objects"""
-    pass
 
 @encyctail.command()
 @click.option('--debug','-d', is_flag=True, default=False, help='HELP TEXT GOES HERE')
@@ -93,59 +76,83 @@ def authors(debug):
     """Migrate MediaWiki author pages to editors.Author wagtail.snippets
     TODO check if author exists before creating
     """
-    wagtail_import_authors(debug)
+    Authors.import_authors(debug)
 
-def wagtail_import_authors(debug):
-    """Migrate MediaWiki author pages to editors.Author wagtail.snippets
-    TODO check if author exists before creating
+
+# authors --------------------------------------------------------------
+
+class Authors():
+
+    @staticmethod
+    def import_authors(debug):
+        """Migrate MediaWiki author pages to editors.Author wagtail.snippets
+        TODO check if author exists before creating
+        """
+        mw = wiki.MediaWiki()
+        mw_author_titles = Proxy.authors(mw, cached_ok=False)
+        num = len(mw_author_titles)
+        for n,title in enumerate(mw_author_titles):
+            click.echo(f"{n}/{num} {title=}")
+            family_name = title.split()[-1]
+            given_name = ' '.join(title.split()[:-1])
+            display_name = title
+            mwauthor = LegacyPage.get(mw, title)
+            if debug: click.echo(f"{mwauthor=}")
+            try:
+                wtauthor = Author.objects.get(
+                    family_name=family_name,
+                    given_name=given_name,
+                    display_name=display_name,
+                )
+            except Author.DoesNotExist:
+                wtauthor = Author(
+                    family_name=family_name,
+                    given_name=given_name,
+                    display_name=display_name,
+                )
+            wtauthor.family_name = family_name
+            wtauthor.given_name = given_name
+            wtauthor.display_name = display_name
+            wtauthor.description = mwauthor.description
+            if debug: click.echo(f"{wtauthor=}")
+            result = wtauthor.save()
+            if debug: click.echo('Saved: {result}')
+
     """
-    mw = wiki.MediaWiki()
-    mw_author_titles = Proxy.authors(mw, cached_ok=False)
-    num = len(mw_author_titles)
-    for n,title in enumerate(mw_author_titles):
-        click.echo(f"{n}/{num} {title=}")
-        family_name = title.split()[-1]
-        given_name = ' '.join(title.split()[:-1])
-        display_name = title
-        mwauthor = LegacyPage.get(mw, title)
-        if debug: click.echo(f"{mwauthor=}")
-        try:
-            wtauthor = Author.objects.get(
-                family_name=family_name,
-                given_name=given_name,
-                display_name=display_name,
-            )
-        except Author.DoesNotExist:
-            wtauthor = Author(
-                family_name=family_name,
-                given_name=given_name,
-                display_name=display_name,
-            )
-        wtauthor.family_name = family_name
-        wtauthor.given_name = given_name
-        wtauthor.display_name = display_name
-        wtauthor.description = mwauthor.description
-        if debug: click.echo(f"{wtauthor=}")
-        result = wtauthor.save()
-        if debug: click.echo('Saved: {result}')
-
-def author_articles():
-    """Return dict of all authors and their articles
-
-for name,articles in author_articles.items():
-    print(f"{name}: {articles}")
+    mwauthor.__dict__={
+        'url_title': 'Kaori Akiyama',
+        'title': 'Kaori Akiyama',
+        'title_sort': 'akiyamakaori',
+        'body': '<div class="mw-parser-output">\n <p>\n  <b>\n   Kaori Akiyama\n  </b>\n  is a Ph.D. student at the Graduate University for Advanced Study in Japanese contemporary history focusing on Japanese in Hawai\'i. Her interests are historical representation in exhibits, and also wartime experiences of Japanese people in Hawai\'i.\n </p>\n <!-- \nNewPP limit report\nCached time: 20240523205402\nCache expiry: 86400\nDynamic content: false\nComplications: []\nCPU time usage: 0.004 seconds\nReal time usage: 0.008 seconds\nPreprocessor visited node count: 6/1000000\nPost‐expand include size: 158/2097152 bytes\nTemplate argument size: 0/2097152 bytes\nHighest expansion depth: 2/40\nExpensive parser function count: 0/100\nUnstrip recursion depth: 0/20\nUnstrip post‐expand size: 0/5000000 bytes\nExtLoops count: 0\n-->\n <!--\nTransclusion expansion time report (%,ms,calls,template)\n100.00%    5.628      1 Template:Published\n100.00%    5.628      1 -total\n-->\n <!-- Saved in parser cache with key encycmw:pcache:idhash:3281-0!canonical and timestamp 20240523205402 and revision id 16698\n -->\n</div>\n<div class="toplink">\n <a href="#top">\n  <i class="icon-chevron-up">\n  </i>\n  Top\n </a>\n</div>\n',
+        'description': "Kaori Akiyama\n  \n  is a Ph.D. student at the Graduate University for Advanced Study in Japanese contemporary history focusing on Japanese in Hawai'i. Her interests are historical representation in exhibits, and also wartime experiences of Japanese people in Hawai'i.",
+        'author_articles': ['Japanese Immigrants in the United States and the War Era (exhibition)']
+    }
     """
-    mw = wiki.MediaWiki()
-    author_articles = {}
-    mw_author_titles = Proxy.authors(mw, cached_ok=False)
-    for n,title in enumerate(mw_author_titles):
-        print(f"{n}/{len(mw_author_titles)} {title=}")
-        family_name = title.split()[-1]
-        given_name = ' '.join(title.split()[:-1])
-        display_name = title
-        mwauthor = LegacyPage.get(mw, title)
-        author_articles[display_name] = mwauthor.author_articles
-    return author_articles
+
+    @staticmethod
+    def reset():
+        """TODO Delete all editors.models.Author objects"""
+        for author in Author.objects.all():
+            author.delete()
+
+    @staticmethod
+    def mediawiki_authors():
+        """Return dict of all authors and their articles
+
+        for name,articles in author_articles.items():
+        print(f"{name}: {articles}")
+        """
+        mw = wiki.MediaWiki()
+        author_articles = {}
+        mw_author_titles = Proxy.authors(mw, cached_ok=False)
+        for n,title in enumerate(mw_author_titles):
+            print(f"{n}/{len(mw_author_titles)} {title=}")
+            family_name = title.split()[-1]
+            given_name = ' '.join(title.split()[:-1])
+            display_name = title
+            mwauthor = LegacyPage.get(mw, title)
+            author_articles[display_name] = mwauthor.author_articles
+        return author_articles
 
 
 # sources --------------------------------------------------------------
