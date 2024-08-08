@@ -78,6 +78,25 @@ def authors(debug):
     """
     Authors.import_authors(debug)
 
+@encyctail.command()
+@click.option('--debug','-d', is_flag=True, default=False, help='HELP TEXT GOES HERE')
+@click.argument('filename')
+def sources(debug, filename):
+    """Migrate primary sources
+
+    \b
+    filename: Path to JSONL file containing sources info. Source binaries must
+    be in same folder.
+    Use prep_test_data() on packrat to prep sources data and files.
+    """
+    jsonl_path = Path(filename)
+    sources_dir = jsonl_path.parent
+    primary_sources = Sources.load_psms_sources_jsonl(jsonl_path)
+    # just one for now
+    primary_sources = primary_sources[:1]
+    # import
+    Sources.import_sources(primary_sources, sources_dir)
+
 
 # authors --------------------------------------------------------------
 
@@ -166,252 +185,249 @@ class Authors():
 # - And then while creating the Article, make StreamField blocks from the
 #   sources.  Blocks point to the Image, Document, Media files by their `id`s.
 
-@encyctail.command()
-@click.option('--debug','-d', is_flag=True, default=False, help='HELP TEXT GOES HERE')
-@click.argument('filename')
-def sources(debug, filename):
-    """Migrate primary sources
-    
-    \b
-    filename: Path to JSONL file containing sources info. Source binaries must
-    be in same folder.
-    Use prep_test_data() on packrat to prep sources data and files.
+class Sources():
     """
-    jsonl_path = Path(filename)
-    sources_dir = jsonl_path.parent
-    primary_sources = load_psms_sources_jsonl(jsonl_path)
-    # just one for now
-    primary_sources = primary_sources[:1]
-    # import
-    wagtail_import_sources(primary_sources, sources_dir)
+    # download image files, documents, videos for a page
+    destination_dir = '/opt/encyc-tail/data/sources'
+    from pathlib import Path; import httpx
+    def download(source, destination_dir):
+        for key in ['original_path', 'display_path', 'transcript']:
+            if source.get(key):
+                filename = Path(source[key]).name
+                dest_dir = Path(destination_dir)
+                dest_path = dest_dir / filename
+                url = f"https://encyclopedia.densho.org/media/encyc-psms/{filename}"
+                print(f"{url} -> {dest_path}")
+                r = httpx.get(url, timeout=30)
+                with dest_path.open('wb') as f:
+                    f.write(r.content)
 
-"""
-#psms_sources = load_psms_sources_api()
-psms_sources = load_psms_sources_json('/opt/encyc-tail/densho-psms-sources-20240523-1625.json')
-wagtail_import_sources(psms_sources, images_dir=Path('/opt/encyc-tail/images-to-import/'))
+    for source in sources['Manzanar']:
+        download(source, destination_dir)
 
+    # Import image/document/video files and create Wagtail Image, Document, and Media objects
 
-# download image files, documents, videos for a page
-destination_dir = '/opt/encyc-tail/data/sources'
-from pathlib import Path; import httpx
-def download(source, destination_dir):
-    for key in ['original_path', 'display_path', 'transcript']:
-        if source.get(key):
-            filename = Path(source[key]).name
-            dest_dir = Path(destination_dir)
-            dest_path = dest_dir / filename
-            url = f"https://encyclopedia.densho.org/media/encyc-psms/{filename}"
-            print(f"{url} -> {dest_path}")
-            r = httpx.get(url, timeout=30)
-            with dest_path.open('wb') as f:
-                f.write(r.content)
-
-for source in sources['Manzanar']:
-    download(source, destination_dir)
-
-
-# Import image/document/video files and create Wagtail Image, Document, and Media objects
-
-titles = ['Manzanar', 'Manzanar Free Press (newspaper)']
-jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-src_dir = '/opt/encyc-tail/data/sources'
-from wagtail.models.collections import Collection
-from encyclopedia.migration import wagtail_import_file, load_psms_sources_jsonl
-collection = Collection.objects.get(name='Article Images')
-sources = load_psms_sources_jsonl(jsonl_path)
-for title in titles:
-    for source in sources[title]:
-        wagtail_import_file(source, src_dir, collection)
-
-"""
-
-def reset_sources():
-    """TODO Delete all primary source objects
-    """
-    pass
-    
-
-def load_psms_sources_api():
-    """Load from PSMS - DOES NOT WORK OUTSIDE COLO!
-    config.SOURCES_API
-    config.SOURCES_API_USERNAME
-    config.SOURCES_API_PASSWORD
-    config.SOURCES_API_HTUSER
-    config.SOURCES_API_HTPASS
-    """
-    return sources_by_headword(Proxy.sources_all())
-    
-def load_psms_sources_jsonl(jsonl_path):
-    """Load Sources from JSONL dump
-
-jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-from encyclopedia.migration import load_psms_sources_jsonl
-sources = load_psms_sources_jsonl(jsonl_path)
+    titles = ['Manzanar', 'Manzanar Free Press (newspaper)']
+    jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
+    src_dir = '/opt/encyc-tail/data/sources'
+    from wagtail.models.collections import Collection
+    from encyclopedia.migration import Sources
+    collection = Collection.objects.get(name='Article Images')
+    sources = Sources.load_psms_sources_jsonl(jsonl_path)
+    for title in titles:
+        for source in sources[title]:
+            Sources.import_file(source, src_dir, collection)
 
     """
-    with Path(jsonl_path).open('r') as f:
-        # make a list first
-        return sources_by_headword(
-            [json.loads(line) for line in f.readlines()]
-        )
 
-def sources_by_headword(sources_list):
-    sources_list = discard_sources_fields(sources_list)
-    # make dict of empty lists for each title
-    sources = {source['headword']: [] for source in sources_list}
-    # fill up those lists
-    for source in sources_list:
-        sources[source['headword']].append(source)
-    return sources
+    @staticmethod
+    def import_sources(psms_sources, sources_dir):
+        """Import files from sources_dir using metadata from psms_sources JSONL file
 
-SOURCES_DISCARD_FIELDS = [
-    'created', 'modified', 'aspect_ratio',
-    'original', 'original_size', 'original_url', 'original_path_abs',
-    'display', 'display_size', 'display_url', 'display_path_abs',
-]
-def discard_sources_fields(sources):
-    for source in sources:
-        for field in SOURCES_DISCARD_FIELDS:
-            source.pop(field)
-    return sources
+        #psms_sources = Sources.load_psms_sources_api()
+        psms_sources = Sources.load_psms_sources_jsonl('/opt/encyc-tail/data/sources/sources-all-20240617.jsonl')
+        Sources.import_sources(psms_sources, sources_dir=Path('/opt/encyc-tail/data/sources/'))
+        """
+        # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
+        # https://stackoverflow.com/questions/63181320/bulk-uploading-and-creating-pages-with-images-in-wagtail-migration
+        print(f"{len(psms_sources)=}")
+        # PSMS images attached to a collection
+        collection = Collection.objects.get(name='Article Images')
+        print(f"{collection=}")
+        num = len(psms_sources)
+        for article,sources in psms_sources.items():
+            for source in sources:
+                print(f"{article } - {source['media_format']} {source['encyclopedia_id']}")
+                Sources.import_file(source, sources_dir, collection=collection)
 
-def save_psms_sources_jsonl(sources, json_path):
-    """Dump Sources to JSONL
-    """
-    lines = [json.dumps(source) for source in sources]
-    with open(json_path, 'w') as f:
-        f.write('\n'.join(lines))
+    @staticmethod
+    def import_file(source, sources_dir, collection):
+        """
+        """
+        src_dir = Path(sources_dir)
+        if source['media_format'] == 'image':
+            image = Sources.get_image(collection, src_dir / Path(source['original_path']).name)
+            image.save()
+            #print(f"{image=}")
+        elif source['media_format'] == 'document':
+            doc = Sources.get_document(collection, src_dir / Path(source['original_path']).name)
+            doc.save()
+            #print(f"{doc=}")
+            display = Sources.get_image(collection, src_dir / Path(source['display_path']).name)
+            display.save()
+            #print(f"{display=}")
+        elif source['media_format'] == 'video':
+            display = Sources.get_image(collection, src_dir / Path(source['display_path']).name)
+            display.save()
+            #print(f"{display=}")
+            media = Sources.get_media(
+                collection,
+                src_dir / Path(source['original_path']).name,
+                src_dir / Path(source['display_path']).name
+            )
+            media.save()
+            #print(f"{media=}")
+            transcript = Sources.get_document(collection, src_dir / Path(source['transcript']).name)
+            transcript.save()
+            #print(f"{transcript=}")
 
-"""
+    @staticmethod
+    def reset():
+        """TODO Delete all primary source objects
+        """
+        collection = Collection.objects.get(name='Article Images')
+        for mediatype in [Image, Document, Media]:
+            for item in mediatype.objects.filter(collection=collection):
+                item.delete()
+
+    @staticmethod
+    def load_psms_sources_api():
+        """Load from PSMS - DOES NOT WORK OUTSIDE COLO!
+        config.SOURCES_API
+        config.SOURCES_API_USERNAME
+        config.SOURCES_API_PASSWORD
+        config.SOURCES_API_HTUSER
+        config.SOURCES_API_HTPASS
+        """
+        return Sources.sources_by_headword(Proxy.sources_all())
+
+    @staticmethod
+    def load_psms_sources_jsonl(jsonl_path):
+        """Load Sources from JSONL dump
+
+    jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
+    from encyclopedia.migration import load_psms_sources_jsonl
+    sources = load_psms_sources_jsonl(jsonl_path)
+
+        """
+        with Path(jsonl_path).open('r') as f:
+            # make a list first
+            return Sources.sources_by_headword(
+                [json.loads(line) for line in f.readlines()]
+            )
+
+    @staticmethod
+    def sources_by_headword(sources_list):
+        sources_list = Sources.discard_fields(sources_list)
+        # make dict of empty lists for each title
+        sources = {source['headword']: [] for source in sources_list}
+        # fill up those lists
+        for source in sources_list:
+            sources[source['headword']].append(source)
+        return sources
+
+    DISCARD_FIELDS = [
+        'created', 'modified', 'aspect_ratio',
+        'original', 'original_size', 'original_url', 'original_path_abs',
+        'display', 'display_size', 'display_url', 'display_path_abs',
+    ]
+    @staticmethod
+    def discard_fields(sources):
+        for source in sources:
+            for field in Sources.DISCARD_FIELDS:
+                source.pop(field)
+        return sources
+
+    @staticmethod
+    def save_psms_sources_jsonl(sources, json_path):
+        """Dump Sources to JSONL
+        """
+        lines = [json.dumps(source) for source in sources]
+        with open(json_path, 'w') as f:
+            f.write('\n'.join(lines))
+
+    @staticmethod
+    def source_keys_by_filename(sources, collection):
+        """Map source images to their format and wagtail..Image ID
+
 from pathlib import Path
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtailmedia.models import Media
 from wagtail.models.collections import Collection
-from encyclopedia import migration
+from encyclopedia.migration import Sources
 jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-sources_by_headword = migration.load_psms_sources_jsonl(jsonl_path)
+sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
 collection = Collection.objects.get(name='Article Images')
-source_pks_by_filename = migration.source_keys_by_filename(sources_by_headword['Manzanar'], collection)
-"""
-def source_keys_by_filename(sources, collection):
-    """Map source images to their format and wagtail..Image ID"""
-    return {
-        'image':    {x.title: x.id for x in Image.objects.filter(   collection=collection)},
-        'document': {x.title: x.id for x in Document.objects.filter(collection=collection)},
-        'video':    {x.title: x.id for x in Media.objects.filter(   collection=collection)},
-    }
+source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Manzanar'], collection)
+        """
+        return {
+            'image':    {x.title: x.id for x in Image.objects.filter(   collection=collection)},
+            'document': {x.title: x.id for x in Document.objects.filter(collection=collection)},
+            'video':    {x.title: x.id for x in Media.objects.filter(   collection=collection)},
+        }
 
-def prep_test_data():
-    """Prepare test data with binary files; run on packrat
-    """
-    sources_dir = Path('/tmp/sources')
-    json_path = sources_dir / 'sources-all-20240617.jsonl'
-    sources_dir.mkdir(parents=True)
-    with json_path.open('r') as f:
-        sources = [json.loads(line) for line in f.readlines()][:100]
-    for source in sources:
-        src = Path(source['original_path_abs'])
-        if src.exists():
-            dst = sources_dir / src.name
-            shutil.copy(src,dst)
+    @staticmethod
+    def prep_test_data():
+        """Prepare test data with binary files; run on packrat
+        """
+        sources_dir = Path('/tmp/sources')
+        json_path = sources_dir / 'sources-all-20240617.jsonl'
+        sources_dir.mkdir(parents=True)
+        with json_path.open('r') as f:
+            sources = [json.loads(line) for line in f.readlines()][:100]
+        for source in sources:
+            src = Path(source['original_path_abs'])
+            if src.exists():
+                dst = sources_dir / src.name
+                shutil.copy(src,dst)
 
-def wagtail_import_sources(psms_sources, sources_dir):
-    # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
-    # https://stackoverflow.com/questions/63181320/bulk-uploading-and-creating-pages-with-images-in-wagtail-migration
-    print(f"{len(psms_sources)=}")
-    # PSMS images attached to a collection
-    collection = Collection.objects.get(name='Article Images')
-    print(f"{psms_collection=}")
-    num = len(psms_sources)
-    for n,psms_source in enumerate(psms_sources):
-        print(f"{n}/{num} {psms_source.media_format} {psms_source}")
-        wagtail_import_file(psms_source, sources_dir, collection=collection)
+    @staticmethod
+    def get_image(collection, path):
+        """Get new or existing wagtail.images.models.Image"""
+        try:                               # existing
+            return Image.objects.get(collection=collection, title=path.name)
+        except Image.DoesNotExist as err:  # new
+            f = ImageFile(path.open('rb'), name=path.name)  # django..ImageFile
+            return Image(collection=collection, file=f, title=path.name)
+        except Image.MultipleObjectsReturned as err:
+            print(f"Image.objects.get(collection={collection}, title={path.name})")
+            print(err); sys.exit(1)
 
-def wagtail_import_file(source, sources_dir, collection):
-    print(f"--------------------\n{source['encyclopedia_id']} {source['media_format']}")
-    src_dir = Path(sources_dir)
-    if source['media_format'] == 'image':
-        image = wagtail_get_image(collection, src_dir / Path(source['original_path']).name)
-        image.save()
-        print(f"{image=}")
-    elif source['media_format'] == 'document':
-        doc = wagtail_get_document(collection, src_dir / Path(source['original_path']).name)
-        doc.save()
-        print(f"{doc=}")
-        display = wagtail_get_image(collection, src_dir / Path(source['display_path']).name)
-        display.save()
-        print(f"{display=}")
-    elif source['media_format'] == 'video':
-        display = wagtail_get_image(collection, src_dir / Path(source['display_path']).name)
-        display.save()
-        print(f"{display=}")
-        media = wagtail_get_media(
-            collection,
-            src_dir / Path(source['original_path']).name,
-            src_dir / Path(source['display_path']).name
+    @staticmethod
+    def get_document(collection, path):
+        """Get new or existing wagtail.documents.models.Document"""
+        try:                               # existing
+            return Document.objects.get(collection=collection, title=path.name)
+        except Document.DoesNotExist as err:  # new
+            f = File(path.open('rb'), name=path.name)  # django..File
+            return Document(collection=collection, file=f, title=path.name)
+        except Document.MultipleObjectsReturned as err:
+            print(f"Document.objects.get(collection={collection}, title={path.name})")
+            print(err); sys.exit(1)
+
+    @staticmethod
+    def get_media(collection, original_path, display_path):
+        """Get new or existing wagtailmedia.models.Media"""
+        try:                               # existing
+            media = Media.objects.get(collection=collection, title=original_path.name)
+        except Media.DoesNotExist as err:  # new
+            media = Media(
+                collection=collection,
+                file=File(original_path.open('rb'), name=original_path.name),  # django..File
+                thumbnail=File(display_path.open('rb'), name=display_path.name),  # django..File
+                title=original_path.name,
+            )
+        except Media.MultipleObjectsReturned as err:
+            print(f"Media.objects.get(collection={collection}, title={original_path.name})")
+            print(err); sys.exit(1)
+        #if display:
+        #    media.thumbnail = display
+        media.type = 'video'
+        media.width,media.height,media.duration = Sources._ffmpeg_media_info(original_path)
+        return media
+
+    @staticmethod
+    def _ffmpeg_media_info(path):
+        cmd = ['ffprobe', '-v', 'error', '-select_streams', 'v', '-show_entries', 'stream=width,height,duration', '-of', 'json', path]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out,err = p.communicate()
+        data = json.loads(out)
+        return (
+            data['streams'][0]['width'],
+            data['streams'][0]['height'],
+            data['streams'][0]['duration'],
         )
-        media.save()
-        print(f"{media=}")
-        transcript = wagtail_get_document(collection, src_dir / Path(source['transcript']).name)
-        transcript.save()
-        print(f"{transcript=}")
-
-def wagtail_get_image(collection, path):
-    """Get new or existing wagtail.images.models.Image"""
-    try:                               # existing
-        return Image.objects.get(collection=collection, title=path.name)
-    except Image.DoesNotExist as err:  # new
-        f = ImageFile(path.open('rb'), name=path.name)  # django..ImageFile
-        return Image(collection=collection, file=f, title=path.name)
-    except Image.MultipleObjectsReturned as err:
-        print(f"Image.objects.get(collection={collection}, title={path.name})")
-        print(err); sys.exit(1)
-
-def wagtail_get_document(collection, path):
-    """Get new or existing wagtail.documents.models.Document"""
-    try:                               # existing
-        return Document.objects.get(collection=collection, title=path.name)
-    except Document.DoesNotExist as err:  # new
-        f = File(path.open('rb'), name=path.name)  # django..File
-        return Document(collection=collection, file=f, title=path.name)
-    except Document.MultipleObjectsReturned as err:
-        print(f"Document.objects.get(collection={collection}, title={path.name})")
-        print(err); sys.exit(1)
-
-def wagtail_get_media(collection, original_path, display_path):
-    """Get new or existing wagtailmedia.models.Media"""
-    try:                               # existing
-        media = Media.objects.get(collection=collection, title=original_path.name)
-    except Media.DoesNotExist as err:  # new
-        media = Media(
-            collection=collection,
-            file=File(original_path.open('rb'), name=original_path.name),  # django..File
-            thumbnail=File(display_path.open('rb'), name=display_path.name),  # django..File
-            title=original_path.name,
-        )
-    except Media.MultipleObjectsReturned as err:
-        print(f"Media.objects.get(collection={collection}, title={original_path.name})")
-        print(err); sys.exit(1)
-    #if display:
-    #    media.thumbnail = display
-    media.type = 'video'
-    width,height,duration = _ffmpeg_media_info(original_path)
-    media.width = width
-    media.height = height
-    media.duration = duration
-    return media
-
-def _ffmpeg_media_info(path):
-    cmd = ['ffprobe', '-v', 'error', '-select_streams', 'v', '-show_entries', 'stream=width,height,duration', '-of', 'json', path]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out,err = p.communicate()
-    data = json.loads(out)
-    return (
-        data['streams'][0]['width'],
-        data['streams'][0]['height'],
-        data['streams'][0]['duration'],
-    )
 
 
 # articles -------------------------------------------------------------
