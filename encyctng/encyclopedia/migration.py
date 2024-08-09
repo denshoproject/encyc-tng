@@ -824,10 +824,10 @@ description
         """
         MERGE_THESE = ['paragraph']
         newblocks = []
-        while(blocks):
-            block = blocks.pop(0)
+        for block in blocks:
             if len(newblocks) == 0:
                 newblocks.append(block)
+                continue
             prevblock = newblocks[-1]
             if (block['type'] == prevblock['type']) and (block['type'] in MERGE_THESE):
                 prevblock['value'] = f"{prevblock['value']}\n{block['value']}"
