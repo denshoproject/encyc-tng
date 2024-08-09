@@ -590,14 +590,21 @@ description
      
         databoxes = wikipage.extract_databoxes(mwpage.body)
      
-        # assemble wagtail article
-        article = Article(
-            title=mwpage.title,
-            description=mwpage.description,
-            authors=article_authors,
-            #lastmod=mwpage.lastmod,
-            body='',
-        )
+        try:
+            article = Article.objects.get(title=title)
+            article.description=mwpage.description,
+            article.authors=article_authors,
+            #article.lastmod=mwpage.lastmod,
+            article_is_new = False
+        except:
+            article = Article(
+                title=mwpage.title,
+                description=mwpage.description,
+                authors=article_authors,
+                #lastmod=mwpage.lastmod,
+                body='',
+            )
+            article_is_new = True
      
         [article.tags.add(tag.lower()) for tag in mwpage.categories]
      
@@ -615,10 +622,11 @@ description
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
-     
-        # place page under encyclopedia index
-        index_page.add_child(instance=article)
-     
+
+        if article_is_new:
+            # place page under encyclopedia index
+            result = index_page.add_child(instance=article)
+
         article.save_revision().publish()
 
     @staticmethod
