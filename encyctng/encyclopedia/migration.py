@@ -440,10 +440,15 @@ source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Ma
 
 # articles -------------------------------------------------------------
 
+TEST_ARTICLES = [
+    'Manzanar',
+    'Manzanar Free Press (newspaper)',
+]
+
 class Articles():
 
     @staticmethod
-    def import_articles():
+    def import_articles(titles=[]):
         """
 
 url_prefix = '/wiki/'
@@ -517,9 +522,6 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
     #    if mwpage.published_rg:
 
         url_prefix = '/wiki/'
-        title = 'Manzanar'; slug = 'manzanar'
-        #title = 'Ruth Asawa'; slug = 'ruth-asawa'
-        print(f"{title=}")
         jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
         print(f"{jsonl_path=}")
 
@@ -542,19 +544,18 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         mw = wiki.MediaWiki()
         mw_titles = Articles.load_mwtitles(mw)
 
-        mwpage,mwtext = Articles.load_mwpage(mw, title)
-        print(f"{mw=}")
-        print('loaded')
-
-        print('importing...')
-        article = Articles.import_article(
-            mw, mwpage, mwtext,
-            mw_titles, url_prefix,
-            authors_by_names,
-            sources_collection, sources_by_headword,
-            index_page
-        )
-        return index_page,article
+        for title in titles:
+            print(f"{title=}")
+            mwpage,mwtext = Articles.load_mwpage(mw, title)
+            print('importing...')
+            article = Articles.import_article(
+                mw, mwpage, mwtext,
+                mw_titles, url_prefix,
+                authors_by_names,
+                sources_collection, sources_by_headword,
+                index_page,
+            )
+            print(f"ok {article}")
 
     @staticmethod
     def wagtail_index_page(title='Encyclopedia'):
