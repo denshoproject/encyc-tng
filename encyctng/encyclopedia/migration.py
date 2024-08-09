@@ -15,6 +15,8 @@ import sys
 from bs4 import BeautifulSoup, Comment
 from bs4.element import Tag, NavigableString
 from dateutil import parser
+from django.conf import settings
+from django.core.cache import cache
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.template.defaultfilters import truncatewords
@@ -96,6 +98,12 @@ def sources(debug, filename):
     primary_sources = primary_sources[:1]
     # import
     Sources.import_sources(primary_sources, sources_dir)
+
+@encyctail.command()
+@click.option('--debug','-d', is_flag=True, default=False, help='HELP TEXT GOES HERE')
+def articles(debug):
+    """Migrate articles"""
+    pass
 
 
 # authors --------------------------------------------------------------
@@ -432,14 +440,127 @@ source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Ma
 
 # articles -------------------------------------------------------------
 
-@encyctail.command()
-@click.option('--debug','-d', is_flag=True, default=False, help='HELP TEXT GOES HERE')
-def articles(debug):
-    """Migrate articles"""
-    pass
+class Articles():
+
+    @staticmethod
+    def import_articles():
+        """
+
+url_prefix = '/wiki/'
+title = 'Manzanar'; slug = 'manzanar'
+#title = 'Ruth Asawa'; slug = 'ruth-asawa'
+jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
+
+from wagtail.models.collections import Collection
+from encyc.models.legacy import Page as LegacyPage
+from encyc import wiki
+from editors.models import Author
+from encyclopedia.migration import Authors, Sources, Articles
+from encyclopedia.models import load_mediawiki_titles
+
+authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
+
+sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
+sources_collection = Collection.objects.get(name='Article Images')
+source_pks_by_filename = Sources.source_keys_by_filename(
+    sources_by_headword, sources_collection
+)
+
+index_page = Articles.wagtail_index_page()
+
+mw = wiki.MediaWiki()
+mw_titles = Articles.load_mwtitles(mw)
+
+mwpage,mwtext = Articles.load_mwpage(mw, title)
+
+Articles.import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page)
 
 
-"""
+article_blocks = Articles.mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
+
+sources_blocks = Articles.streamfield_media_blocks(
+    mwpage.title,
+    sources_by_headword,
+    migration.source_keys_by_filename(
+        sources_by_headword[mwpage.title],
+        sources_collection
+    )
+)
+
+import json
+from encyc.models.legacy import wikipage
+databoxes = wikipage.extract_databoxes(mwpage.body, databox_divs_namespaces=None)
+
+
+#mwpage,mwtext = Articles.load_mwpages(title)
+#mwtext_cleaned = Articles.clean_mediawiki_text(mwtext)
+#mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles, url_prefix)
+#streamfield_blocks = Articles.html_to_streamfield(mwhtml)
+#merged_blocks = Articles.merge_streamfield_blocks(streamfield_blocks)
+
+with open(f"/tmp/{slug}-01-mwtext", 'w') as f:
+    f.write(mwtext)
+
+with open(f"/tmp/{slug}-02-mwtextcleaned", 'w') as f:
+    f.write(mwtext_cleaned)
+
+with open(f"/tmp/{slug}-03-mwhtml.html", 'w') as f:
+    f.write(mwhtml)
+
+with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
+    f.write(streamfield_blocks)
+
+        """
+    #    for mwpage in load_mw_articles():
+    #        wagtail_import_article(mwpage, index_page)
+    #    # resource guide page?
+    #    if mwpage.published_rg:
+
+        url_prefix = '/wiki/'
+        title = 'Manzanar'; slug = 'manzanar'
+        #title = 'Ruth Asawa'; slug = 'ruth-asawa'
+        print(f"{title=}")
+        jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
+        print(f"{jsonl_path=}")
+
+        authors_by_names = {
+            f"{author.family_name},{author.given_name}": author
+            for author in Author.objects.all()
+        }
+
+        sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
+        sources_collection = Collection.objects.get(name='Article Images')
+        source_pks_by_filename = Sources.source_keys_by_filename(
+            sources_by_headword, sources_collection
+        )
+        print(f"{len(sources_by_headword.keys())=}")
+        print(f"{sources_collection=}")
+
+        index_page = Articles.wagtail_index_page()
+        print(f"{index_page=}")
+
+        mw = wiki.MediaWiki()
+        mw_titles = Articles.load_mwtitles(mw)
+
+        mwpage,mwtext = Articles.load_mwpage(mw, title)
+        print(f"{mw=}")
+        print('loaded')
+
+        print('importing...')
+        article = Articles.import_article(
+            mw, mwpage, mwtext,
+            mw_titles, url_prefix,
+            authors_by_names,
+            sources_collection, sources_by_headword,
+            index_page
+        )
+        return index_page,article
+
+    @staticmethod
+    def wagtail_index_page(title='Encyclopedia'):
+        return ArticlesIndexPage.objects.get(title='Encyclopedia')
+
+    """
 ENCYCFRONT ARTICLE STRUCTURE
 BODY
 (published)
@@ -449,231 +570,299 @@ description
 + header, paragraph(s), blockquote, authoredby, moreinfo, ?
 (reflist/footnotes)
 (category)
-
-"""
-
-# Constructing a new Wagtail Article
-
-# Modifying StreamField data
-# https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
-
-def reset_articles():
-    """TODO Delete all encyclopedia.models.Article objects incl revisions"""
-    pass
-
-def load_mwpage(mw, title):
-    mwpage = LegacyPage.get(mw,title)
-    mwtext = mw.mw.pages[title].text()
-    return mwpage,mwtext
-
-def load_mwpages(title: str=None, verbose: bool=False) -> list[str]:
-    """Load one or all articles from encyclopedia editors' mediawiki
-    mwpage,mwtext = load_mwpages('Ruth Asawa')
     """
-    mw = wiki.MediaWiki()
-    if verbose:
-        print(f"{mw=} {mw.mw.host=}")
-    if title:
-        return load_mwpage(mw,title)
-    mw_articles = [d['title'] for d in Proxy.articles_lastmod(mw)]
-    if verbose:
-        print(f"{len(mw_articles)=}")
-    mwpages = []
-    num = len(mw_articles)
-    for n,title in enumerate(mw_articles[:10]):
+
+    # Constructing a new Wagtail Article
+
+    # Modifying StreamField data
+    # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
+
+    @staticmethod
+    def import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page):
+        # resource guide page?
+        #if mwpage.published_rg:
+     
+        article_authors = [
+            authors_by_names[f"{family_name},{given_name}"]
+            for family_name,given_name in mwpage.authors['parsed']
+        ]
+     
+        databoxes = wikipage.extract_databoxes(mwpage.body)
+     
+        # assemble wagtail article
+        article = Article(
+            title=mwpage.title,
+            description=mwpage.description,
+            authors=article_authors,
+            #lastmod=mwpage.lastmod,
+            body='',
+        )
+     
+        [article.tags.add(tag.lower()) for tag in mwpage.categories]
+     
+        sources_blocks = Articles.streamfield_media_blocks(
+            mwpage.title,
+            sources_by_headword,
+            Sources.source_keys_by_filename(
+                sources_by_headword[mwpage.title],
+                sources_collection
+            )
+        )
+        # TODO databoxes = []
+        article_blocks = Articles.mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
+     
+        article.body = json.dumps(
+            sources_blocks + article_blocks
+        )
+     
+        # place page under encyclopedia index
+        index_page.add_child(instance=article)
+     
+        article.save_revision().publish()
+
+    @staticmethod
+    def reset():
+        """TODO Delete all encyclopedia.models.Article objects incl revisions"""
+        index_page = Articles.wagtail_index_page()
+        for item in index_page.children():
+            item.delete()
+
+    @staticmethod
+    def load_mwtitles(mw):
+        key = 'mwtitles'
+        cached = cache.get(key)
+        if not cached:
+            allpages = [page for page in mw.mw.allpages()]
+            titles = {page.normalize_title(page.page_title): slugify(page.page_title) for page in allpages}
+            for page in allpages:
+                titles[page.page_title] = slugify(page.page_title)
+            cached = titles
+            cache.set(key, cached, settings.CACHE_TIMEOUT)
+        return cached
+
+    @staticmethod
+    def load_mwpage(mw, title):
+        mwpage = LegacyPage.get(mw,title)
+        mwtext = mw.mw.pages[title].text()
+        return mwpage,mwtext
+
+    @staticmethod
+    def load_mwpages(title: str=None, verbose: bool=False) -> list[str]:
+        """Load one or all articles from encyclopedia editors' mediawiki
+        mwpage,mwtext = load_mwpages('Ruth Asawa')
+        """
+        mw = wiki.MediaWiki()
         if verbose:
-            print(f"{n}/{num} {title}")
-        mwpages.append( load_mwpage(mw,title) )
-    return mwpages
+            print(f"{mw=} {mw.mw.host=}")
+        if title:
+            return Articles.load_mwpage(mw,title)
+        mw_articles = [d['title'] for d in Proxy.articles_lastmod(mw)]
+        if verbose:
+            print(f"{len(mw_articles)=}")
+        mwpages = []
+        num = len(mw_articles)
+        for n,title in enumerate(mw_articles[:10]):
+            if verbose:
+                print(f"{n}/{num} {title}")
+            mwpages.append( Articles.load_mwpage(mw,title) )
+        return mwpages
 
-def mwtext_to_streamblocks(mw, mwtext: str, mw_titles, url_prefix) -> list[str]:
-    mwtext_cleaned = clean_mediawiki_text(mwtext)
-    mwhtml = render_mediawiki_text(mw, mwtext_cleaned, mw_titles, url_prefix)
-    streamfield_blocks = html_to_streamfield(mwhtml)
-    merged_blocks = merge_streamfield_blocks(streamfield_blocks)
-    return merged_blocks
+    @staticmethod
+    def mwtext_to_streamblocks(mw, mwtext: str, mw_titles, url_prefix) -> list[str]:
+        mwtext_cleaned = Articles.clean_mediawiki_text(mwtext)
+        mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles, url_prefix)
+        streamfield_blocks = Articles.html_to_streamfield(mwhtml)
+        merged_blocks = Articles.merge_streamfield_blocks(streamfield_blocks)
+        return merged_blocks
 
-def clean_mediawiki_text(mw_txt: str) -> str:
-    """Remove tags from Mediawiki *source* text, leaving footnote <refs>
-    """
-    REMOVE_FROM_MEDIAWIKI_SOURCE = [
-        # remove everything but headers, wiki links, <refs>
-        re.compile(r"{{\s*Published\s*}}"),
-        re.compile(r"{{\s*LegacyArticleNotice[a-zA-Z=|<!-> \n]*}}"),
-        re.compile(r"{{\s*Databox[a-zA-Z .:;=<!->\[\]|\n]*}}"),
-        re.compile(r"\[\[\s*File[a-zA-Z0-9 -_.:|]*\]\]"),
-        re.compile(r"==\s*Footnotes\s*=="),
-        re.compile(r"{{\s*Reflist\s*}}"),
-        re.compile(r"\[\[\s*Category[a-zA-z :]*\]\]"),
-        re.compile(r"{{\s*DEFAULTSORT[a-zA-z :]*}}"),
-    ]
-    for pattern in REMOVE_FROM_MEDIAWIKI_SOURCE:
-        mw_txt = pattern.sub('', mw_txt)
-    while('\n\n\n' in mw_txt):
-        mw_txt = mw_txt.replace('\n\n\n', '\n\n')
-    return mw_txt.strip()
+    @staticmethod
+    def clean_mediawiki_text(mw_txt: str) -> str:
+        """Remove tags from Mediawiki *source* text, leaving footnote <refs>
+        """
+        REMOVE_FROM_MEDIAWIKI_SOURCE = [
+            # remove everything but headers, wiki links, <refs>
+            re.compile(r"{{\s*Published\s*}}"),
+            re.compile(r"{{\s*LegacyArticleNotice[a-zA-Z=|<!-> \n]*}}"),
+            re.compile(r"{{\s*Databox[a-zA-Z .:;=<!->\[\]|\n]*}}"),
+            re.compile(r"\[\[\s*File[a-zA-Z0-9 -_.:|]*\]\]"),
+            re.compile(r"==\s*Footnotes\s*=="),
+            re.compile(r"{{\s*Reflist\s*}}"),
+            re.compile(r"\[\[\s*Category[a-zA-z :]*\]\]"),
+            re.compile(r"{{\s*DEFAULTSORT[a-zA-z :]*}}"),
+        ]
+        for pattern in REMOVE_FROM_MEDIAWIKI_SOURCE:
+            mw_txt = pattern.sub('', mw_txt)
+        while('\n\n\n' in mw_txt):
+            mw_txt = mw_txt.replace('\n\n\n', '\n\n')
+        return mw_txt.strip()
 
-def render_mediawiki_text(mw, mwtext: str, mw_titles, url_prefix) -> str:
-    """Render Mediawiki source text to HTML
-    Before parsing, hide <ref> tags used for footnotes because needed later.
-    """
-    # hide footnotes from the mediawiki parser
-    # at the same time, remove the <ref name> attribute e.g. <ref name="ftnt_ref5">
-    mwtext = re.sub(r"<ref[a-zA-Z0-9 _=\"]*>", '<BLAT>', mwtext).replace('</ref>', '</BLAT>')
-    # parse text to html
-    html = mw.mw.parse(text=mwtext)['text']['*']
-    # Restore footnote <ref> tags, but as character entity references (&lt;/ref&gt;).
-    # This way they are visible in the UI but are hidden from Wagtail's
-    # RichTextBlock editor and parser.
-    html = html.replace('&lt;/BLAT&gt;', '&lt;/ref&gt;').replace('&lt;BLAT&gt;', '&lt;ref&gt;')
-    # Remove the extra crud that MediaWiki adds
-    soup = BeautifulSoup(html, features='html5lib')
-    # remove the <div class="mw-parser-output"> wrapper
-    for tag in soup.find_all(class_="mw-parser-output"):
-        tag.unwrap()
-    # mediawiki-generated table of contents
-    for tag in soup.find_all(class_='toc'):
-        tag.extract()
-    # edit links
-    for tag in soup.find_all(class_='mw-editsection'):
-        tag.extract()
-    # extra <spans> inside <hN> tags
-    for hN in ['h1', 'h2', 'h3', 'h4']:
-        for h in soup.find_all(hN):
-            span = h.find(class_='mw-headline')
-            header = span.contents[0].strip()
-            span.insert_before(header)
-            span.extract()
-    # Mediawiki-generated comments
-    for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
-        comment.extract()
-    # remove empty whitespace chunks i.e. '\n\n\n'
-    for chunk in soup.body.contents:
-        if type(chunk) == NavigableString and chunk.strip() in ['',None]:
-            chunk.extract()
-    # rewrite MediaWiki internal URLs to Wagtail slug URLs
-    # example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
-    soup,notmatched = rewrite_internal_urls(soup, mw_titles, url_prefix)
-    return str(soup)
+    @staticmethod
+    def render_mediawiki_text(mw, mwtext: str, mw_titles, url_prefix) -> str:
+        """Render Mediawiki source text to HTML
+        Before parsing, hide <ref> tags used for footnotes because needed later.
+        """
+        # hide footnotes from the mediawiki parser
+        # at the same time, remove the <ref name> attribute e.g. <ref name="ftnt_ref5">
+        mwtext = re.sub(r"<ref[a-zA-Z0-9 _=\"]*>", '<BLAT>', mwtext).replace('</ref>', '</BLAT>')
+        # parse text to html
+        html = mw.mw.parse(text=mwtext)['text']['*']
+        # Restore footnote <ref> tags, but as character entity references (&lt;/ref&gt;).
+        # This way they are visible in the UI but are hidden from Wagtail's
+        # RichTextBlock editor and parser.
+        html = html.replace('&lt;/BLAT&gt;', '&lt;/ref&gt;').replace('&lt;BLAT&gt;', '&lt;ref&gt;')
+        # Remove the extra crud that MediaWiki adds
+        soup = BeautifulSoup(html, features='html5lib')
+        # remove the <div class="mw-parser-output"> wrapper
+        for tag in soup.find_all(class_="mw-parser-output"):
+            tag.unwrap()
+        # mediawiki-generated table of contents
+        for tag in soup.find_all(class_='toc'):
+            tag.extract()
+        # edit links
+        for tag in soup.find_all(class_='mw-editsection'):
+            tag.extract()
+        # extra <spans> inside <hN> tags
+        for hN in ['h1', 'h2', 'h3', 'h4']:
+            for h in soup.find_all(hN):
+                span = h.find(class_='mw-headline')
+                header = span.contents[0].strip()
+                span.insert_before(header)
+                span.extract()
+        # Mediawiki-generated comments
+        for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
+            comment.extract()
+        # remove empty whitespace chunks i.e. '\n\n\n'
+        for chunk in soup.body.contents:
+            if type(chunk) == NavigableString and chunk.strip() in ['',None]:
+                chunk.extract()
+        # rewrite MediaWiki internal URLs to Wagtail slug URLs
+        # example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
+        soup,notmatched = Articles.rewrite_internal_urls(soup, mw_titles, url_prefix)
+        return str(soup)
 
-def rewrite_internal_urls(soup, mw_titles, url_prefix):
-    """Rewrite MediaWiki internal URLs to Wagtail slug URLs
+    @staticmethod
+    def rewrite_internal_urls(soup, mw_titles, url_prefix):
+        """Rewrite MediaWiki internal URLs to Wagtail slug URLs
+     
+        example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
+        """
+        notmatched = []
+        for tag in [
+            tag for tag in soup.find_all('a') if tag['href'].find(url_prefix) == 0
+        ]:
+            # url_prefix must include preceding AND following slashes e.g. "/wiki/"
+            title = tag['href'].replace(url_prefix, '')
+            if mw_titles.get(title):
+                tag['href'] = f"{url_prefix}{mw_titles[title]}"
+            else:
+                notmatched.append(tag)
+        return soup,notmatched
 
-    example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
-    """
-    notmatched = []
-    for tag in [
-        tag for tag in soup.find_all('a') if tag['href'].find(url_prefix) == 0
-    ]:
-        # url_prefix must include preceding AND following slashes e.g. "/wiki/"
-        title = tag['href'].replace(url_prefix, '')
-        if mw_titles.get(title):
-            tag['href'] = f"{url_prefix}{mw_titles[title]['slug']}"
-        else:
-            notmatched.append(tag)
-    return soup,notmatched
-
-def html_to_streamfield(html: str, debug: bool=False) -> list[str]:
-    """Convert HTML into list of StreamField (role,html) tuples
-    
-    Role is one of ['heading', 'paragraph', 'embed', 'quote', ...]
-    (see encyclopedia.models.Article.body)
-    """
-    # map HTML tags to Streamfield roles
-    HEADERS = ['h1', 'h2', 'h3', 'h4']
-    TAGS_TO_ROLES = {
-        'h1': 'heading',
-        'h2': 'heading',
-        'h3': 'heading',
-        'h4': 'heading',
-        'p':  'paragraph',
-    }
-    KNOWN_TAGS = TAGS_TO_ROLES.keys()
-    soup = BeautifulSoup(html, features='html5lib')
-    blocks = []
-    for tag in soup.body.contents:
-        if debug: print(f"{tag=}")
-        if type(tag) == NavigableString and tag.strip() in ['',None]:
-            continue
-        # TODO what to do with <div id="authorByline">?
-        if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
-            continue
-        # TODO what to do with <div id="citationAuthor">?
-        if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'citationAuthor':
-            continue
-        if tag.name == 'p':
-            block = {
-                'type': 'paragraph',
-                'value': str(tag).strip()
-            }
-        elif tag.name in HEADERS:
-            # many headers still contain a <span id="Header Text"></span> tag
-            heading_text = str(tag.contents[-1])
-            block = {
-                'type': 'heading',
-                'value': {
-                    'size': tag.name,
-                    'heading_text': heading_text,
+    @staticmethod
+    def html_to_streamfield(html: str, debug: bool=False) -> list[str]:
+        """Convert HTML into list of StreamField (role,html) tuples
+     
+        Role is one of ['heading', 'paragraph', 'embed', 'quote', ...]
+        (see encyclopedia.models.Article.body)
+        """
+        # map HTML tags to Streamfield roles
+        HEADERS = ['h1', 'h2', 'h3', 'h4']
+        TAGS_TO_ROLES = {
+            'h1': 'heading',
+            'h2': 'heading',
+            'h3': 'heading',
+            'h4': 'heading',
+            'p':  'paragraph',
+        }
+        KNOWN_TAGS = TAGS_TO_ROLES.keys()
+        soup = BeautifulSoup(html, features='html5lib')
+        blocks = []
+        for tag in soup.body.contents:
+            if debug: print(f"{tag=}")
+            if type(tag) == NavigableString and tag.strip() in ['',None]:
+                continue
+            # TODO what to do with <div id="authorByline">?
+            if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
+                continue
+            # TODO what to do with <div id="citationAuthor">?
+            if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'citationAuthor':
+                continue
+            if tag.name == 'p':
+                block = {
+                    'type': 'paragraph',
+                    'value': str(tag).strip()
                 }
-            }
-        else:
-            raise Exception(f"ERROR: Don't know what to do with \"{tag}\"")
-        if debug: print(f"{block=}")
-        blocks.append(block)
-    return blocks
+            elif tag.name in HEADERS:
+                # many headers still contain a <span id="Header Text"></span> tag
+                heading_text = str(tag.contents[-1])
+                block = {
+                    'type': 'heading',
+                    'value': {
+                        'size': tag.name,
+                        'heading_text': heading_text,
+                    }
+                }
+            else:
+                raise Exception(f"ERROR: Don't know what to do with \"{tag}\"")
+            if debug: print(f"{block=}")
+            blocks.append(block)
+        return blocks
 
-def merge_streamfield_blocks(blocks: list[str]) -> list[str]:
-    """Merge certain successive streamfield blocks (paragraphs)
-    
-    blocks = [
-        {'type':'heading','value':{'heading_text':'1','size':'h2'}}, {'type':'heading','value':{'heading_text':'2','size':'h2'}},
-        {'type':'paragraph','value':'<p>1'},
-        {'type':'heading','value':{'heading_text':'3','size':'h2'}},
-        {'type':'paragraph','value':'<p>2'}, {'type':'paragraph','value':'<p>3'}, {'type':'paragraph','value':'<p>4'},
-        {'type':'heading','value':{'heading_text':'4','size':'h2'}},
-        {'type':'paragraph','value':'<p>5'}, {'type':'paragraph','value':'<p>6'},
-    ]
-    merge_streamfield_blocks(blocks)
-    """
-    MERGE_THESE = ['paragraph']
-    newblocks = []
-    while(blocks):
-        block = blocks.pop(0)
-        if len(newblocks) == 0:
-            newblocks.append(block)
-        prevblock = newblocks[-1]
-        if (block['type'] == prevblock['type']) and (block['type'] in MERGE_THESE):
-            prevblock['value'] = f"{prevblock['value']}\n{block['value']}"
-            newblocks[-1] = prevblock
-        else:
-            newblocks.append(block)
-    return newblocks
+    @staticmethod
+    def merge_streamfield_blocks(blocks: list[str]) -> list[str]:
+        """Merge certain successive streamfield blocks (paragraphs)
+     
+        blocks = [
+            {'type':'heading','value':{'heading_text':'1','size':'h2'}}, {'type':'heading','value':{'heading_text':'2','size':'h2'}},
+            {'type':'paragraph','value':'<p>1'},
+            {'type':'heading','value':{'heading_text':'3','size':'h2'}},
+            {'type':'paragraph','value':'<p>2'}, {'type':'paragraph','value':'<p>3'}, {'type':'paragraph','value':'<p>4'},
+            {'type':'heading','value':{'heading_text':'4','size':'h2'}},
+            {'type':'paragraph','value':'<p>5'}, {'type':'paragraph','value':'<p>6'},
+        ]
+        merge_streamfield_blocks(blocks)
+        """
+        MERGE_THESE = ['paragraph']
+        newblocks = []
+        while(blocks):
+            block = blocks.pop(0)
+            if len(newblocks) == 0:
+                newblocks.append(block)
+            prevblock = newblocks[-1]
+            if (block['type'] == prevblock['type']) and (block['type'] in MERGE_THESE):
+                prevblock['value'] = f"{prevblock['value']}\n{block['value']}"
+                newblocks[-1] = prevblock
+            else:
+                newblocks.append(block)
+        return newblocks
 
-def streamfield_media_blocks(title, sources_by_headword, source_pks_by_filename):
-    """Consume primary source data from a page and product DDRObjectBlock data
-    
-    Block format:
-    ('BLOCKTYPE', {'type':'BLOCKTYPE', 'value': {'FIELD1':VALUE1, ...}})
-    """
-    blocks = []
-    for source in sources_by_headword[title]:
-        if source['media_format'] == 'image':
-            blocks.append(
-                ImageBlock.block_from_source(source, source_pks_by_filename)
-            )
-        elif source['media_format'] == 'video':
-            blocks.append(
-                VideoBlock.block_from_source(source, source_pks_by_filename)
-            )
-        elif source['media_format'] == 'document':
-            blocks.append(
-                DocumentBlock.block_from_source(source, source_pks_by_filename)
-            )
-        else:
-            raise Exception(
-                f"Don't recognize media_format '{source['media_format']}!"
-            )
-    return blocks
+    @staticmethod
+    def streamfield_media_blocks(title, sources_by_headword, source_pks_by_filename):
+        """Consume primary source data from a page and product DDRObjectBlock data
+     
+        Block format:
+        ('BLOCKTYPE', {'type':'BLOCKTYPE', 'value': {'FIELD1':VALUE1, ...}})
+        """
+        blocks = []
+        for source in sources_by_headword[title]:
+            if source['media_format'] == 'image':
+                blocks.append(
+                    ImageBlock.block_from_source(source, source_pks_by_filename)
+                )
+            elif source['media_format'] == 'video':
+                blocks.append(
+                    VideoBlock.block_from_source(source, source_pks_by_filename)
+                )
+            elif source['media_format'] == 'document':
+                blocks.append(
+                    DocumentBlock.block_from_source(source, source_pks_by_filename)
+                )
+            else:
+                raise Exception(
+                    f"Don't recognize media_format '{source['media_format']}!"
+                )
+        return blocks
+
 
 def ddrobject_block(source):
     """Take a source from mwpage.sources and return a StreamField block
@@ -786,159 +975,7 @@ def _mw_databox(mw_page):
 
 
 
-def wagtail_import_articles():
-    """
 
-url_prefix = '/wiki/'
-title = 'Manzanar'; slug = 'manzanar'
-#title = 'Ruth Asawa'; slug = 'ruth-asawa'
-jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-
-from wagtail.models.collections import Collection
-from encyc.models.legacy import Page as LegacyPage
-from encyc import wiki
-from editors.models import Author
-from encyclopedia import migration
-from encyclopedia.models import load_mediawiki_titles
-
-authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
-
-sources_by_headword = migration.load_psms_sources_jsonl(jsonl_path)
-sources_collection = Collection.objects.get(name='Article Images')
-source_pks_by_filename = migration.source_keys_by_filename(
-    sources_by_headword, sources_collection
-)
-
-index_page = migration.wagtail_index_page()
-
-mw = wiki.MediaWiki()
-mw_titles = load_mediawiki_titles(mw)
-
-mwpage,mwtext = migration.load_mwpage(mw, title)
-
-migration.wagtail_import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page)
-
-article_blocks = migration.mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
-
-sources_blocks = migration.streamfield_media_blocks(
-    mwpage.title,
-    sources_by_headword,
-    migration.source_keys_by_filename(
-        sources_by_headword[mwpage.title],
-        sources_collection
-    )
-)
-
-import json
-from encyc.models.legacy import wikipage
-databoxes = wikipage.extract_databoxes(mwpage.body, databox_divs_namespaces=None)
-
-
-#mwpage,mwtext = migration.load_mwpages(title)
-#mwtext_cleaned = migration.clean_mediawiki_text(mwtext)
-#mwhtml = migration.render_mediawiki_text(mw, mwtext_cleaned)
-#streamfield_blocks = migration.html_to_streamfield(mwhtml)
-#merged_blocks = migration.merge_streamfield_blocks(streamfield_blocks)
-
-with open(f"/tmp/{slug}-01-mwtext", 'w') as f:
-    f.write(mwtext)
-
-with open(f"/tmp/{slug}-02-mwtextcleaned", 'w') as f:
-    f.write(mwtext_cleaned)
-
-with open(f"/tmp/{slug}-03-mwhtml.html", 'w') as f:
-    f.write(mwhtml)
-
-with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
-    f.write(streamfield_blocks)
-
-    """
-#    for mwpage in load_mw_articles():
-#        wagtail_import_article(mwpage, index_page)
-#    # resource guide page?
-#    if mwpage.published_rg:
-
-    url_prefix = '/wiki/'
-    title = 'Manzanar'; slug = 'manzanar'
-    #title = 'Ruth Asawa'; slug = 'ruth-asawa'
-    print(f"{title=}")
-    jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-    print(f"{jsonl_path=}")
-    
-    authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
-    
-    sources_by_headword = load_psms_sources_jsonl(jsonl_path)
-    sources_collection = Collection.objects.get(name='Article Images')
-    source_pks_by_filename = source_keys_by_filename(
-        sources_by_headword, sources_collection
-    )
-    print(f"{len(sources_by_headword.keys())=}")
-    print(f"{sources_collection=}")
-    
-    index_page = wagtail_index_page()
-    print(f"{index_page=}")
-    
-    mw = wiki.MediaWiki()
-    mw_titles = load_mwtitles(mw)
-
-    mwpage,mwtext = load_mwpage(mw, title)
-    print(f"{mw=}")
-    print('loaded')
-    
-    print('importing...')
-    article = wagtail_import_article(
-        mw, mwpage, mwtext,
-        mw_titles, url_prefix,
-        authors_by_names,
-        sources_collection, sources_by_headword,
-        index_page
-    )
-    return index_page,article
-
-def wagtail_index_page(title='Encyclopedia'):
-    return ArticlesIndexPage.objects.get(title='Encyclopedia')
-
-def wagtail_import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page):
-    # resource guide page?
-    #if mwpage.published_rg:
-
-    article_authors = [
-        authors_by_names[f"{family_name},{given_name}"]
-        for family_name,given_name in mwpage.authors['parsed']
-    ]
-
-    databoxes = wikipage.extract_databoxes(mwpage.body)
-
-    # assemble wagtail article
-    article = Article(
-        title=mwpage.title,
-        description=mwpage.description,
-        authors=article_authors,
-        #lastmod=mwpage.lastmod,
-        body='',
-    )
-
-    [article.tags.add(tag.lower()) for tag in mwpage.categories]
-
-    sources_blocks = streamfield_media_blocks(
-        mwpage.title,
-        sources_by_headword,
-        source_keys_by_filename(
-            sources_by_headword[mwpage.title],
-            sources_collection
-        )
-    )
-    # TODO databoxes = []
-    article_blocks = mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
-
-    article.body = json.dumps(
-        sources_blocks + article_blocks
-    )
-    
-    # place page under encyclopedia index
-    index_page.add_child(instance=article)
-    
-    article.save_revision().publish()
 
 
 if __name__ == '__main__':
