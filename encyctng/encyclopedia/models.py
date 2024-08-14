@@ -222,7 +222,8 @@ def do_after_page_edit(request, page):
 
 @hooks.register('before_serve_page')
 def prep_footnotes(page, request, serve_args, serve_kwargs):
-    return Footnotary.prep_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
+    if type(page) == Article:
+        return Footnotary.prep_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 
 # footnote tags - see docstring for Footnotary
@@ -272,8 +273,6 @@ class Footnotary():
         
         Run in before_serve_page hooks.
         """
-        if not type(page) == Article:
-            return
         n = 1
         for block in page.body:
             if block.block_type == 'paragraph':
