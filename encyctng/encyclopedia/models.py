@@ -213,12 +213,12 @@ ARTICLE_FOOTNOTE_FIELDS = {
 @hooks.register('after_create_page')
 def do_after_page_create(request, page):
     if type(page) == Article:
-        return Footnotary.update_footnotes(page, ARTICLE_FOOTNOTE_FIELDS)
+        return Footnotary.update_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 @hooks.register('after_edit_page')
 def do_after_page_edit(request, page):
     if type(page) == Article:
-        return Footnotary.update_footnotes(page, ARTICLE_FOOTNOTE_FIELDS)
+        return Footnotary.update_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 @hooks.register('before_serve_page')
 def prep_footnotes(page, request, serve_args, serve_kwargs):
@@ -241,7 +241,7 @@ class Footnotary():
     """
 
     @staticmethod
-    def update_footnotes(page, fields):
+    def update_footnotes(page, fields, request=None):
         """Copy Mediawiki-style <ref> footnotes from page body to a Footnotes block
         
         Run in after_create_page and after_edit_page hooks.
