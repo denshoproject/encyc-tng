@@ -54,9 +54,11 @@
     {{ page.body }}
   </div><!-- body -->
 
+  {% if page.footnotes %}
   <h3>Footnotes</h3>
-  <div class="body">
+  <div class="footnotes">
     {{ page.footnotes | safe }}
-  </div><!-- body -->
+  </div><!-- footnotes -->
+  {% endif %}
 
 {% endblock content %}
