@@ -41,7 +41,7 @@ from encyclopedia.blocks import (
     ImageBlock, VideoBlock, DocumentBlock,
     DataboxCampBlock)
 from encyclopedia.models import ArticlesIndexPage
-from encyclopedia.models import Page, Article
+from encyclopedia.models import Page, Article, Footnotary
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -622,6 +622,7 @@ description
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
+        Footnotary.update_footnotes(article, fields=None, request=None, save=False)
 
         if article_is_new:
             # place page under encyclopedia index
