@@ -336,6 +336,8 @@ class Footnotary():
               ...
             </ol>
         """
+        if not html:
+            return ''
         soup = BeautifulSoup(html)
         # remove <head> and <body>
         soup.head.unwrap()
