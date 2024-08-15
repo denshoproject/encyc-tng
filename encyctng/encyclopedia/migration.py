@@ -101,9 +101,10 @@ def sources(debug, filename):
 
 @encyctail.command()
 @click.option('--debug','-d', is_flag=True, default=False, help='HELP TEXT GOES HERE')
-def articles(debug):
+@click.option('--dryrun','-D', is_flag=True, default=False, help='HELP TEXT GOES HERE')
+def articles(debug, dryrun):
     """Migrate articles"""
-    pass
+    Articles.import_articles(debug, dryrun)
 
 
 # authors --------------------------------------------------------------
@@ -448,7 +449,7 @@ TEST_ARTICLES = [
 class Articles():
 
     @staticmethod
-    def import_articles(titles=[]):
+    def import_articles(titles=[], dryrun=False):
         """
 
 url_prefix = '/wiki/'
@@ -554,6 +555,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
                 authors_by_names,
                 sources_collection, sources_by_headword,
                 index_page,
+                dryrun=dryrun,
             )
             print(f"ok {article}")
 
@@ -579,7 +581,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page):
+    def import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
         #if mwpage.published_rg:
      
@@ -622,13 +624,14 @@ description
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
-        Footnotary.update_footnotes(article, fields=None, request=None, save=False)
+        Footnotary.update_footnotes(article, fields=None, request=None, dryrun=dryrun)
 
-        if article_is_new:
+        if article_is_new and not dryrun:
             # place page under encyclopedia index
             result = index_page.add_child(instance=article)
 
-        article.save_revision().publish()
+        if not dryrun:
+            article.save_revision().publish()
 
     @staticmethod
     def reset():
