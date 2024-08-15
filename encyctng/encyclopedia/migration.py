@@ -584,31 +584,27 @@ description
     def import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
         #if mwpage.published_rg:
-     
-        article_authors = [
-            authors_by_names[f"{family_name},{given_name}"]
-            for family_name,given_name in mwpage.authors['parsed']
-        ]
-     
+
         databoxes = wikipage.extract_databoxes(mwpage.body)
      
         try:
             article = Article.objects.get(title=title)
-            article.description=mwpage.description,
-            article.authors=article_authors,
-            #article.lastmod=mwpage.lastmod,
             article_is_new = False
         except:
             article = Article(
                 title=mwpage.title,
-                description=mwpage.description,
-                authors=article_authors,
-                #lastmod=mwpage.lastmod,
                 body='',
             )
             article_is_new = True
-     
-        [article.tags.add(tag.lower()) for tag in mwpage.categories]
+
+        article.description = mwpage.description
+        #article.lastmod = mwpage.lastmod
+        article.authors = [
+            authors_by_names[f"{family_name},{given_name}"]
+            for family_name,given_name in mwpage.authors['parsed']
+        ]
+        for tag in mwpage.categories:
+            article.tags.add(tag.lower())
      
         sources_blocks = Articles.streamfield_media_blocks(
             mwpage.title,
