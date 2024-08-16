@@ -620,7 +620,7 @@ description
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
-        Footnotary.update_footnotes(article, fields=None, request=None, dryrun=dryrun)
+        Footnotary.update_footnotes(article, fields=None, request=None, save=False)
 
         if article_is_new and not dryrun:
             # place page under encyclopedia index

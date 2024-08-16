@@ -241,10 +241,13 @@ class Footnotary():
     """
 
     @staticmethod
-    def update_footnotes(page, fields, request=None, dryrun=False):
+    def update_footnotes(page, fields, request=None, save=True):
         """Copy Mediawiki-style <ref> footnotes from page body to a Footnotes block
         
         Run in after_create_page and after_edit_page hooks.
+        
+        save=False is used in migrations.Articles.import_article to process
+        footnotes before Articles' initial save/attachement to parent Page.
         """
         # smoosh HTML from the paragraph blocks into one string
         html = '\n'.join([
@@ -262,9 +265,9 @@ class Footnotary():
         # replace the old footnotes block
         page.footnotes = footnotes
         # save the page
-        if not dryrun:
+        if save:
             new_revision = page.save_revision()
-        if page.live and not dryrun:
+        if save and page.live:
             # page has been created and published at the same time,
             # so ensure that the updated title is on the published version too
             new_revision.publish()
