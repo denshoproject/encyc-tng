@@ -255,8 +255,9 @@ class Footnotary():
         for broken,fixed in REF_TAGS:
             html = html.replace(broken,fixed)
         # extract each <ref></ref> tag and build HTML
+        soup = BeautifulSoup(html, features="html5lib")
         footnotes = '\n'.join([
-            str(ref) for ref in BeautifulSoup(html).find_all('ref')
+            str(ref) for ref in soup.find_all('ref')
         ])
         # replace the old footnotes block
         page.footnotes = footnotes
@@ -297,7 +298,7 @@ class Footnotary():
         # <ref> tags might have been escaped so fix them
         for broken,fixed in REF_TAGS:
             html = html.replace(broken,fixed)
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, features="html5lib")
         # remove <head> and <body>
         soup.html.unwrap()
         soup.head.unwrap()
@@ -338,7 +339,7 @@ class Footnotary():
         """
         if not html:
             return ''
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, features="html5lib")
         # remove <head> and <body>
         soup.head.unwrap()
         soup.body.unwrap()
