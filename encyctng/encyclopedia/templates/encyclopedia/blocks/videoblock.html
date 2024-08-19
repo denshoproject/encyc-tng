@@ -29,9 +29,9 @@
         </p>
         {% if self.transcript %}<a href="/media/{{ self.transcript.file }}">Transcript</a><br/>{% endif %}
       </figcaption>
-      <p>
+      {% if self.video %}<p>
         <a href="{% url "encyc-source" "video" self.video.id %}">More info</a>
-      </p>
+      </p>{% endif %}
     </td>
   </tr>
 </table>
