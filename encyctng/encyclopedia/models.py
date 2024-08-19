@@ -18,13 +18,30 @@ from wagtail.models import Page, Orderable
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
 
-from encyc import wiki
-
 from editors.models import Author
 from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
     ImageBlock, VideoBlock, DocumentBlock,
 )
+
+
+def load_mediawiki_titles():
+    """Map MediaWiki titles to original title text and to Wagtail slug titles
+    """
+    key = 'mediawiki-titles'
+    results = cache.get(key)
+    if not results:
+        from encyc import wiki
+        mw = wiki.MediaWiki()
+        results = {
+            page.normalize_title(page.page_title): {
+                'title': page.page_title,
+                'slug': slugify(page.page_title)
+            }
+            for page in [page for page in mw.mw.allpages()]
+        }
+        cache.set(key, results, settings.CACHE_TIMEOUT)
+    return results
 
 
 class ArticlesIndexPage(Page):
@@ -367,21 +384,3 @@ class Footnotary():
             backlink.string = '↑'
             item.insert(0, backlink)
         return str(soup)
-
-
-def load_mediawiki_titles():
-    """Map MediaWiki titles to original title text and to Wagtail slug titles
-    """
-    key = 'mediawiki-titles'
-    results = cache.get(key)
-    if not results:
-        mw = wiki.MediaWiki()
-        results = {
-            page.normalize_title(page.page_title): {
-                'title': page.page_title,
-                'slug': slugify(page.page_title)
-            }
-            for page in [page for page in mw.mw.allpages()]
-        }
-        cache.set(key, results, settings.CACHE_TIMEOUT)
-    return results
