@@ -42,6 +42,8 @@ from encyclopedia.blocks import (
     DataboxCampBlock)
 from encyclopedia.models import ArticlesIndexPage
 from encyclopedia.models import Page, Article, Footnotary
+from encyclopedia import models as encyclopedia_models
+from encyclopedia import databoxes
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -495,7 +497,7 @@ sources_blocks = Articles.streamfield_media_blocks(
 
 import json
 from encyc.models.legacy import wikipage
-databoxes = wikipage.extract_databoxes(mwpage.body, databox_divs_namespaces=None)
+mw_databoxes = wikipage.extract_databoxes(mwpage.body, databox_divs_namespaces=None)
 
 
 #mwpage,mwtext = Articles.load_mwpages(title)
@@ -543,6 +545,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         print(f"{index_page=}")
 
         mw = wiki.MediaWiki()
+        print(f"{mw=}")
         mw_titles = Articles.load_mwtitles(mw)
 
         for title in titles:
@@ -585,17 +588,20 @@ description
         # resource guide page?
         #if mwpage.published_rg:
 
-        databoxes = wikipage.extract_databoxes(mwpage.body)
-     
+        article_class,databox,databox_name = Articles.article_type(mwpage)
+        print(f"{article_class=}")
         try:
-            article = Article.objects.get(title=title)
+            article = article_class.objects.get(title=title)
             article_is_new = False
         except:
-            article = Article(
+            article = article_class(
                 title=mwpage.title,
                 body='',
             )
             article_is_new = True
+        print(f"{article=}")
+
+        Articles.set_databox_fields(article, databox, databox_name)
 
         article.description = mwpage.description
         #article.lastmod = mwpage.lastmod
@@ -610,13 +616,13 @@ description
             mwpage.title,
             sources_by_headword,
             Sources.source_keys_by_filename(
-                sources_by_headword[mwpage.title],
+                sources_by_headword.get(mwpage.title,[]),
                 sources_collection
             )
         )
-        # TODO databoxes = []
-        article_blocks = Articles.mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
-     
+        article_blocks = Articles.mwtext_to_streamblocks(
+            mw, mwtext, mw_titles, url_prefix
+        )
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
@@ -624,6 +630,7 @@ description
 
         if article_is_new and not dryrun:
             # place page under encyclopedia index
+            print(f"{index_page}.add_child(instance={article})")
             result = index_page.add_child(instance=article)
 
         if not dryrun:
@@ -675,6 +682,45 @@ description
                 print(f"{n}/{num} {title}")
             mwpages.append( Articles.load_mwpage(mw,title) )
         return mwpages
+
+    @staticmethod
+    def article_type(mwpage):
+        """Returns Article class (or subclass) and databox if present
+        """
+        mw_databoxes = wikipage.extract_databoxes(mwpage.body)
+        # Resouce Guide databox
+        # Encyclopedia migration ignores RG-only pages and content
+        if 'rgdatabox-Core' in mw_databoxes.keys():
+            rgdatabox = mw_databoxes.pop('rgdatabox-Core')
+            print(f"{rgdatabox=}")
+        if mw_databoxes:
+            if len(mw_databoxes.keys()) > 1:
+                raise Exception(
+                    f"Article has more than one databox: {mw_databoxes.keys()}"
+                )
+            databox_name = [key for key in mw_databoxes.keys()][0]
+            databox = mw_databoxes[databox_name]
+            article_class_name = databoxes.DATABOXES[databox_name]['class']
+        else:
+            databox_name = None
+            databox = None
+            article_class_name = 'Article'
+        article_class = getattr(encyclopedia_models, article_class_name)
+        return article_class,databox,databox_name
+
+    @staticmethod
+    def set_databox_fields(article, databox=None, databox_name=None):
+        """Set fields from databox
+        """
+        if databox:
+            for item in databoxes.DATABOXES[databox_name]['fields']:
+                mw_field = item['mw'].lower()
+                tng_field = item['tng']
+                value = None
+                if databox.get(mw_field):
+                    value = databox[mw_field][0]
+                if value:
+                    setattr(article, tng_field, value)
 
     @staticmethod
     def mwtext_to_streamblocks(mw, mwtext: str, mw_titles, url_prefix) -> list[str]:
@@ -788,7 +834,7 @@ description
         blocks = []
         for tag in soup.body.contents:
             if debug: print(f"{tag=}")
-            if type(tag) == NavigableString and tag.strip() in ['',None]:
+            if type(tag) == NavigableString:
                 continue
             # TODO what to do with <div id="authorByline">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
@@ -812,6 +858,7 @@ description
                     }
                 }
             else:
+                print(f"{type(tag)=}")
                 raise Exception(f"ERROR: Don't know what to do with \"{tag}\"")
             if debug: print(f"{block=}")
             blocks.append(block)
