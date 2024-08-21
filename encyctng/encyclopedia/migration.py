@@ -586,7 +586,9 @@ description
     @staticmethod
     def import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
-        #if mwpage.published_rg:
+        if Articles.is_resourceguide_only(mwpage):
+            print('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
+            return
 
         article_class,databox,databox_name = Articles.article_type(mwpage)
         print(f"{article_class=}")
@@ -684,6 +686,22 @@ description
         return mwpages
 
     @staticmethod
+    def is_encyclopedia_only(mwpage):
+        """Page is published in Encyclopedia but NOT in Resource Guide
+        """
+        if mwpage.published_encyc and not mwpage.published_rg:
+            return True
+        return False
+
+    @staticmethod
+    def is_resourceguide_only(mwpage):
+        """Page is published in Resource Guide but NOT in Encyclopedia
+        """
+        if mwpage.published_rg and not mwpage.published_encyc:
+            return True
+        return False
+
+    @staticmethod
     def article_type(mwpage):
         """Returns Article class (or subclass) and databox if present
         """
@@ -767,6 +785,7 @@ description
         html = html.replace('&lt;/BLAT&gt;', '&lt;/ref&gt;').replace('&lt;BLAT&gt;', '&lt;ref&gt;')
         # Remove the extra crud that MediaWiki adds
         soup = BeautifulSoup(html, features='html5lib')
+        soup = Articles.strip_resourceguide_html(soup)
         # remove the <div class="mw-parser-output"> wrapper
         for tag in soup.find_all(class_="mw-parser-output"):
             tag.unwrap()
@@ -794,6 +813,22 @@ description
         # example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
         soup,notmatched = Articles.rewrite_internal_urls(soup, mw_titles, url_prefix)
         return str(soup)
+
+    @staticmethod
+    def strip_resourceguide_html(soup):
+        """Strip out ResourceGuide databox from HTML
+        """
+        # .rgonly / rgdatabox-CoreDisplay
+        for tag in soup.find_all(class_='rgonly'):
+            tag.unwrap()
+        for tag in soup.find_all(id='rgdatabox-Core'):
+            tag.unwrap()
+        for tag in soup.find_all(id='rgdatabox-CoreDisplay'):
+            tag.unwrap()
+        # infobox
+        for tag in soup.find_all(class_='infobox'):
+            tag.unwrap()
+        return soup
 
     @staticmethod
     def rewrite_internal_urls(soup, mw_titles, url_prefix):
