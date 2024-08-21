@@ -1,0 +1,46 @@
+<table id="databox-People" class="infobox">
+  <!-- first_name {{ article.first_name }} -->
+  <!-- last_name {{ article.last_name }} -->
+  <tr>
+    <th>Name</th>
+    <td>{{ article.display_name }}</td>
+  </tr>
+  {% if article.birth_date %}
+  <tr>
+    <th>Born</th>
+    <td>{{ article.birth_date }}</td>
+  </tr>
+  {% endif %}
+  {% if article.death_date %}
+  <tr>
+    <th>Died</th>
+    <td>{{ article.death_date }}</td>
+  </tr>
+  {% endif %}
+  {% if article.birth_location %}
+  <tr>
+    <th>Birth Location</th>
+    <td>{{ article.birth_location }}</td>
+  </tr>
+  {% endif %}
+  <!-- gender {{ article.gender }} -->
+  <!-- ethnicity {{ article.ethnicity }} -->
+  {% if article.generation %}
+  <tr>
+    <th>Generational Identifier</th>
+    <td>
+      {{ article.generation }}
+    </td>
+  </tr>
+  {% endif %}
+  <!-- nationality {{ article.nationality }} -->
+  {% if article.external_url %}
+  <tr>
+    <td colspan="2">
+      <a href="{{ article.external_url }}">More information...</a>
+    </td>
+  </tr>
+  {% endif %}
+  <!-- primary_geography {{ article.primary_geography }} -->
+  <!-- religion {{ article.religion }} -->
+</table>

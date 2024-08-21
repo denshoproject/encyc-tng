@@ -1,0 +1,46 @@
+<table id="databox-Newspapers" class="infobox">
+  <tr>
+    <th>Publication Name</th>
+    <td>{{ article.publication_name }}</td>
+  </tr>
+  <tr>
+    <th>Camp</th>
+    <td><a href="/{{ article.camp_article }}">{{ article.camp_article }}</a></td>
+  </tr>
+  {% if article.publication_start_date %}
+  <tr>
+    <th>Start of Publication</th>
+    <td>{{ article.publication_start_date }}</td>
+  </tr>
+  {% endif %}
+  {% if article.publication_end_date %}
+  <tr>
+    <th>End of Publication</th>
+    <td>{{ article.publication_end_date }}</td>
+  </tr>
+  {% endif %}
+  {% if article.predecessor_pub %}
+  <tr>
+    <th>Predecessor</th>
+    <td>{{ article.predecessor_pub }}</td>
+  </tr>
+  {% endif %}
+  {% if article.successor_pub %}
+  <tr>
+    <th>Successor</th>
+    <td>{{ article.successor_pub }}</td>
+  </tr>
+  {% endif %}
+  {% if article.mode_of_production %}
+  <tr>
+    <th>Mode of Production</th>
+    <td>{{ article.mode_of_production }}</td>
+  </tr>
+  {% endif %}
+  {% if article.staff %}
+  <tr>
+    <th>Staff Members</th>
+    <td>{{ article.staff }}</td>
+  </tr>
+  {% endif %}
+</table>

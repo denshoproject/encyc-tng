@@ -1,0 +1,100 @@
+<table id="databox-BooksDisplay" class="infobox">
+  <tr>
+    <th>Title</th>
+    <td>{{ article.book_title }}</td>
+  </tr>
+  {% if article.title_orig %}
+  <tr>
+    <th>Original Title</th>
+    <td>{{ article.title_orig }}</td>
+  </tr>
+  {% endif %}
+  {% if article.genre %}
+  <tr>
+    <th>[http://en.wikipedia.org/wiki/Literary_genre Genre]</th>
+    <td>{{ article.genre }}</td>
+  </tr>
+  {% endif %}
+  <tr>
+    <th>Author</th>
+    <td>{{ article.author }}</td>
+  </tr>
+  {% if article.illustrator %}
+  <tr>
+    <th>Illustrator</th>
+    <td>{{ article.illustrator }}</td>
+  </tr>
+  {% endif %}
+  {% if article.country %}
+  <tr>
+    <th>Country</th>
+    <td>{{ article.country }}</td>
+  </tr>
+  {% endif %}
+  {% if article.language %}
+  <tr>
+    <th>Language</th>
+    <td>{{ article.language }}</td>
+  </tr>
+  {% endif %}
+  {% if article.series %}
+  <tr>
+    <th>Series</th>
+    <td>{{ article.series }}</td>
+  </tr>
+  {% endif %}
+  {% if article.publisher %}
+  <tr>
+    <th>Original Publisher</th>
+    <td>{{ article.publisher }}</td>
+  </tr>
+  {% endif %}
+  {% if article.pubdate %}
+  <tr>
+    <th>Original Publication Date</th>
+    <td>{{ article.pubdate }}</td>
+  </tr>
+  {% endif %}
+  {% if article.publisher_current %}
+  <tr>
+    <th>Current Publisher</th>
+    <td>{{ article.publisher_current }}</td>
+  </tr>
+  {% endif %}
+  {% if article.pubdate_current %}
+  <tr>
+    <th>Current Publication Date</th>
+    <td>{{ article.pubdate_current }}</td>
+  </tr>
+  {% endif %}
+  {% if article.media_type %}
+  <tr>
+    <th>Media Type</th>
+    <td>{{ article.media_type }}</td>
+  </tr>
+  {% endif %}
+  {% if article.pages %}
+  <tr>
+    <th>Pages</th>
+    <td>{{ article.pages }}</td>
+  </tr>
+  {% endif %}
+  {% if article.awards %}
+  <tr>
+    <th>Awards</th>
+    <td>{{ article.awards }}</td>
+  </tr>
+  {% endif %}
+  {% if article.isbn %}
+  <tr>
+    <th>ISBN</th>
+    <td>{{ article.isbn }}</td>
+  </tr>
+  {% endif %}
+  {% if article.worldcat_url %}
+  <tr>
+    <th>WorldCat Link</th>
+    <td>{{ article.worldcat_url }}</td>
+  </tr>
+  {% endif %}
+</table>
