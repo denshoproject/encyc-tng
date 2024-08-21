@@ -900,7 +900,7 @@ description
         ('BLOCKTYPE', {'type':'BLOCKTYPE', 'value': {'FIELD1':VALUE1, ...}})
         """
         blocks = []
-        for source in sources_by_headword[title]:
+        for source in sources_by_headword.get(title,[]):
             if source['media_format'] == 'image':
                 blocks.append(
                     ImageBlock.block_from_source(source, source_pks_by_filename)
