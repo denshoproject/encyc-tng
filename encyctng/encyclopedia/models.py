@@ -124,6 +124,11 @@ class Article(Page):
 
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
     subpage_types = []
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        verbose_name = "Article"
+        verbose_name_plural = "Articles"
 
     @staticmethod
     def articles_by_author():
@@ -229,17 +234,17 @@ ARTICLE_FOOTNOTE_FIELDS = {
 
 @hooks.register('after_create_page')
 def do_after_page_create(request, page):
-    if type(page) == Article:
+    if isinstance(page, Article):
         return Footnotary.update_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 @hooks.register('after_edit_page')
 def do_after_page_edit(request, page):
-    if type(page) == Article:
+    if isinstance(page, Article):
         return Footnotary.update_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 @hooks.register('before_serve_page')
 def prep_footnotes(page, request, serve_args, serve_kwargs):
-    if type(page) == Article:
+    if isinstance(page, Article):
         return Footnotary.prep_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 
