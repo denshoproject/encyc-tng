@@ -17,9 +17,9 @@
         DOWNLOAD <a href="{{ self.document.url }}">{{ self.document.url }}</a><br/>
         EXT_URL <a href="{{ self.ext_url }}">{{ self.ext_url }}</a><br/>
       </p>
-      <p>
+      {% if self.document %}<p>
         <a href="{% url "encyc-source" "document" self.document.id %}">More info</a>
-      </p>
+      </p>{% endif %}
     </td>
   </tr>
 </table>
