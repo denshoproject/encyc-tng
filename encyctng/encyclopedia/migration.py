@@ -799,7 +799,9 @@ description
         for hN in ['h1', 'h2', 'h3', 'h4']:
             for h in soup.find_all(hN):
                 span = h.find(class_='mw-headline')
-                header = span.contents[0].strip()
+                # header contents may contain tags like <i> - convert these to str
+                contents = ''.join([str(element) for element in span.contents])
+                header = contents.strip()
                 span.insert_before(header)
                 span.extract()
         # Mediawiki-generated comments
