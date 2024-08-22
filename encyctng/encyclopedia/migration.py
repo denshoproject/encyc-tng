@@ -814,6 +814,10 @@ description
         # rewrite MediaWiki internal URLs to Wagtail slug URLs
         # example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
         soup,notmatched = Articles.rewrite_internal_urls(soup, mw_titles, url_prefix)
+        # remove any remaining databox divs
+        for tag in soup.find_all('div'):
+            if 'databox-' in tag['id']:
+                tag.unwrap()
         return str(soup)
 
     @staticmethod
