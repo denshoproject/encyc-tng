@@ -873,6 +873,8 @@ description
             if debug: print(f"{tag=}")
             if type(tag) == NavigableString:
                 continue
+            if tag.name in ['blockquote', 'i', 'li', 'pre', 'ul']:
+                continue
             # TODO what to do with <div id="authorByline">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
                 continue
