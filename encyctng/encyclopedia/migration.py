@@ -444,8 +444,19 @@ source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Ma
 # articles -------------------------------------------------------------
 
 TEST_ARTICLES = [
-    'Manzanar',
-    'Manzanar Free Press (newspaper)',
+    'Barbed Wire Baseball (book)',       # Resource Guide ONLY
+    'Kotonk',                            # just an article
+    'A Grain of Sand (album)',           # databox-album
+    'Common Ground (magazine)',          # databox-magazine
+    'Conscience and the Constitution (film)', # databox-film
+    'Farewell to Manzanar (book)',       # databox-book
+    "Fighting for Tomorrow: Japanese Americans in America's Wars (exhibition)", # databox-exhibition
+    'Fred Korematsu',                    # databox-person
+    "The Hawai'i Nisei Story (website)", # databox-website
+    'Manzanar',                          # databox-camp
+    'Manzanar Free Press (newspaper)',   # databox-newspaper
+    'Success Story, Japanese American Style (article)', # databox-article
+    'Tondemonai-Never Happen! (play)',   # databox-play
 ]
 
 class Articles():
