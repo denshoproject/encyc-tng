@@ -45,7 +45,7 @@ ALLOWED_HOSTS = [
 ]
 
 CACHE_TIMEOUT = 60 * 15
-
+CACHE_TIMEOUT_LONG = 60 * 60 * 12
 
 # Application definition
 
@@ -126,6 +126,17 @@ DATABASES = {
     }
 }
 
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = '6379'
+REDIS_DB_CACHE = '10'
+
+CACHES = {
+    "default": {
+        #'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_CACHE}",
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
