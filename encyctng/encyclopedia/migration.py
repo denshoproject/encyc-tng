@@ -46,6 +46,8 @@ from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+ARTICLES_INDEX_PAGE = 'Encyclopedia'
+ARTICLES_IMAGE_COLLECTION = 'Article Images'
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -223,7 +225,7 @@ class Sources():
     src_dir = '/opt/encyc-tail/data/sources'
     from wagtail.models.collections import Collection
     from encyclopedia.migration import Sources
-    collection = Collection.objects.get(name='Article Images')
+    collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
     sources = Sources.load_psms_sources_jsonl(jsonl_path)
     for title in titles:
         for source in sources[title]:
@@ -243,7 +245,7 @@ class Sources():
         # https://stackoverflow.com/questions/63181320/bulk-uploading-and-creating-pages-with-images-in-wagtail-migration
         print(f"{len(psms_sources)=}")
         # PSMS images attached to a collection
-        collection = Collection.objects.get(name='Article Images')
+        collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
         print(f"{collection=}")
         num = len(psms_sources)
         for article,sources in psms_sources.items():
@@ -286,7 +288,7 @@ class Sources():
     def reset():
         """TODO Delete all primary source objects
         """
-        collection = Collection.objects.get(name='Article Images')
+        collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
         for mediatype in [Image, Document, Media]:
             for item in mediatype.objects.filter(collection=collection):
                 item.delete()
@@ -359,7 +361,7 @@ from wagtail.models.collections import Collection
 from encyclopedia.migration import Sources
 jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
 sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-collection = Collection.objects.get(name='Article Images')
+collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
 source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Manzanar'], collection)
         """
         return {
@@ -480,7 +482,7 @@ from encyclopedia.models import load_mediawiki_titles
 authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
 
 sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-sources_collection = Collection.objects.get(name='Article Images')
+sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
 source_pks_by_filename = Sources.source_keys_by_filename(
     sources_by_headword, sources_collection
 )
@@ -545,7 +547,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         }
 
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-        sources_collection = Collection.objects.get(name='Article Images')
+        sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
         source_pks_by_filename = Sources.source_keys_by_filename(
             sources_by_headword, sources_collection
         )
@@ -574,8 +576,8 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
             print(f"ok {article}")
 
     @staticmethod
-    def wagtail_index_page(title='Encyclopedia'):
-        return ArticlesIndexPage.objects.get(title='Encyclopedia')
+    def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
+        return ArticlesIndexPage.objects.get(title=title)
 
     """
 ENCYCFRONT ARTICLE STRUCTURE
