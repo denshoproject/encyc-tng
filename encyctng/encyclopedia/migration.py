@@ -121,14 +121,14 @@ class Authors():
         TODO check if author exists before creating
         """
         mw = wiki.MediaWiki()
-        mw_author_titles = Proxy.authors(mw, cached_ok=False)
-        num = len(mw_author_titles)
-        for n,title in enumerate(mw_author_titles):
+        mwauthor_titles = Authors.mw_author_titles(mw)
+        num = len(mwauthor_titles)
+        for n,title in enumerate(mwauthor_titles):
             click.echo(f"{n}/{num} {title=}")
             family_name = title.split()[-1]
             given_name = ' '.join(title.split()[:-1])
             display_name = title
-            mwauthor = LegacyPage.get(mw, title)
+            mwauthor = Authors.mw_author(mw, title)
             if debug: click.echo(f"{mwauthor=}")
             try:
                 wtauthor = Author.objects.get(
@@ -166,6 +166,26 @@ class Authors():
         """TODO Delete all editors.models.Author objects"""
         for author in Author.objects.all():
             author.delete()
+
+    @staticmethod
+    def mw_author_titles(mw):
+        key = 'encyctng:migration:mwauthortitles'
+        cached = cache.get(key)
+        if not cached:
+            mw_author_titles = Proxy.authors(mw)
+            cached = mw_author_titles
+            cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+        return cached
+
+    @staticmethod
+    def mw_author(mw, title):
+        key = f"encyctng:migration:mwauthor:{slugify(title).replace('-','')}"
+        cached = cache.get(key)
+        if not cached:
+            mw_author = LegacyPage.get(mw, title)
+            cached = mw_author
+            cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+        return cached
 
     @staticmethod
     def mediawiki_authors():
@@ -660,7 +680,7 @@ description
 
     @staticmethod
     def load_mwtitles(mw):
-        key = 'mwtitles'
+        key = 'encyctng:migration:mwtitles'
         cached = cache.get(key)
         if not cached:
             allpages = [page for page in mw.mw.allpages()]
@@ -668,14 +688,20 @@ description
             for page in allpages:
                 titles[page.page_title] = slugify(page.page_title)
             cached = titles
-            cache.set(key, cached, settings.CACHE_TIMEOUT)
+            cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
         return cached
 
     @staticmethod
     def load_mwpage(mw, title):
+        key = f"encyctng:migration:mwtitle:{slugify(title).replace('-','')}"
+        cached = cache.get(key)
+        if not cached:
+            mwtext = mw.mw.pages[title].text()
+            cached = mwtext
+            cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+        # can't cache this bc contains Python objects
         mwpage = LegacyPage.get(mw,title)
-        mwtext = mw.mw.pages[title].text()
-        return mwpage,mwtext
+        return mwpage,cached
 
     @staticmethod
     def load_mwpages(title: str=None, verbose: bool=False) -> list[str]:
@@ -697,6 +723,16 @@ description
                 print(f"{n}/{num} {title}")
             mwpages.append( Articles.load_mwpage(mw,title) )
         return mwpages
+
+    @staticmethod
+    def mw_articles_lastmod(mw):
+        key = f"encyctng:migration:mwarticleslastmod"
+        cached = cache.get(key)
+        if not cached:
+            mw_articles = [d['title'] for d in Proxy.articles_lastmod(mw)]
+            cached = mw_articles
+            cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+        return cached
 
     @staticmethod
     def is_encyclopedia_only(mwpage):
