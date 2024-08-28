@@ -111,6 +111,19 @@ def articles(debug, dryrun):
     Articles.import_articles(debug, dryrun)
 
 
+# setup ----------------------------------------------------------------
+
+def initial_setup():
+    # article images collection
+    root_collection = Collection.objects.get(name='Root')
+    article_images = Collection(name=ARTICLES_IMAGE_COLLECTION)
+    root_collection.add_child(instance=article_images)
+    # articles index page
+    home_page = Page.objects.get(title='Home')
+    articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
+    home_page.add_child(instance=articles_index)
+
+
 # authors --------------------------------------------------------------
 
 class Authors():
