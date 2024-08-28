@@ -5,12 +5,14 @@
 
 # Yes I know the name clashes with Django's migrations/ dir.
 
+from datetime import datetime
 import json
 from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
+import traceback
 
 from bs4 import BeautifulSoup, Comment
 from bs4.element import Tag, NavigableString
@@ -497,7 +499,7 @@ TEST_ARTICLES = [
 class Articles():
 
     @staticmethod
-    def import_articles(titles=[], dryrun=False):
+    def import_articles(titles=[], dryrun=False, logfile=None):
         """
 
 url_prefix = '/wiki/'
@@ -569,7 +571,11 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
     #        wagtail_import_article(mwpage, index_page)
     #    # resource guide page?
     #    if mwpage.published_rg:
-
+        if logfile:
+            log_path = Path(logfile)
+        else:
+            log_path = None
+    
         url_prefix = '/wiki/'
         jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
         print(f"{jsonl_path=}")
@@ -593,20 +599,40 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         mw = wiki.MediaWiki()
         print(f"{mw=}")
         mw_titles = Articles.load_mwtitles(mw)
+        if not titles:
+            titles = mw_titles
+        mw_titles_slugs = Articles.load_mwtitles_to_slugs(mw)
 
-        for title in titles:
-            print(f"{title=}")
+        errors = []
+        num = len(titles)
+        start = datetime.now()
+        for n,title in enumerate(titles):
+            print(f"{n+1}/{num} {title=}")
             mwpage,mwtext = Articles.load_mwpage(mw, title)
             print('importing...')
-            article = Articles.import_article(
-                mw, mwpage, mwtext,
-                mw_titles, url_prefix,
-                authors_by_names,
-                sources_collection, sources_by_headword,
-                index_page,
-                dryrun=dryrun,
-            )
-            print(f"ok {article}")
+            try:
+                article = Articles.import_article(
+                    mw, mwpage, mwtext,
+                    mw_titles, mw_titles_slugs, url_prefix,
+                    authors_by_names,
+                    sources_collection, sources_by_headword,
+                    index_page,
+                    dryrun=dryrun,
+                )
+                print(f"ok")
+                if log_path:
+                    with log_path.open('a') as f:
+                        f.write(f"{datetime.now() - start} {n+1}/{num} ok | {title}\n")
+            except Exception as err:
+                errors.append(title)
+                if log_path:
+                    with log_path.open('a') as f:
+                        f.write(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
+                print(traceback.format_exc())
+        print(f"{len(errors)} ERRORS - - - - - - - - - - - - - - - - - -")
+        for title in errors:
+            print(title)
+        print(f"{len(errors) / len(titles)} percent")
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
@@ -630,7 +656,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page, dryrun=False):
+    def import_article(mw, mwpage, mwtext, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
         if Articles.is_resourceguide_only(mwpage):
             print('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
@@ -669,7 +695,7 @@ description
             )
         )
         article_blocks = Articles.mwtext_to_streamblocks(
-            mw, mwtext, mw_titles, url_prefix
+            mw, mwtext, mw_titles_slugs, url_prefix
         )
         article.body = json.dumps(
             sources_blocks + article_blocks
@@ -693,7 +719,21 @@ description
 
     @staticmethod
     def load_mwtitles(mw):
-        key = 'encyctng:migration:mwtitles'
+        """Returns list of MediaWiki titles
+        """
+        key = 'encyctng:migration:mwtitles-all'
+        cached = cache.get(key)
+        if not cached:
+            titles = [page.page_title for page in mw.mw.allpages()]
+            cached = titles
+            cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+        return cached
+
+    @staticmethod
+    def load_mwtitles_to_slugs(mw):
+        """Returns dict of MediaWiki titles and url_titles to slugified titles
+        """
+        key = 'encyctng:migration:mwtitles-slugs'
         cached = cache.get(key)
         if not cached:
             allpages = [page for page in mw.mw.allpages()]
@@ -803,9 +843,9 @@ description
                     setattr(article, tng_field, value)
 
     @staticmethod
-    def mwtext_to_streamblocks(mw, mwtext: str, mw_titles, url_prefix) -> list[str]:
+    def mwtext_to_streamblocks(mw, mwtext: str, mw_titles_slugs, url_prefix) -> list[str]:
         mwtext_cleaned = Articles.clean_mediawiki_text(mwtext)
-        mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles, url_prefix)
+        mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles_slugs, url_prefix)
         streamfield_blocks = Articles.html_to_streamfield(mwhtml)
         merged_blocks = Articles.merge_streamfield_blocks(streamfield_blocks)
         return merged_blocks
@@ -832,7 +872,7 @@ description
         return mw_txt.strip()
 
     @staticmethod
-    def render_mediawiki_text(mw, mwtext: str, mw_titles, url_prefix) -> str:
+    def render_mediawiki_text(mw, mwtext: str, mw_titles_slugs, url_prefix) -> str:
         """Render Mediawiki source text to HTML
         Before parsing, hide <ref> tags used for footnotes because needed later.
         """
@@ -875,7 +915,7 @@ description
                 chunk.extract()
         # rewrite MediaWiki internal URLs to Wagtail slug URLs
         # example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
-        soup,notmatched = Articles.rewrite_internal_urls(soup, mw_titles, url_prefix)
+        soup,notmatched = Articles.rewrite_internal_urls(soup, mw_titles_slugs, url_prefix)
         # remove any remaining databox divs
         for tag in soup.find_all('div'):
             if 'databox-' in tag['id']:
@@ -899,7 +939,7 @@ description
         return soup
 
     @staticmethod
-    def rewrite_internal_urls(soup, mw_titles, url_prefix):
+    def rewrite_internal_urls(soup, mw_titles_slugs, url_prefix):
         """Rewrite MediaWiki internal URLs to Wagtail slug URLs
      
         example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
@@ -910,8 +950,8 @@ description
         ]:
             # url_prefix must include preceding AND following slashes e.g. "/wiki/"
             title = tag['href'].replace(url_prefix, '')
-            if mw_titles.get(title):
-                tag['href'] = f"{url_prefix}{mw_titles[title]}"
+            if mw_titles_slugs.get(title):
+                tag['href'] = f"{url_prefix}{mw_titles_slugs[title]}"
             else:
                 notmatched.append(tag)
         return soup,notmatched
