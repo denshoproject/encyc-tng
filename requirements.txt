@@ -3,6 +3,7 @@
 beautifulsoup4
 django-click
 Django
+gunicorn
 psycopg
 wagtail>=6.0,<6.1
 wagtailmedia
