@@ -44,6 +44,11 @@ ALLOWED_HOSTS = [
     for host in config.get('security', 'allowed_hosts').strip().split(',')
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    host.strip()
+    for host in config.get('security', 'csrf_origins').strip().split(',')
+]
+
 CACHE_TIMEOUT = 60 * 15
 CACHE_TIMEOUT_LONG = 60 * 60 * 12
 
