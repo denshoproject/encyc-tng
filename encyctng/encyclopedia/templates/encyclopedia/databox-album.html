@@ -1,0 +1,66 @@
+<table id="databox-AlbumsDisplay" class="infobox">
+  <tr>
+    <th>Name</th>
+    <td>{{ article.name }}</td>
+  </tr>
+  {% if article.type %}
+  <tr>
+    <th>Type</th>
+    <td>{{ article.type }}</td>
+  </tr>
+  {% endif %}
+  <tr>
+    <th>Artist</th>
+    <td>{{ article.artist }}</td>
+  </tr>
+  <tr>
+    <th>Released</th>
+    <td>{{ article.released }}</td>
+  </tr>
+  <tr>
+    <th>Recorded</th>
+    <td>{{ article.recorded }}</td>
+  </tr>
+  {% if article.Genre %}
+  <tr>
+    <th>Genre</th>
+    <td>{{ article.genre }}</td>
+  </tr>
+  {% endif %}
+  {% if article.Length %}
+  <tr>
+    <th>Length</th>
+    <td>{{ article.length }}</td>
+  </tr>
+  {% endif %}
+  {% if article.Label %}
+  <tr>
+    <th>Label</th>
+    <td>{{ article.label }}</td>
+  </tr>
+  {% endif %}
+  {% if article.Producer %}
+  <tr>
+    <th>Producer</th>
+    <td>{{ article.producer }}</td>
+  </tr>
+  {% endif %}
+  {% if article.official_url %}
+  <tr>
+    <th>Official Website</th>
+    <td><a href="{{ article.official_url }}">{{ article.official_url }}</a></td>
+  </tr>
+  {% endif %}
+  {% if article.musicbrainz_url %}
+  <tr>
+    <th><a href="https://www.musicbrainz.org/">MusicBrainz</a> link</th>
+    <td>[{{ article.musicbrainz_url }}]</td>
+  </tr>
+  {% endif %}
+  {% if article.discogs_url %}
+  <tr>
+    <th><a href="https://www.discogs.com/">Discogs</a> link</th>
+    <td>[{{ article.discogs_url }}]</td>
+  </tr>
+  {% endif %}
+</table>

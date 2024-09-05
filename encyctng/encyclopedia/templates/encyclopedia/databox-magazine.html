@@ -1,0 +1,106 @@
+<table id="databox-MagazinesDisplay" class="infobox">
+  <tr>
+    <th>Name</th>
+    <td>{{ article.magazine_name }}</td>
+  </tr>
+  <tr>
+    <th>Year Founded</th>
+    <td>{{ article.year_founded }}</td>
+  </tr>
+  {% if article.first_date %}
+  <tr>
+    <th>First issue date</th>
+    <td>{{ article.first_date }}</td>
+  </tr>
+  {% endif %}
+  {% if article.final_date %}
+  <tr>
+    <th>Final issue date</th>
+    <td>{{ article.final_date }}</td>
+  </tr>
+  {% endif %}
+  {% if article.final_issue %}
+  <tr>
+    <th>Final issue</th>
+    <td>{{ article.final_issue }}</td>
+  </tr>
+  {% endif %}
+  {% if article.frequency %}
+  <tr>
+    <th>Frequency</th>
+    <td>{{ article.frequency }}</td>
+  </tr>
+  {% endif %}
+  {% if article.editor %}
+  <tr>
+    <th>Editor</th>
+    <td>{{ article.editor }}</td>
+  </tr>
+  {% endif %}
+  {% if article.former_editors %}
+  <tr>
+    <th>Former Editor(s)</th>
+    <td>{{ article.former_editors }}</td>
+  </tr>
+  {% endif %}
+  {% if article.staff_writers %}
+  <tr>
+    <th>Staff Writers</th>
+    <td>{{ article.staff_writers }}</td>
+  </tr>
+  {% endif %}
+  {% if article.photographers %}
+  <tr>
+    <th>Photographers</th>
+    <td>{{ article.photographers }}</td>
+  </tr>
+  {% endif %}
+  {% if article.founder %}
+  <tr>
+    <th>Founder</th>
+    <td>{{ article.founder }}</td>
+  </tr>
+  {% endif %}
+  {% if article.publisher %}
+  <tr>
+    <th>Publisher</th>
+    <td>{{ article.publisher }}</td>
+  </tr>
+  {% endif %}
+  {% if article.company %}
+  <tr>
+    <th>Company</th>
+    <td>{{ article.company }}</td>
+  </tr>
+  {% endif %}
+  {% if article.circulation %}
+  <tr>
+    <th>Circulation</th>
+    <td>{{ article.circulation }}</td>
+  </tr>
+  {% endif %}
+  {% if article.country %}
+  <tr>
+    <th>Country</th>
+    <td>{{ article.country }}</td>
+  </tr>
+  {% endif %}
+  {% if article.language %}
+  <tr>
+    <th>Language</th>
+    <td>{{ article.language }}</td>
+  </tr>
+  {% endif %}
+  {% if article.issn %}
+  <tr>
+    <th><a href="https://www.issn.org/">ISSN</a></th>
+    <td>{{ article.issn }}</td>
+  </tr>
+  {% endif %}
+  {% if article.worldcat_url %}
+  <tr>
+    <th><a href="https://www.worldcat.org">WorldCat</a> link</th>
+    <td><a href="{{ article.worldcat_url }}">{{ article.worldcat_url }}</a></td>
+  </tr>
+  {% endif %}
+</table>

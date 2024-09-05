@@ -1,0 +1,142 @@
+<table id="databox-FilmsDisplay" class="infobox">
+  <tr>
+    <th>Title</th>
+    <td>{{ article.title }}</td>
+  </tr>
+  <tr>
+    <th>Date</th>
+    <td>{{ article.film_date }}</td>
+  </tr>
+  {% if article.genre %}
+  <tr>
+    <th><a href="https://www.imdb.com/genre/">Genre</a></th>
+    <td>{{ article.genre }}</td>
+  </tr>
+  {% endif %}
+  {% if article.released %}
+  <tr>
+    <th>Released</th>
+    <td>{{ article.released }}</td>
+  </tr>
+  {% endif %}
+  {% if article.director %}
+  <tr>
+    <th>Director</th>
+    <td>{{ article.director }}</td>
+  </tr>
+  {% endif %}
+  {% if article.producer %}
+  <tr>
+    <th>Producer</th>
+    <td>{{ article.producer }}</td>
+  </tr>
+  {% endif %}
+  {% if article.writer %}
+  <tr>
+    <th>Writer</th>
+    <td>{{ article.writer }}</td>
+  </tr>
+  {% endif %}
+  {% if article.screenplay %}
+  <tr>
+    <th>Screenplay</th>
+    <td>{{ article.screenplay }}</td>
+  </tr>
+  {% endif %}
+  {% if article.story %}
+  <tr>
+    <th>Story</th>
+    <td>{{ article.story }}</td>
+  </tr>
+  {% endif %}
+  {% if article.basedon %}
+  <tr>
+    <th>Based On</th>
+    <td>{{ article.basedon }}</td>
+  </tr>
+  {% endif %}
+  {% if article.narrator %}
+  <tr>
+    <th>Narrator</th>
+    <td>{{ article.narrator }}</td>
+  </tr>
+  {% endif %}
+  {% if article.starring %}
+  <tr>
+    <th>Starring</th>
+    <td>{{ article.starring }}</td>
+  </tr>
+  {% endif %}
+  {% if article.music %}
+  <tr>
+    <th>Music</th>
+    <td>{{ article.music }}</td>
+  </tr>
+  {% endif %}
+  {% if article.cinematography %}
+  <tr>
+    <th>Cinematography</th>
+    <td>{{ article.cinematography }}</td>
+  </tr>
+  {% endif %}
+  {% if article.editing %}
+  <tr>
+    <th>Editing</th>
+    <td>{{ article.editing }}</td>
+  </tr>
+  {% endif %}
+  {% if article.studio %}
+  <tr>
+    <th>Studio</th>
+    <td>{{ article.studio }}</td>
+  </tr>
+  {% endif %}
+  {% if article.distributor %}
+  <tr>
+    <th>Distributor</th>
+    <td>{{ article.distributor }}</td>
+  </tr>
+  {% endif %}
+  {% if article.runtime %}
+  <tr>
+    <th>Runtime</th>
+    <td>{{ article.runtime }}</td>
+  </tr>
+  {% endif %}
+  {% if article.country %}
+  <tr>
+    <th>Country</th>
+    <td>{{ article.country }}</td>
+  </tr>
+  {% endif %}
+  {% if article.language %}
+  <tr>
+    <th>Language</th>
+    <td>{{ article.language }}</td>
+  </tr>
+  {% endif %}
+  {% if article.budget %}
+  <tr>
+    <th>Budget</th>
+    <td>{{ article.budget }}</td>
+  </tr>
+  {% endif %}
+  {% if article.gross %}
+  <tr>
+    <th>Gross</th>
+    <td>{{ article.gross }}</td>
+  </tr>
+  {% endif %}
+  {% if article.imdb_url %}
+  <tr>
+    <th><a href="https://www.imdb.com">IMDB</a></th>
+    <td><a href="{{ article.imdb_url }}">{{ article.film_title }}</a></td>
+  </tr>
+  {% endif %}
+  {% if article.trailer_url %}
+  <tr>
+    <th>Trailer</th>
+    <td>{{ article.trailer_url }}</td>
+  </tr>
+  {% endif %}
+</table>

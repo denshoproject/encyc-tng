@@ -1,0 +1,34 @@
+<table id="databox-ArticlesDisplay" class="infobox">
+  <tr>
+    <th>Author</th>
+    <td>{{ article.author }}</td>
+  </tr>
+  <tr>
+    <th>Article title</th>
+    <td>{{ article.article_title }}</td>
+  </tr>
+  <tr>
+    <th>Publication name</th>
+    <td>{{ article.pubname }}</td>
+  </tr>
+  <tr>
+    <th>Date of publication</th>
+    <td>{{ article.pubdate }}</td>
+  </tr>
+  <tr>
+    <th>Publication details</th>
+    <td>{{ article.pubdetails }}</td>
+  </tr>
+  {% if article.DOI %}
+  <tr>
+    <th><a href="https://www.doi.org/">Digital Object Identifier</a></th>
+    <td><a href="{{ article.doi_url }}">{{ article.doi_url }}</a></td>
+  </tr>
+  {% endif %}
+  {% if article.Website %}
+  <tr>
+    <th>Web link</th>
+    <td><a href="{{ article.url }}">{{ article.url }}</a></td>
+  </tr>
+  {% endif %}
+</table>

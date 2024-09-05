@@ -1,0 +1,40 @@
+<table id="databox-WebsitesDisplay" class="infobox">
+  {% if article.type %}
+  <tr>
+    <th>Type</th>
+    <td>{{ article.website_type }}</td>
+  </tr>
+  {% endif %}
+  <tr>
+    <th>URL</th>
+    <td><a href="{{ article.url }}">{{ article.url }}</a></td>
+  </tr>
+  <tr>
+    <th>Title</th>
+    <td>{{ article.website_title }}</td>
+  </tr>
+  {% if article.creator %}
+  <tr>
+    <th>Creator</th>
+    <td>{{ article.creator }}</td>
+  </tr>
+  {% endif %}
+  {% if article.active %}
+  <tr>
+    <th>Actively Updated?</th>
+    <td>{{ article.active }}</td>
+  </tr>
+  {% endif %}
+  {% if article.has_blog %}
+  <tr>
+    <th>Blog?</th>
+    <td>{{ article.has_blog }}</td>
+  </tr>
+  {% endif %}
+  {% if article.primary_sources %}
+  <tr>
+    <th>Available Primary Sources</th>
+    <td>{{ article.primary_sources }}</td>
+  </tr>
+  {% endif %}
+</table>

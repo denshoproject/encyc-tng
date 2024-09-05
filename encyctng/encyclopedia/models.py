@@ -9,6 +9,7 @@ from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.models import TaggedItemBase
 from wagtail.admin.panels import (
     FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel)
+from wagtail.admin.panels import TabbedInterface, ObjectList
 from wagtail.blocks import CharBlock, RichTextBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail import hooks
@@ -23,6 +24,7 @@ from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
     ImageBlock, VideoBlock, DocumentBlock,
 )
+from encyclopedia import databoxes
 
 
 def load_mediawiki_titles():
@@ -124,6 +126,11 @@ class Article(Page):
 
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
     subpage_types = []
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        verbose_name = "Article"
+        verbose_name_plural = "Articles"
 
     @staticmethod
     def articles_by_author():
@@ -229,17 +236,17 @@ ARTICLE_FOOTNOTE_FIELDS = {
 
 @hooks.register('after_create_page')
 def do_after_page_create(request, page):
-    if type(page) == Article:
+    if isinstance(page, Article):
         return Footnotary.update_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 @hooks.register('after_edit_page')
 def do_after_page_edit(request, page):
-    if type(page) == Article:
+    if isinstance(page, Article):
         return Footnotary.update_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 @hooks.register('before_serve_page')
 def prep_footnotes(page, request, serve_args, serve_kwargs):
-    if type(page) == Article:
+    if isinstance(page, Article):
         return Footnotary.prep_footnotes(page, ARTICLE_FOOTNOTE_FIELDS, request)
 
 
@@ -384,3 +391,394 @@ class Footnotary():
             backlink.string = '↑'
             item.insert(0, backlink)
         return str(soup)
+
+
+# databox articles -----------------------------------------------------
+
+DATABOX_MAX = 1024
+
+
+class ArticleAlbum(Article):
+    album_title = models.CharField(blank=True, max_length=DATABOX_MAX)
+    artist = models.CharField(blank=True, max_length=DATABOX_MAX)
+    album_type = models.CharField(blank=True, max_length=DATABOX_MAX)
+    recorded = models.CharField(blank=True, max_length=DATABOX_MAX)
+    released = models.CharField(blank=True, max_length=DATABOX_MAX)
+    genre = models.CharField(blank=True, max_length=DATABOX_MAX)
+    length = models.CharField(blank=True, max_length=DATABOX_MAX)
+    label = models.CharField(blank=True, max_length=DATABOX_MAX)
+    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
+    official_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    musicbrainz_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    discogs_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleAlbum']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_albums"
+        verbose_name = "Album"
+        verbose_name_plural = "Albums"
+
+
+class ArticleArticle(Article):
+    author = models.CharField(blank=True, max_length=DATABOX_MAX)
+    article_title = models.CharField(blank=True, max_length=DATABOX_MAX)
+    pubname = models.CharField(blank=True, max_length=DATABOX_MAX)
+    pubdate = models.CharField(blank=True, max_length=DATABOX_MAX)
+    pubdetails = models.CharField(blank=True, max_length=DATABOX_MAX)
+    doi_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    url = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleArticle']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_articles"
+        verbose_name = "Article"
+        verbose_name_plural = "Articles"
+
+
+class ArticleBook(Article):
+    book_title = models.CharField(blank=True, max_length=DATABOX_MAX)
+    author = models.CharField(blank=True, max_length=DATABOX_MAX)
+    illustrator = models.CharField(blank=True, max_length=DATABOX_MAX)
+    title_orig = models.CharField(blank=True, max_length=DATABOX_MAX)
+    country = models.CharField(blank=True, max_length=DATABOX_MAX)
+    language = models.CharField(blank=True, max_length=DATABOX_MAX)
+    series = models.CharField(blank=True, max_length=DATABOX_MAX)
+    genre = models.CharField(blank=True, max_length=DATABOX_MAX)
+    publisher = models.CharField(blank=True, max_length=DATABOX_MAX)
+    pubdate = models.CharField(blank=True, max_length=DATABOX_MAX)
+    publisher_current = models.CharField(blank=True, max_length=DATABOX_MAX)
+    pubdate_current = models.CharField(blank=True, max_length=DATABOX_MAX)
+    media_type = models.CharField(blank=True, max_length=DATABOX_MAX)
+    pages = models.CharField(blank=True, max_length=DATABOX_MAX)
+    awards = models.CharField(blank=True, max_length=DATABOX_MAX)
+    isbn = models.CharField(blank=True, max_length=DATABOX_MAX)
+    worldcat_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleBook']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_books"
+        verbose_name = "Book"
+        verbose_name_plural = "Books"
+
+
+class ArticleCamp(Article):
+    sos_uid = models.CharField(blank=True, max_length=DATABOX_MAX)
+    densho_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    usg_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    facility_type = models.CharField(blank=True, max_length=DATABOX_MAX)
+    admin_agency = models.CharField(blank=True, max_length=DATABOX_MAX)
+    date_opened = models.CharField(blank=True, max_length=DATABOX_MAX)
+    date_closed = models.CharField(blank=True, max_length=DATABOX_MAX)
+    location_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    city_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    state_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    facility_descr = models.CharField(blank=True, max_length=DATABOX_MAX)
+    gis_lat = models.CharField(blank=True, max_length=DATABOX_MAX)
+    gis_long = models.CharField(blank=True, max_length=DATABOX_MAX)
+    gis_tgn_id = models.CharField(blank=True, max_length=DATABOX_MAX)
+    current_disposition = models.CharField(blank=True, max_length=DATABOX_MAX)
+    population_descr = models.CharField(blank=True, max_length=DATABOX_MAX)
+    exit_destination = models.CharField(blank=True, max_length=DATABOX_MAX)
+    peak_population = models.CharField(blank=True, max_length=DATABOX_MAX)
+    peak_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    nps_link = models.CharField(blank=True, max_length=DATABOX_MAX)
+    official_link = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleCamp']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_camps"
+        verbose_name = "Camp"
+        verbose_name_plural = "Camps"
+
+
+class ArticleExhibition(Article):
+    first_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    final_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    location = models.CharField(blank=True, max_length=DATABOX_MAX)
+    organization = models.CharField(blank=True, max_length=DATABOX_MAX)
+    curator = models.CharField(blank=True, max_length=DATABOX_MAX)
+    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
+    key_staff = models.CharField(blank=True, max_length=DATABOX_MAX)
+    url = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleExhibition']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_exhibitions"
+        verbose_name = "Exhibition"
+        verbose_name_plural = "Exhibitions"
+
+
+class ArticleFilm(Article):
+    film_title = models.CharField(blank=True, max_length=DATABOX_MAX)
+    film_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    genre = models.CharField(blank=True, max_length=DATABOX_MAX)
+    released = models.CharField(blank=True, max_length=DATABOX_MAX)
+    director = models.CharField(blank=True, max_length=DATABOX_MAX)
+    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
+    writer = models.CharField(blank=True, max_length=DATABOX_MAX)
+    screenplay = models.CharField(blank=True, max_length=DATABOX_MAX)
+    story = models.CharField(blank=True, max_length=DATABOX_MAX)
+    based_on = models.CharField(blank=True, max_length=DATABOX_MAX)
+    narrator = models.CharField(blank=True, max_length=DATABOX_MAX)
+    starring = models.CharField(blank=True, max_length=DATABOX_MAX)
+    music = models.CharField(blank=True, max_length=DATABOX_MAX)
+    cinematography = models.CharField(blank=True, max_length=DATABOX_MAX)
+    editing = models.CharField(blank=True, max_length=DATABOX_MAX)
+    studio = models.CharField(blank=True, max_length=DATABOX_MAX)
+    distributor = models.CharField(blank=True, max_length=DATABOX_MAX)
+    runtime = models.CharField(blank=True, max_length=DATABOX_MAX)
+    country = models.CharField(blank=True, max_length=DATABOX_MAX)
+    language = models.CharField(blank=True, max_length=DATABOX_MAX)
+    budget = models.CharField(blank=True, max_length=DATABOX_MAX)
+    gross = models.CharField(blank=True, max_length=DATABOX_MAX)
+    imdb_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    trailer_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleFilm']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_films"
+        verbose_name = "Film"
+        verbose_name_plural = "Films"
+
+
+class ArticleMagazine(Article):
+    magazine_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    year_founded = models.CharField(blank=True, max_length=DATABOX_MAX)
+    first_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    final_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    final_issue = models.CharField(blank=True, max_length=DATABOX_MAX)
+    frequency = models.CharField(blank=True, max_length=DATABOX_MAX)
+    editor = models.CharField(blank=True, max_length=DATABOX_MAX)
+    former_editors = models.CharField(blank=True, max_length=DATABOX_MAX)
+    staff_writers = models.CharField(blank=True, max_length=DATABOX_MAX)
+    photographers = models.CharField(blank=True, max_length=DATABOX_MAX)
+    founder = models.CharField(blank=True, max_length=DATABOX_MAX)
+    publisher = models.CharField(blank=True, max_length=DATABOX_MAX)
+    company = models.CharField(blank=True, max_length=DATABOX_MAX)
+    circulation = models.CharField(blank=True, max_length=DATABOX_MAX)
+    country = models.CharField(blank=True, max_length=DATABOX_MAX)
+    language = models.CharField(blank=True, max_length=DATABOX_MAX)
+    issn = models.CharField(blank=True, max_length=DATABOX_MAX)
+    worldcat_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleMagazine']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_magazines"
+        verbose_name = "Magazine"
+        verbose_name_plural = "Magazines"
+
+
+class ArticleNewspaper(Article):
+    peak_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    publication_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    camp_article = models.CharField(blank=True, max_length=DATABOX_MAX)
+    publication_start_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    publication_end_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    predecessor_pub = models.CharField(blank=True, max_length=DATABOX_MAX)
+    successor_pub = models.CharField(blank=True, max_length=DATABOX_MAX)
+    mode_of_production = models.CharField(blank=True, max_length=DATABOX_MAX)
+    staff = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleNewspaper']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_newspapers"
+        verbose_name = "Newspaper"
+        verbose_name_plural = "Newspapers"
+
+
+class ArticlePerson(Article):
+    first_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    last_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    display_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    birth_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    death_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    birth_location = models.CharField(blank=True, max_length=DATABOX_MAX)
+    gender = models.CharField(blank=True, max_length=DATABOX_MAX)
+    ethnicity = models.CharField(blank=True, max_length=DATABOX_MAX)
+    generation = models.CharField(blank=True, max_length=DATABOX_MAX)
+    nationality = models.CharField(blank=True, max_length=DATABOX_MAX)
+    external_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    primary_geography = models.CharField(blank=True, max_length=DATABOX_MAX)
+    religion = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticlePerson']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_people"
+        verbose_name = "Person"
+        verbose_name_plural = "People"
+
+
+class ArticlePlay(Article):
+    play_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+    first_data = models.CharField(blank=True, max_length=DATABOX_MAX)
+    final_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+    location = models.CharField(blank=True, max_length=DATABOX_MAX)
+    writer = models.CharField(blank=True, max_length=DATABOX_MAX)
+    director = models.CharField(blank=True, max_length=DATABOX_MAX)
+    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
+    creative = models.CharField(blank=True, max_length=DATABOX_MAX)
+    technical = models.CharField(blank=True, max_length=DATABOX_MAX)
+    characters = models.CharField(blank=True, max_length=DATABOX_MAX)
+    official_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    playbill_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    ibdb_id = models.CharField(blank=True, max_length=DATABOX_MAX)
+    iodb_id = models.CharField(blank=True, max_length=DATABOX_MAX)
+    theatricalia_id = models.CharField(blank=True, max_length=DATABOX_MAX)
+    publisher = models.CharField(blank=True, max_length=DATABOX_MAX)
+    pubdate = models.CharField(blank=True, max_length=DATABOX_MAX)
+    current_publisher = models.CharField(blank=True, max_length=DATABOX_MAX)
+    current_pubdate = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticlePlay']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_plays"
+        verbose_name = "Play"
+        verbose_name_plural = "Plays"
+
+
+class ArticleWebsite(Article):
+    website_type = models.CharField(blank=True, max_length=DATABOX_MAX)
+    url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    website_title = models.CharField(blank=True, max_length=DATABOX_MAX)
+    creator = models.CharField(blank=True, max_length=DATABOX_MAX)
+    active = models.CharField(blank=True, max_length=DATABOX_MAX)
+    has_blog = models.CharField(blank=True, max_length=DATABOX_MAX)
+    primary_sources = models.CharField(blank=True, max_length=DATABOX_MAX)
+
+    metadata_panels = [
+        FieldPanel(fieldname)
+        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleWebsite']
+    ]
+    edit_handler = TabbedInterface([
+        ObjectList(Article.content_panels, heading='Content'),
+        ObjectList(metadata_panels, heading='Metadata'),
+        ObjectList(Article.promote_panels, heading='Promote'),
+        ObjectList(Article.settings_panels, heading='Settings'),
+    ])
+    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    template = 'encyclopedia/article.html'
+
+    class Meta:
+        db_table = "encyclopedia_article_website"
+        verbose_name = "Web Site"
+        verbose_name_plural = "Web Sites"

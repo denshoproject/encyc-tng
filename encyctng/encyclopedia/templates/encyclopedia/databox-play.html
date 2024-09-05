@@ -1,0 +1,112 @@
+<table id="databox-PlaysDisplay" class="infobox">
+  <tr>
+    <th>Name</th>
+    <td>{{ article.play_name }}</td>
+  </tr>
+  <tr>
+    <th>Date of first production</th>
+    <td>{{ article.first_date }}</td>
+  </tr>
+  {% if article.final_date %}
+  <tr>
+    <th>Date of final production</th>
+    <td>{{ article.final_date }}</td>
+  </tr>
+  {% endif %}
+  {% if article.location %}
+  <tr>
+    <th>Location</th>
+    <td>{{ article.location }}</td>
+  </tr>
+  {% endif %}
+  {% if article.writer %}
+  <tr>
+    <th>Writer</th>
+    <td>{{ article.writer }}</td>
+  </tr>
+  {% endif %}
+  {% if article.director %}
+  <tr>
+    <th>Director</th>
+    <td>{{ article.director }}</td>
+  </tr>
+  {% endif %}
+  {% if article.producer %}
+  <tr>
+    <th>Producer</th>
+    <td>{{ article.producer }}</td>
+  </tr>
+  {% endif %}
+  {% if article.creative %}
+  <tr>
+    <th>Creative</th>
+    <td>{{ article.creative }}</td>
+  </tr>
+  {% endif %}
+  {% if article.technical %}
+  <tr>
+    <th>Technical</th>
+    <td>{{ article.technical }}</td>
+  </tr>
+  {% endif %}
+  {% if article.characters %}
+  <tr>
+    <th>Characters</th>
+    <td>{{ article.characters }}</td>
+  </tr>
+  {% endif %}
+  {% if article.official_url %}
+  <tr>
+    <th>Official Website</th>
+    <td><a href="{{ article.official_url }}">{{ article.official_url }}</a></td>
+  </tr>
+  {% endif %}
+  {% if article.playbill_url %}
+  <tr>
+    <th><a href="https://www.playbill.com/events/listing/1.html">Playbill</a> Link</th>
+    <td><a href="{{ article.playbill_url }}">{{ article.playbill_url }}</a></td>
+  </tr>
+  {% endif %}
+  {% if article.ibdb_id %}
+  <tr>
+    <th><a href="https://www.ibdb.com/">Internet Broadway Database</a> ID</th>
+    <td>{{ article.ibdb_id }}</td>
+  </tr>
+  {% endif %}
+  {% if article.iodb_id %}
+  <tr>
+    <th><a href="https://www.lortel.org">Lortel Archives Internet Off-Broadway database</a> ID</th>
+    <td>{{ article.iodb_id }}</td>
+  </tr>
+  {% endif %}
+  {% if article.theatricalia_id %}
+  <tr>
+    <th><a href="https://theatricalia.com/">Theatricalia</a> ID</th>
+    <td>{{ article.theatricalia_id }}</td>
+  </tr>
+  {% endif %}
+  {% if article.publisher %}
+  <tr>
+    <th>Original Publisher</th>
+    <td>{{ article.publisher }}</td>
+  </tr>
+  {% endif %}
+  {% if article.pubdate %}
+  <tr>
+    <th>Original Publication Date</th>
+    <td>{{ article.pubdate }}</td>
+  </tr>
+  {% endif %}
+  {% if article.current_publisher %}
+  <tr>
+    <th>Current Publisher</th>
+    <td>{{ article.current_publisher }}</td>
+  </tr>
+  {% endif %}
+  {% if article.current_pubdate %}
+  <tr>
+    <th>Current Publication Date</th>
+    <td>{{ article.current_pubdate }}</td>
+  </tr>
+  {% endif %}
+</table>
