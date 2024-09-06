@@ -181,7 +181,7 @@ install-configs:
 	@echo ""
 	@echo "installing configs ----------------------------------------------------"
 	-mkdir $(CONF_BASE)
-	python -c 'import random; print "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)])' > $(CONF_SECRET)
+	python3 -c 'import random; print("".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)]))' > $(CONF_SECRET)
 	chown encyc.encyc $(CONF_SECRET)
 	chmod 640 $(CONF_SECRET)
 # web app settings
