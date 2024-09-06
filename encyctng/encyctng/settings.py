@@ -42,11 +42,13 @@ DEBUG = config.get('debug', 'debug')
 ALLOWED_HOSTS = [
     host.strip()
     for host in config.get('security', 'allowed_hosts').strip().split(',')
+    if host.strip()
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     host.strip()
     for host in config.get('security', 'csrf_origins').strip().split(',')
+    if host.strip()
 ]
 
 CACHE_TIMEOUT = 60 * 15
