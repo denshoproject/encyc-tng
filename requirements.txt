@@ -12,6 +12,7 @@ httpx
 python-dateutil
 #git+https://github.com/denshoproject/encyc-core.git@wagtail
 git+file:///opt/encyc-core@wagtail
+git+file:///opt/densho-elastictools
 walrus
 
 bpython
