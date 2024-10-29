@@ -499,6 +499,9 @@ source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Ma
 
 # articles -------------------------------------------------------------
 
+class PageIsRedirectException(Exception):
+    pass
+
 class UnknownAuthorException(Exception):
     pass
 
@@ -727,9 +730,13 @@ description
                 sources_collection
             )
         )
-        article_blocks = Articles.mwtext_to_streamblocks(
-            mw, mwtext, mw_titles_slugs, url_prefix
-        )
+        try:
+            article_blocks = Articles.mwtext_to_streamblocks(
+                mw, mwtext, mw_titles_slugs, url_prefix
+            )
+        except PageIsRedirectException as err:
+            print(err)
+            return
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
@@ -921,6 +928,10 @@ description
         # Remove the extra crud that MediaWiki adds
         soup = BeautifulSoup(html, features='html5lib')
         soup = Articles.strip_resourceguide_html(soup)
+        # die if this is a redirect
+        for tag in soup.find_all('div', class_='redirectMsg'):
+            link_txt = tag.find_all('a')[0].contents[0]
+            raise PageIsRedirectException(f'Redirect to "{link_txt}"')
         # remove the <div class="mw-parser-output"> wrapper
         for tag in soup.find_all(class_="mw-parser-output"):
             tag.unwrap()
