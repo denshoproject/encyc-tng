@@ -221,6 +221,25 @@ class Authors():
             author_articles[display_name] = mwauthor.author_articles
         return author_articles
 
+    @staticmethod
+    def alt_names(filename='/opt/encyc-tng/data/author-alts.txt'):
+        """Read file of alternative author names and return a dict
+        Document is formatted:
+        Odo,F:                 Odo,Franklin
+        Odo,F.:                Odo,Franklin
+        """
+        alts = {}
+        with Path(filename).open('r') as f:
+            lines = f.readlines()
+        alts = {}
+        for line in lines:
+            if not line[0] == '#':
+                alt_name,canonical_name = line.strip().split(':')
+                alt_name = alt_name.strip()
+                canonical_name = canonical_name.strip()
+                alts[alt_name] = canonical_name
+        return alts
+
 
 # sources --------------------------------------------------------------
 
@@ -480,6 +499,9 @@ source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Ma
 
 # articles -------------------------------------------------------------
 
+class UnknownAuthorException(Exception):
+    pass
+
 TEST_ARTICLES = [
     'Barbed Wire Baseball (book)',       # Resource Guide ONLY
     'Kotonk',                            # just an article
@@ -584,6 +606,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
             f"{author.family_name},{author.given_name}": author
             for author in Author.objects.all()
         }
+        authors_alts = Authors.alt_names(filename='/opt/encyc-tng/data/author-alts.txt')
 
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
         sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
@@ -614,7 +637,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
                 article = Articles.import_article(
                     mw, mwpage, mwtext,
                     mw_titles, mw_titles_slugs, url_prefix,
-                    authors_by_names,
+                    authors_by_names, authors_alts,
                     sources_collection, sources_by_headword,
                     index_page,
                     dryrun=dryrun,
@@ -656,7 +679,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page, dryrun=False):
+    def import_article(mw, mwpage, mwtext, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
         if Articles.is_resourceguide_only(mwpage):
             print('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
@@ -679,10 +702,20 @@ description
 
         article.description = mwpage.description
         #article.lastmod = mwpage.lastmod
-        article.authors = [
-            authors_by_names[f"{family_name},{given_name}"]
-            for family_name,given_name in mwpage.authors['parsed']
-        ]
+        article.authors = []
+        if mwpage.authors and mwpage.authors.get('parsed'):
+            for family_name,given_name in mwpage.authors['parsed']:
+                try:
+                    author = authors_by_names[f"{family_name},{given_name}"]
+                    article.authors.append(author)
+                except KeyError as err:
+                    try:
+                        author = authors_alts[f"{family_name},{given_name}"]
+                        article.authors.append(author)
+                    except KeyError as err:
+                        with Path('/tmp/unknown-authors').open('a') as f:
+                            f.write(f"{err}\n")
+                        raise UnknownAuthorException(err)
         for tag in mwpage.categories:
             article.tags.add(tag.lower())
      
