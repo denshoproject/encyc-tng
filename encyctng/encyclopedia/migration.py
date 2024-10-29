@@ -502,6 +502,9 @@ source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Ma
 class PageIsRedirectException(Exception):
     pass
 
+class UnhandledTagException(Exception):
+    pass
+
 class UnknownAuthorException(Exception):
     pass
 
@@ -1047,8 +1050,7 @@ description
                     }
                 }
             else:
-                print(f"{type(tag)=}")
-                raise Exception(f"ERROR: Don't know what to do with \"{tag}\"")
+                raise UnhandledTagException(f"UnhandledTagException: Don't know what to do with \"{tag}\"")
             if debug: print(f"{block=}")
             blocks.append(block)
         return blocks
