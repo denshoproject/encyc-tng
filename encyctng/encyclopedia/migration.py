@@ -23,9 +23,11 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files import File
 from django.core.files.images import ImageFile
+from django.db.utils import IntegrityError
 from django.template.defaultfilters import truncatewords
 from django.utils.text import slugify
 import djclick as click  # https://github.com/GaretJax/django-click
+from psycopg.errors import NotNullViolation
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtail.models.collections import Collection
@@ -647,6 +649,17 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
                 )
                 print(f"ok")
                 logger.debug(f"{datetime.now() - start} {n+1}/{num} ok | {title}\n")
+            except PageIsRedirectException as err:
+                logger.info(f"PageIsRedirectException: {mwpage.title}\n")
+                continue
+            except UnknownAuthorException as err:
+                logger.error(f"UnknownAuthorException: {mwpage.title} : {err}\n")
+            except UnhandledTagException as err:
+                logger.error(f"UnhandledTagException: {mwpage.title} : {err}\n")
+            except NotNullViolation as err:
+                logger.error(f"NotNullViolation: {mwpage.title} : {err}\n")
+            except IntegrityError as err:
+                logger.error(f"IntegrityError: {mwpage.title} : {err}\n")
             except Exception as err:
                 errors.append(title)
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
@@ -715,8 +728,6 @@ description
                         ]
                         authors.append(author)
                     except KeyError as err:
-                        with Path('/tmp/unknown-authors').open('a') as f:
-                            f.write(f"{err}\n")
                         raise UnknownAuthorException(err)
         # authors will be saved for later
         # article must have a primary key before authors can be added
@@ -732,13 +743,11 @@ description
                 sources_collection
             )
         )
-        try:
-            article_blocks = Articles.mwtext_to_streamblocks(
-                mw, mwtext, mw_titles_slugs, url_prefix
-            )
-        except PageIsRedirectException as err:
-            print(err)
-            return
+        article_blocks = Articles.mwtext_to_streamblocks(
+            mw, mwtext, mw_titles_slugs, url_prefix
+        )
+        logger.info(f"{len(article_blocks)=}")
+
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
