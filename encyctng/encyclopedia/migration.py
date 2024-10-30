@@ -7,6 +7,8 @@
 
 from datetime import datetime
 import json
+import logging
+logger = logging.getLogger(__name__)
 from pathlib import Path
 import re
 import shutil
@@ -527,7 +529,7 @@ TEST_ARTICLES = [
 class Articles():
 
     @staticmethod
-    def import_articles(titles=[], dryrun=False, logfile=None):
+    def import_articles(titles=[], dryrun=False):
         """
 
 url_prefix = '/wiki/'
@@ -599,11 +601,6 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
     #        wagtail_import_article(mwpage, index_page)
     #    # resource guide page?
     #    if mwpage.published_rg:
-        if logfile:
-            log_path = Path(logfile)
-        else:
-            log_path = None
-    
         url_prefix = '/wiki/'
         jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
         print(f"{jsonl_path=}")
@@ -649,14 +646,10 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
                     dryrun=dryrun,
                 )
                 print(f"ok")
-                if log_path:
-                    with log_path.open('a') as f:
-                        f.write(f"{datetime.now() - start} {n+1}/{num} ok | {title}\n")
+                logger.debug(f"{datetime.now() - start} {n+1}/{num} ok | {title}\n")
             except Exception as err:
                 errors.append(title)
-                if log_path:
-                    with log_path.open('a') as f:
-                        f.write(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
+                logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
                 print(traceback.format_exc())
         print(f"{len(errors)} ERRORS - - - - - - - - - - - - - - - - - -")
         for title in errors:
