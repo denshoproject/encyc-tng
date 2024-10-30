@@ -708,20 +708,26 @@ description
 
         article.description = mwpage.description
         #article.lastmod = mwpage.lastmod
-        article.authors = []
+
+        authors = []
         if mwpage.authors and mwpage.authors.get('parsed'):
             for family_name,given_name in mwpage.authors['parsed']:
                 try:
                     author = authors_by_names[f"{family_name},{given_name}"]
-                    article.authors.append(author)
+                    authors.append(author)
                 except KeyError as err:
                     try:
-                        author = authors_alts[f"{family_name},{given_name}"]
-                        article.authors.append(author)
+                        author = authors_by_names[
+                            authors_alts[f"{family_name},{given_name}"]
+                        ]
+                        authors.append(author)
                     except KeyError as err:
                         with Path('/tmp/unknown-authors').open('a') as f:
                             f.write(f"{err}\n")
                         raise UnknownAuthorException(err)
+        # authors will be saved for later
+        # article must have a primary key before authors can be added
+
         for tag in mwpage.categories:
             article.tags.add(tag.lower())
      
@@ -751,6 +757,8 @@ description
             result = index_page.add_child(instance=article)
 
         if not dryrun:
+            for author in authors:
+                article.authors.add(author)
             article.save_revision().publish()
 
     @staticmethod
