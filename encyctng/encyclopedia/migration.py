@@ -987,7 +987,7 @@ description
         soup,notmatched = Articles.rewrite_internal_urls(soup, mw_titles_slugs, url_prefix)
         # remove any remaining databox divs
         for tag in soup.find_all('div'):
-            if 'databox-' in tag['id']:
+            if tag and tag.get('id') and ('databox-' in tag['id']):
                 tag.unwrap()
         return str(soup)
 
