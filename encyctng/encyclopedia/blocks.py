@@ -108,13 +108,10 @@ class ImageBlock(StructBlock):
     @staticmethod
     def block_from_source(source, source_pks_by_filename):
         """StreamField representation of ImageBlock from PSMS source"""
-        print(f"{source=}")
         filename = Path(source['original_path']).name
-        print(f"{filename=}")
         image_pk = source_pks_by_filename['image'].get(
             filename
         )
-        print(f"{image_pk=}")
         return {
             'type': 'imageblock',
             'value': {

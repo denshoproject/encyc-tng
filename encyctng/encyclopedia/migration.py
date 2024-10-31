@@ -7,6 +7,8 @@
 
 from datetime import datetime
 import json
+import logging
+logger = logging.getLogger(__name__)
 from pathlib import Path
 import re
 import shutil
@@ -21,9 +23,11 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files import File
 from django.core.files.images import ImageFile
+from django.db.utils import IntegrityError
 from django.template.defaultfilters import truncatewords
 from django.utils.text import slugify
 import djclick as click  # https://github.com/GaretJax/django-click
+from psycopg.errors import NotNullViolation
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtail.models.collections import Collection
@@ -220,6 +224,25 @@ class Authors():
             mwauthor = LegacyPage.get(mw, title)
             author_articles[display_name] = mwauthor.author_articles
         return author_articles
+
+    @staticmethod
+    def alt_names(filename='/opt/encyc-tng/data/author-alts.txt'):
+        """Read file of alternative author names and return a dict
+        Document is formatted:
+        Odo,F:                 Odo,Franklin
+        Odo,F.:                Odo,Franklin
+        """
+        alts = {}
+        with Path(filename).open('r') as f:
+            lines = f.readlines()
+        alts = {}
+        for line in lines:
+            if not line[0] == '#':
+                alt_name,canonical_name = line.strip().split(':')
+                alt_name = alt_name.strip()
+                canonical_name = canonical_name.strip()
+                alts[alt_name] = canonical_name
+        return alts
 
 
 # sources --------------------------------------------------------------
@@ -480,6 +503,15 @@ source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Ma
 
 # articles -------------------------------------------------------------
 
+class PageIsRedirectException(Exception):
+    pass
+
+class UnhandledTagException(Exception):
+    pass
+
+class UnknownAuthorException(Exception):
+    pass
+
 TEST_ARTICLES = [
     'Barbed Wire Baseball (book)',       # Resource Guide ONLY
     'Kotonk',                            # just an article
@@ -499,7 +531,7 @@ TEST_ARTICLES = [
 class Articles():
 
     @staticmethod
-    def import_articles(titles=[], dryrun=False, logfile=None):
+    def import_articles(titles=[], dryrun=False):
         """
 
 url_prefix = '/wiki/'
@@ -567,72 +599,78 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
     f.write(streamfield_blocks)
 
         """
+        logger.info(f"Articles.import_articles(titles={titles}, dryrun={dryrun})")
     #    for mwpage in load_mw_articles():
     #        wagtail_import_article(mwpage, index_page)
     #    # resource guide page?
     #    if mwpage.published_rg:
-        if logfile:
-            log_path = Path(logfile)
-        else:
-            log_path = None
-    
         url_prefix = '/wiki/'
         jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-        print(f"{jsonl_path=}")
+        logger.info(f"{jsonl_path=}")
 
         authors_by_names = {
             f"{author.family_name},{author.given_name}": author
             for author in Author.objects.all()
         }
+        authors_alts = Authors.alt_names(filename='/opt/encyc-tng/data/author-alts.txt')
 
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
         sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
         source_pks_by_filename = Sources.source_keys_by_filename(
             sources_by_headword, sources_collection
         )
-        print(f"{len(sources_by_headword.keys())=}")
-        print(f"{sources_collection=}")
+        logger.info(f"{len(sources_by_headword.keys())=}")
+        logger.info(f"{sources_collection=}")
 
         index_page = Articles.wagtail_index_page()
-        print(f"{index_page=}")
+        logger.info(f"{index_page=}")
 
         mw = wiki.MediaWiki()
-        print(f"{mw=}")
+        logger.info(f"{mw=}")
         mw_titles = Articles.load_mwtitles(mw)
         if not titles:
             titles = mw_titles
         mw_titles_slugs = Articles.load_mwtitles_to_slugs(mw)
 
+        logger.info('')
         errors = []
         num = len(titles)
         start = datetime.now()
         for n,title in enumerate(titles):
             print(f"{n+1}/{num} {title=}")
             mwpage,mwtext = Articles.load_mwpage(mw, title)
-            print('importing...')
+            logger.info('importing...')
             try:
                 article = Articles.import_article(
                     mw, mwpage, mwtext,
                     mw_titles, mw_titles_slugs, url_prefix,
-                    authors_by_names,
+                    authors_by_names, authors_alts,
                     sources_collection, sources_by_headword,
                     index_page,
                     dryrun=dryrun,
                 )
-                print(f"ok")
-                if log_path:
-                    with log_path.open('a') as f:
-                        f.write(f"{datetime.now() - start} {n+1}/{num} ok | {title}\n")
+                logger.info(f"ok")
+                logger.debug(f"{datetime.now() - start} {n+1}/{num} ok | {title}\n")
+            except PageIsRedirectException as err:
+                logger.info(f"PageIsRedirectException: {mwpage.title}\n")
+                continue
+            except UnknownAuthorException as err:
+                logger.error(f"UnknownAuthorException: {mwpage.title} : {err}\n")
+            except UnhandledTagException as err:
+                logger.error(f"UnhandledTagException: {mwpage.title} : {err}\n")
+            except NotNullViolation as err:
+                logger.error(f"NotNullViolation: {mwpage.title} : {err}\n")
+            except IntegrityError as err:
+                logger.error(f"IntegrityError: {mwpage.title} : {err}\n")
             except Exception as err:
                 errors.append(title)
-                if log_path:
-                    with log_path.open('a') as f:
-                        f.write(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
-                print(traceback.format_exc())
-        print(f"{len(errors)} ERRORS - - - - - - - - - - - - - - - - - -")
+                logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
+                logger.error(traceback.format_exc())
+            logger.info('')
+        logger.info(f"{len(errors)} ERRORS - - - - - - - - - - - - - - - - - -")
         for title in errors:
-            print(title)
-        print(f"{len(errors) / len(titles)} percent")
+            logger.info(title)
+        logger.info(f"{len(errors) / len(titles)} percent")
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
@@ -656,14 +694,17 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page, dryrun=False):
+    def import_article(mw, mwpage, mwtext, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
+        if Articles.is_author(mwpage, mw):
+            logger.info('AUTHOR PAGE - SKIPPING')
+            return
         if Articles.is_resourceguide_only(mwpage):
-            print('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
+            logger.info('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
             return
 
         article_class,databox,databox_name = Articles.article_type(mwpage)
-        print(f"{article_class=}")
+        logger.info(f"{article_class=}")
         try:
             article = article_class.objects.get(title=title)
             article_is_new = False
@@ -673,16 +714,29 @@ description
                 body='',
             )
             article_is_new = True
-        print(f"{article=}")
+        logger.info(f"{article=}")
 
         Articles.set_databox_fields(article, databox, databox_name)
 
-        article.description = mwpage.description
         #article.lastmod = mwpage.lastmod
-        article.authors = [
-            authors_by_names[f"{family_name},{given_name}"]
-            for family_name,given_name in mwpage.authors['parsed']
-        ]
+
+        authors = []
+        if mwpage.authors and mwpage.authors.get('parsed'):
+            for family_name,given_name in mwpage.authors['parsed']:
+                try:
+                    author = authors_by_names[f"{family_name},{given_name}"]
+                    authors.append(author)
+                except KeyError as err:
+                    try:
+                        author = authors_by_names[
+                            authors_alts[f"{family_name},{given_name}"]
+                        ]
+                        authors.append(author)
+                    except KeyError as err:
+                        raise UnknownAuthorException(err)
+        # authors will be saved for later
+        # article must have a primary key before authors can be added
+
         for tag in mwpage.categories:
             article.tags.add(tag.lower())
      
@@ -694,9 +748,13 @@ description
                 sources_collection
             )
         )
+        article.description = mwpage.description
+        logger.info(f"{article.description=}")
         article_blocks = Articles.mwtext_to_streamblocks(
             mw, mwtext, mw_titles_slugs, url_prefix
         )
+        logger.info(f"{len(article_blocks)=}")
+
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
@@ -704,10 +762,12 @@ description
 
         if article_is_new and not dryrun:
             # place page under encyclopedia index
-            print(f"{index_page}.add_child(instance={article})")
+            logger.info(f"{index_page}.add_child(instance={article})")
             result = index_page.add_child(instance=article)
 
         if not dryrun:
+            for author in authors:
+                article.authors.add(author)
             article.save_revision().publish()
 
     @staticmethod
@@ -762,18 +822,15 @@ description
         mwpage,mwtext = load_mwpages('Ruth Asawa')
         """
         mw = wiki.MediaWiki()
-        if verbose:
-            print(f"{mw=} {mw.mw.host=}")
+        logger.debug(f"{mw=} {mw.mw.host=}")
         if title:
             return Articles.load_mwpage(mw,title)
         mw_articles = [d['title'] for d in Proxy.articles_lastmod(mw)]
-        if verbose:
-            print(f"{len(mw_articles)=}")
+        logger.debug(f"{len(mw_articles)=}")
         mwpages = []
         num = len(mw_articles)
         for n,title in enumerate(mw_articles[:10]):
-            if verbose:
-                print(f"{n}/{num} {title}")
+            logger.debug(f"{n}/{num} {title}")
             mwpages.append( Articles.load_mwpage(mw,title) )
         return mwpages
 
@@ -786,6 +843,14 @@ description
             cached = mw_articles
             cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
         return cached
+
+    @staticmethod
+    def is_author(mwpage, mw):
+        """Page is an author page
+        """
+        if mwpage.title in Authors.mw_author_titles(mw):
+            return True
+        return False
 
     @staticmethod
     def is_encyclopedia_only(mwpage):
@@ -812,7 +877,7 @@ description
         # Encyclopedia migration ignores RG-only pages and content
         if 'rgdatabox-Core' in mw_databoxes.keys():
             rgdatabox = mw_databoxes.pop('rgdatabox-Core')
-            print(f"{rgdatabox=}")
+            logger.info(f"{rgdatabox=}")
         if mw_databoxes:
             if len(mw_databoxes.keys()) > 1:
                 raise Exception(
@@ -888,6 +953,10 @@ description
         # Remove the extra crud that MediaWiki adds
         soup = BeautifulSoup(html, features='html5lib')
         soup = Articles.strip_resourceguide_html(soup)
+        # die if this is a redirect
+        for tag in soup.find_all('div', class_='redirectMsg'):
+            link_txt = tag.find_all('a')[0].contents[0]
+            raise PageIsRedirectException(f'Redirect to "{link_txt}"')
         # remove the <div class="mw-parser-output"> wrapper
         for tag in soup.find_all(class_="mw-parser-output"):
             tag.unwrap()
@@ -918,7 +987,7 @@ description
         soup,notmatched = Articles.rewrite_internal_urls(soup, mw_titles_slugs, url_prefix)
         # remove any remaining databox divs
         for tag in soup.find_all('div'):
-            if 'databox-' in tag['id']:
+            if tag and tag.get('id') and ('databox-' in tag['id']):
                 tag.unwrap()
         return str(soup)
 
@@ -976,7 +1045,7 @@ description
         soup = BeautifulSoup(html, features='html5lib')
         blocks = []
         for tag in soup.body.contents:
-            if debug: print(f"{tag=}")
+            logger.debug(f"{tag=}")
             if type(tag) == NavigableString:
                 continue
             if tag.name in ['blockquote', 'i', 'li', 'pre', 'ul']:
@@ -1003,9 +1072,8 @@ description
                     }
                 }
             else:
-                print(f"{type(tag)=}")
-                raise Exception(f"ERROR: Don't know what to do with \"{tag}\"")
-            if debug: print(f"{block=}")
+                raise UnhandledTagException(f"UnhandledTagException: Don't know what to do with \"{tag}\"")
+            logger.debug(f"{block=}")
             blocks.append(block)
         return blocks
 
