@@ -696,6 +696,9 @@ description
     @staticmethod
     def import_article(mw, mwpage, mwtext, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
+        if Articles.is_author(mwpage, mw):
+            logger.info('AUTHOR PAGE - SKIPPING')
+            return
         if Articles.is_resourceguide_only(mwpage):
             logger.info('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
             return
@@ -839,6 +842,14 @@ description
             cached = mw_articles
             cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
         return cached
+
+    @staticmethod
+    def is_author(mwpage, mw):
+        """Page is an author page
+        """
+        if mwpage.title in Authors.mw_author_titles(mw):
+            return True
+        return False
 
     @staticmethod
     def is_encyclopedia_only(mwpage):
