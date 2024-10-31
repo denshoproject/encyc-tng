@@ -718,7 +718,6 @@ description
 
         Articles.set_databox_fields(article, databox, databox_name)
 
-        article.description = mwpage.description
         #article.lastmod = mwpage.lastmod
 
         authors = []
@@ -749,6 +748,8 @@ description
                 sources_collection
             )
         )
+        article.description = mwpage.description
+        logger.info(f"{article.description=}")
         article_blocks = Articles.mwtext_to_streamblocks(
             mw, mwtext, mw_titles_slugs, url_prefix
         )
