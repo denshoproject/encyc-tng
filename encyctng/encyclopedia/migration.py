@@ -41,13 +41,14 @@ from encyc.models.legacy import Source as LegacySource, SOURCE_FIELDS
 from encyc.models.legacy import wikipage
 from encyc import wiki
 # encyc-tail
+from encyclopedia.footnotes import Footnotary
 from editors.models import Author
 from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
     ImageBlock, VideoBlock, DocumentBlock,
     DataboxCampBlock)
 from encyclopedia.models import ArticlesIndexPage
-from encyclopedia.models import Page, Article, Footnotary
+from encyclopedia.models import Page, Article
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 
