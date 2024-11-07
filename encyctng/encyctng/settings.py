@@ -39,14 +39,19 @@ SECRET_KEY = config.get('security', 'secret_key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.get('debug', 'debug')
 
+LOG_LEVEL = config.get('debug', 'log_level')
+LOG_FILE = config.get('debug', 'log_file')
+
 ALLOWED_HOSTS = [
     host.strip()
     for host in config.get('security', 'allowed_hosts').strip().split(',')
+    if host.strip()
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     host.strip()
     for host in config.get('security', 'csrf_origins').strip().split(',')
+    if host.strip()
 ]
 
 CACHE_TIMEOUT = 60 * 15
@@ -122,7 +127,7 @@ WSGI_APPLICATION = 'encyctng.wsgi.application'
 
 DATABASES = {
     'default': {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": config.get('database', 'engine'),
         'NAME': config.get('database', 'name'),
         'HOST': config.get('database', 'host'),
         'PORT': config.get('database', 'port'),
@@ -231,3 +236,35 @@ WAGTAILADMIN_BASE_URL = config.get('wagtail', 'base_url'),
 WAGTAILDOCS_EXTENSIONS = [
     'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(levelname)-8s [%(module)s.%(funcName)s]  %(message)s'
+        },
+        'simple': {
+            'format': '%(asctime)s %(levelname)-8s %(message)s'
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": LOG_LEVEL,
+            "class": "logging.FileHandler",
+            "filename": LOG_FILE,
+            'formatter': 'simple',
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": LOG_LEVEL,
+            "propagate": True,
+        },
+    },
+    'root': {
+        'level': LOG_LEVEL,
+        'handlers': ['file'],
+    },
+}

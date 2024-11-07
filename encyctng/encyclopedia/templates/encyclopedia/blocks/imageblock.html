@@ -4,9 +4,9 @@
     <td>
       {% image self.image fill-500x320 loading="lazy" %}
       <figcaption>{{ self.caption }} - {{ self.attribution }}</figcaption>
-      <p>
+      {% if self.image %}<p>
         <a href="{% url "encyc-source" "image" self.image.id %}">More info</a>
-      </p>
+      </p>{% endif %}
     </td>
   </tr>
 </table>

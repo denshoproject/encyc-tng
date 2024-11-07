@@ -1,0 +1,52 @@
+<table id="databox-ExhibitionsDisplay" class="infobox">
+  <tr>
+    <th>Name</th>
+    <td>{{ article.name }}</td>
+  </tr>
+  <tr>
+    <th>Date of first opening</th>
+    <td>{{ article.first_date }}</td>
+  </tr>
+  {% if article.final_date %}
+  <tr>
+    <th>Date of final opening</th>
+    <td>{{ article.final_date }}</td>
+  </tr>
+  {% endif %}
+  {% if article.location %}
+  <tr>
+    <th>Location</th>
+    <td>{{ article.location }}</td>
+  </tr>
+  {% endif %}
+  {% if article.organization %}
+  <tr>
+    <th>Organization</th>
+    <td>{{ article.organization }}</td>
+  </tr>
+  {% endif %}
+  {% if article.curator %}
+  <tr>
+    <th>Curator</th>
+    <td>{{ article.curator }}</td>
+  </tr>
+  {% endif %}
+  {% if article.producer %}
+  <tr>
+    <th>Producer</th>
+    <td>{{ article.producer }}</td>
+  </tr>
+  {% endif %}
+  {% if article.key_staff %}
+  <tr>
+    <th>Key Staff</th>
+    <td>{{ article.key_staff }}</td>
+  </tr>
+  {% endif %}
+  {% if article.url %}
+  <tr>
+    <th>Official Website</th>
+    <td>< href="{{ article.url }}">{{ article.url }}</a></td>
+  </tr>
+  {% endif %}
+</table>

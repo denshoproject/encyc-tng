@@ -1,0 +1,70 @@
+<!-- sos_uid {{ article.sos_uid }} -->
+<!-- densho_name {{ article.densho_name }} -->
+<table id="databox-Camps" class="infobox">
+  <tr>
+    <th>US Gov Name</th>
+    <td>{{ article.usg_name }}</td>
+  </tr>
+  <tr>
+    <th>[[Sites of incarceration|Facility Type]]</th>
+    <td>{{ article.facility_type }}</td>
+  </tr>
+  {% if article.admin_agency %}
+  <tr>
+    <th>Administrative Agency</th>
+    <td>{{ article.admin_agency }}</td>
+  </tr>
+  {% endif %}
+  <tr>
+    <th>Location</th>
+    <td>
+      {{ article.location_name }}
+      <!-- city_name {{ article.city_name }} -->
+      <!-- state_name {{ article.state_name }} -->
+      ({{ article.gis_lat }} lat, {{ article.gis_long }} lng)
+      <!-- gis_tgn_id {{ article.gis_tgn_id }} -->
+    </td>
+  </tr>
+  <tr>
+    <th>Date Opened</th>
+    <td>{{ article.date_opened }}</td>
+  </tr>
+  <tr>
+    <th>Date Closed</th>
+    <td>{{ article.date_closed }}</td>
+  </tr>
+  <tr>
+    <th>Population Description</th>
+    <td>{{ article.population_descr }}</td>
+  </tr>
+  <tr>
+    <th>General Description</th>
+    <td>{{ article.facility_descr }}</td>
+  </tr><tr>
+    <th>Peak Population</th>
+    <td>
+      {{ article.peak_population }}
+      {% if article.peak_date %}({{ article.peak_date }}){% endif %}
+    </td>
+  </tr>
+  {% if article.exit_destination %}
+  <tr>
+    <th>Exit Destination</th>
+    <td>{{ article.exit_destination }}</td>
+  </tr>
+  {% endif %}
+  {% if article.nps_link %}
+  <tr>
+    <td>
+      <a href="{{ article.nps_link }}">National Park Service Info</a>
+    </td>
+  </tr>
+  {% endif %}
+  {% if article.official_link %}
+  <tr>
+    <td>
+      <a href="{{ article.official_link }}">Other Info</a>
+    </td>
+  </tr>
+  {% endif %}
+</table>

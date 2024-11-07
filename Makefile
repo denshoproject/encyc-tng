@@ -3,12 +3,16 @@ USER=encyc
 SHELL = /bin/bash
 
 SRC_REPO=https://github.com/denshoproject/encyc-tng
+SRC_REPO_ELASTICTOOLS=https://github.com/denshoproject/densho-elastictools
+SRC_REPO_ENCYCCORE=https://github.com/denshoproject/encyc-core
 
 INSTALL_BASE=/opt
 INSTALLDIR=$(INSTALL_BASE)/encyc-tng
 APPDIR=$(INSTALLDIR)/encyctng
 REQUIREMENTS=$(INSTALLDIR)/requirements.txt
 PIP_CACHE_DIR=$(INSTALL_BASE)/pip-cache
+INSTALL_ELASTICTOOLS=$(INSTALL_BASE)/densho-elastictools
+INSTALL_ENCYCCORE=$(INSTALL_BASE)/encyc-core
 
 CWD := $(shell pwd)
 INSTALL_STATIC=$(INSTALLDIR)/static
@@ -128,9 +132,10 @@ get-encyc-tng:
 	@echo "get-encyc-tng -----------------------------------------------------"
 	git pull
 
-install-encyc-tng: install-virtualenv install-setuptools git-safe-dir install-redis
+install-encyc-tng: install-encyc-core install-virtualenv install-setuptools git-safe-dir install-redis
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
+	apt-get install --assume-yes ffmpeg
 	source $(VIRTUALENV)/bin/activate; \
 	uv pip install -U -r $(INSTALLDIR)/requirements.txt
 	source $(VIRTUALENV)/bin/activate; \
@@ -152,6 +157,8 @@ git-safe-dir:
 	@echo ""
 	@echo "git-safe-dir -----------------------------------------------------------"
 	sudo -u encyc git config --global --add safe.directory $(INSTALLDIR)
+	sudo -u encyc git config --global --add safe.directory $(INSTALL_ELASTICTOOLS)
+	sudo -u encyc git config --global --add safe.directory $(INSTALL_ENCYCCORE)
 
 shell:
 	source $(VIRTUALENV)/bin/activate; \
@@ -173,6 +180,36 @@ clean-encyc-tng:
 	-rm -Rf $(APPDIR)/dist
 
 
+get-elastictools:
+	@echo ""
+	@echo "get-elastictools --------------------------------------------------"
+	if test -d $(INSTALL_ELASTICTOOLS); \
+	then cd $(INSTALL_ELASTICTOOLS) && git pull; \
+	else cd $(INSTALL_BASE) && git clone $(SRC_REPO_ELASTICTOOLS); \
+	fi
+
+install-elastictools: install-virtualenv install-setuptools git-safe-dir install-redis
+	@echo ""
+	@echo "install elastictools -----------------------------------------------"
+	source $(VIRTUALENV)/bin/activate; \
+	uv pip install -U -r $(INSTALL_ELASTICTOOLS)/requirements.txt
+
+
+get-encyc-core:
+	@echo ""
+	@echo "get-encyc-core --------------------------------------------------"
+	if test -d $(INSTALL_ENCYCCORE); \
+	then cd $(INSTALL_ENCYCCORE) && git pull; \
+	else cd $(INSTALL_BASE) && git clone $(SRC_REPO_ENCYCCORE); \
+	fi
+
+install-encyc-core: install-virtualenv install-setuptools git-safe-dir install-redis install-elastictools
+	@echo ""
+	@echo "install encyc-core -------------------------------------------------"
+	source $(VIRTUALENV)/bin/activate; \
+	uv pip install -U -r $(INSTALL_ENCYCCORE)/requirements.txt
+
+
 clean-pip:
 	-rm -Rf $(PIP_CACHE_DIR)/*
 
@@ -181,7 +218,7 @@ install-configs:
 	@echo ""
 	@echo "installing configs ----------------------------------------------------"
 	-mkdir $(CONF_BASE)
-	python -c 'import random; print "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)])' > $(CONF_SECRET)
+	python3 -c 'import random; print("".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)]))' > $(CONF_SECRET)
 	chown encyc.encyc $(CONF_SECRET)
 	chmod 640 $(CONF_SECRET)
 # web app settings
