@@ -361,7 +361,9 @@ class Sources():
         config.SOURCES_API_HTUSER
         config.SOURCES_API_HTPASS
         """
-        return Sources.sources_by_headword(Proxy.sources_all())
+        return Sources.sources_by_headword(
+            [source.to_dict() for source in Proxy.sources_all()]
+        )
 
     @staticmethod
     def load_psms_sources_jsonl(jsonl_path):
