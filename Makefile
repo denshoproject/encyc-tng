@@ -136,10 +136,7 @@ install-encyc-tng: install-encyc-core install-virtualenv install-setuptools git-
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
 	apt-get install --assume-yes ffmpeg
-	source $(VIRTUALENV)/bin/activate; \
-	uv pip install -U -r $(INSTALLDIR)/requirements.txt
-	source $(VIRTUALENV)/bin/activate; \
-	cd $(APPDIR)/ && python setup.py install
+	source $(VIRTUALENV)/bin/activate; uv pip install .
 # logs dir
 	-mkdir $(LOG_BASE)
 	chown -R encyc.root $(LOG_BASE)
