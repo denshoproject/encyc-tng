@@ -37,6 +37,9 @@ dependencies = [
     'httpx',
     'python-dateutil',
     'densho-wagtail-notes @ git+https://github.com/denshoproject/densho-wagtail-notes',
+    'elastictools @ git+https://github.com/denshoproject/densho-elastictools',
+    #'encyc-core @ git+https://github.com/denshoproject/encyc-core',
+    'encyc-core @ git+file:///opt/encyc-core@wagtail',
     'walrus',
 ]
 
