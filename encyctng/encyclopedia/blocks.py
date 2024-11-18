@@ -9,7 +9,7 @@ from wagtail.blocks import (
 )
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
-from wagtail.images.blocks import ImageChooserBlock
+from wagtail.images.blocks import ImageBlock
 from wagtailmedia.blocks import VideoChooserBlock
 
 
@@ -93,7 +93,7 @@ templates/wikiprox/source.html
 """
 
 class ImageBlock(StructBlock):
-    image = ImageChooserBlock(required=True)
+    image = ImageBlock(required=True)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
     courtesy = CharBlock(required=False)
@@ -175,7 +175,7 @@ class DocumentBlock(StructBlock):
         document_download_url
     """
     document = DocumentChooserBlock(required=True)
-    display = ImageChooserBlock(required=False)
+    display = ImageBlock(required=False)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
     courtesy = CharBlock(required=False)
