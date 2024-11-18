@@ -18,29 +18,29 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Framework :: Django",
-    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
     "Framework :: Wagtail",
     "Framework :: Wagtail :: 6",
+    "Framework :: Wagtail :: 6.3",
 ]
 
 dynamic = ["version"]  # will read __version__ from encyctng/__init__.py
 requires-python = ">=3.11"
 dependencies = [
     'django-click',
-    'Django>=5.0',
+    'Django>=5.1',
     'gunicorn',
-    'psycopg',
-    'wagtail>=6.0,<6.1',
-    'wagtailmedia',
     'httpx',
+    'psycopg',
     'python-dateutil',
+    'wagtail>=6.3,<6.4',
+    'wagtailmedia',
+    'walrus',
     'densho-wagtail-notes @ git+https://github.com/denshoproject/densho-wagtail-notes',
     'elastictools @ git+https://github.com/denshoproject/densho-elastictools',
     #'encyc-core @ git+https://github.com/denshoproject/encyc-core',
     'encyc-core @ git+file:///opt/encyc-core@wagtail',
-    'walrus',
 ]
 
 [project.optional-dependencies]
