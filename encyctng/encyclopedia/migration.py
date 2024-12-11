@@ -30,7 +30,7 @@ import djclick as click  # https://github.com/GaretJax/django-click
 from psycopg.errors import NotNullViolation
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
-from wagtail.models.collections import Collection
+from wagtail.models.media import Collection
 from wagtailmedia.models import Media
 
 # encyc-core
@@ -282,7 +282,7 @@ class Sources():
     titles = ['Manzanar', 'Manzanar Free Press (newspaper)']
     jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
     src_dir = '/opt/encyc-tail/data/sources'
-    from wagtail.models.collections import Collection
+    from wagtail.models.media import Collection
     from encyclopedia.migration import Sources
     collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
     sources = Sources.load_psms_sources_jsonl(jsonl_path)
@@ -418,7 +418,7 @@ from pathlib import Path
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtailmedia.models import Media
-from wagtail.models.collections import Collection
+from wagtail.models.media import Collection
 from encyclopedia.migration import Sources
 jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
 sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
@@ -542,7 +542,7 @@ title = 'Manzanar'; slug = 'manzanar'
 #title = 'Ruth Asawa'; slug = 'ruth-asawa'
 jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
 
-from wagtail.models.collections import Collection
+from wagtail.models.media import Collection
 from encyc.models.legacy import Page as LegacyPage
 from encyc import wiki
 from editors.models import Author
