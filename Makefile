@@ -106,13 +106,6 @@ install-virtualenv:
 	source $(VIRTUALENV)/bin/activate; \
 	pip3 install -U --cache-dir=$(PIP_CACHE_DIR) uv
 
-install-setuptools: install-virtualenv
-	@echo ""
-	@echo "install-setuptools -----------------------------------------------------"
-	apt-get --assume-yes install python3-dev
-	source $(VIRTUALENV)/bin/activate; \
-	uv pip install -U --cache-dir=$(PIP_CACHE_DIR) setuptools
-
 
 get-app: get-encyc-tng
 
@@ -128,7 +121,7 @@ get-encyc-tng:
 	@echo "get-encyc-tng -----------------------------------------------------"
 	git pull
 
-install-encyc-tng: install-virtualenv install-setuptools git-safe-dir install-redis
+install-encyc-tng: install-virtualenv git-safe-dir install-redis
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
 	apt-get install --assume-yes ffmpeg
