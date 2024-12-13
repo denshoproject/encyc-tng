@@ -640,6 +640,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         num = len(titles)
         start = datetime.now()
         for n,title in enumerate(titles):
+            logger.info(f"{n+1}/{num} {title=}")
             print(f"{n+1}/{num} {title=}")
             mwpage,mwtext = Articles.load_mwpage(mw, title)
             logger.info('importing...')
