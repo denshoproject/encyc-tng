@@ -531,10 +531,13 @@ TEST_ARTICLES = [
     'Tondemonai-Never Happen! (play)',   # databox-play
 ]
 
+SKIP_ARTICLES = [
+]
+
 class Articles():
 
     @staticmethod
-    def import_articles(titles=[], dryrun=False, errorquit=False):
+    def import_articles(titles=[], dryrun=False, errorquit=False, offset=0, skip=[]):
         """
 
 url_prefix = '/wiki/'
@@ -640,8 +643,14 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         num = len(titles)
         start = datetime.now()
         for n,title in enumerate(titles):
-            logger.info(f"{n+1}/{num} {title=}")
-            print(f"{n+1}/{num} {title=}")
+            if (title in skip) or (n < offset):
+                skipped = '[skipped] '
+            else:
+                skipped = ''
+            logger.info(f"{n+1}/{num} {skipped}{title=}")
+            click.echo(f"{n+1}/{num} {skipped}{title=}")
+            if (title in skip) or (n < offset):
+                continue
             mwpage,mwtext = Articles.load_mwpage(mw, title)
             logger.info('importing...')
             try:
