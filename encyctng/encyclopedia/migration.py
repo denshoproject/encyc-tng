@@ -621,7 +621,11 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         authors_alts = Authors.alt_names(filename='/opt/encyc-tng/data/author-alts.txt')
 
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-        sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
+        try:
+            sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
+        except Collection.DoesNotExist:
+            click.echo(f"Collection {Collection} does not exist: Try running migration.initial_setup().")
+            return
         source_pks_by_filename = Sources.source_keys_by_filename(
             sources_by_headword, sources_collection
         )
