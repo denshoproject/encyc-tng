@@ -656,10 +656,11 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
             if (title in skip) or (n < offset):
                 continue
             mwpage,mwtext = Articles.load_mwpage(mw, title)
+            pagedata = json.loads(mwpage.pagedata(mw, title))['parse']
             logger.info('importing...')
             try:
                 article = Articles.import_article(
-                    mw, mwpage, mwtext,
+                    mw, mwpage, mwtext, pagedata,
                     mw_titles, mw_titles_slugs, url_prefix,
                     authors_by_names, authors_alts,
                     sources_collection, sources_by_headword,
@@ -721,7 +722,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
         if Articles.is_author(mwpage, mw):
             logger.info('AUTHOR PAGE - SKIPPING')
