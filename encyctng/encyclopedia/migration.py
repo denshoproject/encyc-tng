@@ -727,7 +727,9 @@ description
         if Articles.is_author(mwpage, mw):
             logger.info('AUTHOR PAGE - SKIPPING')
             return
-        if Articles.is_resourceguide_only(mwpage):
+        is_resourceguide_only = Articles.is_resourceguide_only(mwpage, pagedata)
+        logging.info(f"{is_resourceguide_only=}")
+        if is_resourceguide_only:
             logger.info('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
             return
 
@@ -894,10 +896,13 @@ description
         return False
 
     @staticmethod
-    def is_resourceguide_only(mwpage):
+    def is_resourceguide_only(mwpage, pagedata):
         """Page is published in Resource Guide but NOT in Encyclopedia
         """
         if mwpage.published_rg and not mwpage.published_encyc:
+            return True
+        templates = [x['*'] for x in pagedata['templates']]
+        if 'Template:publish-rgonly' in templates:
             return True
         return False
 
