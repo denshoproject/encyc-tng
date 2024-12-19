@@ -955,7 +955,7 @@ description
         # RichTextBlock editor and parser.
         html = html.replace('&lt;/BLAT&gt;', '&lt;/ref&gt;').replace('&lt;BLAT&gt;', '&lt;ref&gt;')
         # Remove the extra crud that MediaWiki adds
-        soup = BeautifulSoup(html, features='html5lib')
+        soup = BeautifulSoup(html, 'lxml')
         soup = Articles.strip_resourceguide_html(soup)
         # die if this is a redirect
         for tag in soup.find_all('div', class_='redirectMsg'):
@@ -1046,7 +1046,7 @@ description
             'p':  'paragraph',
         }
         KNOWN_TAGS = TAGS_TO_ROLES.keys()
-        soup = BeautifulSoup(html, features='html5lib')
+        soup = BeautifulSoup(html, 'lxml')
         blocks = []
         for tag in soup.body.contents:
             logger.debug(f"{tag=}")
@@ -1198,7 +1198,7 @@ with open('/opt/encyc-tail/Manzanar_pformatted.txt','r') as f:
     """
     # OBSOLETE - works on *parsed* html, footnotes already converted
     #from bs4 import BeautifulSoup
-    #soup = BeautifulSoup('html', features='html5lib')
+    #soup = BeautifulSoup('html', 'lxml')
     ## MW images
     #for tag in soup.find_all(class_='floatright'):
     #    tag.extract()

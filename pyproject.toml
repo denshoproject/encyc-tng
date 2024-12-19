@@ -28,10 +28,12 @@ classifiers = [
 dynamic = ["version"]  # will read __version__ from encyctng/__init__.py
 requires-python = ">=3.11"
 dependencies = [
+    'beautifulsoup4',
     'django-click',
     'Django>=5.1',
     'gunicorn',
     'httpx',
+    'lxml',
     'psycopg',
     'python-dateutil',
     'wagtail>=6.3,<6.4',
