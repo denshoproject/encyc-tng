@@ -534,7 +534,7 @@ TEST_ARTICLES = [
 class Articles():
 
     @staticmethod
-    def import_articles(titles=[], dryrun=False):
+    def import_articles(titles=[], dryrun=False, errorquit=False):
         """
 
 url_prefix = '/wiki/'
@@ -660,16 +660,26 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
                 continue
             except UnknownAuthorException as err:
                 logger.error(f"UnknownAuthorException: {mwpage.title} : {err}\n")
+                if errorquit:
+                    return
             except UnhandledTagException as err:
                 logger.error(f"UnhandledTagException: {mwpage.title} : {err}\n")
+                if errorquit:
+                    return
             except NotNullViolation as err:
                 logger.error(f"NotNullViolation: {mwpage.title} : {err}\n")
+                if errorquit:
+                    return
             except IntegrityError as err:
                 logger.error(f"IntegrityError: {mwpage.title} : {err}\n")
+                if errorquit:
+                    return
             except Exception as err:
                 errors.append(title)
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
                 logger.error(traceback.format_exc())
+                if errorquit:
+                    return
             logger.info('')
         logger.info(f"{len(errors)} ERRORS - - - - - - - - - - - - - - - - - -")
         for title in errors:
