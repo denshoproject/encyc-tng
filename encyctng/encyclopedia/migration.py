@@ -1119,7 +1119,7 @@ description
                     }
                 }
             else:
-                raise UnhandledTagException(f"UnhandledTagException: Don't know what to do with \"{tag}\"")
+                raise UnhandledTagException(f"UnhandledTagException: Don't know what to do with \"{tag.name}\"")
             logger.debug(f"{block=}")
             blocks.append(block)
         return blocks
