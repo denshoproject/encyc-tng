@@ -777,11 +777,16 @@ description
             )
         )
         article.description = mwpage.description
+        if not article.description:
+            article.description = ''
         logger.info(f"{article.description=}")
         article_blocks = Articles.mwtext_to_streamblocks(
             mw, mwtext, mw_titles_slugs, url_prefix
         )
         logger.info(f"{len(article_blocks)=}")
+        if article_blocks and not article.description:
+            logger.info("Making block 0 the description")
+            article.description = article_blocks.pop(0)
 
         article.body = json.dumps(
             sources_blocks + article_blocks
