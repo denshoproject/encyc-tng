@@ -537,7 +537,7 @@ SKIP_ARTICLES = [
 class Articles():
 
     @staticmethod
-    def import_articles(titles=[], dryrun=False, errorquit=False, offset=0, skip=[]):
+    def import_articles(titles=[], dryrun=False, errorquit=False, offset=0, skip=[], errfile=''):
         """
 
 url_prefix = '/wiki/'
@@ -655,8 +655,13 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
             click.echo(f"{n+1}/{num} {skipped}{title=}")
             if (title in skip) or (n < offset):
                 continue
-            mwpage,mwtext = Articles.load_mwpage(mw, title)
-            pagedata = json.loads(mwpage.pagedata(mw, title))['parse']
+            try:
+                mwpage,mwtext = Articles.load_mwpage(mw, title)
+                pagedata = json.loads(mwpage.pagedata(mw, title))['parse']
+            except Exception as err:
+                logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
+                logger.error(traceback.format_exc())
+                Articles.log_error(title, err, errfile)
             logger.info('importing...')
             try:
                 article = Articles.import_article(
@@ -674,24 +679,29 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
                 continue
             except UnknownAuthorException as err:
                 logger.error(f"UnknownAuthorException: {mwpage.title} : {err}\n")
+                Articles.log_error(title, err, errfile)
                 if errorquit:
                     return
             except UnhandledTagException as err:
                 logger.error(f"UnhandledTagException: {mwpage.title} : {err}\n")
+                Articles.log_error(title, err, errfile)
                 if errorquit:
                     return
             except NotNullViolation as err:
                 logger.error(f"NotNullViolation: {mwpage.title} : {err}\n")
+                Articles.log_error(title, err, errfile)
                 if errorquit:
                     return
             except IntegrityError as err:
                 logger.error(f"IntegrityError: {mwpage.title} : {err}\n")
+                Articles.log_error(title, err, errfile)
                 if errorquit:
                     return
             except Exception as err:
                 errors.append(title)
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
                 logger.error(traceback.format_exc())
+                Articles.log_error(title, err, errfile)
                 if errorquit:
                     return
             logger.info('')
@@ -1178,6 +1188,34 @@ description
                     f"Don't recognize media_format '{source['media_format']}!"
                 )
         return blocks
+
+    @staticmethod
+    def log_error(title, error, path=None):
+        """Log article title, error signature and traceback to JSONL file
+        """
+        if not path:
+            return
+        data = {}
+        data['ts'] = datetime.now().strftime('%Y-%m-%d-T%H:%M:%S')
+        data['title'] = title.strip()
+        data['error'] = str(error.__class__.__name__).strip()
+        data['traceback'] = ''.join(traceback.format_exception(error)).strip()
+        with path.open('a') as f:
+            f.write(f"{json.dumps(data)}\n")
+
+    @staticmethod
+    def log_error_analyze(path):
+        with path.open('r') as f:
+            lines = f.readlines()
+        errors_by_sig = {}
+        for line in lines:
+            data = json.loads(line)
+            if not errors_by_sig.get(data['error']):
+                errors_by_sig[data['error']] = []
+            errors_by_sig[data['error']].append(data)
+        for key in errors_by_sig.keys():
+            print(f"{len(errors_by_sig[key])}: {key}")
+        return errors_by_sig
 
 
 def ddrobject_block(source):
