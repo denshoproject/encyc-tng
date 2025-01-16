@@ -1080,6 +1080,11 @@ description
             'p':  'paragraph',
         }
         KNOWN_TAGS = TAGS_TO_ROLES.keys()
+        def table_is_rgmediatype_databox(tag):
+            for t in tag.find_all('th'):
+                if t.contents and t.contents[0] == 'RG Media Type':
+                    return True
+            return False
         soup = BeautifulSoup(html, 'lxml')
         blocks = []
         for tag in soup.body.contents:
@@ -1093,6 +1098,10 @@ description
                 continue
             # TODO what to do with <div id="citationAuthor">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'citationAuthor':
+                continue
+            # drop RG Media Type databoxes
+            if tag.name == 'tbody' and table_is_rgmediatype_databox(tag):
+                tag.decompose()
                 continue
             if tag.name == 'p':
                 block = {
