@@ -817,7 +817,7 @@ description
             cached = mwtext
             cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
         # can't cache this bc contains Python objects
-        mwpage = LegacyPage.get(mw,title)
+        mwpage = LegacyPage.get(mw,title, migration=False)
         return mwpage,cached
 
     @staticmethod
