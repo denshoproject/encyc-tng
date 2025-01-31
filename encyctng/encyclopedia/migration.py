@@ -659,11 +659,14 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         """
         logger.info(f"Articles.import_articles(basedir={basedir}, dryrun={dryrun})")
         basedir = Path(basedir)
-        authors_by_names,authors_alts = Articles.load_authors(basedir)
-        sources_collection,sources_by_headword = Articles.load_sources(basedir)
-        url_prefix = '/wiki/'
         mw = wiki.MediaWiki()
-        titles,mw_titles,mw_titles_slugs = Articles.load_mw(basedir)
+        url_prefix = '/wiki/'
+        authors_by_names,authors_alts, \
+            sources_collection,sources_by_headword, \
+            saved_titles,mw_titles,mw_titles_slugs, \
+            redirects = Articles.load_articles_metadata(basedir)
+        if not titles:
+            titles = saved_titles
         
         logger.info(f"{mw=}")
         index_page = Articles.prep_wagtail()
@@ -681,6 +684,10 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
             logger.info(f"{n+1}/{num} {skipped}{title=}")
             click.echo(f"{n+1}/{num} {skipped}{title=}")
             if (title in skip) or (n < offset):
+                continue
+            if title in redirects.keys():
+                print(f"REDIRECT {title} -> {redirects[title]}")
+                # TODO add Wagtail redirect
                 continue
             try:
                 mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
@@ -738,6 +745,19 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         for title in errors:
             logger.info(title)
         logger.info(f"{len(errors) / len(titles)} percent")
+
+    @staticmethod
+    def load_articles_metadata(basedir):
+        authors_by_names,authors_alts = Articles.load_authors(basedir)
+        sources_collection,sources_by_headword = Articles.load_sources(basedir)
+        saved_titles,mw_titles,mw_titles_slugs = Articles.load_mw(basedir)
+        redirects = Articles.load_redirects(basedir)
+        return [
+            authors_by_names,authors_alts,
+            sources_collection,sources_by_headword,
+            saved_titles,mw_titles,mw_titles_slugs,
+            redirects
+        ]
 
     @staticmethod
     def download_authors():
@@ -893,6 +913,18 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         except FileNotFoundError:
             errors = None
         return mwpage,mwtext,pagedata,errors
+
+    @staticmethod
+    def load_redirects(basedir):
+        path = basedir / 'redirects'
+        with path.open('r') as f:
+            text = f.read()
+        return {
+            line.split('|')[0].strip(): line.split('|')[1].strip()
+            for line in [
+                    line.replace('\u200e','') for line in text.splitlines()
+            ]
+        }
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
