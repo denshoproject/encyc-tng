@@ -1329,6 +1329,9 @@ description
             if tag.name == 'tbody' and table_is_rgmediatype_databox(tag):
                 tag.decompose()
                 continue
+            # ignore tables.  TODO handle tables?
+            if tag.name in ['table', 'tbody']:
+                continue
             if tag.name == 'p':
                 block = {
                     'type': 'paragraph',
