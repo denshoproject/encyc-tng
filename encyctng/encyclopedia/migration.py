@@ -1317,7 +1317,7 @@ description
             logger.debug(f"{tag=}")
             if type(tag) == NavigableString:
                 continue
-            if tag.name in ['blockquote', 'i', 'li', 'pre', 'ul']:
+            if tag.name in ['blockquote', 'i', 'li', 'pre', 'ul', 'dl']:
                 continue
             # TODO what to do with <div id="authorByline">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
