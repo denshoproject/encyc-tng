@@ -1009,7 +1009,7 @@ description
             article.description = ''
         logger.info(f"{article.description=}")
         article_blocks = Articles.mwtext_to_streamblocks(
-            mw, mwtext, mw_titles_slugs, url_prefix
+            article, mw, mwtext, mw_titles_slugs, url_prefix
         )
         logger.info(f"{len(article_blocks)=}")
         if article_blocks and not article.description:
@@ -1172,10 +1172,10 @@ description
                     setattr(article, tng_field, value)
 
     @staticmethod
-    def mwtext_to_streamblocks(mw, mwtext: str, mw_titles_slugs, url_prefix) -> list[str]:
+    def mwtext_to_streamblocks(article, mw, mwtext: str, mw_titles_slugs, url_prefix) -> list[str]:
         mwtext_cleaned = Articles.clean_mediawiki_text(mwtext)
         mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles_slugs, url_prefix)
-        streamfield_blocks = Articles.html_to_streamfield(mwhtml)
+        streamfield_blocks = Articles.html_to_streamfield(article, mwhtml)
         merged_blocks = Articles.merge_streamfield_blocks(streamfield_blocks)
         return merged_blocks
 
@@ -1290,7 +1290,7 @@ description
         return soup,notmatched
 
     @staticmethod
-    def html_to_streamfield(html: str, debug: bool=False) -> list[str]:
+    def html_to_streamfield(article, html: str, debug: bool=False) -> list[str]:
         """Convert HTML into list of StreamField (role,html) tuples
      
         Role is one of ['heading', 'paragraph', 'embed', 'quote', ...]
@@ -1325,6 +1325,16 @@ description
             # TODO what to do with <div id="citationAuthor">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'citationAuthor':
                 continue
+            if tag.name == 'div' and tag.has_attr('class') and tag['class'] == 'alert alert-info':
+                # <div class="alert alert-info">...little available research
+                # <div class="alert alert-info">...still under development
+                # article tags attached in import_article
+                if 'little available research' in tag.contents:
+                    article.tags.add('needsmoreresearch')
+                    continue
+                if 'still under development' in tag.contents:
+                    article.tags.add('underdevelopment')
+                    continue
             # drop RG Media Type databoxes
             if tag.name == 'tbody' and table_is_rgmediatype_databox(tag):
                 tag.decompose()
