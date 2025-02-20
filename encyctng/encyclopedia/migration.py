@@ -995,7 +995,11 @@ description
 
         for tag in mwpage.categories:
             article.tags.add(tag.lower())
-     
+
+        # TODO collect related articles and attach when we have Wagtail IDs
+        # TODO write related articles to file? database?
+        related_articles = parse_related_articles(mwtext)
+
         sources_blocks = Articles.streamfield_media_blocks(
             mwpage.title,
             sources_by_headword,
@@ -1030,6 +1034,8 @@ description
             for author in authors:
                 article.authors.add(author)
             article.save_revision().publish()
+
+        return article,related_articles
 
     @staticmethod
     def reset():
@@ -1417,6 +1423,26 @@ description
                     f"Don't recognize media_format '{source['media_format']}!"
                 )
         return blocks
+
+    @staticmethod
+    def parse_related_articles(mwtext):
+        """Parse mwtext and return list of related articles
+        
+        <div id="RelatedArticlesDisplay">
+        <h2>Related Articles</h2>
+        <p class="mw-empty-elt"></p>
+        <div id="RelatedArticlesSectionDisplay">
+        <h3>General</h3>
+        <p class="mw-empty-elt"></p>
+        <ul><li><a href="/wiki/hostels" title="Hostels">Hostels</a></li>
+        <li><a href="/wiki/resettlement" title="Resettlement">Resettlement</a></li></ul>
+        </div>
+        </div>
+        """
+        soup = BeautifulSoup(mwtext)
+        div = soup.find(id='RelatedArticlesSectionDisplay')
+        hrefs_titles = [(li.a['href'],li.a['title']) for li in div.find_all('li')]
+        return hrefs_titles
 
     @staticmethod
     def log_error(title, error, path=None):
