@@ -50,6 +50,13 @@ python encyctng/manage.py createsuperuser
 ```
 
 
+## Initial Setup
+
+This creates things like the "Encyclopedia" page at the top of the `Articles` hierarchy and the `Collection` objects that the various types of Primary Sources will be added to.
+``` python
+migration.initial_setup()
+```
+
 ## Authors
 ``` python
 from encyclopedia.migration import Authors
@@ -68,24 +75,24 @@ mkdir /opt/encyc-tng/data/
 mkdir /opt/encyc-tng/data/sources/
 ```
 
-(as encyc) Load PrimarySource data from PSMS API:
+(as encyc) Load PrimarySource data from PSMS API and save to a JSONL file:
 ``` python
-from encyclopedia.migration import Sources
+from encycolopedia.migration import Sources
 sources = [source for source in Sources.load_psms_sources_api().values()]
 Sources.save_psms_sources_jsonl(sources, '/tmp/densho-psms-sources-YYYYMMDD.jsonl')
 ```
 (as user) and write to JSONL file:
 ``` bash
-cp /tmp/densho-psms-sources-YYYYMMDD.jsonl /opt/encyc-tng/data/
+cp /tmp/densho-psms-sources-YYYYMMDD.jsonl /opt/encyc-tng/data/sources/
 ```
+
 Copy binary files from PSMS.  Before you do this, make sure you have 4.8G free space. Or consider not doing it...
 ``` bash
 rsync -avz ansible@packrat:/var/www/encycpsms/media/sources/* data/sources/
 ```
 
-
 ``` python
-jsonl_path = '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl'
+jsonl_path = '/opt/encyc-tng/data/sources/densho-psms-sources-YYYYMMDD.jsonl'
 from pathlib import Path
 from encyclopedia.migration import Sources
 jsonl_path = Path(jsonl_path)
@@ -99,6 +106,15 @@ Sources.import_sources(primary_sources, sources_dir)
 
 
 ## Articles
+
+Download Articles data from the wiki:
+``` python
+from encyclopedia import migration
+from encyc import wiki
+basedir = '/tmp/migration'
+migration.Articles.download_articles(wiki.MediaWiki(), basedir)
+```
+
 ``` python
 from encyclopedia.migration import Articles
 Articles.import_articles(debug=True, dryrun=False)
