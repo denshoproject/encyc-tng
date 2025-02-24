@@ -128,6 +128,9 @@ get-encyc-tng:
 	@echo "get-encyc-tng -----------------------------------------------------"
 	git pull
 
+setup-encyc-tng:
+	source $(VIRTUALENV)/bin/activate; uv pip install .
+
 install-encyc-tng: install-virtualenv install-setuptools git-safe-dir install-redis
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
