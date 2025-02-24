@@ -48,6 +48,9 @@ dependencies = [
 [project.optional-dependencies]
 testing = []
 
+[project.scripts]
+encyctail = "encyctng.encyclopedia.migration.encytail:encyctail"
+
 [project.urls]
 Repository = "https://github.com/denshoproject/encyc-tng"
 
