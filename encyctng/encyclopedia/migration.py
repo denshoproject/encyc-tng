@@ -377,9 +377,12 @@ class Sources():
         """
         with Path(jsonl_path).open('r') as f:
             # make a list first
-            return Sources.sources_by_headword(
-                [json.loads(line) for line in f.readlines()]
-            )
+            sources = [
+                # each source dict is enclosed in a list ¯\_(ツ)_/¯
+                json.loads(line.strip())[0]
+                for line in f.readlines()
+            ]
+            return Sources.sources_by_headword(sources)
 
     @staticmethod
     def sources_by_headword(sources_list):
@@ -400,7 +403,10 @@ class Sources():
     def discard_fields(sources):
         for source in sources:
             for field in Sources.DISCARD_FIELDS:
-                source.pop(field)
+                try:
+                    source.pop(field)
+                except KeyError:
+                    pass
         return sources
 
     @staticmethod
