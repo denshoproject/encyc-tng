@@ -319,28 +319,28 @@ class Sources():
         """
         src_dir = Path(sources_dir)
         if source['media_format'] == 'image':
-            image = Sources.get_image(collection, src_dir / Path(source['original_path']).name)
+            image = Sources.get_image(collection, src_dir / Path(source['original_path']))
             image.save()
             #print(f"{image=}")
         elif source['media_format'] == 'document':
-            doc = Sources.get_document(collection, src_dir / Path(source['original_path']).name)
+            doc = Sources.get_document(collection, src_dir / Path(source['original_path']))
             doc.save()
             #print(f"{doc=}")
-            display = Sources.get_image(collection, src_dir / Path(source['display_path']).name)
+            display = Sources.get_image(collection, src_dir / Path(source['display_path']))
             display.save()
             #print(f"{display=}")
         elif source['media_format'] == 'video':
-            display = Sources.get_image(collection, src_dir / Path(source['display_path']).name)
+            display = Sources.get_image(collection, src_dir / Path(source['display_path']))
             display.save()
             #print(f"{display=}")
             media = Sources.get_media(
                 collection,
-                src_dir / Path(source['original_path']).name,
-                src_dir / Path(source['display_path']).name
+                src_dir / Path(source['original_path']),
+                src_dir / Path(source['display_path'])
             )
             media.save()
             #print(f"{media=}")
-            transcript = Sources.get_document(collection, src_dir / Path(source['transcript']).name)
+            transcript = Sources.get_document(collection, src_dir / Path(source['transcript']))
             transcript.save()
             #print(f"{transcript=}")
 
