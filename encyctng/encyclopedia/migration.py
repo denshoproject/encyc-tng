@@ -294,7 +294,7 @@ class Sources():
     """
 
     @staticmethod
-    def import_sources(psms_sources, sources_dir):
+    def import_sources(psms_sources, sources_dir, dryrun=False):
         """Import files from sources_dir using metadata from psms_sources JSONL file
 
         #psms_sources = Sources.load_psms_sources_api()
@@ -307,42 +307,65 @@ class Sources():
         # PSMS images attached to a collection
         collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
         print(f"{collection=}")
+        errors = []
         num = len(psms_sources)
-        for article,sources in psms_sources.items():
+        for n,article_sources in enumerate(psms_sources.items()):
+            article,sources = article_sources
             for source in sources:
-                print(f"{article } - {source['media_format']} {source['encyclopedia_id']}")
-                Sources.import_file(source, sources_dir, collection=collection)
+                print(f"{n}/{num} {article } - {source['media_format']} {source['encyclopedia_id']}")
+                result = Sources.import_file(
+                    article, source, sources_dir, collection=collection, dryrun=dryrun
+                )
+                if result and result.get('error'):
+                    errors.append(result)
+        return errors
 
     @staticmethod
-    def import_file(source, sources_dir, collection):
+    def import_file(article, source, sources_dir, collection, dryrun=False):
         """
         """
         src_dir = Path(sources_dir)
         if source['media_format'] == 'image':
-            image = Sources.get_image(collection, src_dir / Path(source['original_path']))
-            image.save()
-            #print(f"{image=}")
+            try:
+                image = Sources.get_image(collection, src_dir / Path(source['original_path']))
+                if not dryrun:
+                    image.save()
+                #print(f"{image=}")
+            except Exception as err:
+                return {'article': article, 'error': err, 'source': source}
         elif source['media_format'] == 'document':
-            doc = Sources.get_document(collection, src_dir / Path(source['original_path']))
-            doc.save()
-            #print(f"{doc=}")
-            display = Sources.get_image(collection, src_dir / Path(source['display_path']))
-            display.save()
-            #print(f"{display=}")
+            try:
+                doc = Sources.get_document(collection, src_dir / Path(source['original_path']))
+                if not dryrun:
+                    doc.save()
+                #print(f"{doc=}")
+                display = Sources.get_image(collection, src_dir / Path(source['display_path']))
+                if not dryrun:
+                    display.save()
+                #print(f"{display=}")
+            except Exception as err:
+                return {'article': article, 'error': err, 'source': source}
         elif source['media_format'] == 'video':
-            display = Sources.get_image(collection, src_dir / Path(source['display_path']))
-            display.save()
-            #print(f"{display=}")
-            media = Sources.get_media(
-                collection,
-                src_dir / Path(source['original_path']),
-                src_dir / Path(source['display_path'])
-            )
-            media.save()
-            #print(f"{media=}")
-            transcript = Sources.get_document(collection, src_dir / Path(source['transcript']))
-            transcript.save()
-            #print(f"{transcript=}")
+            try:
+                display = Sources.get_image(collection, src_dir / Path(source['display_path']))
+                if not dryrun:
+                    display.save()
+                #print(f"{display=}")
+                media = Sources.get_media(
+                    collection,
+                    src_dir / Path(source['original_path']),
+                    src_dir / Path(source['display_path'])
+                )
+                if not dryrun:
+                    media.save()
+                #print(f"{media=}")
+                transcript = Sources.get_document(collection, src_dir / Path(source['transcript']))
+                if not dryrun:
+                    transcript.save()
+                #print(f"{transcript=}")
+            except Exception as err:
+                return {'article': article, 'error': err, 'source': source}
+        return {}
 
     @staticmethod
     def reset():
