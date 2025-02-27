@@ -586,20 +586,26 @@ migration.Articles.download_articles(wiki.MediaWiki(), '/tmp/migration', titles=
         """
         basedir = Path(basedir)
         basedir.mkdir(parents=True, exist_ok=True)
-        
         logger.info(f"Articles.download_articles(basedir={basedir}, titles={titles}")
-        authors_by_names,authors_alts = Articles.download_authors()
+
+        alts_path = basedir / 'author-alts.txt'
+        logger.info('Downloading authors')
+        authors_by_names,authors_alts = Articles.download_authors(alts_path)
         Articles.dump_authors(
             authors_by_names, authors_alts, basedir
         )
 
-        sources_collection,sources_by_headword = Articles.download_sources()
+        logger.info('Downloading sources')
+        today = datetime.today().strftime('%Y%m%d')
+        sources_path = basedir / 'sources' / f"densho-psms-sources-{today}.jsonl"
+        sources_collection,sources_by_headword = Articles.download_sources(sources_path)
         Articles.dump_sources(
             sources_collection,sources_by_headword, basedir
         )
         logger.info(f"{len(sources_by_headword.keys())=}")
         logger.info(f"{sources_collection=}")
 
+        logger.info('Downloading articles')
         url_prefix = '/wiki/'
         titles,mw_titles,mw_titles_slugs = Articles.download_mw(
             mw, url_prefix, titles=titles
@@ -792,12 +798,12 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         ]
 
     @staticmethod
-    def download_authors():
+    def download_authors(alts_path):
         authors_by_names = {
             f"{author.family_name},{author.given_name}": author
             for author in Author.objects.all()
         }
-        authors_alts = Authors.alt_names(filename='/opt/encyc-tng/data/author-alts.txt')
+        authors_alts = Authors.alt_names(filename=alts_path)
         return authors_by_names,authors_alts
 
     @staticmethod
@@ -821,9 +827,9 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         return authors_by_names,authors_alts
 
     @staticmethod
-    def download_sources():
-        jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
+    def download_sources(jsonl_path):
         logger.info(f"{jsonl_path=}")
+        #sources_by_headword = Sources.load_psms_sources_api()
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
         try:
             sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
@@ -1051,7 +1057,6 @@ description
         if article_blocks and not article.description:
             logger.info("Making block 0 the description")
             article.description = article_blocks.pop(0)
-
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
