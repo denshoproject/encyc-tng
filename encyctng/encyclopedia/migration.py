@@ -318,6 +318,9 @@ class Sources():
                 )
                 if result and result.get('error'):
                     errors.append(result)
+        print(f"{len(errors)} errors")
+        for error in errors:
+            print(f"{error['error']}")
         return errors
 
     @staticmethod
