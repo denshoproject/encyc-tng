@@ -50,18 +50,48 @@ python encyctng/manage.py createsuperuser
 ```
 
 
+## Static media
+
+``` bash
+python encyctng/manage.py collectstatic
+```
+
+
+## API Credentials
+
+Check `/etc/hosts` to see that `encycpsms.local` is pointed to `packrat`, and make sure `/etc/encyc/core-local.cfg` has the following filled in.
+``` ini
+[mediawiki]
+scheme=http
+host=encycmw.local
+username=REDACTED
+password=REDACTED
+
+[sources]
+api_url=http://encycpsms.local/api/2.0
+api_username
+api_password
+api_htuser
+api_htpass
+```
+
+
 ## Initial Setup
 
 This creates things like the "Encyclopedia" page at the top of the `Articles` hierarchy and the `Collection` objects that the various types of Primary Sources will be added to.
 ``` python
+from encyclopedia import migration
 migration.initial_setup()
 ```
 
 ## Authors
+
 ``` python
 from encyclopedia.migration import Authors
 Authors.import_authors(debug=True)
 ```
+
+Copy the file of authors' alternative names in `/opt/encyc-tng/data/author-alts.txt'.
 
 
 ## Primary Sources
@@ -71,19 +101,12 @@ Authors.import_authors(debug=True)
 Source migration needs to happen on same machine as the binaries.
 Also the Sources API is a pain so download and write to a file
 ``` bash
-mkdir /opt/encyc-tng/data/
-mkdir /opt/encyc-tng/data/sources/
+mkdir -p /opt/encyc-tng/data/sources/
 ```
 
-(as encyc) Load PrimarySource data from PSMS API and save to a JSONL file:
-``` python
-from encycolopedia.migration import Sources
-sources = [source for source in Sources.load_psms_sources_api().values()]
-Sources.save_psms_sources_jsonl(sources, '/tmp/densho-psms-sources-YYYYMMDD.jsonl')
-```
-(as user) and write to JSONL file:
+Copy Sources to local
 ``` bash
-cp /tmp/densho-psms-sources-YYYYMMDD.jsonl /opt/encyc-tng/data/sources/
+rsync -avz ansible@192.168.0.24:/var/www/encycpsms/media/sources /opt/encyc-tng/data/
 ```
 
 Copy binary files from PSMS.  Before you do this, make sure you have 4.8G free space. Or consider not doing it...
@@ -91,8 +114,15 @@ Copy binary files from PSMS.  Before you do this, make sure you have 4.8G free s
 rsync -avz ansible@packrat:/var/www/encycpsms/media/sources/* data/sources/
 ```
 
+Run the following as `encyc`:
 ``` python
-jsonl_path = '/opt/encyc-tng/data/sources/densho-psms-sources-YYYYMMDD.jsonl'
+from encyclopedia.migration import Sources
+sources = [source for source in Sources.load_psms_sources_api().values()]
+Sources.save_psms_sources_jsonl(sources, '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl')
+```
+
+``` python
+jsonl_path = '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl'
 from pathlib import Path
 from encyclopedia.migration import Sources
 jsonl_path = Path(jsonl_path)
@@ -107,15 +137,29 @@ Sources.import_sources(primary_sources, sources_dir)
 
 ## Articles
 
+mkdir -p /opt/encyc-tng/data/articles
+
 Download Articles data from the wiki:
 ``` python
 from encyclopedia import migration
 from encyc import wiki
-basedir = '/tmp/migration'
+basedir = '/opt/encyc-tng/data'
 migration.Articles.download_articles(wiki.MediaWiki(), basedir)
 ```
 
 ``` python
 from encyclopedia.migration import Articles
 Articles.import_articles(debug=True, dryrun=False)
+```
+
+``` python
+from pathlib import Path
+from encyc import wiki
+from encyclopedia import migration
+basedir = Path('/tmp/migration')
+mw = wiki.MediaWiki()
+authors_by_names,authors_alts, sources_collection,sources_by_headword, saved_titles,mw_titles,mw_titles_slugs = migration.Articles.load_articles_metadata(basedir)
+
+for title in titles:
+    mwpage,mwtext,pagedata,pgerrors = migration.Articles.load_article(basedir, title)
 ```
