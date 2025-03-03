@@ -1036,7 +1036,7 @@ description
 
         # TODO collect related articles and attach when we have Wagtail IDs
         # TODO write related articles to file? database?
-        related_articles = parse_related_articles(mwtext)
+        related_articles = Articles.parse_related_articles(mwtext)
 
         sources_blocks = Articles.streamfield_media_blocks(
             mwpage.title,
