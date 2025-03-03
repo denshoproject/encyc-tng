@@ -91,9 +91,6 @@ from encyclopedia.migration import Authors
 Authors.import_authors(debug=True)
 ```
 
-Copy the file of authors' alternative names in `/opt/encyc-tng/data/author-alts.txt'.
-
-
 ## Primary Sources
 
 *THIS SECTION IS INCOMPLETE!*
@@ -131,13 +128,16 @@ primary_sources = Sources.load_psms_sources_jsonl(jsonl_path)
 # just one for now
 primary_sources = primary_sources[:1]
 # import
-Sources.import_sources(primary_sources, sources_dir)
+result = Sources.import_sources(primary_sources, sources_dir)
 ```
 
 
 ## Articles
 
 mkdir -p /opt/encyc-tng/data/articles
+Copy file of authors' alternative names in `/opt/encyc-tng/data/author-alts.txt`.
+Copy file of article redirects in in `/opt/encyc-tng/data/`.
+
 
 Download Articles data from the wiki:
 ``` python
@@ -148,8 +148,10 @@ migration.Articles.download_articles(wiki.MediaWiki(), basedir)
 ```
 
 ``` python
+from pathlib import Path
 from encyclopedia.migration import Articles
-Articles.import_articles(debug=True, dryrun=False)
+basedir = Path('/opt/encyc-tng/data')
+Articles.import_articles(basedir)
 ```
 
 ``` python
