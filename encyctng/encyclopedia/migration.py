@@ -1478,8 +1478,9 @@ description
         """
         soup = BeautifulSoup(mwtext)
         div = soup.find(id='RelatedArticlesSectionDisplay')
-        hrefs_titles = [(li.a['href'],li.a['title']) for li in div.find_all('li')]
-        return hrefs_titles
+        if div:
+            return [(li.a['href'],li.a['title']) for li in div.find_all('li')]
+        return []
 
     @staticmethod
     def log_error(title, error, path=None):
