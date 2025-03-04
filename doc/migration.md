@@ -111,13 +111,14 @@ Copy binary files from PSMS.  Before you do this, make sure you have 4.8G free s
 rsync -avz ansible@packrat:/var/www/encycpsms/media/sources/* data/sources/
 ```
 
-Run the following as `encyc`:
+Download Primary Source metadata from the API:
 ``` python
 from encyclopedia.migration import Sources
 sources = [source for source in Sources.load_psms_sources_api().values()]
 Sources.save_psms_sources_jsonl(sources, '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl')
 ```
 
+Load metadata and import Primary Sources:
 ``` python
 jsonl_path = '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl'
 from pathlib import Path
@@ -147,6 +148,7 @@ basedir = '/opt/encyc-tng/data'
 migration.Articles.download_articles(wiki.MediaWiki(), basedir)
 ```
 
+Load article data and import:
 ``` python
 from pathlib import Path
 from encyclopedia.migration import Articles
