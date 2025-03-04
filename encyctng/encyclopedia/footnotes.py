@@ -78,9 +78,18 @@ class Footnotary():
             html = html.replace(broken,fixed)
         soup = BeautifulSoup(html, 'lxml')
         # remove <head> and <body>
-        soup.html.unwrap()
-        soup.head.unwrap()
-        soup.body.unwrap()
+        try:
+            soup.html.unwrap()
+        except AttributeError:
+            pass
+        try:
+            soup.head.unwrap()
+        except AttributeError:
+            pass
+        try:
+            soup.body.unwrap()
+        except AttributeError:
+            pass
         # rewrite <ref> tags as <li> with backlinks
         for item in soup.find_all('ref'):
             ref_name  = f"cite_ref-{n}"
@@ -119,8 +128,14 @@ class Footnotary():
             return ''
         soup = BeautifulSoup(html, 'lxml')
         # remove <head> and <body>
-        soup.head.unwrap()
-        soup.body.unwrap()
+        try:
+            soup.head.unwrap()
+        except AttributeError:
+            pass
+        try:
+            soup.body.unwrap()
+        except AttributeError:
+            pass
         # rename <html> to <ol>
         soup.html.name = 'ol'
         soup.ol['class'] = 'references'
