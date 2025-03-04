@@ -56,7 +56,7 @@ class Footnotary():
         n = 1
         for block in page.body:
             if block.block_type == 'paragraph':
-                html,n = Footnotary._rewrite_body_html(str(block.value), n)
+                html,n = Footnotary._rewrite_body_html(block.value.source, n)
                 block.value.source = html
         page.footnotes = Footnotary._rewrite_footnotes_html(page.footnotes)
 
