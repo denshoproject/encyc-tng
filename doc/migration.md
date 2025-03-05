@@ -81,11 +81,11 @@ BEGIN
         EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;
 END $$;
-DROP DATABASE encyctng;
-CREATE DATABASE encyctng;
+DROP DATABASE encyctngdev;
+CREATE DATABASE encyctngdev;
 CREATE USER encyctng WITH PASSWORD 'REDACTED';
-ALTER DATABASE encyctng OWNER TO encyctng;
-\connect encyctng;
+ALTER DATABASE encyctngdev OWNER TO encyctng;
+\connect encyctngdev;
 GRANT CREATE ON SCHEMA public TO encyctng;
 \q
 ```
