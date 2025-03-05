@@ -402,21 +402,22 @@ class Sources():
 
         """
         with Path(jsonl_path).open('r') as f:
-            # make a list first
-            sources = [
-                # each source dict is enclosed in a list ¯\_(ツ)_/¯
-                json.loads(line.strip())[0]
-                for line in f.readlines()
-            ]
-            return Sources.sources_by_headword(sources)
+            lines = f.readlines()
+        sources = []
+        # each line contains a list of sources dicts for a single article
+        datas = [json.loads(line.strip()) for line in lines]
+        for data in datas:
+            for source in data:
+                sources.append(source)
+        return Sources.sources_by_headword(sources)
 
     @staticmethod
     def sources_by_headword(sources_list):
         sources_list = Sources.discard_fields(sources_list)
-        # make dict of empty lists for each title
-        sources = {source['headword']: [] for source in sources_list}
-        # fill up those lists
+        sources = {}
         for source in sources_list:
+            if not sources.get(source['headword']):
+                sources[source['headword']] = []
             sources[source['headword']].append(source)
         return sources
 
