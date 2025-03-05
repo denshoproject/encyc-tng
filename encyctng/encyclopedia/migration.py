@@ -259,47 +259,10 @@ class Authors():
 #   sources.  Blocks point to the Image, Document, Media files by their `id`s.
 
 class Sources():
-    """
-    # download image files, documents, videos for a page
-    destination_dir = '/opt/encyc-tail/data/sources'
-    from pathlib import Path; import httpx
-    def download(source, destination_dir):
-        for key in ['original_path', 'display_path', 'transcript']:
-            if source.get(key):
-                filename = Path(source[key]).name
-                dest_dir = Path(destination_dir)
-                dest_path = dest_dir / filename
-                url = f"https://encyclopedia.densho.org/media/encyc-psms/{filename}"
-                print(f"{url} -> {dest_path}")
-                r = httpx.get(url, timeout=30)
-                with dest_path.open('wb') as f:
-                    f.write(r.content)
-
-    for source in sources['Manzanar']:
-        download(source, destination_dir)
-
-    # Import image/document/video files and create Wagtail Image, Document, and Media objects
-
-    titles = ['Manzanar', 'Manzanar Free Press (newspaper)']
-    jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-    src_dir = '/opt/encyc-tail/data/sources'
-    from wagtail.models.media import Collection
-    from encyclopedia.migration import Sources
-    collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
-    sources = Sources.load_psms_sources_jsonl(jsonl_path)
-    for title in titles:
-        for source in sources[title]:
-            Sources.import_file(source, src_dir, collection)
-
-    """
 
     @staticmethod
     def import_sources(psms_sources, sources_dir, dryrun=False):
         """Import files from sources_dir using metadata from psms_sources JSONL file
-
-        #psms_sources = Sources.load_psms_sources_api()
-        psms_sources = Sources.load_psms_sources_jsonl('/opt/encyc-tail/data/sources/sources-all-20240617.jsonl')
-        Sources.import_sources(psms_sources, sources_dir=Path('/opt/encyc-tail/data/sources/'))
         """
         # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
         # https://stackoverflow.com/questions/63181320/bulk-uploading-and-creating-pages-with-images-in-wagtail-migration
@@ -395,11 +358,6 @@ class Sources():
     @staticmethod
     def load_psms_sources_jsonl(jsonl_path):
         """Load Sources from JSONL dump
-
-    jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-    from encyclopedia.migration import load_psms_sources_jsonl
-    sources = load_psms_sources_jsonl(jsonl_path)
-
         """
         with Path(jsonl_path).open('r') as f:
             lines = f.readlines()
@@ -447,17 +405,6 @@ class Sources():
     @staticmethod
     def source_keys_by_filename(sources, collection):
         """Map source images to their format and wagtail..Image ID
-
-from pathlib import Path
-from wagtail.documents.models import Document
-from wagtail.images.models import Image
-from wagtailmedia.models import Media
-from wagtail.models.media import Collection
-from encyclopedia.migration import Sources
-jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
-source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Manzanar'], collection)
         """
         return {
             'image':    {x.title: x.id for x in Image.objects.filter(   collection=collection)},
@@ -577,13 +524,6 @@ class Articles():
         TODO Handle redirects
         TODO Handle titles with apersands
         TODO Handle ValueErrors (on authors?)
-        
-from encyclopedia import migration
-from encyc import wiki
-migration.Articles.download_articles(wiki.MediaWiki(), '/tmp/migration')
-
-migration.Articles.download_articles(wiki.MediaWiki(), '/tmp/migration', titles=['Santa Anita (detention facility)', 'Tanforan (detention facility)', 'Topaz'])
-
         """
         basedir = Path(basedir)
         basedir.mkdir(parents=True, exist_ok=True)
@@ -630,71 +570,6 @@ migration.Articles.download_articles(wiki.MediaWiki(), '/tmp/migration', titles=
     @staticmethod
     def import_articles(basedir, sources_jsonl, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, skip=[], errfile=''):
         """
-
-url_prefix = '/wiki/'
-title = 'Manzanar'; slug = 'manzanar'
-#title = 'Ruth Asawa'; slug = 'ruth-asawa'
-jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-
-from wagtail.models.media import Collection
-from encyc.models.legacy import Page as LegacyPage
-from encyc import wiki
-from editors.models import Author
-from encyclopedia.migration import Authors, Sources, Articles
-from encyclopedia.models import load_mediawiki_titles
-
-authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
-
-sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
-source_pks_by_filename = Sources.source_keys_by_filename(
-    sources_by_headword, sources_collection
-)
-
-index_page = Articles.wagtail_index_page()
-
-mw = wiki.MediaWiki()
-mw_titles = Articles.load_mwtitles(mw)
-
-mwpage,mwtext = Articles.load_mwpage(mw, title)
-
-Articles.import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page)
-
-
-article_blocks = Articles.mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
-
-sources_blocks = Articles.streamfield_media_blocks(
-    mwpage.title,
-    sources_by_headword,
-    migration.source_keys_by_filename(
-        sources_by_headword[mwpage.title],
-        sources_collection
-    )
-)
-
-import json
-from encyc.models.legacy import wikipage
-mw_databoxes = wikipage.extract_databoxes(mwpage.body, databox_divs_namespaces=None)
-
-
-#mwpage,mwtext = Articles.load_mwpages(title)
-#mwtext_cleaned = Articles.clean_mediawiki_text(mwtext)
-#mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles, url_prefix)
-#streamfield_blocks = Articles.html_to_streamfield(mwhtml)
-#merged_blocks = Articles.merge_streamfield_blocks(streamfield_blocks)
-
-with open(f"/tmp/{slug}-01-mwtext", 'w') as f:
-    f.write(mwtext)
-
-with open(f"/tmp/{slug}-02-mwtextcleaned", 'w') as f:
-    f.write(mwtext_cleaned)
-
-with open(f"/tmp/{slug}-03-mwhtml.html", 'w') as f:
-    f.write(mwhtml)
-
-with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
-    f.write(streamfield_blocks)
-
         """
         logger.info(f"Articles.import_articles(basedir={basedir}, dryrun={dryrun})")
         basedir = Path(basedir)
