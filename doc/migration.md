@@ -9,6 +9,62 @@ source venv/encyctng/bin/activate
 ```
 
 
+## API Credentials
+
+Check `/etc/hosts` to see that `encycpsms.local` is pointed to `packrat`, and make sure `/etc/encyc/core-local.cfg` has the following filled in.
+``` ini
+[mediawiki]
+scheme=http
+host=encycmw.local
+username=REDACTED
+password=REDACTED
+
+[sources]
+api_url=http://encycpsms.local/api/2.0
+api_username
+api_password
+api_htuser
+api_htpass
+```
+
+
+## Download metadata and Primary Sources binaries to local
+
+Make a directory for migration data:
+``` bash
+mkdir -p /opt/encyc-tng/data/sources/
+```
+
+Copy binary files from PSMS.  Before you do this, make sure you have 4.8G free space. Or consider not doing it...
+``` bash
+rsync -avz ansible@192.168.0.24:/var/www/encycpsms/media/sources /opt/encyc-tng/data/
+```
+Download Primary Source metadata from the API:
+``` python
+from encyclopedia.migration import Sources
+sources = [source for source in Sources.load_psms_sources_api().values()]
+Sources.save_psms_sources_jsonl(sources, '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl')
+```
+
+mkdir -p /opt/encyc-tng/data/articles
+Copy file of authors' alternative names in `/opt/encyc-tng/data/author-alts.txt`.
+Copy file of article redirects in in `/opt/encyc-tng/data/`.
+Download Articles data from the wiki:
+``` python
+from encyclopedia import migration
+from encyc import wiki
+basedir = '/opt/encyc-tng/data'
+migration.Articles.download_articles(wiki.MediaWiki(), basedir)
+```
+
+
+## Static media
+
+``` bash
+python encyctng/manage.py collectstatic
+```
+
+
 ## Resetting the database
 
 ### PostgreSQL
@@ -50,32 +106,6 @@ python encyctng/manage.py createsuperuser
 ```
 
 
-## Static media
-
-``` bash
-python encyctng/manage.py collectstatic
-```
-
-
-## API Credentials
-
-Check `/etc/hosts` to see that `encycpsms.local` is pointed to `packrat`, and make sure `/etc/encyc/core-local.cfg` has the following filled in.
-``` ini
-[mediawiki]
-scheme=http
-host=encycmw.local
-username=REDACTED
-password=REDACTED
-
-[sources]
-api_url=http://encycpsms.local/api/2.0
-api_username
-api_password
-api_htuser
-api_htpass
-```
-
-
 ## Initial Setup
 
 This creates things like the "Encyclopedia" page at the top of the `Articles` hierarchy and the `Collection` objects that the various types of Primary Sources will be added to.
@@ -87,73 +117,35 @@ migration.initial_setup()
 ## Authors
 
 ``` python
-from encyclopedia.migration import Authors
-Authors.import_authors(debug=True)
+from encyclopedia import migration
+migration.Authors.import_authors(debug=True)
 ```
 
 ## Primary Sources
-
-*THIS SECTION IS INCOMPLETE!*
-
-Source migration needs to happen on same machine as the binaries.
-Also the Sources API is a pain so download and write to a file
-``` bash
-mkdir -p /opt/encyc-tng/data/sources/
-```
-
-Copy Sources to local
-``` bash
-rsync -avz ansible@192.168.0.24:/var/www/encycpsms/media/sources /opt/encyc-tng/data/
-```
-
-Copy binary files from PSMS.  Before you do this, make sure you have 4.8G free space. Or consider not doing it...
-``` bash
-rsync -avz ansible@packrat:/var/www/encycpsms/media/sources/* data/sources/
-```
-
-Download Primary Source metadata from the API:
-``` python
-from encyclopedia.migration import Sources
-sources = [source for source in Sources.load_psms_sources_api().values()]
-Sources.save_psms_sources_jsonl(sources, '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl')
-```
 
 Load metadata and import Primary Sources:
 ``` python
 jsonl_path = '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl'
 from pathlib import Path
-from encyclopedia.migration import Sources
+from encyclopedia import migration
 jsonl_path = Path(jsonl_path)
 sources_dir = jsonl_path.parent
-primary_sources = Sources.load_psms_sources_jsonl(jsonl_path)
+primary_sources = migration.Sources.load_psms_sources_jsonl(jsonl_path)
 # just one for now
 primary_sources = primary_sources[:1]
 # import
-result = Sources.import_sources(primary_sources, sources_dir)
+result = migration.Sources.import_sources(primary_sources, sources_dir)
 ```
 
 
 ## Articles
 
-mkdir -p /opt/encyc-tng/data/articles
-Copy file of authors' alternative names in `/opt/encyc-tng/data/author-alts.txt`.
-Copy file of article redirects in in `/opt/encyc-tng/data/`.
-
-
-Download Articles data from the wiki:
-``` python
-from encyclopedia import migration
-from encyc import wiki
-basedir = '/opt/encyc-tng/data'
-migration.Articles.download_articles(wiki.MediaWiki(), basedir)
-```
-
 Load article data and import:
 ``` python
 from pathlib import Path
-from encyclopedia.migration import Articles
+from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
-Articles.import_articles(basedir)
+migration.Articles.import_articles(basedir)
 ```
 
 ``` python
