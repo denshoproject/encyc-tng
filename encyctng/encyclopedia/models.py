@@ -156,11 +156,17 @@ class Article(Page):
     def articles_by_initial():
         """List of Articles grouped by initial letter of title"""
         import string
-        tags_initials = {letter.upper(): [] for letter in string.ascii_lowercase}
+        tags_initials = {
+            '1-10': [],
+        }
+        for initial in string.ascii_lowercase:
+            tags_initials[initial.upper()] = []
         for article in Article.objects.filter(live=True).order_by('title'):
-            tags_initials[article.title[0]].append(
-                (article.url, article.title)
-            )
+            initial = article.title[0].upper()
+            if initial.isalpha():
+                tags_initials[initial].append( (article.url,article.title) )
+            else:
+                tags_initials['1-10'].append( (article.url,article.title) )
         return tags_initials
 
     @staticmethod
