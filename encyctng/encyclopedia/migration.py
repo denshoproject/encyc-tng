@@ -628,7 +628,7 @@ migration.Articles.download_articles(wiki.MediaWiki(), '/tmp/migration', titles=
                 logger.error(traceback.format_exc())
 
     @staticmethod
-    def import_articles(basedir, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, skip=[], errfile=''):
+    def import_articles(basedir, sources_jsonl, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, skip=[], errfile=''):
         """
 
 url_prefix = '/wiki/'
@@ -703,7 +703,7 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         authors_by_names,authors_alts, \
             sources_collection,sources_by_headword, \
             saved_titles,mw_titles,mw_titles_slugs, \
-            redirects = Articles.load_articles_metadata(basedir)
+            redirects = Articles.load_articles_metadata(basedir, sources_jsonl)
         if not titles:
             titles = saved_titles
         
@@ -786,9 +786,9 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
         logger.info(f"{len(errors) / len(titles)} percent")
 
     @staticmethod
-    def load_articles_metadata(basedir):
+    def load_articles_metadata(basedir, sources_jsonl):
         authors_by_names,authors_alts = Articles.load_authors(basedir)
-        sources_collection,sources_by_headword = Articles.load_sources(basedir)
+        sources_collection,sources_by_headword = Articles.load_sources(basedir, sources_jsonl)
         saved_titles,mw_titles,mw_titles_slugs = Articles.load_mw(basedir)
         redirects = Articles.load_redirects(basedir)
         return [
@@ -853,13 +853,11 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
             f.write(json.dumps(sources_by_headword))
 
     @staticmethod
-    def load_sources(basedir):
+    def load_sources(basedir, jsonl_path):
         path = basedir / 'sources-collection.pickle'
         with path.open('rb') as f:
             sources_collection = pickle.load(f)
-        path = basedir / 'sources-by-headword.json'
-        with path.open('r') as f:
-            sources_by_headword = json.loads(f.read())
+        sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
         return sources_collection,sources_by_headword
 
     @staticmethod
