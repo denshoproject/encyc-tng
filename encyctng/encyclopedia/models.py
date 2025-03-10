@@ -156,11 +156,17 @@ class Article(Page):
     def articles_by_initial():
         """List of Articles grouped by initial letter of title"""
         import string
-        tags_initials = {letter.upper(): [] for letter in string.ascii_lowercase}
+        tags_initials = {
+            '1-10': [],
+        }
+        for initial in string.ascii_lowercase:
+            tags_initials[initial.upper()] = []
         for article in Article.objects.filter(live=True).order_by('title'):
-            tags_initials[article.title[0]].append(
-                (article.url, article.title)
-            )
+            initial = article.title[0].upper()
+            if initial.isalpha():
+                tags_initials[initial].append( (article.url,article.title) )
+            else:
+                tags_initials['1-10'].append( (article.url,article.title) )
         return tags_initials
 
     @staticmethod
@@ -223,25 +229,18 @@ class ArticleSources():
     """
 
     @staticmethod
-    def link_sources_articles():
-        sources_articles = {'image': {}, 'document': {}, 'video': {}}
-        from encyclopedia.models import Article
-        for article in Article.objects.all():
-            blocks = list(filter(lambda b: b.block_type in BLOCK_TYPES, article.body))
-            for block in blocks:
-                object_type = BLOCKTYPE_OBJECTTYPE[block.block_type]
-                obj = block.value[object_type]
-                sources_articles[object_type][str(obj.id)] = article.id
-                #if block.block_type == 'imageblock':
-                #    image = block.value['image']
-                #    sources_articles['image'][str(image.id)] = article.id
-                #elif block.block_type == 'documentblock':
-                #    document = block.value['document']
-                #    sources_articles['document'][str(document.id)] = article.id
-                #elif block.block_type == 'videoblock':
-                #    video = block.value['video']
-                #    sources_articles['video'][str(video.id)] = article.id
-        return sources_articles
+    def source_article_blocks(source):
+        articles = [page.article for page,ref in source.get_usage()]
+        articles_blocks = [
+            (
+                article,
+                ArticleSources.source_article_block(
+                    source._meta.model_name, source.id, article
+                ).value
+            )
+            for article in articles
+        ]
+        return articles_blocks
 
     @staticmethod
     def source_article_block(source_type, source_id, article):

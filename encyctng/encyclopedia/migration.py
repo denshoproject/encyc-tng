@@ -10,6 +10,7 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 from pathlib import Path
+import pickle
 import re
 import shutil
 import subprocess
@@ -258,47 +259,10 @@ class Authors():
 #   sources.  Blocks point to the Image, Document, Media files by their `id`s.
 
 class Sources():
-    """
-    # download image files, documents, videos for a page
-    destination_dir = '/opt/encyc-tail/data/sources'
-    from pathlib import Path; import httpx
-    def download(source, destination_dir):
-        for key in ['original_path', 'display_path', 'transcript']:
-            if source.get(key):
-                filename = Path(source[key]).name
-                dest_dir = Path(destination_dir)
-                dest_path = dest_dir / filename
-                url = f"https://encyclopedia.densho.org/media/encyc-psms/{filename}"
-                print(f"{url} -> {dest_path}")
-                r = httpx.get(url, timeout=30)
-                with dest_path.open('wb') as f:
-                    f.write(r.content)
-
-    for source in sources['Manzanar']:
-        download(source, destination_dir)
-
-    # Import image/document/video files and create Wagtail Image, Document, and Media objects
-
-    titles = ['Manzanar', 'Manzanar Free Press (newspaper)']
-    jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-    src_dir = '/opt/encyc-tail/data/sources'
-    from wagtail.models.media import Collection
-    from encyclopedia.migration import Sources
-    collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
-    sources = Sources.load_psms_sources_jsonl(jsonl_path)
-    for title in titles:
-        for source in sources[title]:
-            Sources.import_file(source, src_dir, collection)
-
-    """
 
     @staticmethod
-    def import_sources(psms_sources, sources_dir):
+    def import_sources(psms_sources, sources_dir, dryrun=False):
         """Import files from sources_dir using metadata from psms_sources JSONL file
-
-        #psms_sources = Sources.load_psms_sources_api()
-        psms_sources = Sources.load_psms_sources_jsonl('/opt/encyc-tail/data/sources/sources-all-20240617.jsonl')
-        Sources.import_sources(psms_sources, sources_dir=Path('/opt/encyc-tail/data/sources/'))
         """
         # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
         # https://stackoverflow.com/questions/63181320/bulk-uploading-and-creating-pages-with-images-in-wagtail-migration
@@ -306,42 +270,68 @@ class Sources():
         # PSMS images attached to a collection
         collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
         print(f"{collection=}")
+        errors = []
         num = len(psms_sources)
-        for article,sources in psms_sources.items():
+        for n,article_sources in enumerate(psms_sources.items()):
+            article,sources = article_sources
             for source in sources:
-                print(f"{article } - {source['media_format']} {source['encyclopedia_id']}")
-                Sources.import_file(source, sources_dir, collection=collection)
+                print(f"{n}/{num} {article } - {source['media_format']} {source['encyclopedia_id']}")
+                result = Sources.import_file(
+                    article, source, sources_dir, collection=collection, dryrun=dryrun
+                )
+                if result and result.get('error'):
+                    errors.append(result)
+        print(f"{len(errors)} errors")
+        for error in errors:
+            print(f"{error['error']}")
+        return errors
 
     @staticmethod
-    def import_file(source, sources_dir, collection):
+    def import_file(article, source, sources_dir, collection, dryrun=False):
         """
         """
         src_dir = Path(sources_dir)
         if source['media_format'] == 'image':
-            image = Sources.get_image(collection, src_dir / Path(source['original_path']).name)
-            image.save()
-            #print(f"{image=}")
+            try:
+                image = Sources.get_image(collection, src_dir / Path(source['original_path']))
+                if not dryrun:
+                    image.save()
+                #print(f"{image=}")
+            except Exception as err:
+                return {'article': article, 'error': err, 'source': source}
         elif source['media_format'] == 'document':
-            doc = Sources.get_document(collection, src_dir / Path(source['original_path']).name)
-            doc.save()
-            #print(f"{doc=}")
-            display = Sources.get_image(collection, src_dir / Path(source['display_path']).name)
-            display.save()
-            #print(f"{display=}")
+            try:
+                doc = Sources.get_document(collection, src_dir / Path(source['original_path']))
+                if not dryrun:
+                    doc.save()
+                #print(f"{doc=}")
+                display = Sources.get_image(collection, src_dir / Path(source['display_path']))
+                if not dryrun:
+                    display.save()
+                #print(f"{display=}")
+            except Exception as err:
+                return {'article': article, 'error': err, 'source': source}
         elif source['media_format'] == 'video':
-            display = Sources.get_image(collection, src_dir / Path(source['display_path']).name)
-            display.save()
-            #print(f"{display=}")
-            media = Sources.get_media(
-                collection,
-                src_dir / Path(source['original_path']).name,
-                src_dir / Path(source['display_path']).name
-            )
-            media.save()
-            #print(f"{media=}")
-            transcript = Sources.get_document(collection, src_dir / Path(source['transcript']).name)
-            transcript.save()
-            #print(f"{transcript=}")
+            try:
+                display = Sources.get_image(collection, src_dir / Path(source['display_path']))
+                if not dryrun:
+                    display.save()
+                #print(f"{display=}")
+                media = Sources.get_media(
+                    collection,
+                    src_dir / Path(source['original_path']),
+                    src_dir / Path(source['display_path'])
+                )
+                if not dryrun:
+                    media.save()
+                #print(f"{media=}")
+                transcript = Sources.get_document(collection, src_dir / Path(source['transcript']))
+                if not dryrun:
+                    transcript.save()
+                #print(f"{transcript=}")
+            except Exception as err:
+                return {'article': article, 'error': err, 'source': source}
+        return {}
 
     @staticmethod
     def reset():
@@ -368,25 +358,24 @@ class Sources():
     @staticmethod
     def load_psms_sources_jsonl(jsonl_path):
         """Load Sources from JSONL dump
-
-    jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-    from encyclopedia.migration import load_psms_sources_jsonl
-    sources = load_psms_sources_jsonl(jsonl_path)
-
         """
         with Path(jsonl_path).open('r') as f:
-            # make a list first
-            return Sources.sources_by_headword(
-                [json.loads(line) for line in f.readlines()]
-            )
+            lines = f.readlines()
+        sources = []
+        # each line contains a list of sources dicts for a single article
+        datas = [json.loads(line.strip()) for line in lines]
+        for data in datas:
+            for source in data:
+                sources.append(source)
+        return Sources.sources_by_headword(sources)
 
     @staticmethod
     def sources_by_headword(sources_list):
         sources_list = Sources.discard_fields(sources_list)
-        # make dict of empty lists for each title
-        sources = {source['headword']: [] for source in sources_list}
-        # fill up those lists
+        sources = {}
         for source in sources_list:
+            if not sources.get(source['headword']):
+                sources[source['headword']] = []
             sources[source['headword']].append(source)
         return sources
 
@@ -399,7 +388,10 @@ class Sources():
     def discard_fields(sources):
         for source in sources:
             for field in Sources.DISCARD_FIELDS:
-                source.pop(field)
+                try:
+                    source.pop(field)
+                except KeyError:
+                    pass
         return sources
 
     @staticmethod
@@ -413,17 +405,6 @@ class Sources():
     @staticmethod
     def source_keys_by_filename(sources, collection):
         """Map source images to their format and wagtail..Image ID
-
-from pathlib import Path
-from wagtail.documents.models import Document
-from wagtail.images.models import Image
-from wagtailmedia.models import Media
-from wagtail.models.media import Collection
-from encyclopedia.migration import Sources
-jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
-source_pks_by_filename = Sources.source_keys_by_filename(sources_by_headword['Manzanar'], collection)
         """
         return {
             'image':    {x.title: x.id for x in Image.objects.filter(   collection=collection)},
@@ -531,121 +512,110 @@ TEST_ARTICLES = [
     'Tondemonai-Never Happen! (play)',   # databox-play
 ]
 
+SKIP_ARTICLES = [
+]
+
 class Articles():
 
     @staticmethod
-    def import_articles(titles=[], dryrun=False):
+    def download_articles(mw, basedir, titles=[]):
+        """Download articles and metadata from MediaWiki
+        
+        TODO Handle redirects
+        TODO Handle titles with apersands
+        TODO Handle ValueErrors (on authors?)
         """
+        basedir = Path(basedir)
+        basedir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Articles.download_articles(basedir={basedir}, titles={titles}")
 
-url_prefix = '/wiki/'
-title = 'Manzanar'; slug = 'manzanar'
-#title = 'Ruth Asawa'; slug = 'ruth-asawa'
-jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
+        alts_path = basedir / 'author-alts.txt'
+        logger.info('Downloading authors')
+        authors_by_names,authors_alts = Articles.download_authors(alts_path)
+        Articles.dump_authors(
+            authors_by_names, authors_alts, basedir
+        )
 
-from wagtail.models.media import Collection
-from encyc.models.legacy import Page as LegacyPage
-from encyc import wiki
-from editors.models import Author
-from encyclopedia.migration import Authors, Sources, Articles
-from encyclopedia.models import load_mediawiki_titles
-
-authors_by_names = {f"{author.family_name},{author.given_name}": author for author in Author.objects.all()}
-
-sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
-source_pks_by_filename = Sources.source_keys_by_filename(
-    sources_by_headword, sources_collection
-)
-
-index_page = Articles.wagtail_index_page()
-
-mw = wiki.MediaWiki()
-mw_titles = Articles.load_mwtitles(mw)
-
-mwpage,mwtext = Articles.load_mwpage(mw, title)
-
-Articles.import_article(mw, mwpage, mwtext, mw_titles, url_prefix, authors_by_names, sources_collection, sources_by_headword, index_page)
-
-
-article_blocks = Articles.mwtext_to_streamblocks(mw, mwtext, mw_titles, url_prefix)
-
-sources_blocks = Articles.streamfield_media_blocks(
-    mwpage.title,
-    sources_by_headword,
-    migration.source_keys_by_filename(
-        sources_by_headword[mwpage.title],
-        sources_collection
-    )
-)
-
-import json
-from encyc.models.legacy import wikipage
-mw_databoxes = wikipage.extract_databoxes(mwpage.body, databox_divs_namespaces=None)
-
-
-#mwpage,mwtext = Articles.load_mwpages(title)
-#mwtext_cleaned = Articles.clean_mediawiki_text(mwtext)
-#mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles, url_prefix)
-#streamfield_blocks = Articles.html_to_streamfield(mwhtml)
-#merged_blocks = Articles.merge_streamfield_blocks(streamfield_blocks)
-
-with open(f"/tmp/{slug}-01-mwtext", 'w') as f:
-    f.write(mwtext)
-
-with open(f"/tmp/{slug}-02-mwtextcleaned", 'w') as f:
-    f.write(mwtext_cleaned)
-
-with open(f"/tmp/{slug}-03-mwhtml.html", 'w') as f:
-    f.write(mwhtml)
-
-with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
-    f.write(streamfield_blocks)
-
-        """
-        logger.info(f"Articles.import_articles(titles={titles}, dryrun={dryrun})")
-    #    for mwpage in load_mw_articles():
-    #        wagtail_import_article(mwpage, index_page)
-    #    # resource guide page?
-    #    if mwpage.published_rg:
-        url_prefix = '/wiki/'
-        jsonl_path = '/opt/encyc-tail/data/densho-psms-sources-20240617.jsonl'
-        logger.info(f"{jsonl_path=}")
-
-        authors_by_names = {
-            f"{author.family_name},{author.given_name}": author
-            for author in Author.objects.all()
-        }
-        authors_alts = Authors.alt_names(filename='/opt/encyc-tng/data/author-alts.txt')
-
-        sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-        sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
-        source_pks_by_filename = Sources.source_keys_by_filename(
-            sources_by_headword, sources_collection
+        logger.info('Downloading sources')
+        today = datetime.today().strftime('%Y%m%d')
+        sources_path = basedir / 'sources' / f"densho-psms-sources-{today}.jsonl"
+        sources_collection,sources_by_headword = Articles.download_sources(sources_path)
+        Articles.dump_sources(
+            sources_collection,sources_by_headword, basedir
         )
         logger.info(f"{len(sources_by_headword.keys())=}")
         logger.info(f"{sources_collection=}")
 
-        index_page = Articles.wagtail_index_page()
-        logger.info(f"{index_page=}")
+        logger.info('Downloading articles')
+        url_prefix = '/wiki/'
+        titles,mw_titles,mw_titles_slugs = Articles.download_mw(
+            mw, url_prefix, titles=titles
+        )
+        Articles.dump_mw(titles, mw_titles, mw_titles_slugs, basedir)
+        errors = []
+        num = len(titles)
+        start = datetime.now()
+        for n,title in enumerate(titles):
+            click.echo(f"{n+1}/{num} {title=}")
+            try:
+                mwpage,mwtext = Articles.load_mwpage(mw, title)
+                pagedata = json.loads(mwpage.pagedata(mw, title))['parse']
+                mwppath,mwtpath,pgdpath,errpath = Articles.dump_article(
+                    mwpage, mwtext, pagedata, basedir
+                )
+            except Exception as err:
+                logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
+                logger.error(traceback.format_exc())
 
+    @staticmethod
+    def import_articles(basedir, sources_jsonl, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, skip=[], errfile=''):
+        """
+        """
+        logger.info(f"Articles.import_articles(basedir={basedir}, dryrun={dryrun})")
+        basedir = Path(basedir)
         mw = wiki.MediaWiki()
-        logger.info(f"{mw=}")
-        mw_titles = Articles.load_mwtitles(mw)
+        url_prefix = '/wiki/'
+        authors_by_names,authors_alts, \
+            sources_collection,sources_by_headword, \
+            saved_titles,mw_titles,mw_titles_slugs, \
+            redirects = Articles.load_articles_metadata(basedir, sources_jsonl)
         if not titles:
-            titles = mw_titles
-        mw_titles_slugs = Articles.load_mwtitles_to_slugs(mw)
+            titles = saved_titles
+        
+        logger.info(f"{mw=}")
+        index_page = Articles.prep_wagtail()
+        logger.info(f"{index_page=}")
 
         logger.info('')
         errors = []
         num = len(titles)
         start = datetime.now()
         for n,title in enumerate(titles):
-            print(f"{n+1}/{num} {title=}")
-            mwpage,mwtext = Articles.load_mwpage(mw, title)
+            if (title in skip) or (n < offset):
+                skipped = '[skipped] '
+            else:
+                skipped = ''
+            logger.info(f"{n+1}/{num} {skipped}{title=}")
+            click.echo(f"{n+1}/{num} {skipped}{title=}")
+            if (title in skip) or (n < offset):
+                continue
+            if title in redirects.keys():
+                print(f"REDIRECT {title} -> {redirects[title]}")
+                # TODO add Wagtail redirect
+                continue
+            try:
+                mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
+                if justload:
+                    # just load from MediaWiki and quit (testing)
+                    continue
+            except Exception as err:
+                logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
+                logger.error(traceback.format_exc())
+                Articles.log_error(title, err, errfile)
             logger.info('importing...')
             try:
                 article = Articles.import_article(
-                    mw, mwpage, mwtext,
+                    mw, mwpage, mwtext, pagedata,
                     mw_titles, mw_titles_slugs, url_prefix,
                     authors_by_names, authors_alts,
                     sources_collection, sources_by_headword,
@@ -659,21 +629,214 @@ with open(f"/tmp/{slug}-04-streamfield", 'w') as f:
                 continue
             except UnknownAuthorException as err:
                 logger.error(f"UnknownAuthorException: {mwpage.title} : {err}\n")
+                Articles.log_error(title, err, errfile)
+                if errorquit:
+                    return
             except UnhandledTagException as err:
                 logger.error(f"UnhandledTagException: {mwpage.title} : {err}\n")
+                Articles.log_error(title, err, errfile)
+                if errorquit:
+                    return
             except NotNullViolation as err:
                 logger.error(f"NotNullViolation: {mwpage.title} : {err}\n")
+                Articles.log_error(title, err, errfile)
+                if errorquit:
+                    return
             except IntegrityError as err:
                 logger.error(f"IntegrityError: {mwpage.title} : {err}\n")
+                Articles.log_error(title, err, errfile)
+                if errorquit:
+                    return
             except Exception as err:
                 errors.append(title)
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
                 logger.error(traceback.format_exc())
+                Articles.log_error(title, err, errfile)
+                if errorquit:
+                    return
             logger.info('')
         logger.info(f"{len(errors)} ERRORS - - - - - - - - - - - - - - - - - -")
         for title in errors:
             logger.info(title)
         logger.info(f"{len(errors) / len(titles)} percent")
+
+    @staticmethod
+    def load_articles_metadata(basedir, sources_jsonl):
+        authors_by_names,authors_alts = Articles.load_authors(basedir)
+        sources_collection,sources_by_headword = Articles.load_sources(basedir, sources_jsonl)
+        saved_titles,mw_titles,mw_titles_slugs = Articles.load_mw(basedir)
+        redirects = Articles.load_redirects(basedir)
+        return [
+            authors_by_names,authors_alts,
+            sources_collection,sources_by_headword,
+            saved_titles,mw_titles,mw_titles_slugs,
+            redirects
+        ]
+
+    @staticmethod
+    def download_authors(alts_path):
+        authors_by_names = {
+            f"{author.family_name},{author.given_name}": author
+            for author in Author.objects.all()
+        }
+        authors_alts = Authors.alt_names(filename=alts_path)
+        return authors_by_names,authors_alts
+
+    @staticmethod
+    def dump_authors(authors_by_names, authors_alts, basedir):
+        path = basedir / 'authors-by-names.pickle'
+        with path.open('wb') as f:
+            sys.setrecursionlimit(10000)
+            pickle.dump(authors_by_names, f, pickle.HIGHEST_PROTOCOL)
+        path = basedir / 'authors-alts.json'
+        with path.open('w') as f:
+            f.write(json.dumps(authors_alts))
+
+    @staticmethod
+    def load_authors(basedir):
+        path = basedir / 'authors-by-names.pickle'
+        with path.open('rb') as f:
+            authors_by_names = pickle.load(f)
+        path = basedir / 'authors-alts.json'
+        with path.open('r') as f:
+            authors_alts = json.loads(f.read())
+        return authors_by_names,authors_alts
+
+    @staticmethod
+    def download_sources(jsonl_path):
+        logger.info(f"{jsonl_path=}")
+        #sources_by_headword = Sources.load_psms_sources_api()
+        sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
+        try:
+            sources_collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
+        except Collection.DoesNotExist:
+            click.echo(f"Collection {Collection} does not exist: Try running migration.initial_setup().")
+            return
+        source_pks_by_filename = Sources.source_keys_by_filename(
+            sources_by_headword, sources_collection
+        )
+        return sources_collection,sources_by_headword
+
+    @staticmethod
+    def dump_sources(sources_collection,sources_by_headword, basedir):
+        path = basedir / 'sources-collection.pickle'
+        with path.open('wb') as f:
+            sys.setrecursionlimit(10000)
+            pickle.dump(sources_collection, f, pickle.HIGHEST_PROTOCOL)
+        path = basedir / 'sources-by-headword.json'
+        with path.open('w') as f:
+            f.write(json.dumps(sources_by_headword))
+
+    @staticmethod
+    def load_sources(basedir, jsonl_path):
+        path = basedir / 'sources-collection.pickle'
+        with path.open('rb') as f:
+            sources_collection = pickle.load(f)
+        sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
+        return sources_collection,sources_by_headword
+
+    @staticmethod
+    def download_mw(mw, url_prefix, titles=[]):
+        mw_titles = Articles.load_mwtitles(mw)
+        if not titles:
+            titles = mw_titles
+        mw_titles_slugs = Articles.load_mwtitles_to_slugs(mw)
+        return titles,mw_titles,mw_titles_slugs
+
+    @staticmethod
+    def dump_mw(titles, mw_titles, mw_titles_slugs, basedir):
+        path = basedir / 'titles.json'
+        with path.open('w') as f:
+            f.write(json.dumps(titles))
+        path = basedir / 'mw-titles.json'
+        with path.open('w') as f:
+            f.write(json.dumps(mw_titles))
+        path = basedir / 'mw-titles-slugs.json'
+        with path.open('w') as f:
+            f.write(json.dumps(mw_titles_slugs))
+
+    @staticmethod
+    def load_mw(basedir):
+        path = basedir / 'titles.json'
+        with path.open('r') as f:
+            titles = json.loads(f.read())
+        path = basedir / 'mw-titles.json'
+        with path.open('r') as f:
+            mw_titles = json.loads(f.read())
+        path = basedir / 'mw-titles-slugs.json'
+        with path.open('r') as f:
+            mw_titles_slugs = json.loads(f.read())
+        return titles,mw_titles,mw_titles_slugs
+
+    @staticmethod
+    def prep_wagtail():
+        index_page = Articles.wagtail_index_page()
+        return index_page
+
+    @staticmethod
+    def cache_paths(basedir, title):
+        article_dir = basedir / 'articles' / title
+        article_dir.mkdir(parents=True, exist_ok=True)
+        mwppath = article_dir / 'mwpage.pickle'
+        mwtpath = article_dir / 'mwtext.json'
+        pgdpath = article_dir / 'pagedata.json'
+        errpath = article_dir / 'error.json'
+        return mwppath,mwtpath,pgdpath,errpath
+
+    @staticmethod
+    def dump_article(mwpage, mwtext, pagedata, basedir):
+        mwppath,mwtpath,pgdpath,errpath = Articles.cache_paths(basedir, mwpage.title)
+        errors = {}
+        # TODO makedir
+        if 'redirectMsg' in mwtext:
+            errors['PageIsRedirectException'] = 'PageIsRedirectException'
+        with mwppath.open('wb') as f:
+            sys.setrecursionlimit(20000)
+            pickle.dump(mwpage, f, pickle.HIGHEST_PROTOCOL)
+        with mwtpath.open('w') as f:
+            f.write(json.dumps(mwtext))
+        with pgdpath.open('w') as f:
+            f.write(json.dumps(pagedata))
+        with errpath.open('w') as f:
+            f.write(json.dumps(errors))
+        return mwppath,mwtpath,pgdpath,errpath
+
+    @staticmethod
+    def load_article(basedir, title):
+        mwppath,mwtpath,pgdpath,errpath = Articles.cache_paths(basedir, title)
+        try:
+            with mwppath.open('rb') as f:
+                mwpage = pickle.load(f)
+        except FileNotFoundError:
+            mwpage = None
+        try:
+            with mwtpath.open('r') as f:
+                mwtext = json.loads(f.read())
+        except FileNotFoundError:
+            mwtext = None
+        try:
+            with pgdpath.open('r') as f:
+                pagedata = json.loads(f.read())
+        except FileNotFoundError:
+            pagedata = None
+        try:
+            with errpath.open('r') as f:
+                errors = json.loads(f.read())
+        except FileNotFoundError:
+            errors = None
+        return mwpage,mwtext,pagedata,errors
+
+    @staticmethod
+    def load_redirects(basedir):
+        path = basedir / 'redirects'
+        with path.open('r') as f:
+            text = f.read()
+        return {
+            line.split('|')[0].strip(): line.split('|')[1].strip()
+            for line in [
+                    line.replace('\u200e','') for line in text.splitlines()
+            ]
+        }
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
@@ -697,12 +860,14 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
         # resource guide page?
         if Articles.is_author(mwpage, mw):
             logger.info('AUTHOR PAGE - SKIPPING')
             return
-        if Articles.is_resourceguide_only(mwpage):
+        is_resourceguide_only = Articles.is_resourceguide_only(mwpage, pagedata)
+        logging.info(f"{is_resourceguide_only=}")
+        if is_resourceguide_only:
             logger.info('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
             return
 
@@ -742,7 +907,11 @@ description
 
         for tag in mwpage.categories:
             article.tags.add(tag.lower())
-     
+
+        # TODO collect related articles and attach when we have Wagtail IDs
+        # TODO write related articles to file? database?
+        related_articles = Articles.parse_related_articles(mwtext)
+
         sources_blocks = Articles.streamfield_media_blocks(
             mwpage.title,
             sources_by_headword,
@@ -752,12 +921,16 @@ description
             )
         )
         article.description = mwpage.description
+        if not article.description:
+            article.description = ''
         logger.info(f"{article.description=}")
         article_blocks = Articles.mwtext_to_streamblocks(
-            mw, mwtext, mw_titles_slugs, url_prefix
+            article, mw, mwtext, mw_titles_slugs, url_prefix
         )
         logger.info(f"{len(article_blocks)=}")
-
+        if article_blocks and not article.description:
+            logger.info("Making block 0 the description")
+            article.description = article_blocks.pop(0)
         article.body = json.dumps(
             sources_blocks + article_blocks
         )
@@ -772,6 +945,8 @@ description
             for author in authors:
                 article.authors.add(author)
             article.save_revision().publish()
+
+        return article,related_articles
 
     @staticmethod
     def reset():
@@ -816,7 +991,7 @@ description
             cached = mwtext
             cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
         # can't cache this bc contains Python objects
-        mwpage = LegacyPage.get(mw,title)
+        mwpage = LegacyPage.get(mw,title, migration=False)
         return mwpage,cached
 
     @staticmethod
@@ -864,10 +1039,13 @@ description
         return False
 
     @staticmethod
-    def is_resourceguide_only(mwpage):
+    def is_resourceguide_only(mwpage, pagedata):
         """Page is published in Resource Guide but NOT in Encyclopedia
         """
         if mwpage.published_rg and not mwpage.published_encyc:
+            return True
+        templates = [x['*'] for x in pagedata['templates']]
+        if 'Template:publish-rgonly' in templates:
             return True
         return False
 
@@ -911,10 +1089,10 @@ description
                     setattr(article, tng_field, value)
 
     @staticmethod
-    def mwtext_to_streamblocks(mw, mwtext: str, mw_titles_slugs, url_prefix) -> list[str]:
+    def mwtext_to_streamblocks(article, mw, mwtext: str, mw_titles_slugs, url_prefix) -> list[str]:
         mwtext_cleaned = Articles.clean_mediawiki_text(mwtext)
         mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles_slugs, url_prefix)
-        streamfield_blocks = Articles.html_to_streamfield(mwhtml)
+        streamfield_blocks = Articles.html_to_streamfield(article, mwhtml)
         merged_blocks = Articles.merge_streamfield_blocks(streamfield_blocks)
         return merged_blocks
 
@@ -954,7 +1132,7 @@ description
         # RichTextBlock editor and parser.
         html = html.replace('&lt;/BLAT&gt;', '&lt;/ref&gt;').replace('&lt;BLAT&gt;', '&lt;ref&gt;')
         # Remove the extra crud that MediaWiki adds
-        soup = BeautifulSoup(html, features='html5lib')
+        soup = BeautifulSoup(html, 'lxml')
         soup = Articles.strip_resourceguide_html(soup)
         # die if this is a redirect
         for tag in soup.find_all('div', class_='redirectMsg'):
@@ -1029,7 +1207,7 @@ description
         return soup,notmatched
 
     @staticmethod
-    def html_to_streamfield(html: str, debug: bool=False) -> list[str]:
+    def html_to_streamfield(article, html: str, debug: bool=False) -> list[str]:
         """Convert HTML into list of StreamField (role,html) tuples
      
         Role is one of ['heading', 'paragraph', 'embed', 'quote', ...]
@@ -1045,19 +1223,41 @@ description
             'p':  'paragraph',
         }
         KNOWN_TAGS = TAGS_TO_ROLES.keys()
-        soup = BeautifulSoup(html, features='html5lib')
+        def table_is_rgmediatype_databox(tag):
+            for t in tag.find_all('th'):
+                if t.contents and t.contents[0] == 'RG Media Type':
+                    return True
+            return False
+        soup = BeautifulSoup(html, 'lxml')
         blocks = []
         for tag in soup.body.contents:
             logger.debug(f"{tag=}")
             if type(tag) == NavigableString:
                 continue
-            if tag.name in ['blockquote', 'i', 'li', 'pre', 'ul']:
+            if tag.name in ['blockquote', 'i', 'li', 'pre', 'ul', 'dl']:
                 continue
             # TODO what to do with <div id="authorByline">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
                 continue
             # TODO what to do with <div id="citationAuthor">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'citationAuthor':
+                continue
+            if tag.name == 'div' and tag.has_attr('class') and tag['class'] == 'alert alert-info':
+                # <div class="alert alert-info">...little available research
+                # <div class="alert alert-info">...still under development
+                # article tags attached in import_article
+                if 'little available research' in tag.contents:
+                    article.tags.add('needsmoreresearch')
+                    continue
+                if 'still under development' in tag.contents:
+                    article.tags.add('underdevelopment')
+                    continue
+            # drop RG Media Type databoxes
+            if tag.name == 'tbody' and table_is_rgmediatype_databox(tag):
+                tag.decompose()
+                continue
+            # ignore tables.  TODO handle tables?
+            if tag.name in ['table', 'tbody']:
                 continue
             if tag.name == 'p':
                 block = {
@@ -1075,7 +1275,7 @@ description
                     }
                 }
             else:
-                raise UnhandledTagException(f"UnhandledTagException: Don't know what to do with \"{tag}\"")
+                raise UnhandledTagException(f"UnhandledTagException: Don't know what to do with \"{tag.name}\"")
             logger.debug(f"{block=}")
             blocks.append(block)
         return blocks
@@ -1134,6 +1334,55 @@ description
                     f"Don't recognize media_format '{source['media_format']}!"
                 )
         return blocks
+
+    @staticmethod
+    def parse_related_articles(mwtext):
+        """Parse mwtext and return list of related articles
+        
+        <div id="RelatedArticlesDisplay">
+        <h2>Related Articles</h2>
+        <p class="mw-empty-elt"></p>
+        <div id="RelatedArticlesSectionDisplay">
+        <h3>General</h3>
+        <p class="mw-empty-elt"></p>
+        <ul><li><a href="/wiki/hostels" title="Hostels">Hostels</a></li>
+        <li><a href="/wiki/resettlement" title="Resettlement">Resettlement</a></li></ul>
+        </div>
+        </div>
+        """
+        soup = BeautifulSoup(mwtext)
+        div = soup.find(id='RelatedArticlesSectionDisplay')
+        if div:
+            return [(li.a['href'],li.a['title']) for li in div.find_all('li')]
+        return []
+
+    @staticmethod
+    def log_error(title, error, path=None):
+        """Log article title, error signature and traceback to JSONL file
+        """
+        if not path:
+            return
+        data = {}
+        data['ts'] = datetime.now().strftime('%Y-%m-%d-T%H:%M:%S')
+        data['title'] = title.strip()
+        data['error'] = str(error.__class__.__name__).strip()
+        data['traceback'] = ''.join(traceback.format_exception(error)).strip()
+        with path.open('a') as f:
+            f.write(f"{json.dumps(data)}\n")
+
+    @staticmethod
+    def log_error_analyze(path):
+        with path.open('r') as f:
+            lines = f.readlines()
+        errors_by_sig = {}
+        for line in lines:
+            data = json.loads(line)
+            if not errors_by_sig.get(data['error']):
+                errors_by_sig[data['error']] = []
+            errors_by_sig[data['error']].append(data)
+        for key in errors_by_sig.keys():
+            print(f"{len(errors_by_sig[key])}: {key}")
+        return errors_by_sig
 
 
 def ddrobject_block(source):
@@ -1197,7 +1446,7 @@ with open('/opt/encyc-tail/Manzanar_pformatted.txt','r') as f:
     """
     # OBSOLETE - works on *parsed* html, footnotes already converted
     #from bs4 import BeautifulSoup
-    #soup = BeautifulSoup('html', features='html5lib')
+    #soup = BeautifulSoup('html', 'lxml')
     ## MW images
     #for tag in soup.find_all(class_='floatright'):
     #    tag.extract()

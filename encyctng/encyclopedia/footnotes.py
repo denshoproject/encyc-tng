@@ -33,7 +33,7 @@ class Footnotary():
         for broken,fixed in REF_TAGS:
             html = html.replace(broken,fixed)
         # extract each <ref></ref> tag and build HTML
-        soup = BeautifulSoup(html, features="html5lib")
+        soup = BeautifulSoup(html, 'lxml')
         footnotes = '\n'.join([
             str(ref) for ref in soup.find_all('ref')
         ])
@@ -56,7 +56,7 @@ class Footnotary():
         n = 1
         for block in page.body:
             if block.block_type == 'paragraph':
-                html,n = Footnotary._rewrite_body_html(str(block.value), n)
+                html,n = Footnotary._rewrite_body_html(block.value.source, n)
                 block.value.source = html
         page.footnotes = Footnotary._rewrite_footnotes_html(page.footnotes)
 
@@ -76,11 +76,20 @@ class Footnotary():
         # <ref> tags might have been escaped so fix them
         for broken,fixed in REF_TAGS:
             html = html.replace(broken,fixed)
-        soup = BeautifulSoup(html, features="html5lib")
+        soup = BeautifulSoup(html, 'lxml')
         # remove <head> and <body>
-        soup.html.unwrap()
-        soup.head.unwrap()
-        soup.body.unwrap()
+        try:
+            soup.html.unwrap()
+        except AttributeError:
+            pass
+        try:
+            soup.head.unwrap()
+        except AttributeError:
+            pass
+        try:
+            soup.body.unwrap()
+        except AttributeError:
+            pass
         # rewrite <ref> tags as <li> with backlinks
         for item in soup.find_all('ref'):
             ref_name  = f"cite_ref-{n}"
@@ -117,10 +126,16 @@ class Footnotary():
         """
         if not html:
             return ''
-        soup = BeautifulSoup(html, features="html5lib")
+        soup = BeautifulSoup(html, 'lxml')
         # remove <head> and <body>
-        soup.head.unwrap()
-        soup.body.unwrap()
+        try:
+            soup.head.unwrap()
+        except AttributeError:
+            pass
+        try:
+            soup.body.unwrap()
+        except AttributeError:
+            pass
         # rename <html> to <ol>
         soup.html.name = 'ol'
         soup.ol['class'] = 'references'
