@@ -145,7 +145,7 @@ Load article data and import:
 from pathlib import Path
 from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
-migration.Articles.import_articles(basedir)
+migration.Articles.import_articles(basedir, jsonl_path)
 ```
 
 ``` python
