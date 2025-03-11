@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'modelcluster',
+    'pattern_library',
     'taggit',
     'wagtail',
     'wagtail.admin',
@@ -115,9 +116,36 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'builtins': [
+                'pattern_library.loader_tags',
+            ],
         },
     },
 ]
+
+# django-pattern-library
+if DEBUG:
+    X_FRAME_OPTIONS = "SAMEORIGIN"
+PATTERN_LIBRARY = {
+    # Groups of templates for the pattern library navigation. The keys
+    # are the group titles and the values are lists of template name prefixes that will
+    # be searched to populate the groups.
+    "SECTIONS": (
+        ("components", ["patterns/components"]),
+        ("pages", ["patterns/pages"]),
+    ),
+
+    # Configure which files to detect as templates.
+    "TEMPLATE_SUFFIX": ".html",
+
+    # Set which template components should be rendered inside of,
+    # so they may use page-level component dependencies like CSS.
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
+
+    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
+    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
+    "BASE_TEMPLATE_NAMES": ["patterns/base_page.html"],
+}
 
 WSGI_APPLICATION = 'encyctng.wsgi.application'
 

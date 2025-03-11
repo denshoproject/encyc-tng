@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.apps import apps
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -25,7 +26,15 @@ from wagtail.documents import urls as wagtaildocs_urls
 
 from encyclopedia import urls as encyclopedia_urls
 
-urlpatterns = [
+urlpatterns = []
+
+# Disable this in production!
+if apps.is_installed("pattern_library"):
+    urlpatterns += [
+        path("pattern-library/", include("pattern_library.urls")),
+    ]
+
+urlpatterns += [
     path('admin/', admin.site.urls),
     path('cms/', include(wagtailadmin_urls)),
     path('documents/', include(wagtaildocs_urls)),
