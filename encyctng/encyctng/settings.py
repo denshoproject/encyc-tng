@@ -176,6 +176,9 @@ CACHES = {
     }
 }
 
+CACHE_TIMEOUT = int(config.get('performance', 'cache_timeout'))
+CACHE_TIMEOUT_LONG = int(config.get('performance', 'cache_timeout_long'))
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
