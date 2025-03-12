@@ -1,8 +1,11 @@
+import random
+
 from django import forms
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
 from django.utils.text import slugify
+import httpx
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.models import TaggedItemBase
@@ -131,6 +134,23 @@ class Article(Page):
     class Meta:
         verbose_name = "Article"
         verbose_name_plural = "Articles"
+
+    def ddr_objects(self, term_id=None):
+        """DDR objects associated with article (mockup)
+        """
+        missing_term_ids = [
+            0, 13, 30, 39, 41, 55, 58, 60, 64, 77, 79, 83, 105, 112, 119, 121,
+            122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135,
+            136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+            150, 151, 152, 153, 154, 155, 156, 159, 182, 184, 201, 205
+        ]
+        term_id = None
+        while(term_id == None):
+            n = random.randrange(1,545)
+            if n not in missing_term_ids:
+                term_id = n
+        url = f"https://ddr.densho.org/api/0.2/facet/topics/{term_id}/objects/?format=json"
+        return httpx.get(url).json()
 
     @staticmethod
     def articles_by_author():
