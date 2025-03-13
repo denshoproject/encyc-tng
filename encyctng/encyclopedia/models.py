@@ -228,6 +228,17 @@ def prep_footnotes(page, request, serve_args, serve_kwargs):
         )
 
 
+class MediawikiWagtail(models.Model):
+    """Map encycfront MediaWiki URLs to Article title slugs
+    """
+    mediawiki_url = models.CharField(max_length=255, help_text="MediaWiki title URL")
+    wagtail_slug = models.CharField(max_length=255, help_text="Wagtail title slug")
+
+    class Meta:
+        verbose_name = 'Mediawiki-Wagtail'
+        verbose_name_plural = 'Mediawiki-Wagtail'
+
+
 # Article -> sources ---------------------------------------------------
 
 BLOCK_TYPES = ['imageblock','documentblock','videoblock']
