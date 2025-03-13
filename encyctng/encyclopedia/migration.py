@@ -50,6 +50,7 @@ from encyclopedia.blocks import (
     DataboxCampBlock)
 from encyclopedia.models import ArticlesIndexPage
 from encyclopedia.models import Page, Article
+from encyclopedia.models import MediawikiWagtail
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 
@@ -945,6 +946,12 @@ description
             for author in authors:
                 article.authors.add(author)
             article.save_revision().publish()
+
+        wm = MediawikiWagtail(
+            mediawiki_url=mwpage.url_title,
+            wagtail_slug=slugify(mwpage.title),
+        )
+        wm.save()
 
         return article,related_articles
 
