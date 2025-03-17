@@ -1,0 +1,13 @@
+@use 'config' as *;
+@use 'sass:color';
+
+// Box Sizing
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    color: $color--black;
+}
