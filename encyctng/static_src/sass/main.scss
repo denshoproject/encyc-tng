@@ -2,3 +2,7 @@
 // @use or declare custom styles here to include them.
 
 @use 'base/base';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

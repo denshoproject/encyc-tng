@@ -3,6 +3,10 @@ const plugin = require('tailwindcss/plugin');
 module.exports = {
     content: [
         './encyctng/project_styleguide/**/*.{py,html}',
+        './encyctng/templates/**/*.html',
+        './encyctng/home/templates/**/*.html',
+        './encyctng/encyclopedia/templates/**/*.html',
+        './encyctng/search/templates/**/*.html',
         './encyctng/static_src/**/*.{js,ts,tsx}',
     ],
     theme: {
