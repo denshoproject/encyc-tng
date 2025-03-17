@@ -1,3 +1,17 @@
+/encyctng/static_compiled
+
+.DS_Store
+*.swp
+/static/
+/media/
+/tmp/
+/db/
+/.vagrant/
+/Vagrantfile.local
+node_modules/
+/npm-debug.log
+.vscode
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

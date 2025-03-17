@@ -1,0 +1,82 @@
+default_language_version:
+  node: system
+  python: python3.12
+
+repos:
+  # Python linting and formatting
+  - repo: https://github.com/python/black
+    rev: '24.2.0' # keep version in sync with pyproject.toml
+    hooks:
+      - id: black
+  - repo: https://github.com/pycqa/flake8
+    rev: '7.0.0' # keep version in sync with pyproject.toml
+    hooks:
+      - id: flake8
+  - repo: https://github.com/PyCQA/isort
+    rev: '5.13.2' # keep version in sync with pyproject.toml
+    hooks:
+      - id: isort
+  - repo: https://github.com/python-poetry/poetry
+    rev: '1.7.1' # keep version in sync with version installed in the Dockerfile
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock
+        # Never update dependencies and only run on changes to pyproject.toml
+        args: [--no-update]
+        files: ^pyproject.toml$
+
+  # FE linting and formatting
+  # NB - These run locally, not in an isolated environment, and hence require
+  # node, npm, and node_modules to be installed. Doing it this way prevents us
+  # having to duplicate all of eslint plugins from package.json in this file and
+  # you should probably have a working toolchain to make changes to these files
+  # anyway, right?
+  - repo: local
+    hooks:
+      - id: fix:js
+        name: fix:js
+        language: system
+        entry: npm run fix:js
+        types_or:
+          - javascript
+          - ts
+          - tsx
+      - id: fix:css
+        name: fix:css
+        language: system
+        entry: npm run fix:css
+        types_or:
+          - css
+          - scss
+      - id: fix:format
+        name: fix:format
+        language: system
+        entry: npm run fix:format
+        types_or:
+          - markdown
+          - css
+          - scss
+          - javascript
+          - ts
+          - tsx
+          - json
+          - yaml
+
+  # Template linting
+  - repo: https://github.com/rtts/djhtml
+    rev: 3.0.6
+    hooks:
+      - id: djhtml
+
+  # Misc. other linters
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0 # keep version in sync with pyproject.toml
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: >
+          (?x)^(
+              .*/tests/.*|
+              package-lock.json|
+              poetry.lock
+          )$
