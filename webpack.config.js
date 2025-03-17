@@ -9,7 +9,7 @@ const projectRoot = 'encyctng';
 
 const options = {
     entry: {
-        main: `./${projectRoot}/static_src/javascript/main.js`,
+        encyctng: `./${projectRoot}/static_src/javascript/main.js`,
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
@@ -121,7 +121,9 @@ const options = {
                 // the CSS - see `_test-background-images.scss`. Otherwise, the
                 // image is copied to the images/cssBackgrounds directory.
                 test: /\.(svg|jpg|png|gif|webp)$/,
-                include: path.resolve(`./${projectRoot}/static_src/images/cssBackgrounds/`),
+                include: path.resolve(
+                    `./${projectRoot}/static_src/images/cssBackgrounds/`,
+                ),
                 type: 'asset',
                 parser: {
                     dataUrlCondition: {
