@@ -1,0 +1,14 @@
+node_modules/
+
+# Compiled static files
+/encyctng/static_compiled/
+
+# Collected static files
+/static/
+
+# Python virtual environments
+/.venv/
+/venv/
+
+# coverage HTML reports
+/htmlcov/
