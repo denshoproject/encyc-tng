@@ -66,6 +66,55 @@ We do not include image minimisation as part of the toolchain out the box for th
 
 However, you can install the required packages on your local machine and run the minimisation yourself from the command line by following these instructions.
 
+### Minimising svgs
+
+We provide a config file for svgo which has some recommended presets - but always check the file after running the minimising command to check it has not removed any code that you need.
+
+First, install svgo globally if you have not done this previously:
+
+`npm install -g svgo`
+
+You can then run the `svgo` command from the terminal. Here are some examples:
+
+1. Run the command from the root folder of the project, and target all svg files in the `static_src/images` folder, and all subfolders. This will automatically detect the config file and overwrite the files with the new versions:
+
+`svgo -r -f encyctng/encyctng/static_src/images`
+
+2. Run the command from the root folder of the project, and target a specific svg file. Put the output file in another folder for comparison (don't commit this file or folder to git). This will automatically detect the config file.
+
+`svgo encyctng/encyctng/static_src/images/[your-file.svg] -o ./encyctng/encyctng/static_src/optimised_images`
+
+3. Run the command in the same folder as the sprites file and minimise all the svgs in the file (check them all afterwards!). This will automatically detect the config file.
+
+`svgo sprites.html`
+
+If you run the command from outside the project root you may need to pass an explict reference to the config file with the `--config` option.
+
+Full svgo reference: https://www.npmjs.com/package/svgo
+
+## Minimising jpgs and pngs
+
+First, globally install imagemin and imagemin-mozjpeg if you have not done so before. We use the lossy mozjpeg plugin because the default (lossless), imagemin-jpegtran, can result in larger images than the original.
+
+npm install -g imagemin-cli imagemin-mozjpeg imagemin-pngquant
+
+You can then run the `imagemin` command from the terminal. Here are some examples:
+
+1. Run the command from the root folder of the project and minimise all jpegs in the `images` folder. The files will be overwritten by the new version.
+
+`imagemin encyctng/encyctng/static_src/images/\*.{jpg,jpeg} --plugin=mozjpeg --out-dir=./encyctng/encyctng/static_src/images`
+
+2. Run the command from the root folder of the project and target a specific jpeg file. Output the file into another folder for comparison (don't commit this file or folder to git).
+
+`imagemin encyctng/encyctng/static_src/images/[your-file.jpg] --plugin=mozjpeg --out-dir=./encyctng/encyctng/static_src/optimised_images`
+
+3. Run the command on a particular png file and output to a new version of the file. Uses the lossy pngquant plugin instead of the default lossless plugin for better file size reduction.
+
+`imagemin your-file.png --plugin=pngquant > your-file-optimised.png`
+
+Full imagemin-cli reference: https://github.com/imagemin/imagemin-cli
+Useful summary table of the plugins: https://web.dev/use-imagemin-to-compress-images/#plugins
+
 ## Further details of the packages included
 
 - **autoprefixer** - adds vendor prefixes as necessary for the browsers defined in `browserslist` in the npm config https://www.npmjs.com/package/autoprefixer
