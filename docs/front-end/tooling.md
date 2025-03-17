@@ -4,17 +4,7 @@
 
 To install node on the host machine we recommend using [`nvm`](https://github.com/creationix/nvm). Once you have `nvm` installed simply run `nvm install` to install and activate the version of node required for the project. Refer to the [`nvm` documentation](https://github.com/creationix/nvm#usage) for more details about available commands.
 
-## Setting up a new project from the wagtail-kit tooling
-
-The wagtail-kit tooling is versioned via `package.json`, and the `package-lock.json` lockfile pins all of the project’s direct and transitive dependencies. If you wish to start the project with up to date dependencies without doing manual upgrades, you can discard the lockfile and re-create it:
-
-```sh
-rm -rf node_modules
-rm package-lock.json
-npm install
-```
-
-Remember to then commit the updated `package-lock.json`.
+The tooling is versioned via `package.json`, and the `package-lock.json` lockfile pins all of the project’s direct and transitive dependencies.
 
 ## What's included
 
@@ -35,7 +25,7 @@ Remember to then commit the updated `package-lock.json`.
 
 ## Developing with it
 
-- To start the development environment, follow instruction in README.md in the project root
+- To start the development environment, follow instruction in INSTALL.md in the project root
 - Source files for developing your project are in `static_src` and the distribution folder for the compiled assets is `static_compiled`. Don't make direct changes to the `static_compiled` directory as they will be overwritten.
 
 ## Tests
@@ -60,17 +50,9 @@ To only build assets for either development or production you can use
 - `npm run build` To build development assets
 - `npm run build:prod` To build assets with minification and vendor prefixes
 
-## React support
-
-You can test that compilation of react is working by uncommenting the relevant lines in `javascript/main.js` and `javascript/components/TestReact.tsx`. If you don't need react in your project, make sure you don't uncomment these lines or remove them completely. This will help to keep the compiled js file size down.
-
-## Third party libraries
-
-We no longer have a 'vendor' folder for these. Instead find ones that are packaged as npm libraries and install them as dependencies (see 'using npm' above). If they have CSS that needs including, this can be imported directly from the node_modules folder - see the example for glide in main.scss.
-
 ## CSS Background images
 
-There is a folder inside `images` called `cssBackgrounds` where you should place any images referenced by the CSS, whether svg, jpg or png. The tooling will detect the image size, and if it is small (less than 1024 bytes), then it will be automatically encoded within the compiled CSS file. Larger images will be synced to the `cssBackgrounds` folder and referenced in the compiled CSS as a separate file. There is an example CSS file called `_test-background-images.scss` to demo this within the wagtail-kit build.
+There is a folder inside `images` called `cssBackgrounds` where you should place any images referenced by the CSS, whether svg, jpg or png. The tooling will detect the image size, and if it is small (less than 1024 bytes), then it will be automatically encoded within the compiled CSS file. Larger images will be synced to the `cssBackgrounds` folder and referenced in the compiled CSS as a separate file.
 
 ## Minimising images
 
@@ -84,62 +66,12 @@ We do not include image minimisation as part of the toolchain out the box for th
 
 However, you can install the required packages on your local machine and run the minimisation yourself from the command line by following these instructions.
 
-### Minimising svgs
-
-We provide a config file for svgo which has some recommended presets - but always check the file after running the minimising command to check it has not removed any code that you need.
-
-First, install svgo globally if you have not done this previously:
-
-`npm install -g svgo`
-
-You can then run the `svgo` command from the terminal. Here are some examples:
-
-1. Run the command from the root folder of the project, and target all svg files in the `static_src/images` folder, and all subfolders. This will automatically detect the config file and overwrite the files with the new versions:
-
-`svgo -r -f wagtailkit_repo_name/static_src/images`
-
-2. Run the command from the root folder of the project, and target a specific svg file. Put the output file in another folder for comparison (don't commit this file or folder to git). This will automatically detect the config file.
-
-`svgo wagtailkit_repo_name/static_src/images/[your-file.svg] -o ./wagtailkit_repo_name/static_src/optimised_images`
-
-3. Run the command in the same folder as the sprites file and minimise all the svgs in the file (check them all afterwards!). This will automatically detect the config file.
-
-`svgo sprites.html`
-
-If you run the command from outside the project root you may need to pass an explict reference to the config file with the `--config` option.
-
-Full svgo reference: https://www.npmjs.com/package/svgo
-
-## Minimising jpgs and pngs
-
-First, globally install imagemin and imagemin-mozjpeg if you have not done so before. We use the lossy mozjpeg plugin because the default (lossless), imagemin-jpegtran, can result in larger images than the original.
-
-npm install -g imagemin-cli imagemin-mozjpeg imagemin-pngquant
-
-You can then run the `imagemin` command from the terminal. Here are some examples:
-
-1. Run the command from the root folder of the project and minimise all jpegs in the `images` folder. The files will be overwritten by the new version.
-
-`imagemin wagtailkit_repo_name/static_src/images/\*.{jpg,jpeg} --plugin=mozjpeg --out-dir=./wagtailkit_repo_name/static_src/images`
-
-2. Run the command from the root folder of the project and target a specific jpeg file. Output the file into another folder for comparison (don't commit this file or folder to git).
-
-`imagemin wagtailkit_repo_name/static_src/images/[your-file.jpg] --plugin=mozjpeg --out-dir=./wagtailkit_repo_name/static_src/optimised_images`
-
-3. Run the command on a particular png file and output to a new version of the file. Uses the lossy pngquant plugin instead of the default lossless plugin for better file size reduction.
-
-`imagemin your-file.png --plugin=pngquant > your-file-optimised.png`
-
-Full imagemin-cli reference: https://github.com/imagemin/imagemin-cli
-Useful summary table of the plugins: https://web.dev/use-imagemin-to-compress-images/#plugins
-
 ## Further details of the packages included
 
 - **autoprefixer** - adds vendor prefixes as necessary for the browsers defined in `browserslist` in the npm config https://www.npmjs.com/package/autoprefixer
 - **typescript** - TypeScript compiler, defines which version of the language we use.
 - **ts-jest** - TypeScript support for Jest
 - **ts-loader** - use TypeScript with webpack - https://www.npmjs.com/package/ts-loader
-- **browser-sync** - for automatic reloading of your browser when changes are made to CSS / JS files https://www.npmjs.com/package/browser-sync
 - **copy-webpack-plugin** - Used to sync images from static_src to static_compiled
 - **css-loader** – add support for Webpack to load stylesheets.
 - **cssnano** – minify CSS with safe optimisations - https://cssnano.co/.
