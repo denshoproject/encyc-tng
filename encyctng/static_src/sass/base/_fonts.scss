@@ -1,11 +1,11 @@
 // Body font - Mulish - 400
 @font-face {
-    font-family: 'Mulish', sans-serif;
+    font-family: 'Mulish';
     font-optical-sizing: auto;
     font-weight: 400 700;
     font-style: normal;
     font-display: swap;
-    src: url(../fonts/mulish-variable-font.woff) format('woff');
+    src: url('../fonts/mulish-variable-font.woff') format('woff-variations');
 }
 
 // Heading font - PT Sans - 700
@@ -14,5 +14,5 @@
     font-weight: 700;
     font-style: normal;
     font-display: swap;
-    src: url(../fonts/pt-sans-bold.woff) format('woff');
+    src: url('../fonts/pt-sans-bold.woff') format('woff');
 }
