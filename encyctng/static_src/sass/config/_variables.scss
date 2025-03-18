@@ -24,3 +24,13 @@ $color--transparent-orange: rgba(237, 110, 88, 0.15);
     --color--lines: #{$color--grey};
     --color--anchor-background: #{$color--light-grey};
 }
+
+// --------------------------------- Fonts ------------------------------------
+$font--primary: 'Mulish', sans-serif;
+$font--secondary: 'PT Sans', sans-serif;
+
+$base-font-size: 16px;
+
+// Font weights
+$weight--bold: 700;
+$weight--normal: 400;

@@ -1,0 +1,27 @@
+@use 'config' as *;
+@use 'sass:math';
+
+/* ============================================
+    Base font
+*/
+html {
+    font-size: (math.div($base-font-size, 16px)) * 100%;
+    line-height: 1.4;
+}
+
+@mixin heading-text() {
+    font-family: $font--secondary;
+    font-style: inherit;
+    font-weight: $weight--bold;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading {
+    @include heading-text();
+    margin: 0 0 1rem;
+}

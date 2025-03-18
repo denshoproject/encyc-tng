@@ -2,6 +2,8 @@
 // @use or declare custom styles here to include them.
 
 @use 'base/base';
+@use 'base/typography';
+@use 'base/fonts';
 
 @tailwind base;
 @tailwind components;
