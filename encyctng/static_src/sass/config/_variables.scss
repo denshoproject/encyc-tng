@@ -73,6 +73,13 @@ $small-font-sizes: (
 
 $breakpoints: ('medium' '(min-width: 599px)', 'large' '(min-width: 1023px)');
 
+// Grid
+$grid-gutters-mobile: 20px;
+$grid-gutters-tablet: 40px;
+$grid-gutters-desktop: 80px;
+
+$site-max-width: 1440px;
+
 // --------------------------------- Z-index ------------------------------------
 $z-index: (
     under: -1,
