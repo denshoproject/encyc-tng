@@ -134,6 +134,7 @@ PATTERN_LIBRARY = {
         ("styleguide", ["patterns/styleguide"]),
         ("components", ["patterns/components"]),
         ("pages", ["patterns/pages"]),
+        ("sprites", ["patterns/sprites"]),
     ),
 
     # Configure which files to detect as templates.

@@ -32,6 +32,8 @@
     </head>
 
     <body class="{% block body_class %}{% endblock %}">
+        {% include "patterns/sprites/sprites.html" %}
+
         {% wagtailuserbar %}
 
         {% block content %}{% endblock %}
