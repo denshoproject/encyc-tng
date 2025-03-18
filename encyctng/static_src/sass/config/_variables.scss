@@ -34,3 +34,41 @@ $base-font-size: 16px;
 // Font weights
 $weight--bold: 700;
 $weight--normal: 400;
+
+// Font sizes
+$large-font-sizes: (
+    heading-one: 50px,
+    heading-two: 34px,
+    heading-three: 26px,
+    heading-four: 22px,
+    introduction: 22px,
+    body: 18px,
+    meta-large: 16px,
+    meta-small: 14px,
+);
+
+$medium-font-sizes: (
+    heading-one: 42px,
+    heading-two: 31px,
+    heading-three: 24px,
+    heading-four: 20px,
+    introduction: 20px,
+    body: 17px,
+    meta-large: 15px,
+    meta-small: 14px,
+);
+
+$small-font-sizes: (
+    heading-one: 34px,
+    heading-two: 28px,
+    heading-three: 22px,
+    heading-four: 18px,
+    introduction: 18px,
+    body: 16px,
+    meta-large: 14px,
+    meta-small: 14px,
+);
+
+// --------------------------------- Sizing ------------------------------------
+
+$breakpoints: ('medium' '(min-width: 599px)', 'large' '(min-width: 1023px)');
