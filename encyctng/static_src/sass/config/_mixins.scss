@@ -77,3 +77,42 @@
 @mixin z-index($key) {
     z-index: z-index($key);
 }
+
+/* ============================================
+    High Contrast mode in dark mode
+    prefers-color-scheme: dark + forced-colors: active
+*/
+@mixin high-contrast-dark-mode() {
+    @media (prefers-color-scheme: dark) and (forced-colors: active) {
+        @content;
+    }
+}
+
+/* ============================================
+    High Contrast mode in light mode
+    prefers-color-scheme: light + forced-colors: active
+*/
+@mixin high-contrast-light-mode() {
+    @media (prefers-color-scheme: light) and (forced-colors: active) {
+        @content;
+    }
+}
+
+/* ============================================
+    High Contrast mode (forced-colors: active)
+*/
+
+@mixin high-contrast-mode() {
+    @media (forced-colors: active) {
+        @content;
+    }
+}
+
+/* ============================================
+    Prefers reduced motion
+*/
+@mixin reduced-motion() {
+    @media (prefers-reduced-motion) {
+        @content;
+    }
+}

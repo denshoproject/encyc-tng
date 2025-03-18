@@ -1,0 +1,21 @@
+<button
+    type="{{ type|default:"button" }}"
+    class="button{% if classes %} {{ classes }}{% endif %}"
+    {% if id %}id="{{ id }}"{% endif %}
+    {% if name %}name="{% if name|wordcount > 1 %}{{ name|slugify }}{% else %}{{ name }}{% endif %}"{% endif %}
+    {% if aria_label %}aria-label="{{ aria_label }}"{% endif %}
+    {% if aria_expanded %}aria-expanded="{{ aria_expanded }}"{% endif %}
+    {% if aria_controls %}aria-controls="{{ aria_controls }}"{% endif %}
+    {% if aria_haspopup %}aria-haspopup="{{ aria_haspopup }}"{% endif %}
+    {% if disabled %}disabled{% endif %}
+    {% if attrs %}{{ attrs|safe }}{% endif %}
+>
+
+    {% if text %}
+        {{ text }}
+    {% endif %}
+
+    {% if icon %}
+        {% include "patterns/components/icons/icon.html" with name=icon classname="button__icon" %}
+    {% endif %}
+</button>
