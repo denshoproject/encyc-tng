@@ -1,0 +1,32 @@
+@use 'config' as *;
+
+.rich-text {
+    h3,
+    h4 {
+        color: var(--color--headings);
+    }
+
+    ul {
+        list-style: outside disc;
+        margin-left: 20px;
+        margin-bottom: 20px;
+    }
+
+    ol {
+        list-style: outside decimal;
+        margin-left: 20px;
+        margin-bottom: 20px;
+    }
+
+    a {
+        color: var(--color--links);
+    }
+
+    p {
+        margin-bottom: 30px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
