@@ -1,3 +1,26 @@
 // --------------------------------- Colors ------------------------------------
+$color--white: #fff;
+$color--grey: #8080804d;
+$color--light-grey: #f4f5f6;
+$color--dark-grey: #222227;
+$color--blue: #283851;
+$color--light-blue: #c6ccd5;
+$color--dark-blue: #191c22;
+$color--orange: #ed6e58;
+$color--light-orange: #fce9e6;
+$color--dark-orange: #b94430;
+$color--transparent-orange: rgba(237, 110, 88, 0.15);
 
-$color--black: #000;
+// Light mode by default
+:root,
+.mode-light {
+    --color--background: #{$color--white};
+    --color--subtle-background: #{$color--light-orange};
+    --color--headings: #{$color--blue};
+    --color--toggle-background: #{$color--dark-blue};
+    --color--resource-background: #{$color--blue};
+    --color--body: #{$color--dark-grey};
+    --color--links: #{$color--dark-orange};
+    --color--lines: #{$color--grey};
+    --color--anchor-background: #{$color--light-grey};
+}
