@@ -3,6 +3,7 @@ USER=encyc
 SHELL = /bin/bash
 
 SRC_REPO=https://github.com/denshoproject/encyc-tng
+SRC_REPO_NVM=https://github.com/nvm-sh/nvm.git
 
 INSTALL_BASE=/opt
 INSTALLDIR=$(INSTALL_BASE)/encyc-tng
@@ -12,6 +13,7 @@ PIP_CACHE_DIR=$(INSTALL_BASE)/pip-cache
 
 CWD := $(shell pwd)
 INSTALL_STATIC=$(INSTALLDIR)/static
+INSTALL_NVM=$(INSTALLDIR)/.nvm
 
 VIRTUALENV=$(INSTALLDIR)/venv/encyctng
 
@@ -107,6 +109,17 @@ install-virtualenv:
 	pip3 install -U --cache-dir=$(PIP_CACHE_DIR) uv
 
 
+install-nodejs:
+	@echo ""
+	@echo "install-nodejs --------------------------------------------------------"
+	if test -d $(INSTALL_NVM); \
+	then cd $(INSTALL_NVM) && git pull; \
+	else git clone $(SRC_REPO_NVM) $(INSTALL_NVM); \
+	fi
+	source ./.nvm/nvm.sh; nvm install
+	source ./.nvm/nvm.sh; npm install
+
+
 get-app: get-encyc-tng
 
 install-app: install-encyc-tng
@@ -124,7 +137,7 @@ get-encyc-tng:
 setup-encyc-tng:
 	source $(VIRTUALENV)/bin/activate; uv pip install .
 
-install-encyc-tng: install-virtualenv git-safe-dir install-redis
+install-encyc-tng: git-safe-dir install-redis install-virtualenv install-nodejs
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
 	apt-get install --assume-yes ffmpeg
