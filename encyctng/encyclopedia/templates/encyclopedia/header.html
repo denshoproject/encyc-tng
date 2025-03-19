@@ -1,18 +1,34 @@
-<table id="header" width="100%" border="1">
-  <tr>
-    <td width=300>
-      <h2>
-        Densho Encyclopedia
-      </h2>
-    </td>
-    <td>
-      <h3>
-        <a href="/topics/">Browse Topics</a>
-        &bull;
-        <a href="/articles/">Contents A-Z</a>
-        &bull;
-        <a href="/authors/">Authors</a>
-      </h3>
-    </td>
-  </tr>
-</table>
+<header class="header">
+    <a href="/" class="header__home-link" aria-label="Densho Encyclopedia home">
+    <svg class="header__logo" aria-hidden="true" focusable="false" >
+            <use xlink:href="#densho-logo"></use>
+        </svg>
+        <span class="header__logo-text" aria-hidden="true">Encyclopedia</span>
+    </a>
+
+    <nav class="header__nav">
+        <ul class="header__nav-list">
+            <li class="header__nav-item">
+                <a href="/topics/" class="header__nav-link">
+                    <span class="header__nav-icon">
+                        {% include "patterns/components/icons/icon.html" with name="magnifying-glass" classname="size-5 text-brand-1" %}
+                    </span>
+                    <span class="header__nav-text">Explore Collection</span>
+                </a>
+            </li>
+            <li class="header__nav-item">
+                <a href="/about/" class="header__nav-link">
+                    <span class="header__nav-text">About</span>
+                </a>
+            </li>
+            <li class="header__nav-item">
+                <a href="https://densho.org" class="header__nav-link">
+                    <span class="header__nav-icon">
+                        {% include "patterns/components/icons/icon.html" with name="external-link" classname="size-5 text-brand-1" %}
+                    </span>
+                    <span class="header__nav-text">Densho</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
