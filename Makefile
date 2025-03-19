@@ -174,6 +174,7 @@ uninstall-encyc-tng:
 	-pip uninstall -r $(INSTALLDIR)/requirements.txt
 
 clean-encyc-tng:
+	source $(VIRTUALENV)/bin/activate; pyclean .
 	-rm -Rf $(INSTALLDIR)/*.egg-info
 	-rm -Rf $(INSTALLDIR)/build/
 	-rm -Rf $(INSTALLDIR)/venv/

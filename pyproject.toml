@@ -36,6 +36,7 @@ dependencies = [
     'httpx',
     'lxml',
     'psycopg',
+    'pyclean',
     'python-dateutil',
     'wagtail',
     'wagtailmedia',
