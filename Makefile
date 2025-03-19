@@ -174,11 +174,12 @@ uninstall-encyc-tng:
 	-pip uninstall -r $(INSTALLDIR)/requirements.txt
 
 clean-encyc-tng:
+	-rm -Rf $(INSTALLDIR)/*.egg-info
+	-rm -Rf $(INSTALLDIR)/build/
 	-rm -Rf $(INSTALLDIR)/venv/
-	-rm -Rf $(APPDIR)/build
+	-rm -Rf $(APPDIR)/build/
 	-rm -Rf $(APPDIR)/*.egg-info
-	-rm -Rf $(APPDIR)/dist
-
+	-rm -Rf $(APPDIR)/dist/
 
 clean-pip:
 	-rm -Rf $(PIP_CACHE_DIR)/*
