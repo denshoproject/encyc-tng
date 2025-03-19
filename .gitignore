@@ -1,3 +1,4 @@
+# compiled static files
 /encyctng/static_compiled
 
 .DS_Store
@@ -8,6 +9,7 @@
 /db/
 /.vagrant/
 /Vagrantfile.local
+.nvm/
 node_modules/
 /npm-debug.log
 .vscode
