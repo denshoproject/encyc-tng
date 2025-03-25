@@ -1,3 +1,90 @@
 // --------------------------------- Colors ------------------------------------
+$color--white: #fff;
+$color--grey: #8080804d;
+$color--light-grey: #f4f5f6;
+$color--dark-grey: #222227;
+$color--blue: #283851;
+$color--light-blue: #c6ccd5;
+$color--dark-blue: #191c22;
+$color--orange: #ed6e58;
+$color--light-orange: #fce9e6;
+$color--dark-orange: #b94430;
+$color--transparent-orange: rgba(237, 110, 88, 0.15);
 
-$color--black: #000;
+// Light mode by default
+:root,
+.mode-light {
+    --color--background: #{$color--white};
+    --color--subtle-background: #{$color--light-orange};
+    --color--headings: #{$color--blue};
+    --color--toggle-background: #{$color--dark-blue};
+    --color--resource-background: #{$color--blue};
+    --color--body: #{$color--dark-grey};
+    --color--links: #{$color--dark-orange};
+    --color--lines: #{$color--grey};
+    --color--anchor-background: #{$color--light-grey};
+}
+
+// --------------------------------- Fonts ------------------------------------
+$font--primary: 'Mulish', sans-serif;
+$font--secondary: 'PT Sans', sans-serif;
+
+$base-font-size: 16px;
+
+// Font weights
+$weight--bold: 700;
+$weight--normal: 400;
+
+// Font sizes
+$large-font-sizes: (
+    heading-one: 50px,
+    heading-two: 34px,
+    heading-three: 26px,
+    heading-four: 22px,
+    introduction: 22px,
+    body: 18px,
+    meta-large: 16px,
+    meta-small: 14px,
+);
+
+$medium-font-sizes: (
+    heading-one: 42px,
+    heading-two: 31px,
+    heading-three: 24px,
+    heading-four: 20px,
+    introduction: 20px,
+    body: 17px,
+    meta-large: 15px,
+    meta-small: 14px,
+);
+
+$small-font-sizes: (
+    heading-one: 34px,
+    heading-two: 28px,
+    heading-three: 22px,
+    heading-four: 18px,
+    introduction: 18px,
+    body: 16px,
+    meta-large: 14px,
+    meta-small: 14px,
+);
+
+// --------------------------------- Sizing ------------------------------------
+
+$breakpoints: ('medium' '(min-width: 599px)', 'large' '(min-width: 1023px)');
+
+// Grid
+$grid-gutters-mobile: 20px;
+$grid-gutters-tablet: 40px;
+$grid-gutters-desktop: 80px;
+
+$site-max-width: 1440px;
+
+// --------------------------------- Z-index ------------------------------------
+$z-index: (
+    under: -1,
+    base: 10,
+);
+
+// --------------------------------- Transitions ------------------------------------
+$transition: 0.25s ease-out;

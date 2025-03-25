@@ -1,14 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Base</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/encyctng.css' %}">
 </head>
 <body>
+  {% include "patterns/sprites/sprites.html" %}
   {% block content %}
     {# pattern_library_rendered_pattern is where the pattern library will inject the rendered pattern. #}
     {{ pattern_library_rendered_pattern }}
   {% endblock %}
+  <script type="text/javascript" src="{% static 'js/encyctng.js' %}"></script>
 </body>
 </html>

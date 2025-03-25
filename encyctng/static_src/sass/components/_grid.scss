@@ -1,0 +1,32 @@
+@use 'config' as *;
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding-left: $grid-gutters-mobile;
+    padding-right: $grid-gutters-mobile;
+    max-width: $site-max-width;
+    margin: 0 auto;
+
+    @include media-query(medium) {
+        padding-left: $grid-gutters-tablet;
+        padding-right: $grid-gutters-tablet;
+    }
+
+    @include media-query(large) {
+        grid-template-columns: repeat(12, 1fr);
+        padding-left: $grid-gutters-desktop;
+        padding-right: $grid-gutters-desktop;
+        column-gap: 32px;
+    }
+
+    &--no-gutter {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    // Make all child elements span the full width of the grid
+    > * {
+        grid-column: 1 / -1;
+    }
+}

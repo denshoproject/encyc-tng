@@ -1,0 +1,68 @@
+@use 'config' as *;
+@use 'sass:math';
+
+// ------------------------------- Base font -------------------------
+html {
+    font-size: (math.div($base-font-size, 16px)) * 100%;
+    line-height: 1.4;
+    font-family: $font--primary;
+    font-weight: $weight--normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+@mixin heading-text() {
+    font-family: $font--secondary;
+    font-style: inherit;
+    font-weight: $weight--bold;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading {
+    @include heading-text();
+    margin: 0 0 1rem;
+}
+
+// ------------------------------- Headings ----------------------------
+h1 {
+    @include font-size(heading-one);
+}
+
+h2 {
+    @include font-size(heading-two);
+}
+
+h3 {
+    @include font-size(heading-three);
+}
+
+h4,
+h5,
+h6 {
+    @include font-size(heading-four);
+}
+
+// ------------------------------- Body ----------------------------------
+.body {
+    @include font-size(body);
+}
+
+// ------------------------------- Supporting ----------------------------------
+.intro {
+    @include font-size(introduction);
+}
+
+.meta {
+    &--large {
+        @include font-size(meta-large);
+    }
+
+    &--small {
+        @include font-size(meta-small);
+    }
+}
