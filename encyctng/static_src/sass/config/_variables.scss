@@ -23,6 +23,8 @@ $color--transparent-orange: rgba(237, 110, 88, 0.15);
     --color--links: #{$color--dark-orange};
     --color--lines: #{$color--grey};
     --color--anchor-background: #{$color--light-grey};
+    --color--border: #{$color--border};
+    --color--border-dark: #{$color--border-dark};
 }
 
 // --------------------------------- Fonts ------------------------------------
@@ -79,6 +81,20 @@ $grid-gutters-tablet: 40px;
 $grid-gutters-desktop: 80px;
 
 $site-max-width: 1440px;
+
+// Vertical spacing
+// Any changes here will also need to be made in tailwind.config.js
+$spacer-mini: 15px;
+$spacer-mini-plus: 20px;
+$spacer-small: ($spacer-mini * 2); // 30px
+$spacer-small-plus: 40px;
+$spacer-medium: ($spacer-mini * 4); // 60px
+$spacer-medium-plus: 100px;
+$spacer-large: ($spacer-mini * 8); // 120px
+$spacer: 160px;
+$spacer-half: ($spacer * 0.5); // 80px
+$spacer-x-large: ($spacer-mini * 16); // 240px
+$spacer-massive: ($spacer-mini * 24); // 360px
 
 // --------------------------------- Z-index ------------------------------------
 $z-index: (
