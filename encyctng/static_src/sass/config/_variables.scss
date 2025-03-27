@@ -10,6 +10,8 @@ $color--orange: #ed6e58;
 $color--light-orange: #fce9e6;
 $color--dark-orange: #b94430;
 $color--transparent-orange: rgba(237, 110, 88, 0.15);
+$color--border: #d4d7dc;
+$color--border-dark: #424e5f;
 
 // Light mode by default
 :root,
@@ -25,6 +27,18 @@ $color--transparent-orange: rgba(237, 110, 88, 0.15);
     --color--anchor-background: #{$color--light-grey};
     --color--border: #{$color--border};
     --color--border-dark: #{$color--border-dark};
+    // Base colors, do not change with theme
+    --color--white: #{$color--white};
+    --color--grey: #{$color--grey};
+    --color--light-grey: #{$color--light-grey};
+    --color--dark-grey: #{$color--dark-grey};
+    --color--blue: #{$color--blue};
+    --color--light-blue: #{$color--light-blue};
+    --color--dark-blue: #{$color--dark-blue};
+    --color--orange: #{$color--orange};
+    --color--light-orange: #{$color--light-orange};
+    --color--dark-orange: #{$color--dark-orange};
+    --color--transparent-orange: #{$color--transparent-orange};
 }
 
 // --------------------------------- Fonts ------------------------------------
