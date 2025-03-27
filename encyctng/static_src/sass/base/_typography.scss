@@ -22,8 +22,7 @@ h2,
 h3,
 h4,
 h5,
-h6,
-.heading {
+h6 {
     @include heading-text();
     margin: 0 0 1rem;
 }
@@ -47,9 +46,34 @@ h6 {
     @include font-size(heading-four);
 }
 
+.heading {
+    @include heading-text();
+    margin: 0 0 1rem;
+
+    &--one {
+        @include font-size(heading-one);
+    }
+
+    &--two {
+        @include font-size(heading-two);
+    }
+
+    &--three {
+        @include font-size(heading-three);
+    }
+
+    &--four {
+        @include font-size(heading-four);
+    }
+}
+
 // ------------------------------- Body ----------------------------------
 .body {
     @include font-size(body);
+
+    &--bold {
+        font-weight: $weight--bold;
+    }
 }
 
 // ------------------------------- Supporting ----------------------------------
