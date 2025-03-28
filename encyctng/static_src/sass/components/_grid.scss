@@ -17,7 +17,6 @@
         grid-template-columns: repeat(12, 1fr);
         padding-left: $grid-gutters-desktop;
         padding-right: $grid-gutters-desktop;
-        column-gap: 32px;
     }
 
     &--no-gutter {
@@ -28,5 +27,61 @@
     // Make all child elements span the full width of the grid
     > * {
         grid-column: 1 / -1;
+    }
+
+    // Footer grid elements
+    &__footer-about-wrapper {
+        grid-column: 1 / span 6;
+        display: grid;
+        grid-template-columns: subgrid;
+
+        @include media-query(large) {
+            grid-column: 1 / span 7;
+        }
+    }
+
+    &__footer-about {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 1 / span 7;
+        }
+    }
+
+    &__footer-quick-links {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 8 / span 5;
+        }
+    }
+
+    &__footer-bottom {
+        display: grid;
+        grid-template-columns: subgrid;
+    }
+
+    &__footer-newsletter {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 1 / span 3;
+        }
+    }
+
+    &__footer-contact {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 5 / span 3;
+        }
+    }
+
+    &__footer-company {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 8 / span 5;
+        }
     }
 }

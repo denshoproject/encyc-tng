@@ -36,7 +36,22 @@ module.exports = {
         },
         // Properties inside of extend will keep tailwinds existing properties for the attribute and add to them
         // https://tailwindcss.com/docs/theme
-        extend: {},
+        extend: {
+            // Any changes here will also need to be made in _variables.scss
+            spacing: {
+                spacerMini: '15px',
+                spacerMiniPlus: '20px',
+                spacerSmall: '30px',
+                spacerSmallPlus: '40px',
+                spacerMedium: '60px',
+                spacerMediumPlus: '100px',
+                spacerLarge: '120px',
+                spacer: '160px',
+                spacerHalf: '80px',
+                spacerXLarge: '240px',
+                spacerMassive: '360px',
+            },
+        },
     },
     // This tells tailwind which plugins specifically to use
     corePlugins: [

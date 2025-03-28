@@ -10,6 +10,8 @@ $color--orange: #ed6e58;
 $color--light-orange: #fce9e6;
 $color--dark-orange: #b94430;
 $color--transparent-orange: rgba(237, 110, 88, 0.15);
+$color--border: #d4d7dc;
+$color--border-dark: #424e5f;
 
 // Light mode by default
 :root,
@@ -23,6 +25,20 @@ $color--transparent-orange: rgba(237, 110, 88, 0.15);
     --color--links: #{$color--dark-orange};
     --color--lines: #{$color--grey};
     --color--anchor-background: #{$color--light-grey};
+    --color--border: #{$color--border};
+    --color--border-dark: #{$color--border-dark};
+    // Base colors, do not change with theme
+    --color--white: #{$color--white};
+    --color--grey: #{$color--grey};
+    --color--light-grey: #{$color--light-grey};
+    --color--dark-grey: #{$color--dark-grey};
+    --color--blue: #{$color--blue};
+    --color--light-blue: #{$color--light-blue};
+    --color--dark-blue: #{$color--dark-blue};
+    --color--orange: #{$color--orange};
+    --color--light-orange: #{$color--light-orange};
+    --color--dark-orange: #{$color--dark-orange};
+    --color--transparent-orange: #{$color--transparent-orange};
 }
 
 // --------------------------------- Fonts ------------------------------------
@@ -79,6 +95,20 @@ $grid-gutters-tablet: 40px;
 $grid-gutters-desktop: 80px;
 
 $site-max-width: 1440px;
+
+// Vertical spacing
+// Any changes here will also need to be made in tailwind.config.js
+$spacer-mini: 15px;
+$spacer-mini-plus: 20px;
+$spacer-small: ($spacer-mini * 2); // 30px
+$spacer-small-plus: 40px;
+$spacer-medium: ($spacer-mini * 4); // 60px
+$spacer-medium-plus: 100px;
+$spacer-large: ($spacer-mini * 8); // 120px
+$spacer: 160px;
+$spacer-half: ($spacer * 0.5); // 80px
+$spacer-x-large: ($spacer-mini * 16); // 240px
+$spacer-massive: ($spacer-mini * 24); // 360px
 
 // --------------------------------- Z-index ------------------------------------
 $z-index: (
