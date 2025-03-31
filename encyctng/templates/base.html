@@ -38,6 +38,180 @@
 
         <main>
             {% block content %}{% endblock %}
+
+            <!-- Temporarily hard coded - to be replaced with include for topics -->
+            <div class="grid">
+                <div class="topics mb-spacerHalf">
+                    <h2 class="topics__title heading heading--three section-heading">Browse Topics</h2>
+
+                    <div class="topics__items grid">
+                        <a href="/" class="topics__item">
+                            <div
+                                class="topics__item-img-wrapper"
+                                aria-hidden="true"
+                            >
+                                <!-- <img                                 
+                                    srcset="{{ document.thumbnail.smallSrc }} 1x, {{ document.thumbnail.largeSrc }} 2x"
+                                    src="{{ document.thumbnail.smallSrc }}"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                /> -->
+
+                                <img 
+                                    src="https://images.unsplash.com/photo-1743062545929-0135b193c968?q=80&w=3145&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                />
+                            </div>
+                            <div class="topics__item-content-container">
+                                <div class="topics__item-content">
+                                    <p class="topics__item-title body body--bold">
+                                        Topic title
+                                    </p>
+                                    <p class="meta meta--small">
+                                        453 articles
+                                    </p>
+                                </div>
+
+                                {% include "patterns/components/icons/icon.html" with name="arrow" classname="topics__item-icon size-5 text-brand-1" %}
+                            </div>
+                        </a>
+                        <a href="/" class="topics__item">
+                            <div
+                                class="topics__item-img-wrapper"
+                                aria-hidden="true"
+                            >
+                                <!-- <img                                 
+                                    srcset="{{ document.thumbnail.smallSrc }} 1x, {{ document.thumbnail.largeSrc }} 2x"
+                                    src="{{ document.thumbnail.smallSrc }}"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                /> -->
+
+                                <img 
+                                    src="https://images.unsplash.com/photo-1743062545929-0135b193c968?q=80&w=3145&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                />
+                            </div>
+                            <div class="topics__item-content-container">
+                                <div class="topics__item-content">
+                                    <p class="topics__item-title body body--bold">
+                                        Topic title
+                                    </p>
+                                    <p class="meta meta--small">
+                                        453 articles
+                                    </p>
+                                </div>
+
+                                {% include "patterns/components/icons/icon.html" with name="arrow" classname="topics__item-icon size-5 text-brand-1" %}
+                            </div>
+                        </a>
+                        <a href="/" class="topics__item">
+                            <div
+                                class="topics__item-img-wrapper"
+                                aria-hidden="true"
+                            >
+                                <!-- <img                                 
+                                    srcset="{{ document.thumbnail.smallSrc }} 1x, {{ document.thumbnail.largeSrc }} 2x"
+                                    src="{{ document.thumbnail.smallSrc }}"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                /> -->
+
+                                <img 
+                                    src="https://images.unsplash.com/photo-1743062545929-0135b193c968?q=80&w=3145&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                />
+                            </div>
+                            <div class="topics__item-content-container">
+                                <div class="topics__item-content">
+                                    <p class="topics__item-title body body--bold">
+                                        Topic title
+                                    </p>
+                                    <p class="meta meta--small">
+                                        453 articles
+                                    </p>
+                                </div>
+
+                                {% include "patterns/components/icons/icon.html" with name="arrow" classname="topics__item-icon size-5 text-brand-1" %}
+                            </div>
+                        </a>
+                        <a href="/" class="topics__item">
+                            <div
+                                class="topics__item-img-wrapper"
+                                aria-hidden="true"
+                            >
+                                <!-- <img                                 
+                                    srcset="{{ document.thumbnail.smallSrc }} 1x, {{ document.thumbnail.largeSrc }} 2x"
+                                    src="{{ document.thumbnail.smallSrc }}"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                /> -->
+
+                                <img 
+                                    src="https://images.unsplash.com/photo-1743062545929-0135b193c968?q=80&w=3145&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                />
+                            </div>
+                            <div class="topics__item-content-container">
+                                <div class="topics__item-content">
+                                    <p class="topics__item-title body body--bold">
+                                        Topic title
+                                    </p>
+                                    <p class="meta meta--small">
+                                        453 articles
+                                    </p>
+                                </div>
+
+                                {% include "patterns/components/icons/icon.html" with name="arrow" classname="topics__item-icon size-5 text-brand-1" %}
+                            </div>
+                        </a>
+                        <a href="/" class="topics__item">
+                            <div
+                                class="topics__item-img-wrapper"
+                                aria-hidden="true"
+                            >
+                                <!-- <img                                 
+                                    srcset="{{ document.thumbnail.smallSrc }} 1x, {{ document.thumbnail.largeSrc }} 2x"
+                                    src="{{ document.thumbnail.smallSrc }}"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                /> -->
+
+                                <img 
+                                    src="https://images.unsplash.com/photo-1743062545929-0135b193c968?q=80&w=3145&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img"
+                                />
+                            </div>
+                            <div class="topics__item-content-container">
+                                <div class="topics__item-content">
+                                    <p class="topics__item-title body body--bold">
+                                        Topic title
+                                    </p>
+                                    <p class="meta meta--small">
+                                        453 articles
+                                    </p>
+                                </div>
+
+                                {% include "patterns/components/icons/icon.html" with name="arrow" classname="topics__item-icon size-5 text-brand-1" %}
+                            </div>
+                        </a>
+                    </div>
+                </div>
         </main>
 
         {% include "encyclopedia/footer.html" %}
