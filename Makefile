@@ -116,8 +116,8 @@ install-nodejs:
 	then cd $(INSTALL_NVM) && git pull; \
 	else git clone $(SRC_REPO_NVM) $(INSTALL_NVM); \
 	fi
-	source ./.nvm/nvm.sh; nvm install
-	source ./.nvm/nvm.sh; npm install
+	source $(INSTALL_NVM)/nvm.sh; nvm install
+	source $(INSTALL_NVM)/nvm.sh; npm install
 
 
 get-app: get-encyc-tng
@@ -129,7 +129,7 @@ uninstall-app: uninstall-encyc-tng
 clean-app: clean-encyc-tng
 
 
-get-encyc-tng:
+get-encyc-tng: git-safe-dir
 	@echo ""
 	@echo "get-encyc-tng -----------------------------------------------------"
 	git pull
@@ -168,6 +168,10 @@ runserver:
 	source $(VIRTUALENV)/bin/activate; \
 	python $(APPDIR)/manage.py runserver 0.0.0.0:$(RUNSERVER_PORT)
 
+migrate:
+	source $(VIRTUALENV)/bin/activate; \
+	python $(APPDIR)/manage.py migrate
+
 uninstall-encyc-tng:
 	cd $(APPDIR)
 	source $(VIRTUALENV)/bin/activate; \
@@ -194,14 +198,14 @@ install-configs:
 	@echo "installing configs ----------------------------------------------------"
 	-mkdir $(CONF_BASE)
 	python3 -c 'import random; print("".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)]))' > $(CONF_SECRET)
-	chown encyc.encyc $(CONF_SECRET)
+	chown encyc:encyc $(CONF_SECRET)
 	chmod 640 $(CONF_SECRET)
 # web app settings
 	cp $(INSTALLDIR)/conf/encyctng.cfg $(CONF_BASE)
-	chown root.encyc $(CONF_PRODUCTION)
+	chown root:encyc $(CONF_PRODUCTION)
 	chmod 640 $(CONF_PRODUCTION)
 	touch $(CONF_LOCAL)
-	chown root.encyc $(CONF_LOCAL)
+	chown root:encyc $(CONF_LOCAL)
 	chmod 640 $(CONF_LOCAL)
 
 uninstall-configs:
@@ -231,7 +235,9 @@ uninstall-daemons-configs:
 build-npm:
 	@echo ""
 	@echo "build-npm -----------------------------------------------------------"
-	source ./.nvm/nvm.sh; npm run build:prod
+	source $(INSTALL_NVM)/nvm.sh; npm run build:prod
+
+install-static: collectstatic
 
 collectstatic:
 	@echo ""

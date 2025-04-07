@@ -166,8 +166,8 @@ DATABASES = {
     }
 }
 
-REDIS_HOST = '127.0.0.1'
-REDIS_PORT = '6379'
+REDIS_HOST = config.get('redis', 'host')
+REDIS_PORT = config.get('redis', 'port')
 REDIS_DB_CACHE = '10'
 
 CACHES = {
