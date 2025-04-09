@@ -9,12 +9,12 @@
     <nav class="header__nav">
         <ul class="header__nav-list">
             <li class="header__nav-item">
-                <a href="/topics/" class="header__nav-link">
+                <button class="header__nav-link" data-desktop-menu-open>
                     <span class="header__nav-icon">
                         {% include "patterns/components/icons/icon.html" with name="magnifying-glass" classname="size-5 text-brand-1" %}
                     </span>
                     <span class="header__nav-text">Explore Collection</span>
-                </a>
+                </button>
             </li>
             <li class="header__nav-item">
                 <a href="/about/" class="header__nav-link">
@@ -30,5 +30,8 @@
                 </a>
             </li>
         </ul>
+
+        {# Desktop menu #}
+        {% include "encyclopedia/includes/desktop-menu.html" %}
     </nav>
 </header>

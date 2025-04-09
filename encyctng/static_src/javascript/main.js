@@ -1,3 +1,5 @@
+import DesktopMenu from './components/desktop-menu';
+
 import '../sass/main.scss';
 
 function initComponent(ComponentClass) {
@@ -5,4 +7,6 @@ function initComponent(ComponentClass) {
     items.forEach((item) => new ComponentClass(item));
 }
 
-document.addEventListener('DOMContentLoaded', () => {});
+document.addEventListener('DOMContentLoaded', () => {
+    initComponent(DesktopMenu);
+});

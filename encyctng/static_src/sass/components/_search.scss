@@ -1,0 +1,42 @@
+@use 'config' as *;
+
+.search {
+  &__wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 10px;
+      background-color: var(--color--white);
+      border: 2px solid transparent;
+      border-radius: 60px;
+      transition: all 0.3s ease;
+      
+      &:focus-within {
+        border-color: var(--color--orange);
+      }
+    }
+
+    &__input {
+      @include font-size(body);
+      flex-grow: 1;
+      border: none;
+      background-color: transparent;
+      outline: none;
+    }
+
+    &__button {
+      color: var(--color--dark-orange);
+      border: 2px solid transparent;
+      background-color: transparent;
+      border-radius: 50px;
+      width: 40px;
+      height: 40px;
+      transition: all 0.3s ease;
+      
+      &:hover,
+      &:focus {
+        background-color: var(--color--light-orange);
+        border-color: var(--color--dark-orange);
+      }
+    }
+}
