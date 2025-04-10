@@ -1,0 +1,25 @@
+name: Article Listing Item
+context:
+  article:
+    image:
+      url: 'https://example.com/sample-image.webp'
+      alt: 'Sample article image'
+      width: 340
+      height: 340
+    type: 'Article'
+    title: 'Sample Article Title'
+    description: 'This is a sample article description that provides a brief overview of the article content.'
+    tags:
+      - name: 'Tag 1'
+        url: '/tags/tag-1/'
+      - name: 'Tag 2'
+        url: '/tags/tag-2/'
+      - name: 'Tag 3'
+        url: '/tags/tag-3/'
+
+tags:
+  image:
+    article.image fill-340x340 format-webp as image:
+      target_var: image
+      raw:
+        url: '//picsum.photos/700/800.webp'

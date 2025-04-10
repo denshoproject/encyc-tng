@@ -1,0 +1,18 @@
+<div class="article-listing-item">
+    <div class="article-listing-item__container">
+        <div class="article-listing-item__image">
+            {% image article.image fill-340x340 format-webp as image %}
+            <img src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+        </div>
+        <div class="article-listing-item__content">
+            <p class="article-listing-item__meta">{{ article.type }}</p>
+            <h3 class="article-listing-item__title heading heading--three">{{ article.title }}</h3>
+            <p class="article-listing-item__description">{{ article.description }}</p>
+            <ul class="article-listing-item__tags">
+                {% for tag in article.tags %}
+                    <li class="article-listing-item__tag">{% include "patterns/components/tag/tag.html" with tag=tag %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>

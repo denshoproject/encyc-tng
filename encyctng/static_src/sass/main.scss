@@ -6,12 +6,14 @@
 @use 'base/fonts';
 
 // Components
+@use 'components/article-listing-item';
 @use 'components/button';
 @use 'components/grid';
 @use 'components/icon';
 @use 'components/footer';
 @use 'components/rich-text';
 @use 'components/sprites-preview-icons';
+@use 'components/tag';
 
 @tailwind base;
 @tailwind components;
