@@ -1,4 +1,63 @@
 @use 'config' as *;
 
 .article-listing-item {
+    &__container {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-small;
+    }
+
+    &__image-container {
+        width: 100px;
+        height: 100px;
+
+        @include media-query(large) {
+            width: 170px;
+            height: 170px;
+        }
+    }
+
+    &__image {
+        object-fit: cover;
+        object-position: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    &__link {
+        color: var(--color--links);
+        text-decoration: none;
+        transition: color $transition;
+
+        &:hover,
+        &:focus {
+            color: var(--color--links-hover);
+        }
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-mini;
+    }
+
+    &__meta {
+        @include font-size(meta-tiny);
+        text-transform: uppercase;
+    }
+
+    &__description {
+        display: none;
+
+        @include media-query(large) {
+            display: block;
+        }
+    }
+
+    &__tags {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        gap: 2px;
+    }
 }

@@ -8,6 +8,7 @@ context:
       height: 340
     type: 'Article'
     title: 'Sample Article Title'
+    url: '/articles/sample-article/'
     description: 'This is a sample article description that provides a brief overview of the article content.'
     tags:
       - name: 'Tag 1'
