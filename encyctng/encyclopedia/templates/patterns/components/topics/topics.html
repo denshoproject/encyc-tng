@@ -1,0 +1,43 @@
+{% load wagtailimages_tags wagtailcore_tags %}
+
+<div class="grid">
+    <div class="topics mb-spacerHalf">
+        <h2 class="topics__title heading heading--three section-heading">{{ topics.title }}</h2>
+
+        <div class="topics__items grid">
+            {% for item in topics.items %}
+                <a href="{% if item.url %}{% pageurl item %}{% else %}#{% endif %}" class="topics__item">
+                    <div
+                        class="topics__item-img-wrapper"
+                        aria-hidden="true"
+                    >
+                        {% with item.image as listing_image %}
+                            {% if listing_image or image_url %}
+                                {% if listing_image %}
+                                    {% image listing_image fill-400x400 format-webp as img %}
+                                {% endif %}
+                                <img
+                                    src="{% if listing_image %}{{ img.url }}{% else %}{{ image_url }}{% endif %}"
+                                    alt=""
+                                    loading="lazy"
+                                    class="topics__item-img">
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="topics__item-content-container">
+                        <div class="topics__item-content">
+                            <p class="topics__item-title body body--bold">
+                                {{ item.title }}
+                            </p>
+                            <p class="meta meta--small">
+                                {{ item.articles }} articles
+                            </p>
+                        </div>
+
+                        {% include "patterns/components/icons/icon.html" with name="arrow" classname="topics__item-icon size-5 text-brand-1" %}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
