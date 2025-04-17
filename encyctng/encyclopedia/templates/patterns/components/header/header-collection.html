@@ -1,0 +1,36 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="header header--collection">
+    <div class="grid">
+        <div class="header__heading-wrapper">
+            <h1 class="header__title heading heading--one">
+                {{ title }}
+            </h1>
+
+            <div class="header__search">
+                <form action="" method="get" role="search" class="header__search-form">
+                    <input class="header__search-form-input" type="text" placeholder="Search 1,700+ articles" name="query" value="">
+                    <button class="header__search-form-submit" type="submit">
+                        {% include "../icons/icon.html" with name="magnifying-glass" classname="header__search-form-icon size-5 text-brand-1" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="header__tabs-wrapper">
+            <ul class="header__tabs">
+                <li class="header__tab">
+                    <a href="/" class="header__tab-link header__tab-link--active">Articles by Topic</a>
+                <li>
+                <li class="header__tab">
+                    <a href="/" class="header__tab-link">Articles by A-Z</a>
+                <li>
+                <li class="header__tab">
+                    <a href="/" class="header__tab-link">Authors by A-Z</a>
+                <li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
