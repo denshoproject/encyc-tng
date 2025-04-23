@@ -2,7 +2,6 @@
 
 .tag {
     @include font-size(meta-tiny);
-    text-transform: uppercase;
     background-color: var(--color--background);
     border: 1px solid var(--color--border);
     color: var(--color--links);
@@ -10,6 +9,7 @@
     border-radius: 4px;
     font-weight: $weight--bold;
     line-height: 1;
+    text-decoration: none;
     transition: border $transition, color $transition;
 
     &:hover,
