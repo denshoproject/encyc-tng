@@ -1,0 +1,20 @@
+@use 'config' as *;
+
+.tag {
+    @include font-size(meta-tiny);
+    background-color: var(--color--background);
+    border: 1px solid var(--color--border);
+    color: var(--color--links);
+    padding: 5px 10px;
+    border-radius: 50px;
+    font-weight: $weight--bold;
+    line-height: 1;
+    text-decoration: none;
+    transition: border $transition, color $transition;
+
+    &:hover,
+    &:focus {
+        border: 1px solid var(--color--border-dark);
+        color: var(--color--links-hover);
+    }
+}
