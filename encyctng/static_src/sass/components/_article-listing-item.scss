@@ -3,12 +3,8 @@
 .article-listing-item {
     &__container {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: $spacer-small;
-
-        @include media-query(large) {
-            flex-direction: row;
-        }
     }
 
     &__image-container {
@@ -44,7 +40,11 @@
     &__content {
         display: flex;
         flex-direction: column;
-        gap: $spacer-mini;
+        gap: 7px;
+
+        @include media-query(large) {
+            gap: $spacer-mini;
+        }
     }
 
     &__title {
