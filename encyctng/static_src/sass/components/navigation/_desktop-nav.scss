@@ -1,0 +1,51 @@
+@use 'config' as *;
+
+.desktop-nav {
+    display: none;
+
+    @include media-query(large) {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        position: relative;
+    }
+    
+    &__list {
+        display: flex;
+        align-items: center;
+        margin-left: 25px;
+        gap: 40px;
+    }
+
+    &__link {
+        cursor: pointer;
+        background-color: transparent;
+        border: 0;
+        text-decoration: none;
+        color: var(--color--headings);
+        font-weight: $weight--bold;
+        padding-bottom: 5px;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--color--border);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        &:hover::after {
+            width: 100%;
+        }
+
+        @include high-contrast-mode() {
+            text-decoration: underline;
+        }
+    }
+}

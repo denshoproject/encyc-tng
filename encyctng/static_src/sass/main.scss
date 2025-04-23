@@ -8,14 +8,19 @@
 // Components
 @use 'components/button';
 @use 'components/grid';
-@use 'components/header';
 @use 'components/icon';
-@use 'components/footer';
 @use 'components/rich-text';
 @use 'components/sprites-preview-icons';
-@use 'components/desktop-menu';
 @use 'components/search';
 
+// Navigation
+@use 'components/navigation/header';
+@use 'components/navigation/footer';
+@use 'components/navigation/mobile-menu';
+@use 'components/navigation/desktop-menu';
+@use 'components/navigation/desktop-nav';
+
+// Layout
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
