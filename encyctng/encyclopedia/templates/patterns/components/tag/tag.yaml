@@ -1,0 +1,5 @@
+name: Tag
+context:
+  tag:
+    name: Example Tag
+    url: /tags/example-tag/

@@ -24,6 +24,7 @@ $color--border-dark: #424e5f;
     --color--resource-background: #{$color--blue};
     --color--body: #{$color--dark-grey};
     --color--links: #{$color--dark-orange};
+    --color--links-hover: #{$color--dark-orange};
     --color--lines: #{$color--grey};
     --color--anchor-background: #{$color--light-grey};
     --color--border: #{$color--border};
@@ -63,6 +64,7 @@ $large-font-sizes: (
     body: 18px,
     meta-large: 16px,
     meta-small: 14px,
+    meta-tiny: 12px,
 );
 
 $medium-font-sizes: (
@@ -74,6 +76,7 @@ $medium-font-sizes: (
     body: 17px,
     meta-large: 15px,
     meta-small: 14px,
+    meta-tiny: 12px,
 );
 
 $small-font-sizes: (
@@ -85,6 +88,7 @@ $small-font-sizes: (
     body: 16px,
     meta-large: 14px,
     meta-small: 14px,
+    meta-tiny: 12px,
 );
 
 // --------------------------------- Sizing ------------------------------------

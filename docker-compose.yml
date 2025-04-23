@@ -1,0 +1,21 @@
+services:
+  encyc-tng:
+    build:
+      context: .
+    command: make runserver
+    ports:
+      - 8082:8082
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: encyctng
+      POSTGRES_USER: encyctng
+
+  redis:
+    image: redis:6-alpine
+    expose:
+      - 6379
