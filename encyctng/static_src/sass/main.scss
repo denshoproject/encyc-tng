@@ -6,14 +6,27 @@
 @use 'base/fonts';
 
 // Components
+@use 'components/article-listing-item';
 @use 'components/button';
 @use 'components/grid';
+@use 'components/hero';
+@use 'components/hero-split';
 @use 'components/icon';
-@use 'components/footer';
+@use 'components/pagination';
 @use 'components/rich-text';
 @use 'components/topics';
 @use 'components/sprites-preview-icons';
+@use 'components/search';
+@use 'components/tag';
 
+// Navigation
+@use 'components/navigation/header';
+@use 'components/navigation/footer';
+@use 'components/navigation/mobile-menu';
+@use 'components/navigation/desktop-menu';
+@use 'components/navigation/desktop-nav';
+
+// Layout
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

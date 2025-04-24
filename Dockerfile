@@ -35,7 +35,7 @@ COPY --chown=encyc . .
 
 RUN mkdir /etc/encyc && ln -s $PWD/conf/encyctng-local-docker.cfg /etc/encyc/encyctng-local.cfg
 
-RUN make get-app
+RUN make git-safe-dir
 RUN make install-app
 RUN make install-configs
 
