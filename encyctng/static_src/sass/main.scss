@@ -8,16 +8,17 @@
 // Components
 @use 'components/article-listing-item';
 @use 'components/button';
+@use 'components/collection-header';
 @use 'components/grid';
 @use 'components/hero';
+// @use 'components/hero-split';
 @use 'components/icon';
-@use 'components/footer';
-@use 'components/header';
+// @use 'components/pagination';
 @use 'components/rich-text';
-@use 'components/search-form';
 @use 'components/sprites-preview-icons';
-@use 'components/tags';
 @use 'components/search';
+@use 'components/search-form';
+@use 'components/tags';
 @use 'components/tag';
 
 // Navigation

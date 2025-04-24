@@ -1,15 +1,12 @@
 @use 'config' as *;
 
-.header {
+.collection-eader {
     $root: &;
     padding-top: $spacer-small-plus;
+    background-color: var(--color--orange);
 
-    &--collection {
-        background-color: var(--color--orange);
-
-        #{$root}__title {
-            color: var(--color--white);
-        }
+    #{$root}__title {
+        color: var(--color--white);
     }
 
     &__heading-wrapper {
