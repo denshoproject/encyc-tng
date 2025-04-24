@@ -1,0 +1,47 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="hero-split{% if hero.meta %} hero-split--meta{% endif %}">
+    <div class="hero-split__container">
+        <h1 class="hero-split__title heading heading--one">{{ hero.title }}</h1>
+        <div class="hero-split__content">
+            <ul class="hero-split__actions">
+                <li class="hero-split__action-item hero-split__action-item--type meta meta--small">
+                    {{ hero.type }}
+                </li>
+                <li class="hero-split__action-item">
+                    <a href="#" class="hero-split__action-link meta--small">
+                        {% include "patterns/components/icons/icon.html" with name="print" classname="hero-split__action-icon" %}
+                        <span class="hero-split__action-label">Print</span>
+                    </a>
+                </li>
+                {# TODO: Future functionality #}
+                {% if hero.cite %}
+                    <li class="hero-split__action-item meta--small">
+                        <a href="#" class="hero-split__action-link">
+                            {% include "patterns/components/icons/icon.html" with name="bookmark" classname="hero-split__action-icon" %}
+                            <span class="hero-split__action-label">Cite</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+            <div class="hero-split__introduction intro">
+                {{ hero.introduction|richtext }}
+            </div>
+            {# TODO: Update to correct template ID #}
+            <a href="#body" class="hero-split__skip meta meta--small">
+                {% include "patterns/components/icons/icon.html" with name="arrow-down" classname="hero-split__skip-icon" %}
+                Skip to Article
+            </a>
+        </div>
+        {% if hero.meta %}
+            <div class="hero-split__meta meta meta--small">
+                {% for meta in hero.meta %}
+                    <div class="hero-split__meta-item">
+                    <span class="hero-split__meta-label">{{ meta.label }}</span>
+                    <span class="hero-split__meta-value">{{ meta.value }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
