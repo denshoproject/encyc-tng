@@ -6,8 +6,10 @@
 @use 'base/fonts';
 
 // Components
+@use 'components/article-listing-item';
 @use 'components/button';
 @use 'components/grid';
+@use 'components/hero';
 @use 'components/icon';
 @use 'components/footer';
 @use 'components/header';
@@ -15,8 +17,17 @@
 @use 'components/search-form';
 @use 'components/sprites-preview-icons';
 @use 'components/tags';
+@use 'components/search';
+@use 'components/tag';
 
+// Navigation
+@use 'components/navigation/header';
+@use 'components/navigation/footer';
+@use 'components/navigation/mobile-menu';
+@use 'components/navigation/desktop-menu';
+@use 'components/navigation/desktop-nav';
 
+// Layout
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

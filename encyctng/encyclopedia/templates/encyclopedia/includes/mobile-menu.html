@@ -1,0 +1,36 @@
+<nav class="mobile-menu" data-mobile-menu>
+    <div class="mobile-menu__search">
+        {% include "encyclopedia/includes/search-form.html" %}
+    </div>
+
+    <ul class="mobile-menu__list">
+        <li class="mobile-menu__item">
+            <a href="/categories/" class="mobile-menu__link">
+                <span class="mobile-menu__text">Topics</span>
+            </a>
+        </li>
+        <li class="mobile-menu__item">
+            <a href="/contents/" class="mobile-menu__link">
+                <span class="mobile-menu__text">A-Z</span>
+            </a>
+        </li>
+        <li class="mobile-menu__item">
+            <a href="/authors/" class="mobile-menu__link">
+                <span class="mobile-menu__text">Authors</span>
+            </a>
+        </li>
+        <li class="mobile-menu__item">
+            <a href="/about/" class="mobile-menu__link">
+                <span class="mobile-menu__text">About</span>
+            </a>
+        </li>
+        <li class="mobile-menu__item" data-last-menu-item>
+            <a href="https://densho.org" class="mobile-menu__link">
+                <span class="mobile-menu__icon">
+                    {% include "patterns/components/icons/icon.html" with name="external-link" %}
+                </span>
+                <span class="mobile-menu__text">Densho</span>
+            </a>
+        </li>
+    </ul>
+</nav>

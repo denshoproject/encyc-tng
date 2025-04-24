@@ -4,6 +4,7 @@ $color--grey: #8080804d;
 $color--light-grey: #f4f5f6;
 $color--dark-grey: #222227;
 $color--blue: #283851;
+$color--mid-blue: #536074;
 $color--light-blue: #c6ccd5;
 $color--dark-blue: #191c22;
 $color--orange: #ed6e58;
@@ -23,6 +24,7 @@ $color--border-dark: #424e5f;
     --color--resource-background: #{$color--blue};
     --color--body: #{$color--dark-grey};
     --color--links: #{$color--dark-orange};
+    --color--links-hover: #{$color--dark-orange};
     --color--lines: #{$color--grey};
     --color--anchor-background: #{$color--light-grey};
     --color--border: #{$color--border};
@@ -33,6 +35,7 @@ $color--border-dark: #424e5f;
     --color--light-grey: #{$color--light-grey};
     --color--dark-grey: #{$color--dark-grey};
     --color--blue: #{$color--blue};
+    --color--mid-blue: #{$color--mid-blue};
     --color--light-blue: #{$color--light-blue};
     --color--dark-blue: #{$color--dark-blue};
     --color--orange: #{$color--orange};
@@ -61,6 +64,7 @@ $large-font-sizes: (
     body: 18px,
     meta-large: 16px,
     meta-small: 14px,
+    meta-tiny: 12px,
 );
 
 $medium-font-sizes: (
@@ -72,6 +76,7 @@ $medium-font-sizes: (
     body: 17px,
     meta-large: 15px,
     meta-small: 14px,
+    meta-tiny: 12px,
 );
 
 $small-font-sizes: (
@@ -83,6 +88,7 @@ $small-font-sizes: (
     body: 16px,
     meta-large: 14px,
     meta-small: 14px,
+    meta-tiny: 12px,
 );
 
 // --------------------------------- Sizing ------------------------------------
@@ -114,6 +120,7 @@ $spacer-massive: ($spacer-mini * 24); // 360px
 $z-index: (
     under: -1,
     base: 10,
+    header: 20,
 );
 
 // --------------------------------- Transitions ------------------------------------

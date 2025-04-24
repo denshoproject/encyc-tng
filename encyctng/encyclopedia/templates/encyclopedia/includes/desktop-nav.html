@@ -1,0 +1,28 @@
+<nav class="desktop-nav">
+    <ul class="desktop-nav__list">
+        <li class="desktop-nav__item">
+            <button class="desktop-nav__link" data-desktop-menu-open>
+                <span class="desktop-nav__icon">
+                    {% include "patterns/components/icons/icon.html" with name="magnifying-glass" %}
+                </span>
+                <span class="desktop-nav__text">Explore Collection</span>
+            </button>
+        </li>
+        <li class="desktop-nav__item">
+            <a href="/about/" class="desktop-nav__link">
+                <span class="desktop-nav__text">About</span>
+            </a>
+        </li>
+        <li class="desktop-nav__item">
+            <a href="https://densho.org" class="desktop-nav__link">
+                <span class="desktop-nav__icon">
+                    {% include "patterns/components/icons/icon.html" with name="external-link" %}
+                </span>
+                <span class="desktop-nav__text">Densho</span>
+            </a>
+        </li>
+    </ul>
+
+    {# Desktop menu #}
+    {% include "encyclopedia/includes/desktop-menu.html" %}
+</nav>
