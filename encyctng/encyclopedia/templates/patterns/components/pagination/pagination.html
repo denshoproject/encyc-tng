@@ -1,0 +1,56 @@
+<nav class="pagination meta meta--small" aria-label="Pagination">
+    <div class="pagination__container">
+        <div class="pagination__overview">
+            <p class="pagination__overview-text">Page 1 of 18</p>
+        </div>
+        <ul class="pagination__list">
+            <li class="pagination__item pagination__item--prev">
+                <a class="pagination__link" href="#">
+                    {% include "patterns/components/icons/icon.html" with name="arrow" classname="pagination__link-icon pagination__link-icon--prev" %}
+                    <span class="pagination__link-text">Previous</span>
+                </a>
+            </li>
+            <li class="pagination__item pagination__item--page">
+                <a class="pagination__link pagination__link--active" href="#" aria-current="page">
+                    <span class="sr-only">Current page: </span>1
+                </a>
+            </li>
+            <li class="pagination__item pagination__item--page">
+                <a class="pagination__link pagination__link" href="#">
+                    2
+                </a>
+            </li>
+            <li class="pagination__item pagination__item--page">
+                <a class="pagination__link pagination__link" href="#">
+                    3
+                </a>
+            </li>
+            <li class="pagination__item pagination__item--page pagination__item--page-lg-only">
+                <a class="pagination__link pagination__link" href="#">
+                    4
+                </a>
+            </li>
+            <li class="pagination__item pagination__item--divider">
+                <span aria-hidden="true">…</span>
+            </li>
+            <li class="pagination__item pagination__item--page">
+                <a class="pagination__link pagination__link" href="#">
+                    18
+                </a>
+            </li>
+            <li class="pagination__item pagination__item--next">
+                <a class="pagination__link" href="#">
+                    <span class="pagination__link-text">Next</span>
+                    {% include "patterns/components/icons/icon.html" with name="arrow" classname="pagination__link-icon pagination__link-icon--next" %}
+                </a>
+            </li>
+        </ul>
+        <form class="pagination__controls" aria-label="Items per page">
+            <label class="pagination__label" for="pagination-per-page">Items per page</label>
+            <select class="pagination__select" id="pagination-per-page" aria-controls="pagination-list">
+                <option value="1">100</option>
+            </select>
+            <button class="sr-only pagination__button" type="submit">Apply</button>
+        </form>
+    </div>
+</nav>
