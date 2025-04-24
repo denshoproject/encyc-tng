@@ -2,6 +2,7 @@
 
 .header {
     $root: &;
+    padding-top: $spacer-small-plus;
 
     &--collection {
         background-color: var(--color--orange);
@@ -21,48 +22,36 @@
         }
     }
 
-    &__search-form {
-        background-color: var(--color--white);
-        border-radius: 60px;
-        display: flex;
-    }
-
-    &__search-form-input {
-        border-radius: 60px;
-        border: 0;
-        color: var(--color--dark-blue);
-        padding: 10px $spacer-mini;
-    }
-
-    &__search-form-submit {
-        background-color: transparent;
-        border: 0;
-        color: var(--color--dark-orange);
-        padding: 0 $spacer-mini;
-    }
-
     &__title {
         color: var(--color--dark-blue);
         margin-bottom: 0;
-    }
-
-    &__tabs {
-        display: flex;
     }
 
     &__tabs-wrapper {
         position: relative;
     }
 
+    &__tabs {
+        display: flex;
+    }
+
     &__tab-link {
+        @include font-size(meta-large);
         border-bottom: 4px solid transparent;
-        padding: $spacer-mini $spacer-small;
         color: var(--color--dark-blue);
+        display: block;
         font-weight: $weight--bold;
+        padding: 12px $spacer-small;
         text-decoration: none;
+        transition: background-color $transition, border $transition;
+
+        @include media-query(large) {
+            @include font-size(body);
+            padding: $spacer-mini $spacer-small;
+        }
 
         &:hover {
-            text-decoration: underline;
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         &--active {

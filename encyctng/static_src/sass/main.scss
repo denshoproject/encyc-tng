@@ -12,7 +12,10 @@
 @use 'components/footer';
 @use 'components/header';
 @use 'components/rich-text';
+@use 'components/search-form';
 @use 'components/sprites-preview-icons';
+@use 'components/tags';
+
 
 @tailwind base;
 @tailwind components;

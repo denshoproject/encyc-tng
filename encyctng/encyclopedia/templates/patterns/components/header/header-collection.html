@@ -8,29 +8,45 @@
             </h1>
 
             <div class="header__search">
-                <form action="" method="get" role="search" class="header__search-form">
-                    <input class="header__search-form-input" type="text" placeholder="Search 1,700+ articles" name="query" value="">
-                    <button class="header__search-form-submit" type="submit">
-                        {% include "../icons/icon.html" with name="magnifying-glass" classname="header__search-form-icon size-5 text-brand-1" %}
+                <form action="" method="get" role="search" class="search-form">
+                    <input class="search-form__input" type="text" placeholder="Search 1,700+ articles" name="query" value="">
+                    <button class="search-form__submit" type="submit">
+                        {% include "../icons/icon.html" with name="magnifying-glass" classname="search-form__icon size-5 text-brand-1" %}
                     </button>
                 </form>
             </div>
         </div>
 
-        <div class="header__tabs-wrapper">
-            <ul class="header__tabs">
-                <li class="header__tab">
-                    <a href="/" class="header__tab-link header__tab-link--active">Articles by Topic</a>
-                <li>
-                <li class="header__tab">
-                    <a href="/" class="header__tab-link">Articles by A-Z</a>
-                <li>
-                <li class="header__tab">
-                    <a href="/" class="header__tab-link">Authors by A-Z</a>
-                <li>
-            </ul>
-        </div>
+        {% if tabs %}
+            <div class="header__tabs-wrapper">
+                <ul class="header__tabs">
+                    {% for tab in tabs %}
+                        <li class="header__tab">
+                            <a href="{{ tab.url }}" class="header__tab-link{% if tab.active %} header__tab-link--active{% endif %}">
+                                {{ tab.label }}
+                            </a>
+                        <li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
 </div>
+
+{% if tags %}
+    <div class="grid">
+        <ul class="tags">
+            <li>
+                <a href="/" class="tags__tag tags__tag--active">All</a>
+            </li>
+
+            {% for tag in tags %}
+                <li class="tags__tag-item">
+                    <button class="tags__tag{% if tag.active %} tags__tag--active{% endif %}">{{ tag.name }}</button>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
 
 
