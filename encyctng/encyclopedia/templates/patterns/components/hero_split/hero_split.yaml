@@ -1,12 +1,18 @@
-name: Hero
+name: Hero split
 context:
   hero:
-    title: Discover the history of the Japanese American incarceration during WWII
-    actions:
-      - text: Browse by Topic
-        url: '#'
-      - text: Browse by A-Z
-        url: '#'
+    title: Bad Day at Black Rock
+    type: Film
+    introduction: Critically acclaimed 1955 movie starring Spencer Tracy whose plot is built around the murder of the Issei father of a Nisei war hero in a forlorn desert town and its subsequent cover up. Though it was one of the first movies to note the discrimination Japanese Americans faced during World War II, no Japanese American characters appear in it. Bad Day at Black Rock was nominated for three Academy Awards.
+    meta:
+      - label: Title
+        value: Bad Day at Black Rock
+      - label: Date
+        value: '<a href="#">Concentration Camp</a>'
+      - label: Genre
+        value: Drama
+      - label: Director
+        value: Newell, California (41.8833 lat, -121.3667 lng)
 
 tags:
   image:

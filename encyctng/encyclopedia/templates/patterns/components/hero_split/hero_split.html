@@ -1,58 +1,44 @@
-{% load wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
-<nav class="pagination meta meta--small" aria-label="Pagination">
-    <div class="pagination__container">
-        <div class="pagination__overview">
-            <p class="pagination__overview-text">Page 1 of 18</p>
+<div class="hero-split{% if hero.meta %} hero-split--meta{% endif %}">
+    <div class="hero-split__container">
+        <div class="hero-split__content">
+            <h1 class="hero-split__title">{{ hero.title }}</h1>
+            <ul class="hero-split__actions">
+                <li class="hero-split__action">
+                    {{ hero.type }}
+                </li>
+                <li class="hero-split__action">
+                    <a href="#" class="hero-split__action-link">
+                        {% include "patterns/components/icons/icon.html" with name="print" classname="hero-split__action-icon" %}
+                        <span class="hero-split__action-label">Print</span>
+                    </a>
+                </li>
+                <li class="hero-split__action">
+                    <a href="#" class="hero-split__action-link">
+                        {% include "patterns/components/icons/icon.html" with name="bookmark" classname="hero-split__action-icon" %}
+                        <span class="hero-split__action-label">Cite</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="hero-split__introduction">
+                {{ hero.introduction|richtext }}
+            </div>
+            {# TODO: Update to correct template ID #}
+            <a href="#body" class="hero-split__skip">
+                {% include "patterns/components/icons/icon.html" with name="arrow-down" classname="hero-split__action-icon" %}
+                Skip to Article
+            </a>
         </div>
-        <ul class="pagination__list">
-            <li class="pagination__item pagination__item--prev">
-                <a class="pagination__link" href="#">
-                    {% include "patterns/components/icons/icon.html" with name="arrow" classname="pagination__link-icon pagination__link-icon--prev" %}
-                    <span class="pagination__link-text">Previous</span>
-                </a>
-            </li>
-            <li class="pagination__item pagination__item--page">
-                <a class="pagination__link pagination__link--active" href="#" aria-current="page">
-                    <span class="sr-only">Current page: </span>1
-                </a>
-            </li>
-            <li class="pagination__item pagination__item--page">
-                <a class="pagination__link pagination__link" href="#">
-                    2
-                </a>
-            </li>
-            <li class="pagination__item pagination__item--page">
-                <a class="pagination__link pagination__link" href="#">
-                    3
-                </a>
-            </li>
-            <li class="pagination__item pagination__item--page pagination__item--page-lg-only">
-                <a class="pagination__link pagination__link" href="#">
-                    4
-                </a>
-            </li>
-            <li class="pagination__item pagination__item--divider">
-                <span aria-hidden="true">…</span>
-            </li>
-            <li class="pagination__item pagination__item--page">
-                <a class="pagination__link pagination__link" href="#">
-                    18
-                </a>
-            </li>
-            <li class="pagination__item pagination__item--next">
-                <a class="pagination__link" href="#">
-                    <span class="pagination__link-text">Next</span>
-                    {% include "patterns/components/icons/icon.html" with name="arrow" classname="pagination__link-icon pagination__link-icon--next" %}
-                </a>
-            </li>
-        </ul>
-        <form class="pagination__controls" aria-label="Items per page">
-            <label class="pagination__label" for="pagination-per-page">Items per page</label>
-            <select class="pagination__select" id="pagination-per-page" aria-controls="pagination-list">
-                <option value="1">100</option>
-            </select>
-            <button class="sr-only pagination__button" type="submit">Apply</button>
-        </form>
+        {% if hero.meta %}
+            <div class="hero-split__meta">
+                {% for meta in hero.meta %}
+                    <div class="hero-split__meta-item">
+                    <span class="hero-split__meta-label">{{ meta.label }}</span>
+                    <span class="hero-split__meta-value">{{ meta.value }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
-</nav>
+</div>
