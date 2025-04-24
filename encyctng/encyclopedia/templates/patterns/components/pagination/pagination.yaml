@@ -1,15 +1,1 @@
-name: Hero
-context:
-  hero:
-    title: Discover the history of the Japanese American incarceration during WWII
-    actions:
-      - text: Browse by Topic
-        url: '#'
-      - text: Browse by A-Z
-        url: '#'
-
-tags:
-  image:
-    hero.image fill-1000x1000 format-webp as image:
-      raw:
-        url: '//picsum.photos/1000/1000.webp'
+name: Pagination
