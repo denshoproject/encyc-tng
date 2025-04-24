@@ -1,20 +1,49 @@
 @use 'config' as *;
 
 .tag {
-    @include font-size(meta-tiny);
+    @include font-size(meta-small);
     background-color: var(--color--background);
-    border: 1px solid var(--color--border);
-    color: var(--color--links);
-    padding: 5px 10px;
     border-radius: 50px;
+    border: 2px solid transparent;
+    color: var(--color--links);
+    display: block;
     font-weight: $weight--bold;
-    line-height: 1;
     text-decoration: none;
-    transition: border $transition, color $transition;
+    transition: background-color $transition, color $transition, border $transition;
+    padding: 8px $spacer-mini;
+    outline: 1px solid var(--color--border);
+
+    &--active {
+        background-color: var(--color--toggle-background);
+        border: 2px solid var(--color--toggle-background);
+        color: var(--color--white);
+        outline-color: transparent;
+
+        &:hover,
+        &:focus {
+            color: var(--color--links);
+        }
+    }
 
     &:hover,
     &:focus {
-        border: 1px solid var(--color--border-dark);
-        color: var(--color--links-hover);
+        background-color: var(--color--transparent-orange);
+        border: 2px solid var(--color--links);
+        outline-color: transparent;
+        cursor: pointer;
+    }
+
+    &--tiny {
+        @include font-size(meta-tiny);
+        color: var(--color--links);
+        padding: 5px 10px;
+        line-height: 1;
+
+        &:hover,
+        &:focus {
+            background-color: var(--color--transparent-orange);
+            border: 2px solid var(--color--links);
+            outline-color: transparent;
+        }
     }
 }

@@ -1,0 +1,42 @@
+context:
+  title: Collection
+  search_query: Test query
+  tabs: 
+    - label: Articles by Topic
+      url: '#'
+      active: true
+    - label: Articles by A-Z
+      url: '#'
+    - label: Authors by A-Z
+      url: '#'
+  tags:
+    - name: Arts
+      url: '#'
+    - name: Camps
+      url: '#'
+    - name: Chroniclers
+      url: '#'
+    - name: Communities
+      url: '#'
+    - name: Definitions
+      url: '#'
+    - name: Events
+      url: '#'
+    - name: Legal
+      url: '#'
+    - name: Military
+      url: '#'
+    - name: Newspapers
+      url: '#'
+    - name: Organizations
+      url: '#'
+    - name: People
+      url: '#'
+    - name: Postwar
+      url: '#'
+    - name: Prewar
+      url: '#'
+    - name: Redress
+      url: '#'
+    - name: Resettlement
+      url: '#'
