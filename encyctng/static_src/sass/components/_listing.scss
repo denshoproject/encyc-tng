@@ -1,0 +1,55 @@
+@use 'config' as *;
+
+.listing {
+    $root: &;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: $spacer-small;
+        background-color: var(--color--background);
+    }
+
+    &__item {
+        list-style: none;
+    }
+
+    &__items {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-small-plus;
+        margin-bottom: $spacer-medium;
+
+        &--authors {
+            flex-direction: row;
+            flex-wrap: wrap;
+            column-gap: $spacer-small-plus;
+        }
+    }
+
+    &__heading {
+        font-weight: $weight--normal;
+        color: var(--color--headings);
+    }
+
+    &__category-header {
+        display: inline-block;
+        margin-bottom: $spacer-small;
+        text-align: center;
+
+        &::before {
+            content: '';
+            display: block;
+            margin: 0 auto 10px;
+            width: 30px;
+            height: 4px;
+            border-radius: 10px;
+            background-color: var(--color--headings);
+        }
+    }
+
+    &__footer {
+        margin-bottom: $spacer-large;
+    }
+}

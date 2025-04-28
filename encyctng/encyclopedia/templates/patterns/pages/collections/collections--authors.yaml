@@ -1,0 +1,22 @@
+context:
+  page:
+    title: Collections
+  collections:
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'

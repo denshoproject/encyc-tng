@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-collections{% endblock %}
+
+{% block content %}
+    <div class="grid">
+        <h1>{{ page.title }}</h1>
+
+        {% include "patterns/components/hero_split/hero_split.html" with title="Collections" %}
+
+        {% if collections %}
+            <div class="listing">
+                <div class="listing__header">
+                    <h2 class="listing__heading meta meta--large"><b>{{ collections|length }}</b> Articles</h2>
+                </div>
+                <div class="listing__content">
+                    <ul class="listing__items">
+                        {% for article in collections %}
+                            <li class="listing__item">
+                                {% include "patterns/components/article_listing_item/article_listing_item.html" with article=article %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="listing__footer">
+                    {% include "patterns/components/pagination/pagination.html" %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}
