@@ -1,0 +1,15 @@
+{% load wagtailimages_tags %}
+
+<div class="full-width-image">
+    <div class="full-width-image__container meta meta--small">
+        {% image image width-1000 format-webp as image %}
+        <img class="full-width-image__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+        <p class="full-width-image__type">{{ type }}</p>
+        <p class="full-width-image__caption">{{ caption }}</p>
+        {# TODO: Hook up to modal #}
+        <a href="{{ url }}" class="full-width-image__link">
+            {% include "patterns/components/icons/icon.html" with name="expand" classname="full-width-image__icon" %}
+            <span class="full-width-image__link-text">More info</span>
+        </a>
+    </div>
+</div>
