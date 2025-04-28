@@ -1,8 +1,9 @@
 @use 'config' as *;
 
 .icon {
+    $root: &;
     width: 20px;
     height: 20px;
-    transition: fill $transition;
     fill: var(--color--body);
+    transition: transform $transition, fill $transition;
 }
