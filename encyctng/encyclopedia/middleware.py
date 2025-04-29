@@ -2,7 +2,7 @@ from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from encyclopedia.models import load_mediawiki_titles
+# from encyclopedia.models import load_mediawiki_titles
 
 
 class RedirectLegacyURLsMiddleware:
@@ -15,7 +15,7 @@ class RedirectLegacyURLsMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         if response.status_code == 404:
-            
+
             # get what might be an article title
             title = request.META['PATH_INFO']
             # shave off preceding and trailing slashes, if any
@@ -24,7 +24,7 @@ class RedirectLegacyURLsMiddleware:
             if title[-1] == '/':
                 title = title[:-1]
             # redirec if it matches a legacy page
-            legacy_page = load_mediawiki_titles().get(title)
+            legacy_page = None
             if legacy_page:
                 return HttpResponsePermanentRedirect(
                     f"/wiki/{legacy_page['slug']}/"

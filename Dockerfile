@@ -33,7 +33,16 @@ RUN git clone --quiet https://github.com/denshoproject/encyc-core /opt/encyc-cor
 
 COPY --chown=encyc . .
 
-RUN mkdir /etc/encyc && ln -s $PWD/conf/encyctng-local-docker.cfg /etc/encyc/encyctng-local.cfg
+# Create the config directory and copy the config files
+RUN mkdir -p /etc/encyc && \
+    cp conf/encyctng.cfg /etc/encyc/core.cfg && \
+    cp conf/encyctng-local-docker.cfg /etc/encyc/core-local.cfg && \
+    chown -R $UID:$GID /etc/encyc
+
+# Create log directory with proper permissions
+RUN mkdir -p /opt/encyc-tng/log && \
+    chown -R $UID:$GID /opt/encyc-tng/log && \
+    chmod 755 /opt/encyc-tng/log
 
 RUN make git-safe-dir
 RUN make install-app

@@ -1,0 +1,30 @@
+@use 'config' as *;
+
+.quote-block {
+    $root: &;
+    position: relative;
+
+    &__text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__icon {
+        width: 80px;
+        height: 70px;
+        color: var(--color--links);
+        margin-bottom: $spacer-small;
+
+        @include media-query(large) {
+            position: absolute;
+            top: 0;
+            left: -140px;
+            width: 100px;
+            height: 90px;
+        }
+    }
+
+    &__quote {
+        margin-bottom: $spacer-mini;
+    }
+}
