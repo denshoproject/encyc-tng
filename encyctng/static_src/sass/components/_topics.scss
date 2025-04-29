@@ -1,0 +1,68 @@
+@use 'config' as *;
+
+.topics {
+    $root: &;
+
+    &__items {
+        grid-template-columns: repeat(2, 1fr);
+        gap: $spacer-mini-plus;
+        padding: 0;
+
+        @include media-query(large) {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+    }
+
+    &__item {
+        position: relative;
+        grid-column: span 1;
+        text-decoration: none;
+
+        &:hover {
+            .icon {
+                transform: translateX(5px);
+            }
+        }
+    }
+
+    &__item-img-wrapper {
+        overflow: hidden;
+        max-width: 100%;
+        height: auto;
+    }
+
+    &__item-img {
+        aspect-ratio: 1/1;
+        object-fit: cover;
+    }
+
+    &__item-content-container {
+        background-color: var(--color--background);
+        display: flex;
+        justify-content: space-between;
+        padding: $spacer-mini $spacer-mini-plus $spacer-mini-plus;
+        text-decoration: none;
+    }
+
+    &__item-title {
+        text-decoration: underline;
+        transition: color $transition;
+
+        #{$root}__item:hover & {
+            color: var(--color--links);
+        }
+    }
+
+    &__item-title,
+    &__item-meta {
+        margin-bottom: 0;
+        color: var(--color--headings);
+    }
+
+    &__item-icon {
+        // same colour in both light and dark mode
+        color: var(--color--orange);
+        align-self: flex-end;
+        flex-shrink: 0;
+    }
+}

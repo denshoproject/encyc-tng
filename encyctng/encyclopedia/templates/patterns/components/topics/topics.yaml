@@ -1,0 +1,59 @@
+context:
+  image_url: https://placehold.co/400x400
+  topics:
+    title: Browse Topics
+    items:
+      - title: Arts
+        image: ''
+        articles: 453
+      - title: Camps
+        image: ''
+        articles: 453
+      - title: Chroniclers
+        image: ''
+        articles: 453
+      - title: Communities
+        image: ''
+        articles: 453
+      - title: Definitions
+        image: ''
+        articles: 453
+      - title: Events
+        image: ''
+        articles: 453
+      - title: Legal
+        image: ''
+        articles: 453
+      - title: Military
+        image: ''
+        articles: 453
+      - title: Newspapers
+        image: ''
+        articles: 453
+      - title: Organizations
+        image: ''
+        articles: 453
+      - title: People
+        image: ''
+        articles: 453
+      - title: Postwar
+        image: ''
+        articles: 453
+      - title: Prewar
+        image: ''
+        articles: 453
+      - title: Redress
+        image: ''
+        articles: 453
+      - title: Resettlement
+        image: ''
+        articles: 453
+tags:
+  image:
+    'item.image fill-400x400 format-webp as img':
+      target_var: img
+      raw:
+        url: 'https://placehold.co/400x400'
+  pageurl:
+    item:
+      raw: '#'
