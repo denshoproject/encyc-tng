@@ -1,8 +1,9 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 <form action="" method="get" role="search" class="search-form">
+    <label class="sr-only">Search</label>
     <input class="search-form__input" type="text" placeholder="Search 1,700+ articles" name="query" value="">
-    <button class="search-form__submit" type="submit">
+    <button class="search-form__submit" type="submit" aria-label="Search">
         {% include "../icons/icon.html" with name="magnifying-glass" classname="search-form__icon size-5 text-brand-1" %}
     </button>
 </form>
