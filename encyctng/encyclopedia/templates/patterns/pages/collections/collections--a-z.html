@@ -4,15 +4,17 @@
 {% block body_class %}template-collections{% endblock %}
 
 {% block content %}
+    {% include "patterns/components/collection_header/collection_header.html" with title="Collections" tags=tags tabs=tabs %}
+
     <div class="grid">
-        <h1>{{ page.title }}</h1>
-
-        {% include "patterns/components/hero_split/hero_split.html" with title="Collections" %}
-
         {% if collections %}
             <div class="listing">
                 <div class="listing__header">
-                    <h2 class="listing__heading meta meta--large"><b>{{ collections|length }}</b> Articles</h2>
+                    <h2 class="listing__heading meta meta--large">
+                        <span class="listing__header-text">
+                            <b>{{ collections|length }}</b> Articles
+                        </span>
+                    </h2>
                 </div>
                 <div class="listing__content">
                     <h2 class="listing__category-header">1-10</h2>

@@ -7,12 +7,32 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: $spacer-small;
+
+        &::before {
+            position: absolute;
+            z-index: -1;
+            left: 0;
+            width: 100vw;
+            height: 1px;
+            content: '';
+            background-color: var(--color--lines);
+        }
+    }
+
+    &__header-text {
+        display: inline-block;
         background-color: var(--color--background);
+        padding: 0 10px;
+        position: relative;
+        left: -10px;
     }
 
     &__item {
         list-style: none;
+    }
+
+    &__content {
+        padding-top: $spacer-small;
     }
 
     &__items {
@@ -31,6 +51,7 @@
     &__heading {
         font-weight: $weight--normal;
         color: var(--color--headings);
+        margin-bottom: 0;
     }
 
     &__category-header {
