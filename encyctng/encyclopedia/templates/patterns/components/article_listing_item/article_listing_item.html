@@ -15,7 +15,7 @@
             {% if article.tags %}
                 <ul class="article-listing-item__tags">
                     {% for tag in article.tags %}
-                        <li class="article-listing-item__tag">{% include "patterns/components/tag/tag.html" with tag=tag %}</li>
+                        <li class="article-listing-item__tag">{% include "patterns/components/tag/tag.html" with tag=tag classes="tag--tiny" %}</li>
                     {% endfor %}
                 </ul>
             {% endif %}
