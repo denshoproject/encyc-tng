@@ -67,6 +67,24 @@ h6 {
     }
 }
 
+.section-heading {
+    padding: $spacer-small-plus 0;
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: -2.5px;
+        left: 15px;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 5px;
+        // match heading colour
+        background-color: var(--color--headings);
+        border-radius: 3px;
+    }
+}
+
 // ------------------------------- Body ----------------------------------
 .body {
     @include font-size(body);
