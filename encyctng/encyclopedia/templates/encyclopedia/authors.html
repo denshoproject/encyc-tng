@@ -1,15 +1,21 @@
-{% extends "encyclopedia/base.html" %}
-{% load wagtailcore_tags %}
+{% extends "base.html" %}
+{% load static %}
 
+{% block body_class %}template-information-page{% endblock %}
 
 {% block content %}
+<div class="grid">
+    <h1>Authors</h1>
 
-<h1>Authors</h1>
+    {% if page.in_page_nav %}
+    {% include "patterns/components/in_page_nav/in_page_nav.html" with items=page.in_page_nav %}
+    {% endif %}
 
-<p>
-  {% for name,author in authors_articles.items %}{% if author.articles %}
-  <a href="{{ author.author_id }}">{{ author.display_name }}</a><br/>
-  {% endif %}{% endfor %}
-</p>
+    <p>
+        {% for name,author in authors_articles.items %}{% if author.articles %}
+        <a href="{{ author.author_id }}">{{ author.display_name }}</a><br/>
+        {% endif %}{% endfor %}
+    </p>
 
-{% endblock %}{# content #}
+</div><!-- /grid -->
+{% endblock content %}
