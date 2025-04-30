@@ -1,0 +1,18 @@
+<div class="related-links">
+    <h2 class="related-links__heading heading heading--three section-heading">{{ title }}</h2>
+    <ul class="related-links__list">
+        {% for link in related_links %}
+            <li class="related-links__item">
+                {% include "patterns/components/icons/icon.html" with name="external-link" classname="related-links__icon" %}
+                <h3 class="related-links__title body body--bold">
+                    <a href="{{ link.url }}" class="related-links__link">
+                        {{ link.title }}
+                    </a>
+                </h3>
+                {% if link.source %}
+                    <p class="related-links__source meta meta--small">{{ link.source }}</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>

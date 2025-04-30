@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-article{% endblock %}
+
+{% block content %}
+<div class="page">
+    <header class="page__header grid">
+        <h1>{{ page.title }}</h1>
+    </header>
+
+    <div class="page__content">
+        <div class="grid">
+        </div>
+    </div>
+
+    {% if page.related_links %}
+        <section class="page__section">
+            <div class="page__section-container grid">
+                {% include "patterns/components/related_links/related_links.html" with title="For more information" related_links=page.related_links %}
+            </div>
+        </section>
+    {% endif %}
+
+    <div class="page__footer">
+
+    </div>
+</div>
+{% endblock content %}
