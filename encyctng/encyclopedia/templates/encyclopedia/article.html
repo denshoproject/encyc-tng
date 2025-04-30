@@ -1,8 +1,7 @@
-{% extends "encyclopedia/base.html" %}
+{% extends "base.html" %}
 {% load encyclopedia_tags wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-article{% endblock %}
-
 
 {% block css %}{{ block.super }}
   <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lightview-3.2.2/css/lightview/lightview.css"/>
@@ -16,51 +15,74 @@
 {% endblock css %}
 
 
-{% block content %}{{ block.super }}
+{% block content %}
+  <div class="page">
 
-  <h1>{{ page.title }}</h1>
-  <p class="meta">{{ page.date }}</p>
+    <header class="page__header grid">
+        <h1>{{ page.title }}</h1>
+    </header>
 
-  {% with authors=page.authors.all %}
-    {% if authors %}
-      <p>
-        Author{{ authors | pluralize }}:
-        {% for author in authors %}
-          {% image author.author_image fill-40x40 style="vertical-align: middle" %}
-          <a href="{% url "encyc-author" author.id %}">{{ author.display_name }}</a>
-        {% endfor %}
-      </p>
-    {% endif %}
-  {% endwith %}
+    <div class="page__content">
+        <div class="grid">
 
-  {% with tags=page.tags.all %}
-    {% if tags %}
-      <div class="tags">
-        <h3>Tags</h3>
-        {% for tag in tags %}
-          <a href="{% url "encyc-topics" %}#{{ tag }}">{{ tag }}</a>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
 
-  {% databox page %}
+<p class="meta">{{ page.date }}</p>
 
-  <div class="description">
-    {{ page.description | richtext }}
-  </div>
-
-  {% article_toc page %}
-
-  <div class="body">
-    {{ page.body }}
-  </div><!-- body -->
-
-  {% if page.footnotes %}
-  <h3>Footnotes</h3>
-  <div class="footnotes">
-    {{ page.footnotes | safe }}
-  </div><!-- footnotes -->
+{% with authors=page.authors.all %}
+  {% if authors %}
+    <p>
+      Author{{ authors | pluralize }}:
+      {% for author in authors %}
+        {% image author.author_image fill-40x40 style="vertical-align: middle" %}
+        <a href="{% url "encyc-author" author.id %}">{{ author.display_name }}</a>
+      {% endfor %}
+    </p>
   {% endif %}
+{% endwith %}
 
+{% with tags=page.tags.all %}
+  {% if tags %}
+    <div class="tags">
+      <h3>Tags</h3>
+      {% for tag in tags %}
+        <a href="{% url "encyc-topics" %}#{{ tag }}">{{ tag }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% databox page %}
+
+<div class="description">
+  {{ page.description | richtext }}
+</div>
+
+{% article_toc page %}
+
+<div class="body">
+  {{ page.body }}
+</div><!-- body -->
+
+{% if page.footnotes %}
+<h3>Footnotes</h3>
+<div class="footnotes">
+  {{ page.footnotes | safe }}
+</div><!-- footnotes -->
+{% endif %}
+
+
+        </div><!-- /grid -->
+    </div><!-- /page__content -->
+
+    {% if page.related_links %}
+    <section class="page__section">
+        <div class="page__section-container grid">
+            {% include "patterns/components/related_links/related_links.html" with title="For more information" related_links=page.related_links %}
+        </div>
+    </section>
+    {% endif %}
+
+    <div class="page__footer"></div>
+
+</div>
 {% endblock content %}
