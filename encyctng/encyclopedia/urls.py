@@ -3,7 +3,8 @@ from django.urls import path, re_path
 from encyclopedia import views
 
 urlpatterns = [
-    path('articles/', views.articles, name='encyc-articles'),
+    path('contents/', views.articles, name='encyc-articles'),
+    path('categories/', views.topics, name='encyc-topics'),  # TODO fix link in nav
     path('topics/', views.topics, name='encyc-topics'),
     path('authors/', views.authors, name='encyc-authors'),
     path('authors/<int:author_id>/', views.author, name='encyc-author'),
