@@ -1,0 +1,15 @@
+{% load wagtailcore_tags %}
+
+<nav class="in-page-nav" aria-label="In Page Navigation">
+    <h2 class="in-page-nav__title section-heading heading heading--three">Contents</h2>
+    <ol class="in-page-nav__container">
+        {% for item in items %}
+            <li class="in-page-nav__item">
+                <a href="{{ item.url }}" class="in-page-nav__link meta meta--large">
+                    {% include "patterns/components/icons/icon.html" with name="arrow-down" classname="in-page-nav__link-icon" %}
+                    {{ forloop.counter }}. {{ item.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ol>
+</nav>
