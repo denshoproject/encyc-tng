@@ -22,6 +22,14 @@
         </section>
     {% endif %}
 
+    {% if page.footnotes %}
+        <section class="page__section">
+            <div class="page__section-container grid">
+                {% include "patterns/components/footnotes/footnotes.html" with title="Footnotes" footnotes=page.footnotes %}
+            </div>
+        </section>
+    {% endif %}
+
     <div class="page__footer">
 
     </div>
