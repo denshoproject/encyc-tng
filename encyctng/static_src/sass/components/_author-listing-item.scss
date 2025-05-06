@@ -1,0 +1,64 @@
+@use 'config' as *;
+
+.author-listing-item {
+    max-width: 395px;
+
+    &__container {
+        display: flex;
+        flex-direction: row;
+        gap: $spacer-small;
+    }
+
+    &__image-container {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    &__image {
+        object-fit: cover;
+        object-position: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    &__link {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+        color: var(--color--headings);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-skip-ink: all;
+        transition: color $transition;
+
+        &:hover,
+        &:focus {
+            color: var(--color--links-hover);
+        }
+    }
+
+    &__link-icon {
+        color: var(--color--links);
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    &__title {
+        margin-bottom: 0;
+    }
+
+    &__description {
+        display: none;
+
+        @include media-query(large) {
+            display: block;
+        }
+    }
+}
