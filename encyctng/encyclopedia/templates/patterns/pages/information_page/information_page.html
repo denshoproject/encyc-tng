@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-information-page{% endblock %}
+
+{% block content %}
+    <div class="grid">
+        <h1>{{ page.title }}</h1>
+
+        {% if page.in_page_nav %}
+            {% include "patterns/components/in_page_nav/in_page_nav.html" with items=page.in_page_nav %}
+        {% endif %}
+    </div>
+
+
+{% endblock content %}

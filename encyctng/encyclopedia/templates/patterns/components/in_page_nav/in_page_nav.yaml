@@ -1,0 +1,9 @@
+name: In Page Nav
+context:
+  items:
+    - title: 'Item 1'
+      url: '/item-1/'
+    - title: 'Item 2'
+      url: '/item-2/'
+    - title: 'Item 3'
+      url: '/item-3/'

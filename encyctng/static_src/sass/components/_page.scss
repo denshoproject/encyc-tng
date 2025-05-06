@@ -1,0 +1,12 @@
+@use 'config' as *;
+
+.page {
+    &__section {
+        border-top: 1px solid var(--color--lines);
+        padding-bottom: $spacer-medium;
+
+        @include media-query(medium) {
+            padding-bottom: $spacer-medium-plus;
+        }
+    }
+}
