@@ -6,10 +6,13 @@
         <img class="full-width-image__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
         <p class="full-width-image__type">{{ type }}</p>
         <p class="full-width-image__caption">{{ caption }}</p>
-        {# TODO: Hook up to modal #}
-        <a href="{{ url }}" class="full-width-image__link">
+        <button class="full-width-image__button meta meta--small" data-modal-trigger aria-label="View more information about this image">
             {% include "patterns/components/icons/icon.html" with name="expand" classname="full-width-image__icon" %}
-            <span class="full-width-image__link-text">More info</span>
-        </a>
+            <span class="full-width-image__button-text">More info</span>
+        </button>
     </div>
 </div>
+
+{% if modal %}
+    {% include "patterns/components/modal/modal.html" with modal=modal %}
+{% endif %}

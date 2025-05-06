@@ -10,12 +10,14 @@
 @use 'components/author-listing-item';
 @use 'components/button';
 @use 'components/collection-header';
+@use 'components/full-width-image';
 @use 'components/footnotes';
 @use 'components/grid';
 @use 'components/hero';
 @use 'components/hero-split';
 @use 'components/icon';
 @use 'components/listing';
+@use 'components/modal';
 @use 'components/in-page-nav';
 @use 'components/pagination';
 @use 'components/related-links';
@@ -25,6 +27,7 @@
 @use 'components/search';
 @use 'components/page';
 @use 'components/tag';
+@use 'components/quote-block';
 @use 'components/tags';
 @use 'components/topics';
 
