@@ -8,18 +8,24 @@
 // Components
 @use 'components/article-listing-item';
 @use 'components/button';
-@use 'components/full-width-image';
+@use 'components/collection-header';
+@use 'components/footnotes';
 @use 'components/grid';
 @use 'components/hero';
 @use 'components/hero-split';
 @use 'components/icon';
+@use 'components/in-page-nav';
 @use 'components/pagination';
+@use 'components/related-links';
 @use 'components/rich-text';
-@use 'components/topics';
+@use 'components/search-form';
 @use 'components/sprites-preview-icons';
 @use 'components/search';
+@use 'components/page';
 @use 'components/tag';
 @use 'components/quote-block';
+@use 'components/tags';
+@use 'components/topics';
 
 // Navigation
 @use 'components/navigation/header';
