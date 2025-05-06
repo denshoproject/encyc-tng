@@ -1,18 +1,21 @@
-{% extends "encyclopedia/base.html" %}
-{% load wagtailcore_tags %}
+{% extends "base.html" %}
+{% load static %}
 
+{% block body_class %}template-information-page{% endblock %}
 
 {% block content %}
+<div class="grid">
 
-<h1>Contents</h1>
+    <h1>Contents</h1>
 
-{% for initial,articles in initials_articles.items %}{% if articles %}
-<h2>{{ initial | capfirst }}</h2>
-<p>
-  {% for url,title in articles %}
-  <a href="{{ url }}">{{ title }}</a>{% if not forloop.last %},{% endif %}
-  {% endfor %}
-</p>
-{% endif %}{% endfor %}
+    {% for initial,articles in initials_articles.items %}{% if articles %}
+    <h2>{{ initial | capfirst }}</h2>
+    <p>
+        {% for url,title in articles %}
+        <a href="{{ url }}">{{ title }}</a>{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    </p>
+    {% endif %}{% endfor %}
 
-{% endblock %}{# content #}
+</div><!-- /grid -->
+{% endblock content %}

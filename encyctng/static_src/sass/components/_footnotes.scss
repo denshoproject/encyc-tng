@@ -1,0 +1,54 @@
+@use 'config' as *;
+
+.footnotes {
+    $root: &;
+
+    &__heading {
+        color: var(--color--headings);
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-small;
+        list-style-type: decimal !important; // override tailwind reset
+        padding-left: 50px;
+        margin: 0;
+        counter-reset: footnotes;
+
+        @include media-query(medium) {
+            gap: $spacer-small-plus;
+        }
+
+        li {
+            list-style-type: decimal !important; // override tailwind reset
+            display: list-item !important; // override tailwind reset
+        }
+    }
+
+    &__item {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    &__icon {
+        position: absolute;
+        top: 2px;
+        left: -50px;
+        width: 18px;
+        height: 18px;
+        color: var(--color--links);
+    }
+
+    &__title {
+        margin-bottom: 0;
+    }
+
+    .page__section & {
+        @include media-query(medium) {
+            grid-column: 3 / span 6;
+        }
+    }
+}

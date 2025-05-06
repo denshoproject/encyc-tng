@@ -1,0 +1,11 @@
+<div class="footnotes" id="footnotes">
+    <h2 class="footnotes__heading heading heading--three section-heading">{{ title }}</h2>
+    <ol class="footnotes__list">
+        {% for footnote in footnotes %}
+            <li class="footnotes__item meta meta--small" id="footnote-{{ forloop.counter }}">
+                {% include "patterns/components/icons/icon.html" with name="arrow-up" classname="footnotes__icon" %}
+                {{ footnote.note }}
+            </li>
+        {% endfor %}
+    </ol>
+</div>
