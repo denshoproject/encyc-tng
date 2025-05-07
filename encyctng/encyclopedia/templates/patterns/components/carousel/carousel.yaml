@@ -1,0 +1,64 @@
+context:
+  items:
+    - type: Document
+      caption: 'Amicus Curiae brief filed on behalf of the states of California, Oregon and Washington in the Supreme Court case Korematsu v. United States, Oct. 1944. Courtesy of Densho'
+      url: '#'
+      modal:
+        id: modal-1
+        open: false
+        title: Discover the history of the Japanese American incarceration during WWII
+        content: |
+          <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+    - type: Image
+      caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+      url: '#'
+      modal:
+        id: modal-2
+        open: false
+        title: Discover the history of the Japanese American incarceration during WWII
+        content: |
+          <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+    - type: Document
+      caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+      url: '#'
+      modal:
+        id: modal-3
+        open: false
+        title: Discover the history of the Japanese American incarceration during WWII
+        content: |
+          <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+    - type: Image
+      caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+      url: '#'
+      modal:
+        id: modal-4
+        open: false
+        title: Discover the history of the Japanese American incarceration during WWII
+        content: |
+          <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+    - type: Document
+      caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+      url: '#'
+      modal:
+        id: modal-5
+        open: false
+        title: Discover the history of the Japanese American incarceration during WWII
+        content: |
+          <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+    - type: Image
+      caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+      url: '#'
+      modal:
+        id: modal-6
+        open: false
+        title: Discover the history of the Japanese American incarceration during WWII
+        content: |
+          <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+tags:
+  image:
+    image width-1000 format-webp as image:
+      raw:
+        url: '//picsum.photos/1000/1000.webp'
+  include_block:
+    item:
+      template_name: 'patterns/components/full_width_image/full_width_image.html'

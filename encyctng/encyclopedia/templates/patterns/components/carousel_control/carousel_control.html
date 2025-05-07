@@ -1,0 +1,19 @@
+<button
+    class="carousel-control{% if modifier %} carousel-control--{{ modifier }}{% endif %}{% if disabled %} carousel-control--disabled{% endif %}"
+    {% if modifier and id %}data-{{ modifier }}-{{ id }}{% endif %}
+    {% if disabled %}disabled{% endif %}
+    {% if modifier == 'right' %}
+        aria-label="Next slide{% if control_title %} for {{ control_title }}{% endif %}" data-glide-dir=">"
+    {% elif modifier == 'left' %}
+        aria-label="Previous slide{% if control_title %} for {{ control_title }}{% endif %}" data-glide-dir="<"
+    {% endif %}
+>
+    <span class="sr-only">
+        {% if modifier %}{{ modifier }}{% endif %}
+    </span>
+    {% if modifier == 'right' %}
+        {% include "patterns/components/icons/icon.html" with name="arrow" %}
+    {% elif modifier == 'left' %}
+        {% include "patterns/components/icons/icon.html" with name="arrow" %}
+    {% endif %}
+</button>

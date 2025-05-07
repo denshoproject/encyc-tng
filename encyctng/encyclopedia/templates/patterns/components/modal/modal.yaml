@@ -1,6 +1,7 @@
 name: Modal
 context:
   modal:
+    id: modal-1
     open: true
     title: Discover the history of the Japanese American incarceration during WWII
     content: |

@@ -2,6 +2,11 @@
 
 .hero-split {
     $root: &;
+    margin-bottom: $spacer-small-plus;
+
+    @include media-query(large) {
+        margin-bottom: $spacer-medium;
+    }
 
     &--meta {
         #{$root}__container {
@@ -26,7 +31,6 @@
         gap: $spacer-small $spacer-medium;
         max-width: $reading-column-max-width;
         margin: 0 auto;
-        padding: 0 $spacer-mini-plus;
     }
 
     &__title {

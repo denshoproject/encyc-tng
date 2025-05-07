@@ -1,6 +1,9 @@
 // This file is the entrypoint for the main.css Webpack bundle.
 // @use or declare custom styles here to include them.
 
+// Vendor
+@use '../../../node_modules/@glidejs/glide/src/assets/sass/glide.core';
+
 @use 'base/base';
 @use 'base/typography';
 @use 'base/fonts';
@@ -9,6 +12,8 @@
 @use 'components/article-listing-item';
 @use 'components/author-listing-item';
 @use 'components/button';
+@use 'components/carousel';
+@use 'components/carousel-control';
 @use 'components/collection-header';
 @use 'components/full-width-image';
 @use 'components/footnotes';

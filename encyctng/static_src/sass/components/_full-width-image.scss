@@ -1,6 +1,13 @@
 @use 'config' as *;
 
 .full-width-image {
+    $root: &;
+
+    &--no-border {
+        #{$root}__container {
+            border-bottom: none;
+        }
+    }
     &__container {
         padding-bottom: $spacer-small;
         border-bottom: 2px solid var(--color--lines);
