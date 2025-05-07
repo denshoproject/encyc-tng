@@ -1,6 +1,6 @@
 {% load wagtailimages_tags %}
 
-<div class="full-width-image">
+<div class="full-width-image{% if modifier %} full-width-image--{{ modifier }}{% endif %}">
     <div class="full-width-image__container meta meta--small">
         {% image item.image width-1000 format-webp as image %}
         <img class="full-width-image__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">

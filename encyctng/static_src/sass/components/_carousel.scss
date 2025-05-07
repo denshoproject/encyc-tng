@@ -1,0 +1,43 @@
+@use 'config' as *;
+
+.carousel {
+    border-bottom: 2px solid var(--color--lines);
+
+    &__track {
+        max-width: $site-max-width;
+        margin: 0 auto;
+        padding: 0 $grid-gutters-mobile;
+
+        @include media-query(medium) {
+            padding: 0 $grid-gutters-tablet;
+        }
+
+        @include media-query(large) {
+            padding: 0 $grid-gutters-desktop;
+        }
+    }
+
+    &__controls {
+        max-width: $site-max-width;
+        margin: 0 auto;
+        position: relative;
+        bottom: -$spacer-mini-plus;
+        padding: 0 $grid-gutters-mobile;
+
+        @include media-query(medium) {
+            padding: 0 $grid-gutters-tablet;
+        }
+
+        @include media-query(large) {
+            padding: 0 $grid-gutters-desktop;
+        }
+    }
+
+    &__controls-group {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0;
+    }
+}

@@ -8,12 +8,12 @@
         aria-label="Previous slide{% if control_title %} for {{ control_title }}{% endif %}" data-glide-dir="<"
     {% endif %}
 >
-    <span class="u-sr-only">
+    <span class="sr-only">
         {% if modifier %}{{ modifier }}{% endif %}
     </span>
     {% if modifier == 'right' %}
-        <span>{% include "patterns/components/icons/icon.html" with name="arrow" %}</span>
+        {% include "patterns/components/icons/icon.html" with name="arrow" %}
     {% elif modifier == 'left' %}
-        <span>{% include "patterns/components/icons/icon.html" with name="arrow" %}</span>
+        {% include "patterns/components/icons/icon.html" with name="arrow" %}
     {% endif %}
 </button>

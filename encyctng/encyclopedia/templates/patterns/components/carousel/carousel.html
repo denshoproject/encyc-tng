@@ -6,12 +6,12 @@
         <ul class="glide__slides">
             {% for item in items %}
                 <li class="glide__slide">
-                    {% include "patterns/components/full_width_image/full_width_image.html" with item=item %}
+                    {% include "patterns/components/full_width_image/full_width_image.html" with item=item modifier="no-border" %}
                 </li>
             {% endfor %}
         </ul>
     </div>
-    <div class="carousel__controls layout {% if items|length < 2 %}!hidden{% endif %}">
+    <div class="carousel__controls {% if items|length < 2 %}!hidden{% endif %}">
         <div class="carousel__controls-group"
             data-glide-el="controls"
             {% if control_title %}aria-controls="{{ control_title|slugify }}"{% endif %}>
