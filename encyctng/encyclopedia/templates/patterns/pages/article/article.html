@@ -34,8 +34,10 @@
         </section>
     {% endif %}
 
-    <div class="page__footer">
-
-    </div>
+    {% if page.related_media %}
+        <div class="page__footer">
+            {% include "patterns/components/related_media/related_media.html" with title="From the archive" subtitle="(Densho Digital Repository)" related_media=page.related_media %}
+        </div>
+    {% endif %}
 </div>
 {% endblock content %}
