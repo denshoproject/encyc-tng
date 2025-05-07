@@ -13,9 +13,9 @@ class Carousel {
         this.bindEvents();
     }
 
-    calculatePeek() {
+    static calculatePeek() {
         const viewportWidth = window.innerWidth;
-        const maxWidth = 1440;
+        const maxWidth = 1280; // 1440 - 160 (padding)
         const minGutter = 40;
 
         // Calculate the actual margin based on viewport width
@@ -38,7 +38,7 @@ class Carousel {
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                const peek = this.calculatePeek();
+                const peek = Carousel.calculatePeek();
                 const newConfig = {
                     peek: {
                         before: peek,
@@ -56,7 +56,7 @@ class Carousel {
     }
 
     createSlideshow() {
-        const peek = this.calculatePeek();
+        const peek = Carousel.calculatePeek();
         const config = {
             type: 'slider',
             startAt: 0,

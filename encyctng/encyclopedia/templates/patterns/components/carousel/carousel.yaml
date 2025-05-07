@@ -1,5 +1,4 @@
 context:
-  fixed_height: True
   items:
     - type: Document
       caption: 'Amicus Curiae brief filed on behalf of the states of California, Oregon and Washington in the Supreme Court case Korematsu v. United States, Oct. 1944. Courtesy of Densho'

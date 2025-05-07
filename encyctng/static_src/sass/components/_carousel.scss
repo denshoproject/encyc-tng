@@ -2,6 +2,11 @@
 
 .carousel {
     border-bottom: 2px solid var(--color--lines);
+    margin-bottom: $spacer-small-plus;
+
+    @include media-query(large) {
+        margin-bottom: $spacer-medium;
+    }
 
     &__track {
         max-width: $site-max-width;
