@@ -1,12 +1,16 @@
 
 {% load wagtailcore_tags %}
 
-<div class="carousel carousel--full-width glide" data-carousel data-slidetotal="{{ items|length }}">
+<div class="carousel glide" data-carousel data-slidetotal="{{ items|length }}">
     <div data-glide-el="track" class="glide__track">
         <ul class="glide__slides">
             {% for item in items %}
                 <li class="glide__slide">
-                    {% include "patterns/components/full_width_image/full_width_image.html" with item=item modifier="no-border" %}
+                    {% if type == "full_width_image" %}
+                        {% include "patterns/components/full_width_image/full_width_image.html" with item=item modifier="no-border" %}
+                    {% elif type == "related_content" %}
+                        {% include "patterns/components/article_listing_item/article_listing_item.html" with item=item %}
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>
