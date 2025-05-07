@@ -6,9 +6,12 @@ class Modal {
     constructor(node) {
         this.node = node;
         this.body = document.querySelector('body');
-        this.modal = document.querySelector('[data-modal-content]');
-        this.closeButton = document.querySelector('[data-modal-close]');
-        this.triggerButtons = document.querySelectorAll('[data-modal-trigger]');
+        this.modal = this.node.querySelector('[data-modal-content]');
+        this.closeButton = this.node.querySelector('[data-modal-close]');
+        // Find the trigger button that's associated with this modal
+        this.triggerButton = document.querySelector(
+            `[data-modal-trigger][data-modal-id="${this.node.id}"]`,
+        );
         this.state = {
             open: false,
         };
@@ -32,12 +35,12 @@ class Modal {
             });
         }
 
-        // Add click handlers for all trigger buttons
-        this.triggerButtons.forEach((button) => {
-            button.addEventListener('click', () => {
+        // Add click handler for the specific trigger button
+        if (this.triggerButton) {
+            this.triggerButton.addEventListener('click', () => {
                 this.open();
             });
-        });
+        }
     }
 
     open() {

@@ -1,6 +1,6 @@
 {% load wagtailimages_tags %}
 
-<dialog class="modal" data-modal {% if modal.open %}open{% endif %}>
+<dialog class="modal" data-modal id="modal-{{ modal.id }}" {% if modal.open %}open{% endif %}>
     <div class="modal__container">
         <div class="modal__content" data-modal-content>
             <button class="modal__close" data-modal-close aria-label="Close modal">
@@ -45,7 +45,7 @@
                         </a>
                     </li>
                 </ul>
-                <p class="modal__legal">© Densho 2025. This primary source is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License. <a href="#">More information</a></p>
+                <p class="modal__legal">© Densho 2025. This primary source is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License. <a href="#">More information</a></p>
             </div>
         </div>
     </div>
