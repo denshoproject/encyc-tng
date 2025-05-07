@@ -35,7 +35,9 @@
     {% endif %}
 
     <div class="page__footer">
-
+        {% if page.related_content %}
+            {% include "patterns/components/related_content_carousel/related_content_carousel.html" with title=page.related_content.title items=page.related_content.items %}
+        {% endif %}
     </div>
 </div>
 {% endblock content %}
