@@ -92,6 +92,11 @@ class Carousel {
                 },
                 599: {
                     perView: 1,
+                    gap: 20,
+                    peek: {
+                        before: 20,
+                        after: 20,
+                    },
                 },
             },
         };
