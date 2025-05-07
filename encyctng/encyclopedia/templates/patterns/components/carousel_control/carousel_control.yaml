@@ -1,0 +1,6 @@
+name: Carousel controls
+
+context:
+  modifier: left
+  id: 1
+  disabled: false
