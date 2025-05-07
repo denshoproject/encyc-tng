@@ -1,0 +1,31 @@
+<div class="related-media ">
+    <div class="related-media__container grid">
+        <h2 class="related-media__heading heading heading--three section-heading">{{ title }}</h2>
+        <p class="related-media__sub-heading meta meta--small">{{ subtitle }}</p>
+        <ul class="related-media__list">
+            {% for media in items %}
+                <li class="related-media__item">
+                    <div class="related-media__image-wrapper">
+                        {% if media.image %}
+                            {% include "patterns/components/icons/icon.html" with name="video" classname="related-media__icon related-media__icon--video" %}
+                            <img src="{{ media.image }}" alt="{{ media.title }}" class="related-media__image" width="300" height="169">
+                        {% else %}
+                            {% include "patterns/components/icons/icon.html" with name="audio" classname="related-media__icon related-media__icon--audio" %}
+                        {% endif %}
+                    </div>
+                    <div class="related-media__content">
+                        <p class="related-media__type meta meta--small">
+                            {{ media.type }}
+                            {% include "patterns/components/icons/icon.html" with name="external-link" classname="related-media__external-icon" %}
+                        </p>
+                        <h3 class="related-media__title meta meta--large">
+                            <a href="{{ media.url }}" class="related-media__link">
+                            {{ media.title }}
+                            </a>
+                        </h3>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
