@@ -22,14 +22,6 @@ class Carousel {
         if (viewportWidth >= maxWidth) {
             // For viewports wider than maxWidth, calculate the margin
             const peek = Math.floor((viewportWidth - maxWidth) / 2);
-            console.log(
-                'Viewport:',
-                viewportWidth,
-                'Max width:',
-                maxWidth,
-                'Calculated peek:',
-                peek,
-            );
             return peek;
         }
         return minGutter;
@@ -47,14 +39,12 @@ class Carousel {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 const peek = this.calculatePeek();
-                console.log('Resize - Updating peek to:', peek);
                 const newConfig = {
                     peek: {
                         before: peek,
                         after: peek,
                     },
                 };
-                console.log('Updating Glide with config:', newConfig);
                 this.slideshow.update(newConfig);
             }, 100);
         });
@@ -67,7 +57,6 @@ class Carousel {
 
     createSlideshow() {
         const peek = this.calculatePeek();
-        console.log('Initial peek value:', peek);
         const config = {
             type: 'slider',
             startAt: 0,
@@ -100,7 +89,6 @@ class Carousel {
                 },
             },
         };
-        console.log('Glide config:', config);
         this.slideshow = new Glide(this.node, config);
     }
 
