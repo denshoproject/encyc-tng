@@ -6,10 +6,14 @@
 {% block content %}
 <div class="page">
     <header class="page__header grid">
-        <h1>{{ page.title }}</h1>
+        {% include "patterns/components/hero_split/hero_split.html" with hero=page.hero %}
     </header>
 
-    <div class="page__content">
+    <div class="page__carousel">
+        {% include "patterns/components/carousel/carousel.html" with items=page.carousel %}
+    </div>
+
+    <div class="page__content" id="body">
         <div class="grid">
         </div>
     </div>
