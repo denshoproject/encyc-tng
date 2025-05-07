@@ -1,6 +1,6 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-<div class="article-listing-item">
+<div class="article-listing-item{% if modifier %} article-listing-item--{{ modifier }}{% endif %}">
     <div class="article-listing-item__container">
         <div class="article-listing-item__image-container">
             {% image article.image fill-340x340 format-webp as image %}

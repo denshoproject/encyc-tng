@@ -1,5 +1,7 @@
 <div class="related-content-carousel">
-    <h2 class="related-content-carousel__heading heading heading--three section-heading">{{ title }}</h2>
+    <div class="related-content-carousel__header grid">
+        <h2 class="related-content-carousel__heading heading heading--three section-heading">{{ title }}</h2>
+    </div>
     <div class="related-content-carousel__carousel">
         {% include "patterns/components/carousel/carousel.html" with items=items type="related_content" %}
     </div>

@@ -1,6 +1,9 @@
 @use 'config' as *;
 
 .article-listing-item {
+    &--carousel {
+        background-color: var(--color--background);
+    }
     &__container {
         display: flex;
         flex-direction: row;

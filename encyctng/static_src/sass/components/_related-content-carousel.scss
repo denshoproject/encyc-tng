@@ -3,9 +3,9 @@
 .related-content-carousel {
     border-top: 1px solid var(--color--border);
     background-color: var(--color--subtle-background);
+    padding-bottom: $spacer-small-plus;
 
-    &__heading {
-        max-width: $site-max-width;
-        margin: 0 auto;
+    @include media-query(large) {
+        padding-bottom: $spacer-medium;
     }
 }
