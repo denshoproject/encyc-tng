@@ -5,6 +5,7 @@ context:
     title: 'Sample Article Title'
     url: '/articles/sample-article/'
     description: 'This is a sample article description that provides a brief overview of the article content.'
+    author: 'John Doe'
     tags:
       - name: 'Tag 1'
         url: '/tags/tag-1/'

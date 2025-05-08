@@ -1,9 +1,31 @@
 @use 'config' as *;
 
 .article-listing-item {
+    $root: &;
+
     &--carousel {
         background-color: var(--color--background);
+
+        #{$root}__container {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        #{$root}__content {
+            padding: $spacer-mini-plus;
+            gap: 7px;
+
+            @include media-query(medium) {
+                padding: $spacer-mini-plus $spacer-small $spacer-small-plus;
+            }
+        }
+
+        #{$root}__image-container {
+            width: 100%;
+            max-height: 300px;
+        }
     }
+
     &__container {
         display: flex;
         flex-direction: row;
@@ -65,6 +87,11 @@
         @include media-query(large) {
             display: block;
         }
+    }
+
+    &__author {
+        color: var(--color--headings);
+        margin-bottom: 7px;
     }
 
     &__tags {

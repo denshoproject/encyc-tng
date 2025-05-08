@@ -1,7 +1,7 @@
 
 {% load wagtailcore_tags %}
 
-<div class="carousel{% if type == "full_width_image" %} carousel--full-width-image{% elif type == "related_content" %} carousel--related-content{% endif %} glide" data-carousel data-slidetotal="{{ items|length }}">
+<div class="carousel{% if type == "full_width_image" %} carousel--full-width-image{% elif type == "related_content" %} carousel--related-content{% endif %} glide" data-carousel data-slidetotal="{{ items|length }}"{% if type %} data-carousel-type="{{ type }}"{% endif %}>
     <div data-glide-el="track" class="glide__track">
         <ul class="glide__slides">
             {% for item in items %}

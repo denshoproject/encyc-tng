@@ -6,6 +6,11 @@
     padding-bottom: $spacer-small-plus;
 
     @include media-query(large) {
-        padding-bottom: $spacer-medium;
+        padding-bottom: $spacer-medium-plus;
+    }
+
+    &__heading {
+        color: var(--color--headings);
+        margin-bottom: 0;
     }
 }
