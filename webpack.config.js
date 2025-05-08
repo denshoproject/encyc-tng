@@ -96,6 +96,7 @@ const options = {
                             implementation: sass,
                             sassOptions: {
                                 outputStyle: 'compressed',
+                                quietDeps: true,
                             },
                         },
                     },
