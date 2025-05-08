@@ -17,6 +17,8 @@
             }
         }
 
+        // SF block syntax so underscore unavoidable
+        /* stylelint-disable-next-line selector-class-pattern */
         &--rich_text {
             margin-bottom: $spacer-small;
 
