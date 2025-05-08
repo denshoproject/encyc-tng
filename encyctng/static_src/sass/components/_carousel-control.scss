@@ -19,6 +19,14 @@
         color: var(--color--background);
     }
 
+    &:disabled {
+        pointer-events: none;
+
+        .icon {
+            opacity: 0.5;
+        }
+    }
+
     .icon {
         fill: currentColor;
     }
@@ -26,7 +34,6 @@
     &--right {
         border-radius: 0 3px 3px 0;
         border-left-width: 1px;
-
     }
     &--left {
         border-radius: 3px 0 0 3px;
