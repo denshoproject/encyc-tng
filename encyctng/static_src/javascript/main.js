@@ -2,7 +2,7 @@ import DesktopMenu from './components/desktop-menu';
 import MobileMenu from './components/mobile-menu';
 import Modal from './components/modal';
 import Carousel from './components/carousel';
-
+import SkipLink from './components/skip-link';
 import '../sass/main.scss';
 
 function initComponent(ComponentClass) {
@@ -15,4 +15,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initComponent(MobileMenu);
     initComponent(Modal);
     initComponent(Carousel);
+    initComponent(SkipLink);
 });
