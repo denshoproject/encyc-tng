@@ -43,8 +43,11 @@
     "start:reload": "webpack-dev-server"
   },
   "devDependencies": {
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
     "@types/jest": "^29.5.6",
     "autoprefixer": "^10.4.16",
+    "babel-loader": "^10.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "cssnano": "^6.0.1",
@@ -74,6 +77,6 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
-    "@glidejs/glide": "^3.7.1"
+    "@glidejs/glide": "^3.6.0"
   }
 }
