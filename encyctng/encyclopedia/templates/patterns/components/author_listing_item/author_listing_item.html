@@ -1,6 +1,9 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-<div class="author-listing-item">
+<div class="author-listing-item{% if modifier %} author-listing-item--{{ modifier }}{% endif %}">
+    {% if modifier == 'standalone' %}
+        <h2 class="author-listing-item__heading heading heading--three section-heading">Authored by</h2>
+    {% endif %}
     <div class="author-listing-item__container">
         <div class="author-listing-item__image-container">
             {% image author.image fill-200x200 format-webp as image %}
@@ -14,6 +17,9 @@
                 </a>
             </h3>
             <p class="author-listing-item__description">{{ author.role }}</p>
+            {% if author.bio %}
+                <p class="author-listing-item__description">{{ author.bio }}</p>
+            {% endif %}
         </div>
     </div>
 </div>

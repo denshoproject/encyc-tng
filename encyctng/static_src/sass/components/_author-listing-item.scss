@@ -3,6 +3,14 @@
 .author-listing-item {
     max-width: 395px;
 
+    &--standalone {
+        max-width: 100%;
+    }
+
+    &__heading {
+        color: var(--color--headings);
+    }
+
     &__container {
         display: flex;
         flex-direction: row;
@@ -59,6 +67,12 @@
 
         @include media-query(large) {
             display: block;
+        }
+    }
+
+    .page__section & {
+        @include media-query(medium) {
+            grid-column: 3 / span 6;
         }
     }
 }

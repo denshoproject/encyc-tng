@@ -18,6 +18,14 @@
         </div>
     </div>
 
+    {% if page.author %}
+        <section class="page__section">
+            <div class="page__section-container grid">
+                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=page.author modifier="standalone" %}
+            </div>
+        </section>
+    {% endif %}
+
     {% if page.related_links %}
         <section class="page__section">
             <div class="page__section-container grid">
