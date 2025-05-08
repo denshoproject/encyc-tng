@@ -1,0 +1,13 @@
+name: Author Listing Item
+context:
+  author:
+    title: 'Barbara Takei'
+    url: '/authors/barbara-takei/'
+    role: 'Author role'
+
+tags:
+  image:
+    author.image fill-340x340 format-webp as image:
+      target_var: image
+      raw:
+        url: '//picsum.photos/340/340.webp'
