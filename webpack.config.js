@@ -96,6 +96,19 @@ const options = {
                             implementation: sass,
                             sassOptions: {
                                 outputStyle: 'compressed',
+                                quietDeps: true,
+                                logger: {
+                                    warn(message) {
+                                        // Ignore deprecation warnings
+                                        if (
+                                            !message.includes(
+                                                'Deprecation Warning',
+                                            )
+                                        ) {
+                                            console.warn(message);
+                                        }
+                                    },
+                                },
                             },
                         },
                     },

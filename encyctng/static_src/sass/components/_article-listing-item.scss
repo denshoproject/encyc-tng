@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../config' as *;
 
 .article-listing-item {
     &__container {
@@ -52,7 +52,6 @@
     }
 
     &__meta {
-        @include font-size(meta-tiny);
         text-transform: uppercase;
     }
 

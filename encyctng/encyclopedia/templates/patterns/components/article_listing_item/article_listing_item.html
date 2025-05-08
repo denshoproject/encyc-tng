@@ -7,7 +7,7 @@
             <img class="article-listing-item__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
         </div>
         <div class="article-listing-item__content">
-            <p class="article-listing-item__meta">{{ article.type }}</p>
+            <p class="article-listing-item__meta meta meta--tiny">{{ article.type }}</p>
             <h3 class="article-listing-item__title heading heading--four">
                 <a class="article-listing-item__link" href="{{ article.url }}">{{ article.title }}</a>
             </h3>
@@ -15,7 +15,7 @@
             {% if article.tags %}
                 <ul class="article-listing-item__tags">
                     {% for tag in article.tags %}
-                        <li class="article-listing-item__tag">{% include "patterns/components/tag/tag.html" with tag=tag classes="tag--tiny" %}</li>
+                        <li class="article-listing-item__tag">{% include "patterns/components/tag/tag.html" with tag=tag classes="tag--tiny meta meta--tiny" %}</li>
                     {% endfor %}
                 </ul>
             {% endif %}
