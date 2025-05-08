@@ -1,0 +1,13 @@
+{% load wagtailimages_tags %}
+
+<dialog class="modal" data-modal id="modal-cite" {% if modal.open %}open{% endif %}>
+    <div class="modal__container">
+        <div class="modal__content" data-modal-content>
+            <button class="modal__close" data-modal-close aria-label="Close modal">
+                {% include "patterns/components/icons/icon.html" with name="cross-in-circle" classname="modal__close-icon" %}
+                Close
+            </button>
+            CITE HERE
+        </div>
+    </div>
+</dialog>
