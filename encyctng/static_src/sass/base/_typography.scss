@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../config' as *;
 @use 'sass:math';
 
 // ------------------------------- Base font -------------------------
@@ -72,7 +72,7 @@ h6 {
     position: relative;
 
     &::before {
-        content: "";
+        content: '';
         position: absolute;
         top: -2.5px;
         left: 15px;
@@ -106,5 +106,9 @@ h6 {
 
     &--small {
         @include font-size(meta-small);
+    }
+
+    &--tiny {
+        @include font-size(meta-tiny);
     }
 }

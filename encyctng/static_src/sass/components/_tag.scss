@@ -1,7 +1,6 @@
-@use 'config' as *;
+@use '../config' as *;
 
 .tag {
-    @include font-size(meta-small);
     background-color: var(--color--background);
     border-radius: 50px;
     border: 2px solid transparent;
@@ -35,7 +34,6 @@
     }
 
     &--tiny {
-        @include font-size(meta-tiny);
         color: var(--color--links);
         padding: 5px 10px;
         line-height: 1;
