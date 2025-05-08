@@ -90,6 +90,7 @@ context:
           title: 'Tulean Dispatch (newspaper)'
           url: '/articles/sample-article/'
           description: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake'
+          author: 'John Doe'
           tags:
             - name: 'Camps'
               url: '/tags/tag-1/'
@@ -99,6 +100,7 @@ context:
           title: 'Tule Lake'
           url: '/articles/sample-article/'
           description: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake'
+          author: 'John Doe'
           tags:
             - name: 'Tag 1'
               url: '/tags/tag-1/'
@@ -110,6 +112,7 @@ context:
           title: 'Tule Lake-Butte Valley Fair and Museum of Local History'
           url: '/articles/sample-article/'
           description: 'This is a sample article description that provides a brief overview of the article content.'
+          author: 'John Doe'
           tags:
             - name: 'Tag 1'
               url: '/tags/tag-1/'
@@ -121,6 +124,7 @@ context:
           title: 'Sample Article Title'
           url: '/articles/sample-article/'
           description: 'This is a sample article description that provides a brief overview of the article content.'
+          author: 'John Doe'
           tags:
             - name: 'Tag 1'
               url: '/tags/tag-1/'

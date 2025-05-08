@@ -9,7 +9,7 @@
                     {% if type == "full_width_image" %}
                         {% include "patterns/components/full_width_image/full_width_image.html" with item=item modifier="no-border" %}
                     {% elif type == "related_content" %}
-                        {% include "patterns/components/article_listing_item/article_listing_item.html" with item=item modifier="carousel" %}
+                        {% include "patterns/components/article_listing_item/article_listing_item.html" with article=item modifier="carousel" %}
                     {% endif %}
                 </li>
             {% endfor %}
