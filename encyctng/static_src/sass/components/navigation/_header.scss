@@ -27,18 +27,22 @@
     }
 
     &__home-link {
-        @include font-size(meta-large);
+        @include rem-font-size(14px);
         display: inline-flex;
         flex-direction: column;
         align-items: center;
-        background-color: var(--color--dark-blue);
+        background-color: var(--color--blue);
         color: var(--color--white);
         text-decoration: none;
         padding: 13px 14px;
 
         @include media-query(large) {
-            background-color: var(--color--blue);
+            @include rem-font-size(17px);
             padding: 14px 17px;
+        }
+
+        .no-scroll & {
+            background-color: var(--color--dark-blue);
         }
     }
 
@@ -50,6 +54,15 @@
         @include media-query(large) {
             max-width: 100px;
             height: 63px;
+        }
+    }
+
+    &__logo-text {
+        text-align: center;
+        width: 86px;
+
+        @include media-query(large) {
+            width: 104px;
         }
     }
 
