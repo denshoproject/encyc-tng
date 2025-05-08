@@ -13,17 +13,17 @@
         {% include "patterns/components/carousel/carousel.html" with items=page.carousel type="full_width_image" %}
     </div>
 
-    <div class="page__content" id="body">
-        <div class="sf grid">
+    <div class="page__content grid" id="body">
+
+        {% include "patterns/components/in_page_nav/in_page_nav.html" %}
+
+        <div class="sf grid grid--no-gutter">
             {% for block in page.body %}
                 <div class="sf__block sf__block--{{ block.block_type }}">
                     {% include_block block %}
                 </div>
             {% endfor %}
             {# placeholders until https://github.com/denshoproject/encyc-tng/issues/60 is resolved #}
-            <div class="sf__block sf__block--in_page_nav">
-                {% include "patterns/components/in_page_nav/in_page_nav.html" %}
-            </div>
             <div class="sf__block sf__block--heading">
                 {% include "patterns/components/heading/heading.html" with heading="Test heading" %}
             </div>

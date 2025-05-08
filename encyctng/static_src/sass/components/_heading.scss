@@ -1,7 +1,7 @@
 @use 'config' as *;
 
 .heading {
-    .page__content & {
+    .page__content .sf & {
         color: var(--color--headings);
         padding-bottom: 0;
         margin-bottom: 0;
