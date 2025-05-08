@@ -1,0 +1,10 @@
+@use 'config' as *;
+
+.heading {
+    .page__content & {
+        color: var(--color--headings);
+        padding-bottom: 0;
+        margin-bottom: 0;
+        padding-top: 20px;
+    }
+}
