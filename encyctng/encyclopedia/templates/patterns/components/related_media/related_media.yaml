@@ -1,0 +1,36 @@
+name: Related Media Block
+context:
+  title: Related Media
+  subtitle: (Densho Digital Repository)
+  items:
+    - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 1'
+      type: Audio
+      image: False
+      url: '#'
+    - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 2'
+      type: Audio
+      image: False
+      url: '#'
+    - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 3'
+      type: Audio
+      image: False
+      url: '#'
+    - title: 'Frank Emi oral history interview - Segment 1'
+      type: Video
+      image: //picsum.photos/160/160.webp
+      url: '#'
+    - title: 'Frank Emi oral history interview - Segment 2'
+      type: Video
+      image: //picsum.photos/160/160.webp
+      url: '#'
+    - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 4'
+      type: Audio
+      image: False
+      url: '#'
+
+tags:
+  image:
+    related_media.image fill-160x160 format-webp as image:
+      target_var: image
+      raw:
+        url: '//picsum.photos/160/160.webp'

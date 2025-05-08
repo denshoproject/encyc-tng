@@ -132,3 +132,31 @@ context:
               url: '/tags/tag-2/'
             - name: 'Tag 3'
               url: '/tags/tag-3/'
+    related_media:
+      title: Related Media
+      subtitle: (Densho Digital Repository)
+      items:
+        - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 1'
+          type: Audio
+          image: False
+          url: '#'
+        - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 2'
+          type: Audio
+          image: False
+          url: '#'
+        - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 3'
+          type: Audio
+          image: False
+          url: '#'
+        - title: 'Frank Emi oral history interview - Segment 1'
+          type: Video
+          image: //picsum.photos/160/160.webp
+          url: '#'
+        - title: 'Frank Emi oral history interview - Segment 2'
+          type: Video
+          image: //picsum.photos/160/160.webp
+          url: '#'
+        - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 4'
+          type: Audio
+          image: False
+          url: '#'
