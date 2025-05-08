@@ -24,13 +24,23 @@
                     <div class="modal__sub-section">
                         <div class="modal__citation-item">
                             <label for="modal__citation-value-apa"   class="modal__citation-label heading heading--four">APA style</label>
-                            <textarea id="modal__citation-value-apa" class="modal__citation-textarea meta meta--small">{{ page.cite.apa_style }}</textarea>
+                            <div class="modal__copy-container">
+                                <textarea id="modal__citation-value-apa" class="modal__citation-textarea meta meta--small" readonly>{{ page.cite.apa_style }}</textarea>
+                                <button class="modal__copy-button" data-clipboard-target="#modal__citation-value-apa" aria-label="Copy to clipboard">
+                                    {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="modal__sub-section">
                         <div class="modal__citation-item">
                             <label for="modal__citation-value-bibtex" class="modal__citation-label heading heading--four">BibTeX</label>
-                            <textarea id="modal__citation-value-bibtex" class="modal__citation-textarea meta meta--small">{{ page.cite.bibtex }}</textarea>
+                            <div class="modal__copy-container">
+                                <textarea id="modal__citation-value-bibtex" class="modal__citation-textarea meta meta--small" readonly>{{ page.cite.bibtex }}</textarea>
+                                <button class="modal__copy-button" data-clipboard-target="#modal__citation-value-bibtex" aria-label="Copy to clipboard">
+                                    {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

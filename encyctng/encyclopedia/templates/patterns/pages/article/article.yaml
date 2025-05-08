@@ -17,7 +17,7 @@ context:
     cite:
       title: Tule Lake
       apa_style: Takei, Barbara. Tule Lake. (2024, September 13). Densho Encyclopedia. Retrieved 01:57, February 3, 2025 from https://encyclopedia.densho.org/Tule%20Lake
-      BibTeX: |
+      bibtex: |
         @misc{ wiki:xxx,
           author = "Takei, B.",
           title = "Tule Lake --- Densho Encyclopedia{,} ",
