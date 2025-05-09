@@ -22,22 +22,6 @@ def topics(request):
         'tags_articles': Article.articles_by_tag(),
     })
 
-def source(request, source_type, source_id):
-    """Display Primary Source with captions from Article(s) it appears in
-    """
-    if   source_type == 'image':    source = Image.objects.get(id=source_id)
-    elif source_type == 'document': source = Document.objects.get(id=source_id)
-    elif source_type == 'video':    source = Media.objects.get(id=source_id)
-    articles_blocks = ArticleSources.source_article_blocks(source)
-    # IDEA ArticleMedia.metadata(source)
-    template = f"encyclopedia/source-{source_type}.html"
-    return render(request, template, {
-        'source_type': source_type,
-        #'source': source,
-        'source': source,
-        'articles_blocks': articles_blocks,
-    })
-
 @cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
     return render(request, template_name, {
@@ -52,4 +36,20 @@ def author(request, author_id):
     return render(request, 'encyclopedia/author-detail.html', {
         'author': author,
         'articles': articles,
+    })
+
+def source(request, source_type, source_id):
+    """Display Primary Source with captions from Article(s) it appears in
+    """
+    if   source_type == 'image':    source = Image.objects.get(id=source_id)
+    elif source_type == 'document': source = Document.objects.get(id=source_id)
+    elif source_type == 'video':    source = Media.objects.get(id=source_id)
+    articles_blocks = ArticleSources.source_article_blocks(source)
+    # IDEA ArticleMedia.metadata(source)
+    template = f"encyclopedia/source-{source_type}.html"
+    return render(request, template, {
+        'source_type': source_type,
+        #'source': source,
+        'source': source,
+        'articles_blocks': articles_blocks,
     })
