@@ -11,6 +11,24 @@ from encyclopedia.models import Article, ArticleSources
 
 
 #@cache_page(settings.CACHE_TIMEOUT)
+def index(request):
+    hero = {
+        'title': 'Discover the history of the Japanese American incarceration during WWII',
+        'actions': [
+            {'text': 'Browse by Topic', 'url': '/categories/'},
+            {'text': 'Browse by A-Z', 'url': '/contents/'},
+        ]
+    }
+    topics = {
+        'title': 'Browse Topics',
+        'items': topics_items(),
+    }
+    return render(request, 'patterns/pages/home_page/home_page.html', {
+        'hero': hero,
+        'topics': topics,
+    })
+
+#@cache_page(settings.CACHE_TIMEOUT)
 def articles(request):
     articles = [
         {
@@ -96,3 +114,22 @@ def collect_tags(items):
     # TODO replace all digits with '1-10'
     initials.insert(0, 'All')
     return [{'name':initial} for initial in initials]
+
+def topics_items():
+    return [
+        {'articles': 453, 'image': '', 'title': 'Arts'},
+        {'articles': 453, 'image': '', 'title': 'Camps'},
+        {'articles': 453, 'image': '', 'title': 'Chroniclers'},
+        {'articles': 453, 'image': '', 'title': 'Communities'},
+        {'articles': 453, 'image': '', 'title': 'Definitions'},
+        {'articles': 453, 'image': '', 'title': 'Events'},
+        {'articles': 453, 'image': '', 'title': 'Legal'},
+        {'articles': 453, 'image': '', 'title': 'Military'},
+        {'articles': 453, 'image': '', 'title': 'Newspapers'},
+        {'articles': 453, 'image': '', 'title': 'Organizations'},
+        {'articles': 453, 'image': '', 'title': 'People'},
+        {'articles': 453, 'image': '', 'title': 'Postwar'},
+        {'articles': 453, 'image': '', 'title': 'Prewar'},
+        {'articles': 453, 'image': '', 'title': 'Redress'},
+        {'articles': 453, 'image': '', 'title': 'Resettlement'},
+    ]
