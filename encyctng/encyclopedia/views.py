@@ -10,25 +10,25 @@ from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
 
 
-@cache_page(settings.CACHE_TIMEOUT)
+#@cache_page(settings.CACHE_TIMEOUT)
 def articles(request):
     return render(request,  'encyclopedia/articles.html', {
         'initials_articles': Article.articles_by_initial(),
     })
 
-@cache_page(settings.CACHE_TIMEOUT)
+#@cache_page(settings.CACHE_TIMEOUT)
 def topics(request):
     return render(request,  'encyclopedia/topics.html', {
         'tags_articles': Article.articles_by_tag(),
     })
 
-@cache_page(settings.CACHE_TIMEOUT)
+#@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
     return render(request, template_name, {
         'authors_articles': Article.articles_by_author(),
     })
 
-@cache_page(settings.CACHE_TIMEOUT)
+#@cache_page(settings.CACHE_TIMEOUT)
 def author(request, author_id):
     # TODO use slug instead of author_id
     author = Author.objects.get(id=author_id)
