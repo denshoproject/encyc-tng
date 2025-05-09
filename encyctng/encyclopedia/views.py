@@ -24,14 +24,27 @@ def topics(request):
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
-    return render(request, template_name, {
-        'authors_articles': Article.articles_by_author(),
+    authors = [
+        {
+            #'image': None,
+            'initial': author.family_name[0],
+            'title': author.display_name,
+            'url': author.get_absolute_url(),
+            'role': 'ROLE',
+        }
+        # TODO optimize query (restrict fields)
+        for author in Author.objects.all()
+    ]
+    return render(request, 'patterns/pages/collections/collections--authors.html', {
+        'collections': authors,
+        'tags': collect_tags(authors),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def author(request, author_id):
     # TODO use slug instead of author_id
     author = Author.objects.get(id=author_id)
+    # TODO optimize query (restrict fields)
     articles = author.article_set.all()
     return render(request, 'encyclopedia/author-detail.html', {
         'author': author,
@@ -53,3 +66,15 @@ def source(request, source_type, source_id):
         'source': source,
         'articles_blocks': articles_blocks,
     })
+
+
+def collect_tags(items):
+    """
+    [
+        {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
+    ]
+    """
+    initials = sorted(set([item['initial'] for item in items]))
+    # TODO replace all digits with '1-10'
+    initials.insert(0, 'All')
+    return [{'name':initial} for initial in initials]
