@@ -12,8 +12,26 @@ from encyclopedia.models import Article, ArticleSources
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles(request):
-    return render(request,  'encyclopedia/articles.html', {
-        'initials_articles': Article.articles_by_initial(),
+    articles = [
+        {
+            #'image': None,
+            'type': 'Article',
+            'initial': article.title[0].upper(),
+            'title': article.title,
+            'url': article.url,
+            'description': article.description,
+            'tags': [
+                {'name': tag.name, 'url': f"/tags/{tag.name}/"}
+                for tag in article.tags.all()
+            ]
+        }
+        # TODO optimize query (restrict fields)
+        for article in Article.objects.all()[:25]
+        if getattr(article, 'description')
+    ]
+    return render(request, 'patterns/pages/collections/collections--a-z.html', {
+        'collections': articles,
+        'tags': collect_tags(articles),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)

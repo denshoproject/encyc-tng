@@ -14,7 +14,7 @@
             <p class="article-listing-item__description">{{ article.description }}</p>
             {% if article.tags %}
                 <ul class="article-listing-item__tags">
-                    {% for tag in article.tags %}
+                    {% for tag in article.tags.all %}
                         <li class="article-listing-item__tag">{% include "patterns/components/tag/tag.html" with tag=tag classes="tag--tiny meta meta--tiny" %}</li>
                     {% endfor %}
                 </ul>
