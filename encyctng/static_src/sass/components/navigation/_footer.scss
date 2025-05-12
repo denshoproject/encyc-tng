@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../../config' as *;
 
 .footer {
     $root: &;
@@ -14,7 +14,6 @@
     }
 
     &__subtitle {
-        @include font-size(meta-small);
         color: var(--color--light-blue);
     }
 
@@ -72,12 +71,10 @@
     }
 
     &__about-intro {
-        @include font-size(introduction);
         margin-bottom: 20px;
     }
 
     &__about-subtitle {
-        @include font-size(meta-large);
         color: var(--color--light-blue);
     }
 
@@ -93,7 +90,7 @@
         border-top: 1px solid var(--color--border-dark);
 
         ::before {
-            content: "";
+            content: '';
             position: absolute;
             top: -2.5px;
             left: 15px;
@@ -117,7 +114,7 @@
         border-top: 1px solid var(--color--border-dark);
 
         ::before {
-            content: "";
+            content: '';
             position: absolute;
             top: -2.5px;
             left: 15px;
@@ -135,7 +132,6 @@
     }
 
     &__contact-email {
-        @include font-size(body);
         color: var(--color--orange);
         font-weight: bold;
         margin-bottom: 5px;
@@ -152,7 +148,6 @@
     }
 
     &__company-link {
-        @include font-size(meta-small);
         color: var(--color--orange);
         font-weight: bold;
         margin-right: 20px;

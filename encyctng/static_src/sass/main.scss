@@ -2,7 +2,7 @@
 // @use or declare custom styles here to include them.
 
 // Vendor
-@use '../../../node_modules/@glidejs/glide/src/assets/sass/glide.core';
+@use '../../../node_modules/@glidejs/glide/src/assets/sass/glide.core' as *;
 
 @use 'base/base';
 @use 'base/typography';

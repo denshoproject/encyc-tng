@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../../config' as *;
 
 .header {
     $root: &;
@@ -27,7 +27,6 @@
     }
 
     &__home-link {
-        @include font-size(meta-large);
         display: inline-flex;
         flex-direction: column;
         align-items: center;
@@ -86,6 +85,7 @@
         @include media-query(large) {
             display: none;
         }
+
         &.is-open {
             #{$root}__menu-toggle-icon {
                 &--close {

@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../config' as *;
 
 .carousel-control {
     display: flex;
@@ -26,7 +26,6 @@
     &--right {
         border-radius: 0 3px 3px 0;
         border-left-width: 1px;
-
     }
     &--left {
         border-radius: 3px 0 0 3px;
