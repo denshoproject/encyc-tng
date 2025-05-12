@@ -133,11 +133,128 @@ class Article(Page):
 
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
     subpage_types = []
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
 
     class Meta:
         verbose_name = "Article"
         verbose_name_plural = "Articles"
+
+    def hero(self):
+        return {
+            'title': self.title,
+            'type': 'article',
+            'introduction': self.description,
+            'meta': [],
+        }
+
+    def contents(self):
+        """Generate Table-of-Contents block from article headings"""
+        headings = [
+            {'title': block.value['heading_text']}
+            for block in self.body if block.block_type in ['heading']
+        ]
+        for heading in headings:
+            heading['url'] = f"#{slugify(heading['title'])}"
+        return headings
+
+    def list_footnotes(self):
+        return []
+
+    def list_authors(self):
+        return [
+            {
+                'image': None,  # TODO Image object
+                'url': a.get_absolute_url(),
+                'title': a.display_name,
+                'role': a.description,
+            }
+            for a in self.authors.all()
+        ]
+
+    def carousel(self):
+        return [
+            {
+                'type': 'Document',
+                'caption': 'Amicus Curiae brief filed on behalf of the states of California, Oregon and Washington in the Supreme Court case Korematsu v. United States, Oct. 1944. Courtesy of Densho',
+                'url': '#',
+                'modal': {
+                    'id': 'modal-1',
+                    'open': 'false',
+                    'title': 'Discover the history of the Japanese American incarceration during WWII',
+                    'content': '<p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>'
+                },
+            },
+            {
+                'type': 'Image',
+                'caption': 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...',
+                'url': '#',
+                'modal': {
+                    'id': 'modal-2',
+                    'open': 'false',
+                    'title': 'Discover the history of the Japanese American incarceration during WWII',
+                    'content': '<p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>',
+                },
+            },
+        ]
+
+    def related_links(self):
+        return [
+            {
+                'title': 'Guide to the Mike Lowry Congressional Papers, 1978–1988',
+                'source': 'University of Washington Libraries',
+                'url': '#',
+            },
+            {
+                'title': 'Shimabukuro, Robert Sadamu. Born in Seattle: The Campaign for Japanese American Redress',
+                'source': 'Seattle: University of Washington Press, 2001',
+                'url': '#',
+            },
+            {
+                'title': 'Guide to the Mike Lowry Congressional Papers, 1978–1988',
+                'source': 'University of Washington Libraries',
+                'url': '#',
+            },
+        ]
+
+    def related_media(self):
+        return [
+            {
+                'title': 'An Oral History with Mitsuhiko H. Shimizu - Segment 1',
+                'type': 'Audio',
+                'image': False,
+                'url': '#',
+            },
+            {
+                'title': 'An Oral History with Mitsuhiko H. Shimizu - Segment 2',
+                'type': 'Audio',
+                'image': False,
+                'url': '#',
+            },
+            {
+                'title': 'An Oral History with Mitsuhiko H. Shimizu - Segment 3',
+                'type': 'Audio',
+                'image': False,
+                'url': '#',
+            },
+            {
+                'title': 'Frank Emi oral history interview - Segment 1',
+                'type': 'Video',
+                'image': '//picsum.photos/160/160.webp',
+                'url': '#',
+            },
+            {
+                'title': 'Frank Emi oral history interview - Segment 2',
+                'type': 'Video',
+                'image': '//picsum.photos/160/160.webp',
+                'url': '#',
+            },
+            {
+                'title': 'An Oral History with Mitsuhiko H. Shimizu - Segment 4',
+                'type': 'Audio',
+                'image': False,
+                'url': '#',
+            },
+        ]
 
     def ddr_objects(self, term_id=None):
         """DDR objects associated with article (mockup)
@@ -602,12 +719,34 @@ class ArticlePerson(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
 
     class Meta:
         db_table = "encyclopedia_article_people"
         verbose_name = "Person"
         verbose_name_plural = "People"
+
+    def hero(self):
+        return {
+            'title': self.title,
+            'type': 'article',
+            'introduction': self.description,
+            'meta': [
+                {'label':'First Name', 'value':self.first_name},
+                {'label':'Last Name', 'value':self.last_name},
+                {'label':'Display Name', 'value':self.display_name},
+                {'label':'Birth Date', 'value':self.birth_date},
+                {'label':'Death Date', 'value':self.death_date},
+                {'label':'Birth Location', 'value':self.birth_location},
+                {'label':'Gender', 'value':self.gender},
+                {'label':'Ethnicity', 'value':self.ethnicity},
+                {'label':'Generation', 'value':self.generation},
+                {'label':'Nationality', 'value':self.nationality},
+                {'label':'external_url', 'value':self.external_url},
+                {'label':'primary_geography', 'value':self.primary_geography},
+                {'label':'religion', 'value':self.religion},
+            ],
+        }
 
 
 class ArticlePlay(Article):
