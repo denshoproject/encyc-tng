@@ -1,4 +1,5 @@
 context:
+  type: 'full_width_image'
   items:
     - type: Document
       caption: 'Amicus Curiae brief filed on behalf of the states of California, Oregon and Washington in the Supreme Court case Korematsu v. United States, Oct. 1944. Courtesy of Densho'
@@ -59,6 +60,3 @@ tags:
     image width-1000 format-webp as image:
       raw:
         url: '//picsum.photos/1000/1000.webp'
-  include_block:
-    item:
-      template_name: 'patterns/components/full_width_image/full_width_image.html'

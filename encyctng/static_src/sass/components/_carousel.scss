@@ -8,6 +8,11 @@
         margin-bottom: $spacer-medium;
     }
 
+    &--related-content {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
     &__track {
         max-width: $site-max-width;
         margin: 0 auto;

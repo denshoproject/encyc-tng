@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static encyclopedia_tags wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-article{% endblock %}
 
@@ -10,7 +10,7 @@
     </header>
 
     <div class="page__carousel">
-        {% include "patterns/components/carousel/carousel.html" with items=page.carousel %}
+        {% include "patterns/components/carousel/carousel.html" with items=page.carousel type="full_width_image" %}
     </div>
 
     <div class="page__content" id="body">
@@ -34,9 +34,15 @@
         </section>
     {% endif %}
 
-    {% if page.related_media %}
+    {% if page.related_media or page.related_content %}
         <div class="page__footer">
-            {% include "patterns/components/related_media/related_media.html" with title="From the archive" subtitle="(Densho Digital Repository)" related_media=page.related_media %}
+            {% if page.related_media %}
+                {% include "patterns/components/related_media/related_media.html" with title="From the archive" subtitle="(Densho Digital Repository)" related_media=page.related_media %}
+            {% endif %}
+
+            {% if page.related_content %}
+                {% include "patterns/components/related_content_carousel/related_content_carousel.html" with title=page.related_content.title items=page.related_content.items %}
+            {% endif %}
         </div>
     {% endif %}
 </div>
