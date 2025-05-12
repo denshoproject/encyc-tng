@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../config' as *;
 
 .collection-header {
     $root: &;
@@ -33,7 +33,7 @@
     }
 
     &__tab-link {
-        @include font-size(meta-large);
+        @include rem-font-size(14px);
         border-bottom: 4px solid transparent;
         color: var(--color--dark-blue);
         display: block;
@@ -42,13 +42,17 @@
         text-decoration: none;
         transition: background-color $transition, border $transition;
 
+        @include media-query(medium) {
+            @include rem-font-size(15px);
+        }
+
         @include media-query(large) {
-            @include font-size(body);
+            @include rem-font-size(18px);
             padding: $spacer-mini $spacer-small;
         }
 
         &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: $color--transparent-white;
         }
 
         &--active {

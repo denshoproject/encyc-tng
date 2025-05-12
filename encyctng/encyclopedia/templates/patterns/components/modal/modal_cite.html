@@ -26,7 +26,7 @@
                             <label for="modal__citation-value-apa"   class="modal__citation-label heading heading--four">APA style</label>
                             <div class="modal__copy-container">
                                 <textarea id="modal__citation-value-apa" class="modal__citation-textarea meta meta--small" readonly>{{ page.cite.apa_style }}</textarea>
-                                <button class="modal__copy-button" data-clipboard-target="#modal__citation-value-apa" aria-label="Copy to clipboard">
+                                <button class="modal__copy-button" data-clipboard-target="#modal__citation-value-apa" aria-label="Copy APA style citation to clipboard">
                                     {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
                                 </button>
                             </div>
@@ -37,7 +37,7 @@
                             <label for="modal__citation-value-bibtex" class="modal__citation-label heading heading--four">BibTeX</label>
                             <div class="modal__copy-container">
                                 <textarea id="modal__citation-value-bibtex" class="modal__citation-textarea meta meta--small" readonly>{{ page.cite.bibtex }}</textarea>
-                                <button class="modal__copy-button" data-clipboard-target="#modal__citation-value-bibtex" aria-label="Copy to clipboard">
+                                <button class="modal__copy-button" data-clipboard-target="#modal__citation-value-bibtex" aria-label="Copy BibTeX citation to clipboard">
                                     {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
                                 </button>
                             </div>

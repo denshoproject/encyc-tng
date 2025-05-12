@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../../config' as *;
 
 .header {
     $root: &;
@@ -99,6 +99,7 @@
         @include media-query(large) {
             display: none;
         }
+
         &.is-open {
             #{$root}__menu-toggle-icon {
                 &--close {

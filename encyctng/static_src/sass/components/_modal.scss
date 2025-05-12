@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../config' as *;
 
 .modal {
     $root: &;
@@ -256,25 +256,6 @@
 
         &:hover {
             background-color: var(--color--subtle-background);
-        }
-
-        &[data-copy-to-clipboard] {
-            position: relative;
-
-            &::after {
-                content: 'Click to copy';
-                position: absolute;
-                bottom: $spacer-mini;
-                right: $spacer-mini;
-                font-size: 12px;
-                color: var(--color--links);
-                opacity: 0;
-                transition: opacity $transition;
-            }
-
-            &:hover::after {
-                opacity: 1;
-            }
         }
     }
 
