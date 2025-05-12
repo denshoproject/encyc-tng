@@ -1,0 +1,50 @@
+{% load wagtailimages_tags %}
+
+<dialog class="modal modal--cite" data-modal id="modal-cite" {% if modal.open %}open{% endif %}>
+    <div class="modal__container">
+        <div class="modal__content" data-modal-content>
+            <button class="modal__close" data-modal-close aria-label="Close modal">
+                {% include "patterns/components/icons/icon.html" with name="cross-in-circle" classname="modal__close-icon" %}
+                Close
+            </button>
+            <div class="modal__body">
+                <div class="modal__bibliographic">
+                    <h2 class="modal__title section-heading heading--two">Bibliographic details for ‘{{ page.cite.title }}'</h2>
+                    <div class="modal__overview meta meta--small">
+                        {% for item in page.cite.meta %}
+                            <div class="modal__overview-item">
+                                <span class="modal__overview-label">{{ item.label }}</span>
+                                <span class="modal__overview-value">{{ item.value }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal__citation">
+                    <h2 class="modal__title section-heading heading--two">Citation styles for ‘{{ page.cite.title }}’</h2>
+                    <div class="modal__sub-section">
+                        <div class="modal__citation-item">
+                            <label for="modal__citation-value-apa"   class="modal__citation-label heading heading--four">APA style</label>
+                            <div class="modal__copy-container">
+                                <textarea id="modal__citation-value-apa" class="modal__citation-textarea meta meta--small" readonly>{{ page.cite.apa_style }}</textarea>
+                                <button class="modal__copy-button" data-clipboard-target="#modal__citation-value-apa" aria-label="Copy APA style citation to clipboard">
+                                    {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal__sub-section">
+                        <div class="modal__citation-item">
+                            <label for="modal__citation-value-bibtex" class="modal__citation-label heading heading--four">BibTeX</label>
+                            <div class="modal__copy-container">
+                                <textarea id="modal__citation-value-bibtex" class="modal__citation-textarea meta meta--small" readonly>{{ page.cite.bibtex }}</textarea>
+                                <button class="modal__copy-button" data-clipboard-target="#modal__citation-value-bibtex" aria-label="Copy BibTeX citation to clipboard">
+                                    {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</dialog>

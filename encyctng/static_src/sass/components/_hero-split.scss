@@ -63,6 +63,9 @@
 
     &__action-link {
         display: flex;
+        border: 0;
+        padding: 0;
+        background: transparent;
         align-items: center;
         gap: 7px;
         color: var(--color--links);

@@ -14,6 +14,30 @@ context:
           value: Drama
         - label: Director
           value: Newell, California (41.8833 lat, -121.3667 lng)
+    cite:
+      title: Tule Lake
+      apa_style: Takei, Barbara. Tule Lake. (2024, September 13). Densho Encyclopedia. Retrieved 01:57, February 3, 2025 from https://encyclopedia.densho.org/Tule%20Lake
+      bibtex: |
+        @misc{ wiki:xxx,
+          author = "Takei, B.",
+          title = "Tule Lake --- Densho Encyclopedia{,} ",
+          year = "2025",
+          url = "https://encyclopedia.densho.org/Tule%20Lake",
+          note = "[Online; accessed 3-Feb-2025]"
+        }
+      meta:
+        - label: Page name
+          value: Tule Lake
+        - label: 'Author(s)'
+          value: 'Densho Encyclopedia contributors'
+        - label: Publisher
+          value: Densho Encyclopedia.
+        - label: Date of last revision
+          value: 13 September 2024 22:16 PDT
+        - label: Date retrieved
+          value: 3 February 2025 01:57 PST
+        - label: Permanent URL
+          value: '<a href="#">https://encyclopedia.densho.org/Tule%20Lake</a>'
     carousel:
       - type: Document
         caption: 'Amicus Curiae brief filed on behalf of the states of California, Oregon and Washington in the Supreme Court case Korematsu v. United States, Oct. 1944. Courtesy of Densho'
@@ -31,6 +55,7 @@ context:
           id: modal-2
           open: false
           title: Discover the history of the Japanese American incarceration during WWII
+          densho_id: ddr-densho-37-194
           content: |
             <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
       - type: Document
@@ -39,6 +64,7 @@ context:
         modal:
           id: modal-3
           open: false
+          densho_id: ddr-densho-37-194
           title: Discover the history of the Japanese American incarceration during WWII
           content: |
             <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
@@ -48,6 +74,7 @@ context:
         modal:
           id: modal-4
           open: false
+          densho_id: ddr-densho-37-194
           title: Discover the history of the Japanese American incarceration during WWII
           content: |
             <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
@@ -57,6 +84,7 @@ context:
         modal:
           id: modal-5
           open: false
+          densho_id: ddr-densho-37-194
           title: Discover the history of the Japanese American incarceration during WWII
           content: |
             <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
@@ -66,6 +94,7 @@ context:
         modal:
           id: modal-6
           open: false
+          densho_id: ddr-densho-37-194
           title: Discover the history of the Japanese American incarceration during WWII
           content: |
             <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>

@@ -1,0 +1,30 @@
+name: Cite Modal
+context:
+  page:
+    cite:
+      title: Tule Lake
+      apa_style: Takei, Barbara. Tule Lake. (2024, September 13). Densho Encyclopedia. Retrieved 01:57, February 3, 2025 from https://encyclopedia.densho.org/Tule%20Lake
+      bibtex: |
+        @misc{ wiki:xxx,
+          author = "Takei, B.",
+          title = "Tule Lake --- Densho Encyclopedia{,} ",
+          year = "2025",
+          url = "https://encyclopedia.densho.org/Tule%20Lake",
+          note = "[Online; accessed 3-Feb-2025]"
+        }
+      meta:
+        - label: Page name
+          value: Tule Lake
+        - label: 'Author(s)'
+          value: 'Densho Encyclopedia contributors'
+        - label: Publisher
+          value: Densho Encyclopedia.
+        - label: Date of last revision
+          value: 13 September 2024 22:16 PDT
+        - label: Date retrieved
+          value: 3 February 2025 01:57 PST
+        - label: Permanent URL
+          value: '<a href="#">https://encyclopedia.densho.org/Tule%20Lake</a>'
+
+  modal:
+    open: true

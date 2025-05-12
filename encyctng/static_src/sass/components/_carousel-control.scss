@@ -19,6 +19,14 @@
         color: var(--color--background);
     }
 
+    &:disabled {
+        pointer-events: none;
+
+        .icon {
+            opacity: 0.5;
+        }
+    }
+
     .icon {
         fill: currentColor;
     }
