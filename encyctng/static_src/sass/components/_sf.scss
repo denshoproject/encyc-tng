@@ -1,0 +1,30 @@
+@use '../config' as *;
+
+.sf {
+    $root: &;
+    margin-bottom: $spacer-medium;
+
+    &__block {
+        margin-bottom: $spacer-mini;
+
+        @include media-query(large) {
+            margin-bottom: $spacer-mini-plus;
+        }
+
+        .template-article & {
+            @include media-query(medium) {
+                grid-column: 3 / 11;
+            }
+        }
+
+        // SF block syntax so underscore unavoidable
+        /* stylelint-disable-next-line selector-class-pattern */
+        &--rich_text {
+            margin-bottom: $spacer-small;
+
+            @include media-query(large) {
+                margin-bottom: $spacer-small-plus;
+            }
+        }
+    }
+}

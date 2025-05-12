@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../config' as *;
 
 .related-media {
     $root: &;
@@ -42,11 +42,11 @@
         gap: $spacer-mini;
 
         @include media-query(medium) {
-            flex-basis: calc(50% - #{$spacer-small-plus / 2});
+            flex-basis: calc(50% - calc(#{$spacer-small-plus} / 2));
         }
 
         @include media-query(large) {
-            flex-basis: calc(33.333% - #{$spacer-small-plus * 2 / 3});
+            flex-basis: calc(33.333% - calc(#{$spacer-small-plus} * 2 / 3));
         }
     }
 

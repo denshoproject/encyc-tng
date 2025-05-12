@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../config' as *;
 
 .search-form {
     background-color: var(--color--white);
@@ -8,7 +8,6 @@
     justify-content: space-between;
 
     &__input {
-        @include font-size(body);
         border-radius: 60px;
         border: 0;
         color: var(--color--dark-blue);
@@ -16,7 +15,6 @@
     }
 
     &__submit {
-        @include font-size(meta-small);
         background-color: transparent;
         border: 2px solid transparent;
         border-radius: 50%;

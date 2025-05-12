@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../../config' as *;
 
 .desktop-nav {
     display: none;
@@ -9,7 +9,7 @@
         width: 100%;
         position: relative;
     }
-    
+
     &__list {
         display: flex;
         align-items: center;

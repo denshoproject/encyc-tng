@@ -1,4 +1,4 @@
-@use 'config' as *;
+@use '../../config' as *;
 
 .mobile-menu {
     position: fixed;
@@ -11,6 +11,9 @@
     padding-left: $grid-gutters-mobile;
     padding-right: $grid-gutters-mobile;
     display: block;
+    // hide the mobile menu by default
+    visibility: hidden;
+    opacity: 0;
 
     @include media-query(medium) {
         padding-left: $grid-gutters-tablet;
@@ -20,10 +23,6 @@
     @include media-query(large) {
         display: none;
     }
-
-    // hide the mobile menu by default
-    visibility: hidden;
-    opacity: 0;
 
     // active state
     &.is-visible {

@@ -4,8 +4,8 @@
 <form action="" method="get" role="search" class="search">
     <div class="search__wrapper">
         <label class="sr-only">Enter a search term</label>
-        <input type="search" class="search__input" placeholder="Search 1,700+ articles" name="query" {% if search_query %} value="{{ search_query }}"{% endif %}>
-        <button type="submit" class="search__button" value="Search" aria-label="Search the site content">
+        <input type="search" class="search__input body" placeholder="Search 1,700+ articles" name="query" {% if search_query %} value="{{ search_query }}"{% endif %}>
+        <button type="submit" class="search__button meta meta--small" value="Search" aria-label="Search the site content">
             {% include "patterns/components/icons/icon.html" with name="magnifying-glass" classname="size-5 text-brand-1" %}
         </button>
     </div>
