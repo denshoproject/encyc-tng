@@ -232,9 +232,9 @@ uninstall-daemons-configs:
 	-rm $(SUPERVISOR_GUNICORN_CONF)
 
 
-build-npm:
+npm-build: collectstatic
 	@echo ""
-	@echo "build-npm -----------------------------------------------------------"
+	@echo "npm-build -----------------------------------------------------------"
 	source $(INSTALL_NVM)/nvm.sh; npm run build:prod
 
 install-static: collectstatic
