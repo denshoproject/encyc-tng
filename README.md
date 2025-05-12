@@ -7,6 +7,7 @@ Densho Encyclopedia: The Next Generation
 - [Technical Documentation](docs/index.md)
 - [Front-end Tooling Guide](docs/front-end/tooling.md)
 - [Docker Development Environment](docs/docker.md)
+- [Known Issues and Current Changes](docs/known-issues.md)
 
 ## Package Management
 
