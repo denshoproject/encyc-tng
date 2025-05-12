@@ -50,6 +50,7 @@ def articles(request):
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
         'collections': articles,
         'tags': collect_tags(articles),
+        'tabs': None, # TODO see https://encycstage.densho.org/pattern-library/pattern/patterns/components/collection_header/collection_header.html
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
