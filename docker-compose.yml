@@ -5,6 +5,14 @@ services:
     command: make runserver
     ports:
       - 8082:8082
+    volumes:
+      - ./static_src:/opt/encyc-tng/static_src
+      - ./encyclopedia:/opt/encyc-tng/encyclopedia
+      - ./encyctng:/opt/encyc-tng/encyctng
+      - ./patterns:/opt/encyc-tng/patterns
+      - ./templates:/opt/encyc-tng/templates
+      - ./conf/encyctng.cfg:/etc/encyc/core.cfg
+      - ./conf/encyctng-local-docker.cfg:/etc/encyc/core-local.cfg
     depends_on:
       - db
       - redis
