@@ -133,15 +133,4 @@
         object-fit: cover;
         object-position: center;
     }
-
-    .template-homepage & {
-        position: relative;
-        top: -131px; // header height
-        margin-bottom: -131px;
-
-        @include media-query(large) {
-            top: -171px; // header height
-            margin-bottom: -171px;
-        }
-    }
 }

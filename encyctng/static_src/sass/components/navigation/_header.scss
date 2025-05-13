@@ -123,9 +123,7 @@
         }
     }
 
-    .template-collections & {
-        background-color: var(--color--orange);
-
+    .app--orange & {
         #{$root}__wrapper {
             margin-bottom: 0;
         }

@@ -1,6 +1,18 @@
 @use '../config' as *;
 
 .page {
+    $root: &;
+
+    &__header {
+        &--padding {
+            padding-top: 30px;
+
+            @include media-query(large) {
+                padding-top: 50px;
+            }
+        }
+    }
+
     &__section {
         border-top: 1px solid var(--color--lines);
         padding-bottom: $spacer-medium;
@@ -13,6 +25,26 @@
     &__content {
         &--border {
             border-top: 1px solid var(--color--lines);
+        }
+    }
+
+    &__introduction {
+        margin-bottom: $spacer-mini-plus;
+        max-width: $reading-column-max-width;
+
+        @include media-query(medium) {
+            margin-bottom: $spacer-medium;
+        }
+    }
+
+    .app--orange & {
+        #{$root}__header {
+            background-color: var(--color--orange);
+        }
+
+        #{$root}__title,
+        #{$root}__introduction {
+            color: var(--color--white);
         }
     }
 }

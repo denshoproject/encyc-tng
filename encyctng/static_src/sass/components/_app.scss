@@ -1,0 +1,17 @@
+@use '../config' as *;
+
+.app {
+    $root: &;
+
+    &--orange {
+        #{$root}__header {
+            background-color: var(--color--orange);
+        }
+
+        &.template-topics {
+            #{$root}__content {
+                background-color: var(--color--orange);
+            }
+        }
+    }
+}
