@@ -36,7 +36,7 @@ const options = {
             ],
         }),
         new MiniCssExtractPlugin({
-            filename: 'css/[name].css',
+            filename: 'css/[name].[contenthash].css',
         }),
         new ESLintPlugin({
             failOnError: false,
