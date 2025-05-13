@@ -107,6 +107,9 @@ const options = {
                             sassOptions: {
                                 outputStyle: 'compressed',
                                 quietDeps: true,
+                                logger: {
+                                    warn: () => {}, // Suppress deprecation warnings
+                                },
                             },
                         },
                     },
