@@ -4,11 +4,6 @@
 {% block body_class %}template-homepage{% endblock %}
 
 {% block content %}
-    <div class="grid">
-
-        {% include "patterns/components/hero/hero.html" with hero=hero %}
-
-        {% include "patterns/components/topics/topics.html" %}
-
-    </div>
+    {% include "patterns/components/hero/hero.html" with hero=page.hero %}
+    {% include "patterns/components/topics/topics.html" with topics=page.topics %}
 {% endblock content %}

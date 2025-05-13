@@ -6,7 +6,7 @@
 {% block content %}
 <div class="page">
     <header class="page__header grid">
-        {% include "patterns/components/hero_split/hero_split.html" with hero=page.hero %}
+        {% include "patterns/components/hero_split/hero_split.html" with hero=page.hero skip=True %}
     </header>
 
     <div class="page__carousel">
@@ -15,27 +15,61 @@
 
     <div class="page__content" id="body">
         <div class="grid">
-{{ page.body }}
+            {% include "patterns/components/in_page_nav/in_page_nav.html" %}
+
+            <div class="sf grid grid--no-gutter">
+                {% for block in page.body %}
+                    <div class="sf__block sf__block--{{ block.block_type }}">
+                        {% include_block block %}
+                    </div>
+                {% endfor %}
+                {# placeholders until https://github.com/denshoproject/encyc-tng/issues/60 is resolved #}
+                <div class="sf__block sf__block--heading">
+                    {% include "patterns/components/heading/heading.html" with heading="Test heading" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--heading">
+                    {% include "patterns/components/heading/heading.html" with heading="Test heading" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--full_width_image">
+                    {% include "patterns/components/full_width_image/full_width_image.html" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--quote_block">
+                    {% include "patterns/components/quote_block/quote_block.html" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--heading">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+            </div>
         </div>
     </div>
 
-    {% if page.footnotes %}
+    {% if page.author %}
         <section class="page__section">
             <div class="page__section-container grid">
-                <h2>Footnotesvi</h2>
-                {{ page.footnotes | safe }}
-                {# include "patterns/components/footnotes/footnotes.html" with title="Footnotes" footnotes=page.list_footnotes #}
+                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=page.author modifier="standalone" %}
             </div>
         </section>
     {% endif %}
 
-    {% if page.authors %}
+    {% if page.list_footnotes %}
         <section class="page__section">
             <div class="page__section-container grid">
-                <h2>Authored By</h2>
-                {% for author in page.list_authors %}
-                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author %}
-                {% endfor %}
+                {% include "patterns/components/footnotes/footnotes.html" with title="Footnotes" footnotes=page.list_footnotes %}
             </div>
         </section>
     {% endif %}

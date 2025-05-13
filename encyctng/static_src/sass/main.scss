@@ -2,7 +2,7 @@
 // @use or declare custom styles here to include them.
 
 // Vendor
-@use '../../../node_modules/@glidejs/glide/src/assets/sass/glide.core' as *;
+@use '../../../node_modules/@glidejs/glide/dist/css/glide.core.min.css';
 
 @use 'base/base';
 @use 'base/typography';
@@ -18,6 +18,7 @@
 @use 'components/full-width-image';
 @use 'components/footnotes';
 @use 'components/grid';
+@use 'components/heading';
 @use 'components/hero';
 @use 'components/hero-split';
 @use 'components/icon';
@@ -25,6 +26,7 @@
 @use 'components/modal';
 @use 'components/in-page-nav';
 @use 'components/pagination';
+@use 'components/pill';
 @use 'components/related-links';
 @use 'components/related-media';
 @use 'components/rich-text';
@@ -32,6 +34,7 @@
 @use 'components/search-form';
 @use 'components/sprites-preview-icons';
 @use 'components/search';
+@use 'components/sf';
 @use 'components/skip-link';
 @use 'components/page';
 @use 'components/tag';

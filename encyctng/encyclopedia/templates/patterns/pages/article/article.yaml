@@ -1,6 +1,6 @@
 context:
   page:
-    title: Densho Encyclopedia
+    title: Bad Day at Black Rock
     hero:
       title: Bad Day at Black Rock
       type: Film
@@ -14,6 +14,11 @@ context:
           value: Drama
         - label: Director
           value: Newell, California (41.8833 lat, -121.3667 lng)
+    author:
+      title: Barbara Takei
+      url: '/authors/barbara-takei/'
+      role: 'Author role'
+      bio: 'Barbara Takei is a Japanese American author and activist. She is the daughter of the late actor and activist George Takei.'
     cite:
       title: Tule Lake
       apa_style: Takei, Barbara. Tule Lake. (2024, September 13). Densho Encyclopedia. Retrieved 01:57, February 3, 2025 from https://encyclopedia.densho.org/Tule%20Lake
@@ -108,7 +113,7 @@ context:
       - title: 'Guide to the Mike Lowry Congressional Papers, 1978–1988'
         source: University of Washington Libraries
         url: '#'
-    footnotes:
+    list_footnotes:
       - note: 'Minutes of “Meeting held to discuss results of investigation,” (April 9, 1943), NARA, RG 65, box 81, item 97; Wendy L. Ng, Japanese American Internment During World War II: A History and Reference Guide (Westport, CT: Greenwood Press, 2002), 58-61; Brian Masura Hayashi, Democratizing the Enemy: The Japanese American Internment (Princeton, NJ: Princeton University Press, 2004), 144.'
       - note: 'Minutes of “Meeting held to discuss results of investigation,” (April 9, 1943), NARA, RG 65, box 81, item 97; Wendy L. Ng, Japanese American Internment During World War II: A History and Reference Guide (Westport, CT: Greenwood Press, 2002), 58-61; Brian Masura Hayashi, Democratizing the Enemy: The Japanese American Internment (Princeton, NJ: Princeton University Press, 2004), 144.'
       - note: 'Minutes of “Meeting held to discuss results of investigation,” (April 9, 1943), NARA, RG 65, box 81, item 97; Wendy L. Ng, Japanese American Internment During World War II: A History and Reference Guide (Westport, CT: Greenwood Press, 2002), 58-61; Brian Masura Hayashi, Democratizing the Enemy: The Japanese American Internment (Princeton, NJ: Princeton University Press, 2004), 144.'
@@ -189,3 +194,8 @@ context:
           type: Audio
           image: False
           url: '#'
+
+tags:
+  include_block:
+    page.body:
+      template_name: '_pattern_library_only/streamfield/body_example.html'
