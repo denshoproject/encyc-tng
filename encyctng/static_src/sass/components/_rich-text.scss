@@ -23,8 +23,16 @@
     }
 
     p {
-        @include font-size(body);
-        margin-bottom: 30px;
+        @include rem-font-size(16px);
+        margin-bottom: $spacer-small;
+
+        @include media-query(medium) {
+            @include rem-font-size(17x);
+        }
+
+        @include media-query(large) {
+            @include rem-font-size(18px);
+        }
 
         &:last-child {
             margin-bottom: 0;
