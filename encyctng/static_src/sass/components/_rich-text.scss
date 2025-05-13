@@ -23,6 +23,7 @@
     }
 
     p {
+        @include font-size(body);
         margin-bottom: 30px;
 
         &:last-child {
