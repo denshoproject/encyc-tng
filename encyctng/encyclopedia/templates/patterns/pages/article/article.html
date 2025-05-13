@@ -65,18 +65,18 @@
         </section>
     {% endif %}
 
-    {% if page.related_links %}
+    {% if page.footnotes %}
         <section class="page__section">
             <div class="page__section-container grid">
-                {% include "patterns/components/related_links/related_links.html" with title="For more information" related_links=page.related_links %}
+                {% include "patterns/components/footnotes/footnotes.html" with title="Footnotes" footnotes=page.list_footnotes %}
             </div>
         </section>
     {% endif %}
 
-    {% if page.footnotes %}
+    {% if page.related_links %}
         <section class="page__section">
             <div class="page__section-container grid">
-                {% include "patterns/components/footnotes/footnotes.html" with title="Footnotes" footnotes=page.footnotes %}
+                {% include "patterns/components/related_links/related_links.html" with title="For more information" related_links=page.related_links %}
             </div>
         </section>
     {% endif %}
@@ -92,5 +92,6 @@
             {% endif %}
         </div>
     {% endif %}
+
 </div>
 {% endblock content %}

@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.snippets.models import register_snippet
@@ -23,3 +24,6 @@ class Author(models.Model):
 
     def __str__(self):
         return f"{self.display_name}"
+
+    def get_absolute_url(self):
+        return reverse('encyc-author', args=[self.id])

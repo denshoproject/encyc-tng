@@ -124,6 +124,8 @@ get-app: get-encyc-tng
 
 install-app: install-encyc-tng
 
+install-testing: install-encyc-tng-testing
+
 uninstall-app: uninstall-encyc-tng
 
 clean-app: clean-encyc-tng
@@ -154,6 +156,12 @@ install-encyc-tng: git-safe-dir install-redis install-virtualenv install-nodejs
 	-mkdir -p $(MEDIA_ROOT)
 	chown -R encyc.root $(MEDIA_BASE)
 	chmod -R 755 $(MEDIA_BASE)
+
+install-encyc-tng-testing:
+	@echo ""
+	@echo "install encyc-tng -------------------------------------------------"
+	source $(VIRTUALENV)/bin/activate; uv pip install .[testing]
+	npm install -g pa11y-ci
 
 git-safe-dir:
 	@echo ""
@@ -232,9 +240,9 @@ uninstall-daemons-configs:
 	-rm $(SUPERVISOR_GUNICORN_CONF)
 
 
-build-npm:
+npm-build: collectstatic
 	@echo ""
-	@echo "build-npm -----------------------------------------------------------"
+	@echo "npm-build -----------------------------------------------------------"
 	source $(INSTALL_NVM)/nvm.sh; npm run build:prod
 
 install-static: collectstatic
@@ -244,3 +252,14 @@ collectstatic:
 	@echo "collectstatic -------------------------------------------------------"
 	source $(VIRTUALENV)/bin/activate; \
 	python $(APPDIR)/manage.py collectstatic --noinput
+
+
+test-encyc-tng-django:
+	@echo ""
+	@echo "test-encyc-tng ----------------------------------------"
+	source $(VIRTUALENV)/bin/activate; cd $(INSTALLDIR); pytest --disable-warnings encyctng
+
+test-encyc-tng-pa11y:
+	@echo ""
+	@echo "test-encyc-tng-accessibility ----------------------------------------"
+	cd $(INSTALLDIR); pa11y-ci --config pa11y.config.js

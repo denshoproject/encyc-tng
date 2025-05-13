@@ -10,16 +10,82 @@ from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
 
 
-@cache_page(settings.CACHE_TIMEOUT)
-def articles(request):
-    return render(request,  'encyclopedia/articles.html', {
-        'initials_articles': Article.articles_by_initial(),
+#@cache_page(settings.CACHE_TIMEOUT)
+def index(request):
+    hero = {
+        'title': 'Discover the history of the Japanese American incarceration during WWII',
+        'actions': [
+            {'text': 'Browse by Topic', 'url': '/categories/'},
+            {'text': 'Browse by A-Z', 'url': '/contents/'},
+        ]
+    }
+    topics = {
+        'title': 'Browse Topics',
+        'items': topics_items(),
+    }
+    return render(request, 'patterns/pages/home_page/home_page.html', {
+        'hero': hero,
+        'topics': topics,
     })
 
-@cache_page(settings.CACHE_TIMEOUT)
+#@cache_page(settings.CACHE_TIMEOUT)
+def articles(request):
+    articles = [
+        {
+            #'image': None,
+            'type': 'Article',
+            'initial': article.title[0].upper(),
+            'title': article.title,
+            'url': article.url,
+            'description': article.description,
+            'tags': [
+                {'name': tag.name, 'url': f"/tags/{tag.name}/"}
+                for tag in article.tags.all()
+            ]
+        }
+        # TODO optimize query (restrict fields)
+        for article in Article.objects.all()[:25]
+        if getattr(article, 'description')
+    ]
+    return render(request, 'patterns/pages/collections/collections--a-z.html', {
+        'collections': articles,
+        'tags': collect_tags(articles),
+        'tabs': None, # TODO see https://encycstage.densho.org/pattern-library/pattern/patterns/components/collection_header/collection_header.html
+    })
+
+#@cache_page(settings.CACHE_TIMEOUT)
 def topics(request):
     return render(request,  'encyclopedia/topics.html', {
         'tags_articles': Article.articles_by_tag(),
+    })
+
+#@cache_page(settings.CACHE_TIMEOUT)
+def authors(request, template_name='encyclopedia/authors.html'):
+    authors = [
+        {
+            #'image': None,
+            'initial': author.family_name[0],
+            'title': author.display_name,
+            'url': author.get_absolute_url(),
+            'role': 'ROLE',
+        }
+        # TODO optimize query (restrict fields)
+        for author in Author.objects.all()
+    ]
+    return render(request, 'patterns/pages/collections/collections--authors.html', {
+        'collections': authors,
+        'tags': collect_tags(authors),
+    })
+
+#@cache_page(settings.CACHE_TIMEOUT)
+def author(request, author_id):
+    # TODO use slug instead of author_id
+    author = Author.objects.get(id=author_id)
+    # TODO optimize query (restrict fields)
+    articles = author.article_set.all()
+    return render(request, 'encyclopedia/author-detail.html', {
+        'author': author,
+        'articles': articles,
     })
 
 def source(request, source_type, source_id):
@@ -38,18 +104,33 @@ def source(request, source_type, source_id):
         'articles_blocks': articles_blocks,
     })
 
-@cache_page(settings.CACHE_TIMEOUT)
-def authors(request, template_name='encyclopedia/authors.html'):
-    return render(request, template_name, {
-        'authors_articles': Article.articles_by_author(),
-    })
 
-@cache_page(settings.CACHE_TIMEOUT)
-def author(request, author_id):
-    # TODO use slug instead of author_id
-    author = Author.objects.get(id=author_id)
-    articles = author.article_set.all()
-    return render(request, 'encyclopedia/author-detail.html', {
-        'author': author,
-        'articles': articles,
-    })
+def collect_tags(items):
+    """
+    [
+        {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
+    ]
+    """
+    initials = sorted(set([item['initial'] for item in items]))
+    # TODO replace all digits with '1-10'
+    initials.insert(0, 'All')
+    return [{'name':initial} for initial in initials]
+
+def topics_items():
+    return [
+        {'articles': 453, 'image': '', 'title': 'Arts'},
+        {'articles': 453, 'image': '', 'title': 'Camps'},
+        {'articles': 453, 'image': '', 'title': 'Chroniclers'},
+        {'articles': 453, 'image': '', 'title': 'Communities'},
+        {'articles': 453, 'image': '', 'title': 'Definitions'},
+        {'articles': 453, 'image': '', 'title': 'Events'},
+        {'articles': 453, 'image': '', 'title': 'Legal'},
+        {'articles': 453, 'image': '', 'title': 'Military'},
+        {'articles': 453, 'image': '', 'title': 'Newspapers'},
+        {'articles': 453, 'image': '', 'title': 'Organizations'},
+        {'articles': 453, 'image': '', 'title': 'People'},
+        {'articles': 453, 'image': '', 'title': 'Postwar'},
+        {'articles': 453, 'image': '', 'title': 'Prewar'},
+        {'articles': 453, 'image': '', 'title': 'Redress'},
+        {'articles': 453, 'image': '', 'title': 'Resettlement'},
+    ]
