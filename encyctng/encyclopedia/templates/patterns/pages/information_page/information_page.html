@@ -1,16 +1,75 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static encyclopedia_tags wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-information-page{% endblock %}
 
 {% block content %}
-    <div class="grid">
-        <h1>{{ page.title }}</h1>
+<div class="page">
+    <header class="page__header grid">
+        {% include "patterns/components/hero_split/hero_split.html" with hero=page.hero %}
+    </header>
 
-        {% if page.in_page_nav %}
-            {% include "patterns/components/in_page_nav/in_page_nav.html" with items=page.in_page_nav %}
-        {% endif %}
+    <div class="page__content page__content--border" id="body">
+        <div class="grid">
+
+            {% include "patterns/components/in_page_nav/in_page_nav.html" %}
+
+            <div class="sf grid grid--no-gutter">
+                {% for block in page.body %}
+                    <div class="sf__block sf__block--{{ block.block_type }}">
+                        {% include_block block %}
+                    </div>
+                {% endfor %}
+                {# placeholders until https://github.com/denshoproject/encyc-tng/issues/60 is resolved #}
+                <div class="sf__block sf__block--heading">
+                    {% include "patterns/components/heading/heading.html" with heading="Test heading" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--heading">
+                    {% include "patterns/components/heading/heading.html" with heading="Test heading" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--full_width_image">
+                    {% include "patterns/components/full_width_image/full_width_image.html" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--quote_block">
+                    {% include "patterns/components/quote_block/quote_block.html" %}
+                </div>
+                <div class="sf__block sf__block--rich_text">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+                <div class="sf__block sf__block--heading">
+                    {% include "patterns/components/rich_text/rich_text.html" %}
+                </div>
+            </div>
+
+            {% if page.last_published_at %}
+                {% include "patterns/components/pill/pill.html" with label="Last updated" value=page.last_published_at|date:"F j, Y" %}
+            {% endif %}
+        </div>
     </div>
 
+    {% if page.related_media or page.related_content %}
+        <div class="page__footer">
+            {% if page.related_media %}
+                {% include "patterns/components/related_media/related_media.html" with title="From the archive" subtitle="(Densho Digital Repository)" related_media=page.related_media %}
+            {% endif %}
+
+            {% if page.related_content %}
+                {% include "patterns/components/related_content_carousel/related_content_carousel.html" with title=page.related_content.title items=page.related_content.items %}
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
 
 {% endblock content %}

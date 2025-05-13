@@ -5,11 +5,13 @@
         <h1 class="hero-split__title heading heading--one">{{ hero.title }}</h1>
         <div class="hero-split__content">
             <ul class="hero-split__actions">
-                <li class="hero-split__action-item hero-split__action-item--type meta meta--small">
-                    {{ hero.type }}
-                </li>
+                {% if hero.type %}
+                    <li class="hero-split__action-item hero-split__action-item--type meta meta--small">
+                        {{ hero.type }}
+                    </li>
+                {% endif %}
                 <li class="hero-split__action-item">
-                    <a href="#" class="hero-split__action-link meta meta--small">
+                    <a href="#" class="hero-split__action-link meta meta--small" onclick="window.print(); return false;">
                         {% include "patterns/components/icons/icon.html" with name="print" classname="hero-split__action-icon" %}
                         <span class="hero-split__action-label">Print</span>
                     </a>
@@ -28,10 +30,12 @@
             <div class="hero-split__introduction intro">
                 {{ hero.introduction|richtext }}
             </div>
-            <a href="#body" class="hero-split__skip meta meta--small">
-                {% include "patterns/components/icons/icon.html" with name="arrow-down" classname="hero-split__skip-icon" %}
-                Skip to Article
-            </a>
+            {% if skip %}
+                <a href="#body" class="hero-split__skip meta meta--small">
+                    {% include "patterns/components/icons/icon.html" with name="arrow-down" classname="hero-split__skip-icon" %}
+                    Skip to Article
+                </a>
+            {% endif %}
         </div>
         {% if hero.meta %}
             <div class="hero-split__meta meta meta--small">

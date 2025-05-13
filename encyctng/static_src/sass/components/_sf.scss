@@ -11,7 +11,8 @@
             margin-bottom: $spacer-mini-plus;
         }
 
-        .template-article & {
+        .template-article &,
+        .template-information-page & {
             @include media-query(medium) {
                 grid-column: 3 / 11;
             }

@@ -9,4 +9,10 @@
             padding-bottom: $spacer-medium-plus;
         }
     }
+
+    &__content {
+        &--border {
+            border-top: 1px solid var(--color--lines);
+        }
+    }
 }

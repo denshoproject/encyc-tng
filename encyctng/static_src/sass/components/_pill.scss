@@ -1,0 +1,19 @@
+@use '../config' as *;
+
+.pill {
+    &__container {
+        display: inline-block;
+        background-color: var(--color--anchor-background);
+        padding: 7px $spacer-mini;
+        border-radius: 60px;
+    }
+
+    .template-information-page & {
+        margin-top: $spacer-mini;
+        margin-bottom: $spacer-medium;
+
+        @include media-query(medium) {
+            grid-column: 3 / 11;
+        }
+    }
+}
