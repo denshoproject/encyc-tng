@@ -52,6 +52,10 @@
                     {% include "patterns/components/rich_text/rich_text.html" %}
                 </div>
             </div>
+
+            {% if page.last_published_at %}
+                {% include "patterns/components/pill/pill.html" with label="Last updated" value=page.last_published_at|date:"F j, Y" %}
+            {% endif %}
         </div>
     </div>
 

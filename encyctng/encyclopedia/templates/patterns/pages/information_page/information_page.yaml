@@ -1,6 +1,7 @@
 context:
   page:
     title: About the Encyclopedia
+    last_published_at: 2021-01-01
     hero:
       title: About the Encyclopedia
       introduction: The Densho Encyclopedia is a free and publicly accessible website that provides concise, accurate, and balanced information on many aspects of the Japanese American story during World War II. It is designed and written for a non-specialist audience that includes high school and college students and instructors, multiple generations of Nikkei community members, confinement sites preservation groups, amateur and professional historians, librarians, journalists, documentarians, and the general public.
