@@ -50,7 +50,7 @@ def articles(request):
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
         'tabs': collections_authors_tabs(url='/contents/'),
         'collections': articles,
-        'tags': collect_tags(articles),
+        'tags': tags_collections_az(articles),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -75,6 +75,7 @@ def topics(request):
     return render(request, 'patterns/pages/collections/collections.html', {
         'tabs': collections_authors_tabs(url='/categories/'),
         'collections': articles,
+        'tags': tags_collections_topics(articles),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -93,7 +94,7 @@ def authors(request, template_name='encyclopedia/authors.html'):
     return render(request, 'patterns/pages/collections/collections--authors.html', {
         'tabs': collections_authors_tabs(url='/authors/'),
         'collections': authors,
-        'tags': collect_tags(authors),
+        'tags': tags_authors_az(authors),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -137,17 +138,6 @@ def collections_authors_tabs(url):
             tab['active'] = True
     return tabs
 
-def collect_tags(items):
-    """
-    [
-        {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
-    ]
-    """
-    initials = sorted(set([item['initial'] for item in items]))
-    # TODO replace all digits with '1-10'
-    initials.insert(0, 'All')
-    return [{'name':initial} for initial in initials]
-
 def topics_items():
     return [
         {'articles': 453, 'image': '', 'title': 'Arts'},
@@ -166,3 +156,35 @@ def topics_items():
         {'articles': 453, 'image': '', 'title': 'Redress'},
         {'articles': 453, 'image': '', 'title': 'Resettlement'},
     ]
+
+def tags_collections_topics(items):
+    """
+    [
+        {'name': 'All'}, {'name': 'Arts'}, {'name': 'Camps'}, ...
+    ]
+    """
+    tags = [
+        {'name': item['title']}
+        for item in topics_items()
+    ]
+    return tags
+
+def tags_collections_az(items):
+    """
+    [
+        {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
+    ]
+    """
+    initials = sorted(set([item['initial'] for item in items]))
+    # TODO replace all digits with '1-10'
+    return [{'name':initial} for initial in initials]
+
+def tags_authors_az(items):
+    """
+    [
+        {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
+    ]
+    """
+    initials = sorted(set([item['initial'] for item in items]))
+    # TODO replace all digits with '1-10'
+    return [{'name':initial} for initial in initials]
