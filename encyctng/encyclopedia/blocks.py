@@ -14,7 +14,8 @@ from wagtailmedia.blocks import VideoChooserBlock
 
 
 class ArticleTextBlock(RichTextBlock):
-    pass
+    class Meta:
+        template = 'patterns/components/rich_text/rich_text.html'
 
 
 class DataboxBlock(StructBlock):
@@ -103,7 +104,7 @@ class ImageBlock(StructBlock):
     class Meta:
         icon = 'image'
         label = 'Image'
-        template = 'encyclopedia/blocks/imageblock.html'
+        template = 'patterns/components/full_width_image/full_width_image.html'
 
     @staticmethod
     def block_from_source(source, source_pks_by_filename):
@@ -143,7 +144,7 @@ class VideoBlock(StructBlock):
     class Meta:
         icon = 'media'
         label = 'Video'
-        template = 'encyclopedia/blocks/videoblock.html'
+        template = 'patterns/components/full_width_image/full_width_image.html'
 
     @staticmethod
     def block_from_source(source, source_pks_by_filename):
@@ -185,7 +186,7 @@ class DocumentBlock(StructBlock):
     class Meta:
         icon = 'doc-full'
         label = 'Document'
-        template = 'encyclopedia/blocks/documentblock.html'
+        template = 'patterns/components/full_width_image/full_width_image.html'
 
     @staticmethod
     def block_from_source(source, source_pks_by_filename):
@@ -243,7 +244,7 @@ class HeadingBlock(StructBlock):
 
     class Meta:
         icon = 'title'
-        template = 'encyclopedia/blocks/heading_block.html'
+        template = 'patterns/components/heading/heading.html'
 
 
 class EncycStreamBlock(StreamBlock):
@@ -269,7 +270,7 @@ class QuoteBlock(StructBlock):
 
     class Meta:
         icon = 'openquote'
-        template = 'encyclopedia/blocks/quote_block.html'
+        template = 'patterns/components/quote_block/quote_block.html'
 
 
 class DataboxCampBlock(StructBlock):
