@@ -55,9 +55,26 @@ def articles(request):
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def topics(request):
-    return render(request,  'encyclopedia/topics.html', {
+    articles = [
+        {
+            #'image': None,
+            'type': 'Article',
+            'initial': article.title[0].upper(),
+            'title': article.title,
+            'url': article.url,
+            'description': article.description,
+            'tags': [
+                {'name': tag.name, 'url': f"/tags/{tag.name}/"}
+                for tag in article.tags.all()
+            ]
+        }
+        # TODO optimize query (restrict fields)
+        for article in Article.objects.all()[:25]
+        if getattr(article, 'description')
+    ]
+    return render(request, 'patterns/pages/collections/collections.html', {
         'tabs': collections_authors_tabs(url='/categories/'),
-        'tags_articles': Article.articles_by_tag(),
+        'collections': articles,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
