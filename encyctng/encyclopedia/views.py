@@ -10,23 +10,7 @@ from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
 
 
-#@cache_page(settings.CACHE_TIMEOUT)
-def index(request):
-    hero = {
-        'title': 'Discover the history of the Japanese American incarceration during WWII',
-        'actions': [
-            {'text': 'Browse by Topic', 'url': '/articles-topic/'},
-            {'text': 'Browse by A-Z', 'url': '/articles-az/'},
-        ]
-    }
-    topics = {
-        'title': 'Browse Topics',
-        'items': topics_items(),
-    }
-    return render(request, 'patterns/pages/home_page/home_page.html', {
-        'hero': hero,
-        'topics': topics,
-    })
+# home/index page comes from home.models.HomePage
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def browse(request):
