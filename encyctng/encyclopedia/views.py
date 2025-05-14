@@ -29,6 +29,16 @@ def index(request):
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
+def browse(request):
+    topics = {
+        'title': 'Browse Topics',
+        'items': topics_items(),
+    }
+    return render(request, 'patterns/pages/topic_listing/topic_listing.html', {
+        'topics': topics,
+    })
+
+#@cache_page(settings.CACHE_TIMEOUT)
 def articles_topic(request):
     articles = [
         {

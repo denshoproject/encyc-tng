@@ -3,6 +3,7 @@ from django.urls import path, re_path
 from encyclopedia import views
 
 urlpatterns = [
+    path('browse/', views.browse, name='encyc-browse'),
     path('categories/', views.articles_topic), # TODO edit nav and remove
     path('contents/',   views.articles_az),    # TODO edit nav and remove
     path('articles-topic/', views.articles_topic, name='encyc-articles-topic'),
