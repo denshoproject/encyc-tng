@@ -10,26 +10,45 @@ from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
 
 
+# home/index page comes from home.models.HomePage
+
 #@cache_page(settings.CACHE_TIMEOUT)
-def index(request):
-    hero = {
-        'title': 'Discover the history of the Japanese American incarceration during WWII',
-        'actions': [
-            {'text': 'Browse by Topic', 'url': '/categories/'},
-            {'text': 'Browse by A-Z', 'url': '/contents/'},
-        ]
-    }
+def browse(request):
     topics = {
         'title': 'Browse Topics',
         'items': topics_items(),
     }
-    return render(request, 'patterns/pages/home_page/home_page.html', {
-        'hero': hero,
+    return render(request, 'patterns/pages/topic_listing/topic_listing.html', {
         'topics': topics,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
-def articles(request):
+def articles_topic(request):
+    articles = [
+        {
+            #'image': None,
+            'type': 'Article',
+            'initial': article.title[0].upper(),
+            'title': article.title,
+            'url': article.url,
+            'description': article.description,
+            'tags': [
+                {'name': tag.name, 'url': f"/tags/{tag.name}/"}
+                for tag in article.tags.all()
+            ]
+        }
+        # TODO optimize query (restrict fields)
+        for article in Article.objects.all()[:25]
+        if getattr(article, 'description')
+    ]
+    return render(request, 'patterns/pages/collections/collections.html', {
+        'tabs': collections_authors_tabs(url='/articles-topic/'),
+        'collections': articles,
+        'tags': tags_collections_topics(articles),
+    })
+
+#@cache_page(settings.CACHE_TIMEOUT)
+def articles_az(request):
     articles = [
         {
             #'image': None,
@@ -48,15 +67,9 @@ def articles(request):
         if getattr(article, 'description')
     ]
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
+        'tabs': collections_authors_tabs(url='/articles-az/'),
         'collections': articles,
-        'tags': collect_tags(articles),
-        'tabs': None, # TODO see https://encycstage.densho.org/pattern-library/pattern/patterns/components/collection_header/collection_header.html
-    })
-
-#@cache_page(settings.CACHE_TIMEOUT)
-def topics(request):
-    return render(request,  'encyclopedia/topics.html', {
-        'tags_articles': Article.articles_by_tag(),
+        'tags': tags_collections_az(articles),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -73,8 +86,9 @@ def authors(request, template_name='encyclopedia/authors.html'):
         for author in Author.objects.all()
     ]
     return render(request, 'patterns/pages/collections/collections--authors.html', {
+        'tabs': collections_authors_tabs(url='/authors/'),
         'collections': authors,
-        'tags': collect_tags(authors),
+        'tags': tags_authors_az(authors),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -105,16 +119,18 @@ def source(request, source_type, source_id):
     })
 
 
-def collect_tags(items):
+def collections_authors_tabs(url):
+    """Return tabs for collection navigation pages
     """
-    [
-        {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
+    tabs = [
+        {'label': 'Articles by Topic', 'url': '/articles-topic/'},
+        {'label': 'Articles by A-Z',   'url': '/articles-az/'},
+        {'label': 'Authors by A-Z',    'url': '/authors/'},
     ]
-    """
-    initials = sorted(set([item['initial'] for item in items]))
-    # TODO replace all digits with '1-10'
-    initials.insert(0, 'All')
-    return [{'name':initial} for initial in initials]
+    for tab in tabs:
+        if tab['url'] == url:
+            tab['active'] = True
+    return tabs
 
 def topics_items():
     return [
@@ -134,3 +150,35 @@ def topics_items():
         {'articles': 453, 'image': '', 'title': 'Redress'},
         {'articles': 453, 'image': '', 'title': 'Resettlement'},
     ]
+
+def tags_collections_topics(items):
+    """
+    [
+        {'name': 'All'}, {'name': 'Arts'}, {'name': 'Camps'}, ...
+    ]
+    """
+    tags = [
+        {'name': item['title']}
+        for item in topics_items()
+    ]
+    return tags
+
+def tags_collections_az(items):
+    """
+    [
+        {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
+    ]
+    """
+    initials = sorted(set([item['initial'] for item in items]))
+    # TODO replace all digits with '1-10'
+    return [{'name':initial} for initial in initials]
+
+def tags_authors_az(items):
+    """
+    [
+        {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
+    ]
+    """
+    initials = sorted(set([item['initial'] for item in items]))
+    # TODO replace all digits with '1-10'
+    return [{'name':initial} for initial in initials]
