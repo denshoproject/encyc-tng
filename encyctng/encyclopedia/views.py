@@ -15,8 +15,8 @@ def index(request):
     hero = {
         'title': 'Discover the history of the Japanese American incarceration during WWII',
         'actions': [
-            {'text': 'Browse by Topic', 'url': '/categories/'},
-            {'text': 'Browse by A-Z', 'url': '/contents/'},
+            {'text': 'Browse by Topic', 'url': '/articles-topic/'},
+            {'text': 'Browse by A-Z', 'url': '/articles-az/'},
         ]
     }
     topics = {
@@ -29,32 +29,7 @@ def index(request):
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
-def articles(request):
-    articles = [
-        {
-            #'image': None,
-            'type': 'Article',
-            'initial': article.title[0].upper(),
-            'title': article.title,
-            'url': article.url,
-            'description': article.description,
-            'tags': [
-                {'name': tag.name, 'url': f"/tags/{tag.name}/"}
-                for tag in article.tags.all()
-            ]
-        }
-        # TODO optimize query (restrict fields)
-        for article in Article.objects.all()[:25]
-        if getattr(article, 'description')
-    ]
-    return render(request, 'patterns/pages/collections/collections--a-z.html', {
-        'tabs': collections_authors_tabs(url='/contents/'),
-        'collections': articles,
-        'tags': tags_collections_az(articles),
-    })
-
-#@cache_page(settings.CACHE_TIMEOUT)
-def topics(request):
+def articles_topic(request):
     articles = [
         {
             #'image': None,
@@ -73,9 +48,34 @@ def topics(request):
         if getattr(article, 'description')
     ]
     return render(request, 'patterns/pages/collections/collections.html', {
-        'tabs': collections_authors_tabs(url='/categories/'),
+        'tabs': collections_authors_tabs(url='/articles-topic/'),
         'collections': articles,
         'tags': tags_collections_topics(articles),
+    })
+
+#@cache_page(settings.CACHE_TIMEOUT)
+def articles_az(request):
+    articles = [
+        {
+            #'image': None,
+            'type': 'Article',
+            'initial': article.title[0].upper(),
+            'title': article.title,
+            'url': article.url,
+            'description': article.description,
+            'tags': [
+                {'name': tag.name, 'url': f"/tags/{tag.name}/"}
+                for tag in article.tags.all()
+            ]
+        }
+        # TODO optimize query (restrict fields)
+        for article in Article.objects.all()[:25]
+        if getattr(article, 'description')
+    ]
+    return render(request, 'patterns/pages/collections/collections--a-z.html', {
+        'tabs': collections_authors_tabs(url='/articles-az/'),
+        'collections': articles,
+        'tags': tags_collections_az(articles),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -129,8 +129,8 @@ def collections_authors_tabs(url):
     """Return tabs for collection navigation pages
     """
     tabs = [
-        {'label': 'Articles by Topic', 'url': '/categories/'},
-        {'label': 'Articles by A-Z',   'url': '/contents/'},
+        {'label': 'Articles by Topic', 'url': '/articles-topic/'},
+        {'label': 'Articles by A-Z',   'url': '/articles-az/'},
         {'label': 'Authors by A-Z',    'url': '/authors/'},
     ]
     for tab in tabs:
