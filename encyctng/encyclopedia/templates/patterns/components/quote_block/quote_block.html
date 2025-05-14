@@ -1,9 +1,9 @@
 <blockquote class="quote-block block--spacing">
     {% include 'patterns/components/icons/icon.html' with name="quote" classname="quote-block__icon" %}
     <div class="quote-block__text">
-        <p class="quote-block__quote intro">{{ quote }}</p>
-        {% if attribution %}
-            <p class="quote-block__attribution">{{ attribution }}</p>
+        <p class="quote-block__quote intro">{{ value.quotation }}</p>
+        {% if value.attribution %}
+            <p class="quote-block__attribution">{{ value.attribution }}</p>
         {% endif %}
     </div>
 </blockquote>
