@@ -48,14 +48,15 @@ def articles(request):
         if getattr(article, 'description')
     ]
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
+        'tabs': collections_authors_tabs(url='/contents/'),
         'collections': articles,
         'tags': collect_tags(articles),
-        'tabs': None, # TODO see https://encycstage.densho.org/pattern-library/pattern/patterns/components/collection_header/collection_header.html
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def topics(request):
     return render(request,  'encyclopedia/topics.html', {
+        'tabs': collections_authors_tabs(url='/categories/'),
         'tags_articles': Article.articles_by_tag(),
     })
 
@@ -73,6 +74,7 @@ def authors(request, template_name='encyclopedia/authors.html'):
         for author in Author.objects.all()
     ]
     return render(request, 'patterns/pages/collections/collections--authors.html', {
+        'tabs': collections_authors_tabs(url='/authors/'),
         'collections': authors,
         'tags': collect_tags(authors),
     })
@@ -104,6 +106,19 @@ def source(request, source_type, source_id):
         'articles_blocks': articles_blocks,
     })
 
+
+def collections_authors_tabs(url):
+    """Return tabs for collection navigation pages
+    """
+    tabs = [
+        {'label': 'Articles by Topic', 'url': '/categories/'},
+        {'label': 'Articles by A-Z',   'url': '/contents/'},
+        {'label': 'Authors by A-Z',    'url': '/authors/'},
+    ]
+    for tab in tabs:
+        if tab['url'] == url:
+            tab['active'] = True
+    return tabs
 
 def collect_tags(items):
     """
