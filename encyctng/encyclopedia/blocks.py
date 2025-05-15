@@ -24,28 +24,28 @@ class DataboxBlock(StructBlock):
 
 """
 MariaDB [encycpsms]> describe sources_source;
-    id               | int(11)      
-    created          | datetime     
-    modified         | datetime     
-    published        | tinyint(1)   
-    densho_id        | varchar(255) 
+    id               | int(11)
+    created          | datetime
+    modified         | datetime
+    published        | tinyint(1)
+    densho_id        | varchar(255)
     headword         | varchar(255) # discard
-    encyclopedia_id  | varchar(255) 
-    caption          | longtext     
-    caption_extended | longtext     
-    courtesy         | longtext     
+    encyclopedia_id  | varchar(255)
+    caption          | longtext
+    caption_extended | longtext
+    courtesy         | longtext
     institution_id   | varchar(255) # "Vol. 21, Sec. C, WRA no. C-705", "hwrd0148", "LC-DIG-hec-23812", ...
     collection_name  | varchar(255) # "Jiro Onuma papers (#2000-27)", "FSA-OWI Collection", ...
     external_url     | varchar(200) # "http://ddr.densho.org/ddr/densho/242/29/", "http://www.oac.cdlib.org/ark:/13030/ft800007k2/?brand=oac4", ...
-    creative_commons | tinyint(1)   
-    original         | varchar(100) 
-    original_size    | int(11)      
+    creative_commons | tinyint(1)
+    original         | varchar(100)
+    original_size    | int(11)
     streaming_url    | varchar(200) # ex: rtmp://streaming.densho.org/denshostream/production/encyclopedia/en-denshovh-kyuri-01-0007-1.mp4
     transcript       | varchar(100) # sources/1/1577/en-denshovh-bdennis-02-0005-1.htm
-    display          | varchar(100) 
-    update_display   | tinyint(1)   
-    media_format     | varchar(32)  
-    aspect_ratio     | varchar(32)  
+    display          | varchar(100)
+    update_display   | tinyint(1)
+    media_format     | varchar(32)
+    aspect_ratio     | varchar(32)
     notes            | longtext     # not used
 
 Observations:
@@ -90,7 +90,7 @@ templates/wikiprox/source.html
         source.aspect_ratio    # get from wagtailmedia?
         source.streaming_path  # discard: not used
         source.rtmp_path       # TODO 253 rows of rtmp://streaming.densho.org/denshostream/ links, but these are all .mp4 files
-        source.transcript_path 
+        source.transcript_path
 """
 
 
