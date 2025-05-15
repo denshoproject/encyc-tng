@@ -5,7 +5,7 @@ from wagtail.admin.panels import (
 )
 from wagtail.blocks import (
     BooleanBlock, CharBlock, TextBlock, RichTextBlock, URLBlock, ChoiceBlock,
-    StreamBlock, StructBlock,
+    StreamBlock, StructBlock, StructValue,
 )
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
@@ -93,6 +93,23 @@ templates/wikiprox/source.html
         source.transcript_path 
 """
 
+
+class ImageBlockStructValue(StructValue):
+    def modal(self):
+        return {
+            'image': self.get('image'),
+            'id': self.get('id'),
+            'open': 'false',
+            'title': self.get('caption'),
+            'content': self.get('caption'),
+            'media_type': 'Image',
+            'caption': 'caption goes here',
+            'densho_id': 'ddr-densho-123-456',
+            'download_url': 'download_url',
+            'cite_url': 'cite_url',
+            'view_url': 'view_url',
+        }
+
 class ImageBlock(StructBlock):
     image = ImageBlock(required=True)
     caption = TextBlock(required=False)
@@ -105,25 +122,8 @@ class ImageBlock(StructBlock):
         icon = 'image'
         label = 'Image'
         template = 'patterns/components/full_width_image/full_width_image.html'
+        value_class = ImageBlockStructValue
 
-    @staticmethod
-    def block_from_source(source, source_pks_by_filename):
-        """StreamField representation of ImageBlock from PSMS source"""
-        filename = Path(source['original_path']).name
-        image_pk = source_pks_by_filename['image'].get(
-            filename
-        )
-        return {
-            'type': 'imageblock',
-            'value': {
-                'image': image_pk,
-                'caption': source['caption'],
-                'caption2': source['caption_extended'],
-                'courtesy': source['courtesy'],
-                'creative_commons': source['creative_commons'],
-                'ext_url': source['external_url'],
-            }
-        }
 
 class VideoBlock(StructBlock):
     """
