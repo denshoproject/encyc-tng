@@ -121,7 +121,7 @@ class ImageBlock(StructBlock):
     class Meta:
         icon = 'image'
         label = 'Image'
-        template = 'patterns/components/full_width_image/full_width_image.html'
+        template = 'encyclopedia/blocks/imageblock.html'
         value_class = ImageBlockStructValue
 
 
