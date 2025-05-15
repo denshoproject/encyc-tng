@@ -14,7 +14,8 @@ class HomePage(Page):
             'actions': [
                 {'text': 'Browse by Topic', 'url': '/articles-topic/'},
                 {'text': 'Browse by A-Z', 'url': '/articles-az/'},
-            ]
+            ],
+            'image': None,  # TODO supply a wagtail Image object
         }
 
     def topics(self):
