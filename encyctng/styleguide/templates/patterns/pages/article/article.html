@@ -58,13 +58,13 @@
         </div>
     </div>
 
-    {% if page.author %}
+    {% for author in page.authors_all %}
         <section class="page__section">
             <div class="page__section-container grid">
-                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=page.author modifier="standalone" %}
+                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author modifier="standalone" %}
             </div>
         </section>
-    {% endif %}
+    {% endfor %}
 
     {% if page.list_footnotes %}
         <section class="page__section">

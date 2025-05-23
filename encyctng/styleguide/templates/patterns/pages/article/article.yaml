@@ -14,11 +14,12 @@ context:
           value: Drama
         - label: Director
           value: Newell, California (41.8833 lat, -121.3667 lng)
-    author:
-      get_absolute_url: '/authors/barbara-takei/'
-      display_name: Barbara Takei
-      role: 'California State University, San Bernardino'
-      bio: 'Barbara Takei is a Japanese American author and activist. She is the daughter of the late actor and activist George Takei.'
+    authors_all:
+      author:
+        get_absolute_url: '/authors/barbara-takei/'
+        display_name: Barbara Takei
+        role: 'California State University, San Bernardino'
+        bio: 'Barbara Takei is a Japanese American author and activist. She is the daughter of the late actor and activist George Takei.'
     cite:
       title: Tule Lake
       apa_style: Takei, Barbara. Tule Lake. (2024, September 13). Densho Encyclopedia. Retrieved 01:57, February 3, 2025 from https://encyclopedia.densho.org/Tule%20Lake

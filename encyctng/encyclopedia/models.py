@@ -160,7 +160,7 @@ class Article(Page):
     def list_footnotes(self):
         return []
 
-    def list_authors(self):
+    def authors_all(self):
         return [
             {
                 'image': None,  # TODO Image object
