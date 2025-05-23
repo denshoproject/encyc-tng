@@ -1,6 +1,8 @@
 from django.db import models
 
+from wagtail.images.models import Image
 from wagtail.models import Page
+from wagtail.models.media import Collection
 
 from encyclopedia.views import topics_items
 
@@ -15,7 +17,7 @@ class HomePage(Page):
                 {'text': 'Browse by Topic', 'url': '/articles-topic/'},
                 {'text': 'Browse by A-Z', 'url': '/articles-az/'},
             ],
-            'image': None,  # TODO supply a wagtail Image object
+            'image': latest_homepage_image(),
         }
 
     def topics(self):
@@ -23,3 +25,11 @@ class HomePage(Page):
             'title': 'Browse Topics',
             'items': topics_items(),
         }
+
+
+def latest_homepage_image():
+    c = Collection.objects.get(name='Home page')
+    try:
+        return Image.objects.filter(collection=c)[0]
+    except:
+        return None
