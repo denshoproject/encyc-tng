@@ -118,17 +118,17 @@ class ImageBlock(StructBlock):
     creative_commons = BooleanBlock(required=False)
     ext_url = URLBlock(required=False)
 
-    def get_context(self, value, parent_context=None):
-        context = super().get_context(value, parent_context=parent_context)
-        # add our block value as the "item" variable for the template
-        context['item'] = value
-        return context
-
     class Meta:
         icon = 'image'
         label = 'Image'
         template = 'patterns/components/full_width_image/full_width_image.html'
         value_class = ImageBlockStructValue
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # add our block value as the "item" variable for the template
+        context['item'] = value
+        return context
 
 
 class VideoBlock(StructBlock):
