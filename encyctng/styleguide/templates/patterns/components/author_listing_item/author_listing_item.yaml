@@ -1,9 +1,10 @@
 name: Author Listing Item
 context:
   author:
-    title: 'Barbara Takei'
-    url: '/authors/barbara-takei/'
-    role: 'Author role'
+    get_absolute_url: '/authors/barbara-takei/'
+    display_name: 'Barbara Takei'
+    role: 'California State University, San Bernardino'
+    description: 'Barbara Takei is a Sansei from Sacramento, California, who was raised in Detroit and graduated from Howard University...'
 
 tags:
   image:

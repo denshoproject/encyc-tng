@@ -78,8 +78,8 @@ def authors(request, template_name='encyclopedia/authors.html'):
         {
             #'image': None,
             'initial': author.family_name[0],
-            'title': author.display_name,
-            'url': author.get_absolute_url(),
+            'display_name': author.display_name,
+            'get_absolute_url': author.get_absolute_url(),
             'role': 'ROLE',
         }
         # TODO optimize query (restrict fields)

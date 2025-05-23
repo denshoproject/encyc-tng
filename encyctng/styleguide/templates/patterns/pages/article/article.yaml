@@ -15,9 +15,9 @@ context:
         - label: Director
           value: Newell, California (41.8833 lat, -121.3667 lng)
     author:
-      title: Barbara Takei
-      url: '/authors/barbara-takei/'
-      role: 'Author role'
+      get_absolute_url: '/authors/barbara-takei/'
+      display_name: Barbara Takei
+      role: 'California State University, San Bernardino'
       bio: 'Barbara Takei is a Japanese American author and activist. She is the daughter of the late actor and activist George Takei.'
     cite:
       title: Tule Lake

@@ -11,14 +11,14 @@
         </div>
         <div class="author-listing-item__content">
             <h3 class="author-listing-item__title heading heading--four">
-                <a class="author-listing-item__link" href="{{ author.url }}">
-                    {{ author.title }}
+                <a class="author-listing-item__link" href="{{ author.get_absolute_url }}">
+                    {{ author.display_name }}
                     {% include "patterns/components/icons/icon.html" with name="arrow" classname="author-listing-item__link-icon" %}
                 </a>
             </h3>
             <p class="author-listing-item__description">{{ author.role }}</p>
-            {% if author.bio %}
-                <p class="author-listing-item__description">{{ author.bio }}</p>
+            {% if author.description %}
+                <p class="author-listing-item__description">{{ author.description }}</p>
             {% endif %}
         </div>
     </div>
