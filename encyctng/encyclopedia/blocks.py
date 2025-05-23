@@ -99,7 +99,7 @@ class ImageBlockStructValue(StructValue):
         return {
             'image': self.get('image'),
             'id': self.get('id'),
-            'open': 'false',
+            'open': False,
             'title': self.get('caption'),
             'content': self.get('caption'),
             'media_type': 'Image',
