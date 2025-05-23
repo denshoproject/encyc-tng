@@ -97,9 +97,10 @@ def author(request, author_id):
     author = Author.objects.get(id=author_id)
     # TODO optimize query (restrict fields)
     articles = author.article_set.all()
-    return render(request, 'encyclopedia/author-detail.html', {
+    return render(request, 'patterns/pages/collections/collections--author.html', {
+        'tabs': collections_authors_tabs(url='/authors/'),
         'author': author,
-        'articles': articles,
+        'collections': articles,
     })
 
 def source(request, source_type, source_id):
