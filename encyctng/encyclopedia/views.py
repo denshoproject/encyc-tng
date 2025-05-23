@@ -134,7 +134,14 @@ def collections_authors_tabs(url):
     return tabs
 
 def topics_items():
-    return [
+    from wagtail.images.models import Image
+    from wagtail.models.media import Collection
+    c = Collection.objects.get(name='Topics')
+    images = {
+        image.title: image
+        for image in Image.objects.filter(collection=c)
+    }
+    topics = [
         {'articles': 453, 'image': '', 'title': 'Arts'},
         {'articles': 453, 'image': '', 'title': 'Camps'},
         {'articles': 453, 'image': '', 'title': 'Chroniclers'},
@@ -146,11 +153,15 @@ def topics_items():
         {'articles': 453, 'image': '', 'title': 'Newspapers'},
         {'articles': 453, 'image': '', 'title': 'Organizations'},
         {'articles': 453, 'image': '', 'title': 'People'},
-        {'articles': 453, 'image': '', 'title': 'Postwar'},
-        {'articles': 453, 'image': '', 'title': 'Prewar'},
+        {'articles': 453, 'image': '', 'title': 'Post-War'},
+        {'articles': 453, 'image': '', 'title': 'Pre-War'},
         {'articles': 453, 'image': '', 'title': 'Redress'},
         {'articles': 453, 'image': '', 'title': 'Resettlement'},
     ]
+    for topic in topics:
+        if images.get(topic['title']):
+            topic['image'] = images.pop(topic['title'])
+    return topics
 
 def tags_collections_topics(items):
     """
