@@ -23,7 +23,7 @@ def browse(request):
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
-def articles_topic(request):
+def articles_topic(request, topic=None):
     articles = [
         {
             #'image': None,
@@ -142,21 +142,21 @@ def topics_items():
         for image in Image.objects.filter(collection=c)
     }
     topics = [
-        {'articles': 453, 'image': '', 'title': 'Arts'},
-        {'articles': 453, 'image': '', 'title': 'Camps'},
-        {'articles': 453, 'image': '', 'title': 'Chroniclers'},
-        {'articles': 453, 'image': '', 'title': 'Communities'},
-        {'articles': 453, 'image': '', 'title': 'Definitions'},
-        {'articles': 453, 'image': '', 'title': 'Events'},
-        {'articles': 453, 'image': '', 'title': 'Legal'},
-        {'articles': 453, 'image': '', 'title': 'Military'},
-        {'articles': 453, 'image': '', 'title': 'Newspapers'},
-        {'articles': 453, 'image': '', 'title': 'Organizations'},
-        {'articles': 453, 'image': '', 'title': 'People'},
-        {'articles': 453, 'image': '', 'title': 'Post-War'},
-        {'articles': 453, 'image': '', 'title': 'Pre-War'},
-        {'articles': 453, 'image': '', 'title': 'Redress'},
-        {'articles': 453, 'image': '', 'title': 'Resettlement'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/arts/',         'title': 'Arts'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/camps/',        'title': 'Camps'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/chroniclers/',  'title': 'Chroniclers'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/communities/',  'title': 'Communities'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/definitions/',  'title': 'Definitions'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/events/',       'title': 'Events'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/legal/',        'title': 'Legal'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/military/',     'title': 'Military'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/newspapers/',   'title': 'Newspapers'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/organizations/','title': 'Organizations'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/people/',       'title': 'People'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/post-war/',     'title': 'Post-War'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/pre-war/',      'title': 'Pre-War'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/redress/',      'title': 'Redress'},
+        {'articles': 453, 'image': '', 'url': '/articles-topic/resettlement/', 'title': 'Resettlement'},
     ]
     for topic in topics:
         if images.get(topic['title']):

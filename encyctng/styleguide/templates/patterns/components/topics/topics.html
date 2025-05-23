@@ -8,7 +8,7 @@
         {% endif %}
         <div class="topics__items grid">
             {% for item in topics.items %}
-                <a href="{% if item.url %}{% pageurl item %}{% else %}#{% endif %}" class="topics__item">
+                <a href="{% if item.url %}{{ item.url }}{% else %}#{% endif %}" class="topics__item">
                     <div
                         class="topics__item-img-wrapper"
                         aria-hidden="true"
