@@ -21,10 +21,12 @@
                 </div>
             </div>
             <div class="modal__meta">
+                {% if modal.densho_id %}
                 <div class="modal__meta-header">
                     <span class="modal__id">Densho ID</span>
-                    <h2 class="heading heading--four">ddr-densho-37-194</h2>
+                    <h2 class="heading heading--four">{{ modal.densho_id }}</h2>
                 </div>
+                {% endif %}{# modal.densho_id #}
                 <ul class="modal__actions">
                     <li class="modal__action">
                         <a href="#" class="modal__download">
