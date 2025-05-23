@@ -131,6 +131,22 @@ class ImageBlock(StructBlock):
         return context
 
 
+class VideoBlockStructValue(StructValue):
+    def modal(self):
+        return {
+            'video': self.get('video'),
+            'id': self.get('id'),
+            'open': False,
+            'title': self.get('caption'),
+            'content': self.get('caption'),
+            'media_type': 'Video',
+            'caption': 'caption goes here',
+            'densho_id': 'ddr-densho-123-456',
+            'download_url': 'download_url',
+            'cite_url': 'cite_url',
+            'view_url': 'view_url',
+        }
+
 class VideoBlock(StructBlock):
     """
     if source.media_format == 'video' -> https://github.com/torchbox/wagtailmedia
@@ -151,28 +167,30 @@ class VideoBlock(StructBlock):
         icon = 'media'
         label = 'Video'
         template = 'patterns/components/full_width_image/full_width_image.html'
+        value_class = VideoBlockStructValue
 
-    @staticmethod
-    def block_from_source(source, source_pks_by_filename):
-        """StreamField representation of VideoBlock from PSMS source"""
-        video_pk = source_pks_by_filename['video'].get(
-            Path(source['original_path']).name
-        )
-        transcript_pk = source_pks_by_filename['document'].get(
-            Path(source['transcript']).name
-        )
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # add our block value as the "item" variable for the template
+        context['item'] = value
+        return context
+
+
+class DocumentBlockStructValue(StructValue):
+    def modal(self):
         return {
-            'type': 'videoblock',
-            'value': {
-                'video': video_pk,
-                'transcript': transcript_pk,
-                'caption': source['caption'],
-                'caption2': source['caption_extended'],
-                'courtesy': source['courtesy'],
-                'creative_commons': source['creative_commons'],
-            }
+            'document': self.get('document'),
+            'id': self.get('id'),
+            'open': False,
+            'title': self.get('caption'),
+            'content': self.get('caption'),
+            'media_type': 'Document',
+            'caption': self.get('caption'),
+            'densho_id': 'ddr-densho-123-456',
+            'download_url': self.get('ext_url'),
+            'cite_url': 'cite_url',
+            'view_url': 'view_url',
         }
-
 
 class DocumentBlock(StructBlock):
     """
@@ -193,28 +211,13 @@ class DocumentBlock(StructBlock):
         icon = 'doc-full'
         label = 'Document'
         template = 'patterns/components/full_width_image/full_width_image.html'
+        value_class = DocumentBlockStructValue
 
-    @staticmethod
-    def block_from_source(source, source_pks_by_filename):
-        """StreamField representation of DocumentBlock from PSMS source"""
-        document_pk = source_pks_by_filename['document'].get(
-            Path(source['original_path']).name
-        )
-        display_pk = source_pks_by_filename['image'].get(
-            Path(source['display_path']).name
-        )
-        return {
-            'type': 'documentblock',
-            'value': {
-                'document': document_pk,
-                'display': display_pk,
-                'caption': source['caption'],
-                'caption2': source['caption_extended'],
-                'courtesy': source['courtesy'],
-                'creative_commons': source['creative_commons'],
-                'ext_url': source['external_url'],
-            }
-        }
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # add our block value as the "item" variable for the template
+        context['item'] = value
+        return context
 
 
 class DDRObjectBlock(StructBlock):
