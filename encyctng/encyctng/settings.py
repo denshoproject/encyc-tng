@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     'editors',
     'encyclopedia',
     'search',
+    'styleguide',
 ]
 
 MIDDLEWARE = [
