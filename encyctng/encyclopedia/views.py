@@ -5,6 +5,7 @@ from django.views.decorators.cache import cache_page
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtailmedia.models import Media
+from wagtail.models.media import Collection
 
 from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
@@ -74,9 +75,10 @@ def articles_az(request):
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
+    images = author_images()
     authors = [
         {
-            #'image': None,
+            'image': images.get(author.display_name, images['Unknown']),
             'initial': author.family_name[0],
             'display_name': author.display_name,
             'get_absolute_url': author.get_absolute_url(),
@@ -194,3 +196,11 @@ def tags_authors_az(items):
     initials = sorted(set([item['initial'] for item in items]))
     # TODO replace all digits with '1-10'
     return [{'name':initial} for initial in initials]
+
+def author_images():
+    c = Collection.objects.get(name='Authors')
+    images = {
+        image.title: image
+        for image in Image.objects.filter(collection=c)
+    }
+    return images

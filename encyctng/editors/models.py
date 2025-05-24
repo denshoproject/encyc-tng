@@ -2,6 +2,8 @@ from django.db import models
 from django.urls import reverse
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.fields import RichTextField
+from wagtail.images.models import Image
+from wagtail.models.media import Collection
 from wagtail.snippets.models import register_snippet
 
 
@@ -27,3 +29,11 @@ class Author(models.Model):
 
     def get_absolute_url(self):
         return reverse('encyc-author', args=[self.id])
+
+    def image(self):
+        c = Collection.objects.get(name='Authors')
+        try:
+            i = Image.objects.get(collection=c, title=self.display_name)
+        except:
+            i = None
+        return i
