@@ -139,6 +139,9 @@ class Article(Page):
         verbose_name = "Article"
         verbose_name_plural = "Articles"
 
+    def initial(self):
+        return self.title[0].upper()
+
     def hero(self):
         return {
             'title': self.title,

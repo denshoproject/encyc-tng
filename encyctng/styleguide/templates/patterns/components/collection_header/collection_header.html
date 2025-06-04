@@ -31,10 +31,9 @@
 {% if tags %}
     <div class="grid">
         <ul class="tags">
-            <li>
+            <!--<li>
                 <a href="/" class="tag tag--active">All</a>
-            </li>
-
+            </li>-->
             {% for tag in tags %}
                 <li class="tags__tag-item">
                     <button class="tag{% if tag.active %} tag--active{% endif %}">{{ tag.name }}</button>
@@ -43,5 +42,3 @@
         </ul>
     </div>
 {% endif %}
-
-

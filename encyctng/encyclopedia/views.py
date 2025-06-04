@@ -25,6 +25,7 @@ def browse(request):
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_topic(request, topic=None):
+    topic = request.GET.get('topic')
     articles = [
         {
             #'image': None,
@@ -44,12 +45,13 @@ def articles_topic(request, topic=None):
     ]
     return render(request, 'patterns/pages/collections/collections.html', {
         'tabs': collections_authors_tabs(url='/articles-topic/'),
+        'tags': tags_collections_topics(topic),
         'collections': articles,
-        'tags': tags_collections_topics(articles),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_az(request):
+    initial = request.GET.get('initial')
     articles = [
         {
             #'image': None,
@@ -70,11 +72,12 @@ def articles_az(request):
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
         'tabs': collections_authors_tabs(url='/articles-az/'),
         'collections': articles,
-        'tags': tags_collections_az(articles),
+        'tags': tags_collections_az(initial),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
+    initial = request.GET.get('initial')
     images = author_images()
     authors = [
         {
@@ -89,8 +92,8 @@ def authors(request, template_name='encyclopedia/authors.html'):
     ]
     return render(request, 'patterns/pages/collections/collections--authors.html', {
         'tabs': collections_authors_tabs(url='/authors/'),
+        'tags': tags_authors_az(initial),
         'collections': authors,
-        'tags': tags_authors_az(authors),
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -165,7 +168,7 @@ def topics_items():
             topic['image'] = images.pop(topic['title'])
     return topics
 
-def tags_collections_topics(items):
+def tags_collections_topics(topic=None):
     """
     [
         {'name': 'All'}, {'name': 'Arts'}, {'name': 'Camps'}, ...
@@ -175,27 +178,55 @@ def tags_collections_topics(items):
         {'name': item['title']}
         for item in topics_items()
     ]
+    tags.insert(0, {'name':'All', 'active':True})
+    if topic:
+        topic = topic.capitalize()
+        for tag in tags:
+            if tag['name'].capitalize() == topic:
+                tag['active'] = True
+                tags[0].pop('active')
     return tags
 
-def tags_collections_az(items):
+def tags_collections_az(initial=None):
     """
     [
         {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
     ]
     """
-    initials = sorted(set([item['initial'] for item in items]))
-    # TODO replace all digits with '1-10'
-    return [{'name':initial} for initial in initials]
+    tags = [
+        {'name':'All', 'active':True},
+        {'name':'1-10'},
+    ]
+    [tags.append({'name':char}) for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
+    if initial:
+        if initial.isdigit():
+            tags[1]['active'] = True
+            tags[0].pop('active')
+        else:
+            initial = initial.upper()
+            for tag in tags:
+                if tag['name'].upper() == initial:
+                    tag['active'] = True
+                    tags[0].pop('active')
+    return tags
 
-def tags_authors_az(items):
+def tags_authors_az(initial=None):
     """
     [
         {'name': 'All'}, {'name': '1-10'}, {'name': 'A'}, {'name': 'B'}, ...
     ]
     """
-    initials = sorted(set([item['initial'] for item in items]))
-    # TODO replace all digits with '1-10'
-    return [{'name':initial} for initial in initials]
+    tags = [
+        {'name':'All', 'active':True},
+    ]
+    [tags.append({'name':char}) for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
+    if initial:
+        initial = initial.upper()
+        for tag in tags:
+            if tag['name'].upper() == initial:
+                tag['active'] = True
+                tags[0].pop('active')
+    return tags
 
 def author_images():
     c = Collection.objects.get(name='Authors')
