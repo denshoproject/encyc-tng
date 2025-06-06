@@ -7,28 +7,34 @@
     {% include "patterns/components/collection_header/collection_header.html" with title="Collections" tags=tags tabs=tabs %}
 
     <div class="grid">
-        {% if collections %}
+        {% if page_obj %}
             <div class="listing">
+
                 <div class="listing__header">
                     <h2 class="listing__heading meta meta--large">
                         <span class="listing__header-text">
-                            <b>{{ collections|length }}</b> Articles
+                            <b>{{ page_obj.paginator.count }}</b> Articles
                         </span>
                     </h2>
                 </div>
+
+                {% include "patterns/components/pagination/pagination.html" with page_obj=page_obj %}
+
                 <div class="listing__content">
-                    <h2 class="listing__category-header">1-10</h2>
+                    {% for article in page_obj %}
+                    <!-- <h2 class="listing__category-header">1-10</h2> -->
                     <ul class="listing__items">
-                        {% for article in collections %}
-                            <li class="listing__item">
-                                {% include "patterns/components/article_listing_item/article_listing_item.html" with article=article %}
-                            </li>
-                        {% endfor %}
+                        <li class="listing__item">
+                            {% include "patterns/components/article_listing_item/article_listing_item.html" with article=article %}
+                        </li>
                     </ul>
+                    {% endfor %}
                 </div>
+
                 <div class="listing__footer">
-                    {% include "patterns/components/pagination/pagination.html" %}
+                    {% include "patterns/components/pagination/pagination.html" with page_obj=page_obj %}
                 </div>
+
             </div>
         {% endif %}
     </div>

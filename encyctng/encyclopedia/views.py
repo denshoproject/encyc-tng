@@ -1,7 +1,9 @@
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import render
 from django.views.decorators.cache import cache_page
+
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtailmedia.models import Media
@@ -26,74 +28,44 @@ def browse(request):
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_topic(request, topic=None):
     topic = request.GET.get('topic')
-    articles = [
-        {
-            #'image': None,
-            'type': 'Article',
-            'initial': article.title[0].upper(),
-            'title': article.title,
-            'url': article.url,
-            'description': article.description,
-            'tags': [
-                {'name': tag.name, 'url': f"/tags/{tag.name}/"}
-                for tag in article.tags.all()
-            ]
-        }
-        # TODO optimize query (restrict fields)
-        for article in Article.objects.all()[:25]
-        if getattr(article, 'description')
-    ]
+    page_size = request.GET.get('pagesize', 30)
+    page_number = request.GET.get('page')
+    # TODO order by topic, then title
+    articles = Article.objects.order_by('title').all()
+    paginator = Paginator(articles, page_size)
+    page_obj = paginator.get_page(page_number)
     return render(request, 'patterns/pages/collections/collections.html', {
         'tabs': collections_authors_tabs(url='/articles-topic/'),
         'tags': tags_collections_topics(topic),
-        'collections': articles,
+        'page_obj': page_obj,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_az(request):
     initial = request.GET.get('initial')
-    articles = [
-        {
-            #'image': None,
-            'type': 'Article',
-            'initial': article.title[0].upper(),
-            'title': article.title,
-            'url': article.url,
-            'description': article.description,
-            'tags': [
-                {'name': tag.name, 'url': f"/tags/{tag.name}/"}
-                for tag in article.tags.all()
-            ]
-        }
-        # TODO optimize query (restrict fields)
-        for article in Article.objects.all()[:25]
-        if getattr(article, 'description')
-    ]
+    page_size = request.GET.get('pagesize', 30)
+    page_number = request.GET.get('page')
+    articles = Article.objects.order_by('title').all()
+    paginator = Paginator(articles, page_size)
+    page_obj = paginator.get_page(page_number)
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
         'tabs': collections_authors_tabs(url='/articles-az/'),
-        'collections': articles,
         'tags': tags_collections_az(initial),
+        'page_obj': page_obj,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
     initial = request.GET.get('initial')
-    images = author_images()
-    authors = [
-        {
-            'image': images.get(author.display_name, images['Unknown']),
-            'initial': author.family_name[0],
-            'display_name': author.display_name,
-            'get_absolute_url': author.get_absolute_url(),
-            'role': 'ROLE',
-        }
-        # TODO optimize query (restrict fields)
-        for author in Author.objects.all()
-    ]
+    page_size = request.GET.get('pagesize', 30)
+    page_number = request.GET.get('page')
+    authors = Author.objects.order_by('family_name','given_name').all()
+    paginator = Paginator(authors, page_size)
+    page_obj = paginator.get_page(page_number)
     return render(request, 'patterns/pages/collections/collections--authors.html', {
         'tabs': collections_authors_tabs(url='/authors/'),
         'tags': tags_authors_az(initial),
-        'collections': authors,
+        'page_obj': page_obj,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)

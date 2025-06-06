@@ -8,28 +8,34 @@
 
     <div class="grid">
 
-        {% if collections %}
+        {% if page_obj %}
             <div class="listing">
+
                 <div class="listing__header">
                     <h2 class="listing__heading meta meta--large">
                         <span class="listing__header-text">
-                            <b>{{ collections|length }}</b> Authors
+                            <b>{{ page_obj.paginator.count }}</b> Authors
                         </span>
                     </h2>
                 </div>
+
+                {% include "patterns/components/pagination/pagination.html" with page_obj=page_obj %}
+
                 <div class="listing__content">
                     <h2 class="listing__category-header">A</h2>
                     <ul class="listing__items listing__items--authors">
-                        {% for author in collections %}
+                        {% for author in page_obj %}
                             <li class="listing__item">
                                 {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author %}
                             </li>
                         {% endfor %}
                     </ul>
                 </div>
+
                 <div class="listing__footer">
-                    {% include "patterns/components/pagination/pagination.html" %}
+                    {% include "patterns/components/pagination/pagination.html" with page_obj=page_obj %}
                 </div>
+
             </div>
         {% endif %}
     </div>
