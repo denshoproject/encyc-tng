@@ -31,7 +31,10 @@ def articles_topic(request, topic=None):
     page_size = request.GET.get('pagesize', 30)
     page_number = request.GET.get('page')
     # TODO order by topic, then title
-    articles = Article.objects.order_by('title').all()
+    if topic:
+        articles = Article.objects.order_by('title').all()
+    else:
+        articles = Article.objects.order_by('title').all()
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
     return render(request, 'patterns/pages/collections/collections.html', {
@@ -45,7 +48,10 @@ def articles_az(request):
     initial = request.GET.get('initial')
     page_size = request.GET.get('pagesize', 30)
     page_number = request.GET.get('page')
-    articles = Article.objects.order_by('title').all()
+    if initial:
+        articles = Article.objects.order_by('title').filter(title__istartswith=initial)
+    else:
+        articles = Article.objects.order_by('title').all()
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
@@ -54,12 +60,26 @@ def articles_az(request):
         'page_obj': page_obj,
     })
 
+"""
+from django.db.models.functions import Left
+from encyclopedia.models import Article
+for a in Article.objects.order_by('title').annotate(initial=Left('title', 1)).prefetch_related('tags').values('initial','title','description','tags').all():
+    a
+
+TODO only get published Articles
+TODO prefetch_related() to get tags?
+TODO optimize image query https://docs.wagtail.org/en/stable/advanced_topics/images/renditions.html
+"""
+
 #@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
     initial = request.GET.get('initial')
     page_size = request.GET.get('pagesize', 30)
     page_number = request.GET.get('page')
-    authors = Author.objects.order_by('family_name','given_name').all()
+    if initial:
+        authors = Author.objects.order_by('family_name','given_name').filter(family_name__istartswith=initial)
+    else:
+        authors = Author.objects.order_by('family_name','given_name').all()
     paginator = Paginator(authors, page_size)
     page_obj = paginator.get_page(page_number)
     return render(request, 'patterns/pages/collections/collections--authors.html', {
