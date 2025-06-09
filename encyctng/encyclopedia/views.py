@@ -28,8 +28,8 @@ def browse(request):
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_topic(request, topic=None):
     topic = request.GET.get('topic')
-    page_size = request.GET.get('pagesize', 30)
-    page_number = request.GET.get('page')
+    page_size = int(request.GET.get('pagesize', 30))
+    page_number = int(request.GET.get('page', 1))
     # TODO order by topic, then title
     if topic:
         articles = Article.objects.order_by('title').all()
@@ -37,27 +37,31 @@ def articles_topic(request, topic=None):
         articles = Article.objects.order_by('title').all()
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
+    page_range = page_obj.paginator.get_elided_page_range(page_number)
     return render(request, 'patterns/pages/collections/collections.html', {
         'tabs': collections_authors_tabs(url='/articles-topic/'),
         'tags': tags_collections_topics(topic),
         'page_obj': page_obj,
+        'page_range': page_range,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_az(request):
     initial = request.GET.get('initial')
-    page_size = request.GET.get('pagesize', 30)
-    page_number = request.GET.get('page')
+    page_size = int(request.GET.get('pagesize', 30))
+    page_number = int(request.GET.get('page', 1))
     if initial:
         articles = Article.objects.order_by('title').filter(title__istartswith=initial)
     else:
         articles = Article.objects.order_by('title').all()
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
+    page_range = page_obj.paginator.get_elided_page_range(page_number)
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
         'tabs': collections_authors_tabs(url='/articles-az/'),
         'tags': tags_collections_az(initial),
         'page_obj': page_obj,
+        'page_range': page_range,
     })
 
 """
@@ -74,18 +78,20 @@ TODO optimize image query https://docs.wagtail.org/en/stable/advanced_topics/ima
 #@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
     initial = request.GET.get('initial')
-    page_size = request.GET.get('pagesize', 30)
-    page_number = request.GET.get('page')
+    page_size = int(request.GET.get('pagesize', 30))
+    page_number = int(request.GET.get('page', 1))
     if initial:
         authors = Author.objects.order_by('family_name','given_name').filter(family_name__istartswith=initial)
     else:
         authors = Author.objects.order_by('family_name','given_name').all()
     paginator = Paginator(authors, page_size)
     page_obj = paginator.get_page(page_number)
+    page_range = page_obj.paginator.get_elided_page_range(page_number)
     return render(request, 'patterns/pages/collections/collections--authors.html', {
         'tabs': collections_authors_tabs(url='/authors/'),
         'tags': tags_authors_az(initial),
         'page_obj': page_obj,
+        'page_range': page_range,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
