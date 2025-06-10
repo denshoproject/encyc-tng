@@ -27,7 +27,9 @@ def browse(request):
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_topic(request, topic=None):
-    topic = request.GET.get('topic')
+    topic = request.GET.get('tag', None)
+    if topic and topic.lower() == 'all':
+        topic = None
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
     # TODO order by topic, then title
@@ -47,7 +49,9 @@ def articles_topic(request, topic=None):
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_az(request):
-    initial = request.GET.get('initial')
+    initial = request.GET.get('tag', None)
+    if initial and initial.lower() == 'all':
+        initial = None
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
     if initial:
@@ -77,7 +81,9 @@ TODO optimize image query https://docs.wagtail.org/en/stable/advanced_topics/ima
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
-    initial = request.GET.get('initial')
+    initial = request.GET.get('tag', None)
+    if initial and initial.lower() == 'all':
+        initial = None
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
     if initial:

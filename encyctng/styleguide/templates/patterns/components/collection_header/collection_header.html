@@ -36,7 +36,7 @@
             </li>-->
             {% for tag in tags %}
                 <li class="tags__tag-item">
-                    <button class="tag{% if tag.active %} tag--active{% endif %}">{{ tag.name }}</button>
+                    <button class="tag{% if tag.active %} tag--active{% endif %}" onclick="window.location.href='{% querystring tag=tag.name %}'">{{ tag.name }}</button>
                 </li>
             {% endfor %}
         </ul>
