@@ -174,6 +174,23 @@ class Article(Page):
             for a in self.authors.all()
         ]
 
+    def first_image(self):
+        """Returns Image object from the first image block or None
+        """
+        media_blocks = []
+        try:
+            allblocks = [block for block in self.body]
+        except:
+            allblocks = []
+        for block in allblocks:
+            if block.block_type in ['imageblock']:
+                media_blocks.append(block)
+        if media_blocks:
+            block = media_blocks[0]
+            image = block.value['image']
+            return image
+        return
+
     def carousel(self):
         return [
             {
@@ -332,6 +349,7 @@ ARTICLE_FOOTNOTE_FIELDS = {
 
 @hooks.register('after_create_page')
 def do_after_page_create(request, page):
+    # TODO save first Image to self.image
     if isinstance(page, Article):
         return footnotes.Footnotary.update_footnotes(
             page, ARTICLE_FOOTNOTE_FIELDS, request
@@ -339,6 +357,7 @@ def do_after_page_create(request, page):
 
 @hooks.register('after_edit_page')
 def do_after_page_edit(request, page):
+    # TODO save first Image to self.image
     if isinstance(page, Article):
         return footnotes.Footnotary.update_footnotes(
             page, ARTICLE_FOOTNOTE_FIELDS, request
