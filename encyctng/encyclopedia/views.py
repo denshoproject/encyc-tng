@@ -27,13 +27,14 @@ def browse(request):
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def articles_topic(request, topic=None):
-    if topic and topic.lower() == 'all':
-        topic = None
+    if topic:
+        topic = topic.lower()
+        if topic == 'all':
+            topic = None
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
-    # TODO order by topic, then title
     if topic:
-        articles = Article.objects.order_by('title').all().prefetch_related('tags')
+        articles = Article.objects.order_by('title').filter(tags__name__in=[topic]).prefetch_related('tags')
     else:
         articles = Article.objects.order_by('title').all().prefetch_related('tags')
     paginator = Paginator(articles, page_size)
