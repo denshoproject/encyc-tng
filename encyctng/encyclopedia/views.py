@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.decorators.cache import cache_page
 
 from wagtail.documents.models import Document
@@ -41,7 +42,7 @@ def articles_topic(request, topic=None):
     page_obj = paginator.get_page(page_number)
     page_range = page_obj.paginator.get_elided_page_range(page_number)
     return render(request, 'patterns/pages/collections/collections.html', {
-        'tabs': collections_authors_tabs(url='/articles-topic/'),
+        'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
         'tags': tags_collections_topics(topic),
         'page_obj': page_obj,
         'page_range': page_range,
@@ -62,7 +63,7 @@ def articles_az(request):
     page_obj = paginator.get_page(page_number)
     page_range = page_obj.paginator.get_elided_page_range(page_number)
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
-        'tabs': collections_authors_tabs(url='/articles-az/'),
+        'tabs': collections_authors_tabs(url=reverse('encyc-articles-az')),
         'tags': tags_collections_az(initial),
         'page_obj': page_obj,
         'page_range': page_range,
@@ -94,7 +95,7 @@ def authors(request, template_name='encyclopedia/authors.html'):
     page_obj = paginator.get_page(page_number)
     page_range = page_obj.paginator.get_elided_page_range(page_number)
     return render(request, 'patterns/pages/collections/collections--authors.html', {
-        'tabs': collections_authors_tabs(url='/authors/'),
+        'tabs': collections_authors_tabs(url=reverse('encyc-authors')),
         'tags': tags_authors_az(initial),
         'page_obj': page_obj,
         'page_range': page_range,
@@ -107,7 +108,7 @@ def author(request, author_id):
     # TODO optimize query (restrict fields)
     articles = author.article_set.all()
     return render(request, 'patterns/pages/collections/collections--author.html', {
-        'tabs': collections_authors_tabs(url='/authors/'),
+        'tabs': collections_authors_tabs(url=reverse('encyc-authors')),
         'author': author,
         'collections': articles,
     })
@@ -133,9 +134,9 @@ def collections_authors_tabs(url):
     """Return tabs for collection navigation pages
     """
     tabs = [
-        {'label': 'Articles by Topic', 'url': '/articles-topic/'},
-        {'label': 'Articles by A-Z',   'url': '/articles-az/'},
-        {'label': 'Authors by A-Z',    'url': '/authors/'},
+        {'label': 'Articles by Topic', 'url': reverse('encyc-articles-topics')},
+        {'label': 'Articles by A-Z',   'url': reverse('encyc-articles-az')},
+        {'label': 'Authors by A-Z',    'url': reverse('encyc-authors')},
     ]
     for tab in tabs:
         if tab['url'] == url:
@@ -151,21 +152,21 @@ def topics_items():
         for image in Image.objects.filter(collection=c)
     }
     topics = [
-        {'articles': 453, 'image': '', 'url': '/articles-topic/arts/',         'title': 'Arts'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/camps/',        'title': 'Camps'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/chroniclers/',  'title': 'Chroniclers'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/communities/',  'title': 'Communities'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/definitions/',  'title': 'Definitions'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/events/',       'title': 'Events'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/legal/',        'title': 'Legal'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/military/',     'title': 'Military'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/newspapers/',   'title': 'Newspapers'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/organizations/','title': 'Organizations'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/people/',       'title': 'People'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/post-war/',     'title': 'Post-War'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/pre-war/',      'title': 'Pre-War'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/redress/',      'title': 'Redress'},
-        {'articles': 453, 'image': '', 'url': '/articles-topic/resettlement/', 'title': 'Resettlement'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['arts']),         'title': 'Arts'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['camps']),        'title': 'Camps'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['chroniclers']),  'title': 'Chroniclers'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['communities']),  'title': 'Communities'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['definitions']),  'title': 'Definitions'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['events']),       'title': 'Events'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['legal']),        'title': 'Legal'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['military']),     'title': 'Military'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['newspapers']),   'title': 'Newspapers'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['organizations']),'title': 'Organizations'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['people']),       'title': 'People'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['post-war']),     'title': 'Post-War'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['pre-war']),      'title': 'Pre-War'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['redress']),      'title': 'Redress'},
+        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['resettlement']), 'title': 'Resettlement'},
     ]
     for topic in topics:
         if images.get(topic['title']):
