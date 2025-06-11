@@ -466,7 +466,7 @@ class ArticleAlbum(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
 
     class Meta:
         db_table = "encyclopedia_article_albums"
@@ -494,7 +494,7 @@ class ArticleArticle(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
 
     class Meta:
         db_table = "encyclopedia_article_articles"
@@ -532,7 +532,8 @@ class ArticleBook(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
+
 
     class Meta:
         db_table = "encyclopedia_article_books"
@@ -574,7 +575,8 @@ class ArticleCamp(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
+
 
     class Meta:
         db_table = "encyclopedia_article_camps"
@@ -603,7 +605,8 @@ class ArticleExhibition(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
+
 
     class Meta:
         db_table = "encyclopedia_article_exhibitions"
@@ -648,7 +651,8 @@ class ArticleFilm(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
+
 
     class Meta:
         db_table = "encyclopedia_article_films"
@@ -687,7 +691,8 @@ class ArticleMagazine(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
+
 
     class Meta:
         db_table = "encyclopedia_article_magazines"
@@ -717,7 +722,8 @@ class ArticleNewspaper(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
+
 
     class Meta:
         db_table = "encyclopedia_article_newspapers"
@@ -813,7 +819,8 @@ class ArticlePlay(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
+
 
     class Meta:
         db_table = "encyclopedia_article_plays"
@@ -841,7 +848,8 @@ class ArticleWebsite(Article):
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
     parent_page_types = ['encyclopedia.ArticlesIndexPage']
-    template = 'encyclopedia/article.html'
+    template = 'patterns/pages/article/article.html'
+
 
     class Meta:
         db_table = "encyclopedia_article_website"
