@@ -16,7 +16,7 @@
                         <span class="hero-split__action-label">Print</span>
                     </a>
                 </li>
-                {% if page.cite %}
+                {# if page.cite #}
                     <li class="hero-split__action-item">
                         <button data-modal-trigger data-modal-id="modal-cite"  class="hero-split__action-link link meta meta--small">
                             {% include "patterns/components/icons/icon.html" with name="bookmark" classname="hero-split__action-icon" %}
@@ -25,7 +25,7 @@
 
                         {% include "patterns/components/modal/modal_cite.html" with modal=page.cite %}
                     </li>
-                {% endif %}
+                {# endif #}
             </ul>
             <div class="hero-split__introduction intro">
                 {{ hero.introduction|richtext }}

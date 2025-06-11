@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
 import httpx
 from modelcluster.contrib.taggit import ClusterTaggableManager
@@ -141,6 +142,24 @@ class Article(Page):
 
     def initial(self):
         return self.title[0].upper()
+
+    def cite(self):
+        return {
+            'title': self.title,
+            'meta': [
+                {'label': 'Page name', 'value': self.title},
+                {'label': 'Author(s)', 'value': 'Densho Encyclopedia contributors'},
+                {'label': 'Publisher', 'value': 'Densho Encyclopedia'},
+                {'label': 'Date of last revision',
+                 'value': self.last_published_at.strftime('%c %Z')},
+                {'label': 'Date retrieved',
+                 'value': timezone.now().strftime('%c %Z')},
+                {'label': 'Permanent URL',
+                 'value': f"{self.url}"},
+            ],
+            'apa_style': 'Use encyclopedia.citations.Citation',
+            'bibtex': 'Use encyclopedia.citations.Citation',
+    }
 
     def hero(self):
         return {
