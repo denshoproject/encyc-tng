@@ -192,29 +192,39 @@ class Article(Page):
         return
 
     def carousel(self):
+        """Any Image blocks at the top of self.body are gathered into carousel
+        """
+        # select only media blocks that appear at the beginning of Article.body
+        # list of StreamBlocks
+        media_blocks_range = 0
+        for block in self.body:
+            if block.block_type not in ['imageblock']:
+                break
+            media_blocks_range += 1
+        # pop those into separate list so they don't get displayed again
+        media_blocks = []
+        for n in range(0, media_blocks_range):
+            media_blocks.append(self.body.pop(0))
         return [
             {
-                'type': 'Document',
-                'caption': 'Amicus Curiae brief filed on behalf of the states of California, Oregon and Washington in the Supreme Court case Korematsu v. United States, Oct. 1944. Courtesy of Densho',
-                'url': '#',
-                'modal': {
-                    'id': 'modal-1',
-                    'open': 'false',
-                    'title': 'Discover the history of the Japanese American incarceration during WWII',
-                    'content': '<p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>'
-                },
-            },
-            {
                 'type': 'Image',
-                'caption': 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...',
+                'image': block.value['image'],
+                'caption': block.value['caption'],
                 'url': '#',
                 'modal': {
-                    'id': 'modal-2',
-                    'open': 'false',
-                    'title': 'Discover the history of the Japanese American incarceration during WWII',
-                    'content': '<p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>',
+                    'id': f"modal-{n}",
+                    'open': False,
+                    'media_type': 'Image',
+                    'title': block.value['caption'],
+                    'content': block.value['caption'],
+                    'caption': block.value['caption'],
+                    'densho_id': 'ddr-densho-123-45',
+                    'download_url': '',
+                    'cite_url': '',
+                    'view_url': '',
                 },
-            },
+            }
+            for n,block in enumerate(media_blocks)
         ]
 
     def related_links(self):
