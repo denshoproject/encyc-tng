@@ -43,7 +43,7 @@
             {% else %}
             {% for tag in tags %}
                 <li class="tags__tag-item">
-                    <button class="tag{% if tag.active %} tag--active{% endif %}" onclick="window.location.href='{% querystring initial=tag.name %}'">{{ tag.name }}</button>
+                    <button class="tag{% if tag.active %} tag--active{% endif %}" onclick="window.location.href='{% querystring initial=tag.name page=None %}'">{{ tag.name }}</button>
                 </li>
             {% endfor %}
             {% endif %}
