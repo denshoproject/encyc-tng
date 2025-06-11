@@ -134,7 +134,7 @@ def collections_authors_tabs(url):
     """Return tabs for collection navigation pages
     """
     tabs = [
-        {'label': 'Articles by Topic', 'url': reverse('encyc-articles-topics')},
+        {'label': 'Articles by Topic', 'url': reverse('encyc-articles-topic')},
         {'label': 'Articles by A-Z',   'url': reverse('encyc-articles-az')},
         {'label': 'Authors by A-Z',    'url': reverse('encyc-authors')},
     ]
