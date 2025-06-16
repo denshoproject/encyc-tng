@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.shortcuts import render
+from django.template.loader import get_template
 
 DEFAULT = 'Densho Encyclopedia contributors.'
 
@@ -145,7 +145,7 @@ def format_apa(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_apa = cite
-    return render(None, 'encyclopedia/citations/apa.html', {
+    return get_template('encyclopedia/citations/apa.html').render({
         'citation': citation,
     })
 
@@ -176,7 +176,7 @@ def format_bibtex(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_bibtex = cite
-    return render(None, 'encyclopedia/citations/bibtex.html', {
+    return get_template('encyclopedia/citations/bibtex.html').render({
         'citation': citation,
     })
 
@@ -214,7 +214,7 @@ def format_chicago(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_chicago = cite
-    return render(None, 'encyclopedia/citations/chicago.html', {
+    return get_template('encyclopedia/citations/chicago.html').render({
         'citation': citation
     })
 
@@ -248,7 +248,7 @@ def format_cse(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_cse = cite
-    return render(None, 'encyclopedia/citations/cse.html', {
+    return get_template('encyclopedia/citations/cse.html').render({
         'citation': citation
     })
 
@@ -286,7 +286,7 @@ def format_mhra(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_mhra = cite
-    return render(None, 'encyclopedia/citations/mhra.html', {
+    return get_template('encyclopedia/citations/mhra.html').render({
         'citation': citation
     })
 
@@ -332,7 +332,7 @@ def format_mla(citation):
         if cite:
             cite = '{0}.'.format(cite)
     citation.authors_mla = cite
-    return render(None, 'encyclopedia/citations/mla.html', {
+    return get_template('encyclopedia/citations/mla.html').render({
         'citation': citation
     })
 
