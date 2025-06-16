@@ -28,6 +28,7 @@ from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
     ImageBlock, VideoBlock, DocumentBlock,
 )
+from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import footnotes
 
@@ -143,7 +144,8 @@ class Article(Page):
     def initial(self):
         return self.title[0].upper()
 
-    def cite(self):
+    def citation(self):
+        c = Citation(self)
         return {
             'title': self.title,
             'meta': [
@@ -157,8 +159,12 @@ class Article(Page):
                 {'label': 'Permanent URL',
                  'value': f"{self.url}"},
             ],
-            'apa_style': 'Use encyclopedia.citations.Citation',
-            'bibtex': 'Use encyclopedia.citations.Citation',
+            'apa':     c.apa,
+            'bibtex':  c.bibtex,
+            'chicago': c.chicago,
+            'cse':     c.cse,
+            'mhra':    c.mhra,
+            'mla':     c.mla,
     }
 
     def hero(self):
