@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.template import Context, Template
+from django.shortcuts import render
 
 DEFAULT = 'Densho Encyclopedia contributors.'
 
@@ -112,10 +112,6 @@ def surname_initials_cse(parsed):
     return ' '.join([surname, givens])
 
 
-TEMPLATE_APA = """
-{{ citation.authors_apa }} {{ citation.title }}. ({{ citation.lastmod|date:"Y, F j" }}). <i>Densho Encyclopedia</i>. Retrieved {{ citation.retrieved|date:"H:i, F j, Y" }} from <a class="offsite" href="{{ citation.href }}" rel="nofollow">{{ citation.href }}</a>.
-"""
-
 def format_apa(citation):
     """Takes output of mediawiki.find_author_info() and formats in APA style.
 
@@ -149,17 +145,9 @@ def format_apa(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_apa = cite
-    return Template(TEMPLATE_APA).render(Context({'citation': cite})).strip()
-
-TEMPLATE_BIBTEX = """
-@misc{ wiki:xxx,
-  author = "{{ citation.authors_bibtex }}",
-  title = "{{ citation.title }} --- Densho Encyclopedia{,} ",
-  year = "{{ citation.retrieved|date:"Y" }}",
-  url = "<a class="offsite" href="{{ citation.href }}" rel="nofollow">{{ citation.href }}</a>",
-  note = "[Online; accessed {{ citation.retrieved|date:"j-M-Y" }}]"
-}
-"""
+    return render(None, 'encyclopedia/citations/apa.html', {
+        'citation': citation,
+    })
 
 def format_bibtex(citation):
     """Takes output of mediawiki.find_author_info() and formats BibTeX style.
@@ -188,11 +176,9 @@ def format_bibtex(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_bibtex = cite
-    return Template(TEMPLATE_BIBTEX).render(Context({'citation': cite})).strip()
-
-TEMPLATE_CHICAGO = """
-{{ citation.authors_chicago }} "{{ citation.title }}," <i>Densho Encyclopedia</i> <a class="offsite" href="{{ citation.href }}" rel="nofollow">{{ citation.href }}</a> (accessed {{ citation.retrieved|date:"M j Y" }}).
-"""
+    return render(None, 'encyclopedia/citations/bibtex.html', {
+        'citation': citation,
+    })
 
 def format_chicago(citation):
     """Takes output of mediawiki.find_author_info() and formats Chicago style.
@@ -228,11 +214,9 @@ def format_chicago(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_chicago = cite
-    return Template(TEMPLATE_CHICAGO).render(Context({'citation': cite})).strip()
-
-TEMPLATE_CSE = """
-{{ citation.authors_cse }} {{ citation.title }} [Internet]. Densho Encyclopedia; {{ citation.lastmod|date:"Y M j, H:i T" }} [cited {{ citation.retrieved|date:"Y F j" }}]. Available from: <a class="offsite" href="{{ citation.href }}" rel="nofollow">{{ citation.href }}</a>.
-"""
+    return render(None, 'encyclopedia/citations/chicago.html', {
+        'citation': citation
+    })
 
 def format_cse(citation):
     """Takes output of mediawiki.find_author_info() and formats CSE/CBE style.
@@ -264,11 +248,10 @@ def format_cse(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_cse = cite
-    return Template(TEMPLATE_CSE).render(Context({'citation': cite})).strip()
+    return render(None, 'encyclopedia/citations/cse.html', {
+        'citation': citation
+    })
 
-TEMPLATE_MHRA = """
-{{ citation.authors_mhra }} '{{ citation.title }}', <i>Densho Encyclopedia</i> {{ citation.lastmod|date:"Y M j, H:i T" }}, &lt;<a class="offsite" href="{{ citation.href }}" rel="nofollow">{{ citation.href }}</a>&gt; [accessed {{ citation.retrieved|date:"j M Y" }}]
-"""
 def format_mhra(citation):
     """Takes output of mediawiki.find_author_info() and formats MHRA style.
 
@@ -303,11 +286,10 @@ def format_mhra(citation):
         if cite and not (cite[-1] == '.'):
             cite = '{0}.'.format(cite)
     citation.authors_mhra = cite
-    return Template(TEMPLATE_MHRA).render(Context({'citation': cite})).strip()
+    return render(None, 'encyclopedia/citations/mhra.html', {
+        'citation': citation
+    })
 
-TEMPLATE_MLA = """
-{{ citation.authors_mla }} "{{ citation.title }}." <i>Densho Encyclopedia</i>. {{ citation.lastmod|date:"j M Y, H:i T" }}. {{ citation.retrieved|date:"j M Y, H:i" }} &lt;<a class="offsite" href="{{ citation.href }}" rel="nofollow">{{ citation.href }}</a>&gt;.
-"""
 def format_mla(citation):
     """Takes output of mediawiki.find_author_info() and formats MLA style.
 
@@ -350,7 +332,9 @@ def format_mla(citation):
         if cite:
             cite = '{0}.'.format(cite)
     citation.authors_mla = cite
-    return Template(TEMPLATE_MLA).render(Context({'citation': cite})).strip()
+    return render(None, 'encyclopedia/citations/mla.html', {
+        'citation': citation
+    })
 
 
 if __name__ == "__main__":
