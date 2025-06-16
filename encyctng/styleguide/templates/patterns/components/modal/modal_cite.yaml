@@ -1,17 +1,8 @@
 name: Cite Modal
 context:
   page:
-    cite:
+    citation:
       title: Tule Lake
-      apa_style: Takei, Barbara. Tule Lake. (2024, September 13). Densho Encyclopedia. Retrieved 01:57, February 3, 2025 from https://encyclopedia.densho.org/Tule%20Lake
-      bibtex: |
-        @misc{ wiki:xxx,
-          author = "Takei, B.",
-          title = "Tule Lake --- Densho Encyclopedia{,} ",
-          year = "2025",
-          url = "https://encyclopedia.densho.org/Tule%20Lake",
-          note = "[Online; accessed 3-Feb-2025]"
-        }
       meta:
         - label: Page name
           value: Tule Lake
@@ -25,6 +16,13 @@ context:
           value: 3 February 2025 01:57 PST
         - label: Permanent URL
           value: '<a href="#">https://encyclopedia.densho.org/Tule%20Lake</a>'
+      apa: Matsumoto, Nancy. Aki Kurose. (2018, January 16). Densho Encyclopedia. Retrieved 10:32, June 16, 2025 from https://encyclopedia.densho.org/Aki%20Kurose.
+      bibtex: ...
+      chicago: Nancy Matsumoto. "Aki Kurose," Densho Encyclopedia https://encyclopedia.densho.org/Aki%20Kurose (accessed Jun 16 2025).
+      cse:
+      mhra: Matsumoto Nancy. 'Aki Kurose', Densho Encyclopedia 25 June 2012, 22:19 UTC, <https://encyclopedia.densho.org/Aki%20Kurose> [accessed 16 Jun 2025]
+      mla: Matsumoto, Nancy. "Aki Kurose." Densho Encyclopedia. 16 Jan 2018, 16:35 PST. 16 Jun 2025, 10:32 <https://encyclopedia.densho.org/Aki%20Kurose>.
+
 
   modal:
     open: true
