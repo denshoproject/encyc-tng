@@ -189,15 +189,7 @@ class Article(Page):
         return []
 
     def authors_all(self):
-        return [
-            {
-                'image': None,  # TODO Image object
-                'url': a.get_absolute_url(),
-                'title': a.display_name,
-                'role': a.description,
-            }
-            for a in self.authors.all()
-        ]
+        return [a for a in self.authors.all()]
 
     def first_image(self):
         """Returns Image object from the first image block or None
