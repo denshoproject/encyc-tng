@@ -7,7 +7,9 @@
     <div class="author-listing-item__container">
         <div class="author-listing-item__image-container">
             {% image author.image fill-200x200 format-webp as image %}
-            <img class="author-listing-item__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+            <a class="author-listing-item__link" href="{{ author.get_absolute_url }}">
+                <img class="author-listing-item__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+            </a>
         </div>
         <div class="author-listing-item__content">
             <h3 class="author-listing-item__title heading heading--four">
