@@ -17,6 +17,12 @@ from encyclopedia.models import Article, ArticleSources
 # home/index page comes from home.models.HomePage
 
 #@cache_page(settings.CACHE_TIMEOUT)
+def about(request): return render(request, 'encyclopedia/about.html', {})
+def history(request): return render(request, 'encyclopedia/history.html', {})
+def terminology(request): return render(request, 'encyclopedia/terminology.html', {})
+def timeline(request): return render(request, 'encyclopedia/timeline.html', {})
+
+#@cache_page(settings.CACHE_TIMEOUT)
 def browse(request):
     topics = {
         'title': 'Browse Topics',
