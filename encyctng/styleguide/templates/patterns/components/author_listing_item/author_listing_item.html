@@ -1,7 +1,7 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 <div class="author-listing-item{% if modifier %} author-listing-item--{{ modifier }}{% endif %}">
-    {% if modifier == 'standalone' %}
+    {% if modifier == 'standalone' and forloop.first %}
         <h2 class="author-listing-item__heading heading heading--three section-heading">Authored by</h2>
     {% endif %}
     <div class="author-listing-item__container">
