@@ -30,6 +30,9 @@ class Author(models.Model):
     def get_absolute_url(self):
         return reverse('encyc-author', args=[self.id])
 
+    def title(self):
+        return self.display_name
+
     def image(self):
         c = Collection.objects.get(name='Authors')
         try:
