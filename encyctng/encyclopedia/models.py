@@ -30,6 +30,7 @@ from encyclopedia.blocks import (
 )
 from encyclopedia.citations import Citation
 from encyclopedia import databoxes
+from encyclopedia import ddr
 from encyclopedia import footnotes
 
 
@@ -264,61 +265,17 @@ class Article(Page):
         ]
 
     def related_media(self):
-        return [
-            {
-                'title': 'An Oral History with Mitsuhiko H. Shimizu - Segment 1',
-                'type': 'Audio',
-                'image': False,
-                'url': '#',
-            },
-            {
-                'title': 'An Oral History with Mitsuhiko H. Shimizu - Segment 2',
-                'type': 'Audio',
-                'image': False,
-                'url': '#',
-            },
-            {
-                'title': 'An Oral History with Mitsuhiko H. Shimizu - Segment 3',
-                'type': 'Audio',
-                'image': False,
-                'url': '#',
-            },
-            {
-                'title': 'Frank Emi oral history interview - Segment 1',
-                'type': 'Video',
-                'image': '//picsum.photos/160/160.webp',
-                'url': '#',
-            },
-            {
-                'title': 'Frank Emi oral history interview - Segment 2',
-                'type': 'Video',
-                'image': '//picsum.photos/160/160.webp',
-                'url': '#',
-            },
-            {
-                'title': 'An Oral History with Mitsuhiko H. Shimizu - Segment 4',
-                'type': 'Audio',
-                'image': False,
-                'url': '#',
-            },
-        ]
-
-    def ddr_objects(self, term_id=None):
-        """DDR objects associated with article (mockup)
-        """
-        missing_term_ids = [
-            0, 13, 30, 39, 41, 55, 58, 60, 64, 77, 79, 83, 105, 112, 119, 121,
-            122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135,
-            136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
-            150, 151, 152, 153, 154, 155, 156, 159, 182, 184, 201, 205
-        ]
-        term_id = None
-        while(term_id == None):
-            n = random.randrange(1,545)
-            if n not in missing_term_ids:
-                term_id = n
-        url = f"https://ddr.densho.org/api/0.2/facet/topics/{term_id}/objects/?format=json"
-        return httpx.get(url).json()
+        if not hasattr(self, 'related_ddr'):
+            # only load once
+            self.related_ddr = [
+                {
+                    'url':o['links']['html'],
+                    'image':o['links']['img'],
+                    'title':o['title'],
+                }
+                for o in ddr.ddr_objects(self.title)
+            ]
+        return self.related_ddr
 
     @staticmethod
     def articles_by_author():

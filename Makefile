@@ -4,6 +4,7 @@ SHELL = /bin/bash
 
 SRC_REPO=https://github.com/denshoproject/encyc-tng
 SRC_REPO_NVM=https://github.com/nvm-sh/nvm.git
+SRC_REPO_VOCAB=https://github.com/denshoproject/densho-vocab.git
 
 INSTALL_BASE=/opt
 INSTALLDIR=$(INSTALL_BASE)/encyc-tng
@@ -14,6 +15,7 @@ PIP_CACHE_DIR=$(INSTALL_BASE)/pip-cache
 CWD := $(shell pwd)
 INSTALL_STATIC=$(INSTALLDIR)/static
 INSTALL_NVM=$(INSTALLDIR)/.nvm
+INSTALL_VOCAB=/opt/densho-vocab
 
 VIRTUALENV=$(INSTALLDIR)/venv/encyctng
 
@@ -120,7 +122,16 @@ install-nodejs:
 	source $(INSTALL_NVM)/nvm.sh; npm install
 
 
-get-app: get-encyc-tng
+get-densho-vocab:
+	@echo ""
+	@echo "get-densho-vocab -------------------------------------------------------"
+	if test -d $(INSTALL_VOCAB); \
+	then cd $(INSTALL_VOCAB) && git pull; \
+	else git clone $(SRC_REPO_VOCAB) $(INSTALL_VOCAB); \
+	fi
+
+
+get-app: get-encyc-tng get-densho-vocab
 
 install-app: install-encyc-tng
 
@@ -167,6 +178,7 @@ git-safe-dir:
 	@echo ""
 	@echo "git-safe-dir -----------------------------------------------------------"
 	sudo -u encyc git config --global --add safe.directory $(INSTALLDIR)
+	sudo -u encyc git config --global --add safe.directory $(INSTALL_VOCAB)
 
 shell:
 	source $(VIRTUALENV)/bin/activate; \
