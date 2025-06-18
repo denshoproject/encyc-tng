@@ -24,19 +24,12 @@ class Footnotary():
         save=False is used in migrations.Articles.import_article to process
         footnotes before Articles' initial save/attachement to parent Page.
         """
-        # smoosh HTML from the paragraph blocks into one string
+        # get only the paragraph blocks, smoosh them into one string
         html = '\n'.join([
             block['value']
             for block in page.body.raw_data if block['type'] == 'paragraph'
         ])
-        # the <ref> tags might have been escaped so fix them
-        for broken,fixed in REF_TAGS:
-            html = html.replace(broken,fixed)
-        # extract each <ref></ref> tag and build HTML
-        soup = BeautifulSoup(html, 'lxml')
-        footnotes = '\n'.join([
-            str(ref) for ref in soup.find_all('ref')
-        ])
+        footnotes = _extract_footnotes(html)
         # replace the old footnotes block
         page.footnotes = footnotes
         # save the page
@@ -50,110 +43,130 @@ class Footnotary():
     @staticmethod
     def prep_footnotes(page, fields, request):
         """Prep <ref>footnotes</ref> in the text for display
-        
+
         Run in before_serve_page hooks.
         """
         n = 1
         for block in page.body:
             if block.block_type == 'paragraph':
-                html,n = Footnotary._rewrite_body_html(block.value.source, n)
+                html,n = _rewrite_body_html(block.value.source, n)
                 block.value.source = html
-        page.footnotes = Footnotary._rewrite_footnotes_html(page.footnotes)
+        page.footnotes = _rewrite_footnotes_html(page.footnotes)
 
-    @staticmethod
-    def _rewrite_body_html(html, n):
-        """Replace <ref>footnotes</ref> in page body with links to footnotes
-        
-        BEFORE
-            <ref>Footnote text</ref>
-        AFTER
-            <sup class="reference" id="cite_ref-1">
-              <a class="" href="#cite_note-1">
-                [1]
-              </a>
-            </sup>
-        """
-        # <ref> tags might have been escaped so fix them
-        for broken,fixed in REF_TAGS:
-            html = html.replace(broken,fixed)
-        soup = BeautifulSoup(html, 'lxml')
-        # remove <head> and <body>
-        try:
-            soup.html.unwrap()
-        except AttributeError:
-            pass
-        try:
-            soup.head.unwrap()
-        except AttributeError:
-            pass
-        try:
-            soup.body.unwrap()
-        except AttributeError:
-            pass
-        # rewrite <ref> tags as <li> with backlinks
-        for item in soup.find_all('ref'):
-            ref_name  = f"cite_ref-{n}"
-            note_name = f"cite_note-{n}"
-            # insert <a name> before
-            anchor = soup.new_tag('a')
-            anchor['name'] = ref_name
-            item.insert_before(anchor)
-            # rewrite <ref> as <a href>
-            item.name = 'a'
-            item['href'] = f"#{note_name}"
-            item.string = f"[{n}]"
-            # increment
-            n += 1
-        return str(soup),n
 
-    @staticmethod
-    def _rewrite_footnotes_html(html):
-        """Replace <refs> in footnotes field with <li>notes</li> and backlinks
-        
-        BEFORE
-            <ref>First footnote text</ref>
-            <ref>Second footnote text</ref>
-        AFTER
-            <ol class="references">
-              <li id="cite_note-1">
-                <span class="mw-cite-backlink">
-                  <a class="" href="#cite_ref-1">↑</a>
-                </span>
-                <span class="reference-text">...</span>
-              </li>
-              ...
-            </ol>
-        """
-        if not html:
-            return ''
-        soup = BeautifulSoup(html, 'lxml')
-        # remove <head> and <body>
-        try:
-            soup.head.unwrap()
-        except AttributeError:
-            pass
-        try:
-            soup.body.unwrap()
-        except AttributeError:
-            pass
-        # rename <html> to <ol>
-        soup.html.name = 'ol'
-        soup.ol['class'] = 'references'
-        # rewrite <ref> tags as <li> with backlinks
-        for n,item in enumerate(soup.find_all('ref'), start=1):
-            ref_name  = f"cite_ref-{n}"
-            note_name = f"cite_note-{n}"
-            # insert <a name> before
-            anchor = soup.new_tag('a')
-            anchor['name'] = note_name
-            item.insert_before(anchor)
-            # rewrite <ref> as <a href>
-            item.name = 'li'
-            item['id'] = note_name
-            # insert backlink
-            item.insert(0, ' ')
-            backlink = soup.new_tag('a')
-            backlink['href'] = f"#{ref_name}"
-            backlink.string = '↑'
-            item.insert(0, backlink)
-        return str(soup)
+def _extract_footnotes(html):
+    """Extract footnotes <ref> tags from page body
+
+    BEFORE
+        <p>
+        Some text.<ref>A footnote!</ref>
+        Some more text.<ref>And another footnote.</ref>
+        </p>
+    AFTER
+        <ref>A footnote!</ref>\n<ref>And another footnote.</ref>
+    """
+    # the <ref> tags might have been escaped so fix them
+    for broken,fixed in REF_TAGS:
+        html = html.replace(broken,fixed)
+    # extract each <ref></ref> tag and build HTML
+    soup = BeautifulSoup(html, 'lxml')
+    html2 = '\n'.join([
+        str(ref) for ref in soup.find_all('ref')
+    ])
+    return html2
+
+def _rewrite_body_html(html, n):
+    """Replace <ref>footnotes</ref> in page body with links to footnotes
+
+    BEFORE
+        <ref>Footnote text</ref>
+    AFTER
+        <sup class="reference" id="cite_ref-1">
+          <a class="" href="#cite_note-1">
+            [1]
+          </a>
+        </sup>
+    """
+    # <ref> tags might have been escaped so fix them
+    for broken,fixed in REF_TAGS:
+        html = html.replace(broken,fixed)
+    soup = BeautifulSoup(html, 'lxml')
+    # remove <head> and <body>
+    try:
+        soup.html.unwrap()
+    except AttributeError:
+        pass
+    try:
+        soup.head.unwrap()
+    except AttributeError:
+        pass
+    try:
+        soup.body.unwrap()
+    except AttributeError:
+        pass
+    # rewrite <ref> tags as <li> with backlinks
+    for item in soup.find_all('ref'):
+        ref_name  = f"cite_ref-{n}"
+        note_name = f"cite_note-{n}"
+        # insert <a name> before
+        anchor = soup.new_tag('a')
+        anchor['name'] = ref_name
+        item.insert_before(anchor)
+        # rewrite <ref> as <a href>
+        item.name = 'a'
+        item['href'] = f"#{note_name}"
+        item.string = f"[{n}]"
+        # increment
+        n += 1
+    return str(soup),n
+
+def _rewrite_footnotes_html(html):
+    """Replace <refs> in footnotes field with <li>notes</li> and backlinks
+
+    BEFORE
+        <ref>First footnote text</ref>
+        <ref>Second footnote text</ref>
+    AFTER
+        <ol class="references">
+          <li id="cite_note-1">
+            <span class="mw-cite-backlink">
+              <a class="" href="#cite_ref-1">↑</a>
+            </span>
+            <span class="reference-text">...</span>
+          </li>
+          ...
+        </ol>
+    """
+    if not html:
+        return ''
+    soup = BeautifulSoup(html, 'lxml')
+    # remove <head> and <body>
+    try:
+        soup.head.unwrap()
+    except AttributeError:
+        pass
+    try:
+        soup.body.unwrap()
+    except AttributeError:
+        pass
+    # rename <html> to <ol>
+    soup.html.name = 'ol'
+    soup.ol['class'] = 'references'
+    # rewrite <ref> tags as <li> with backlinks
+    for n,item in enumerate(soup.find_all('ref'), start=1):
+        ref_name  = f"cite_ref-{n}"
+        note_name = f"cite_note-{n}"
+        # insert <a name> before
+        anchor = soup.new_tag('a')
+        anchor['name'] = note_name
+        item.insert_before(anchor)
+        # rewrite <ref> as <a href>
+        item.name = 'li'
+        item['id'] = note_name
+        # insert backlink
+        item.insert(0, ' ')
+        backlink = soup.new_tag('a')
+        backlink['href'] = f"#{ref_name}"
+        backlink.string = '↑'
+        item.insert(0, backlink)
+    return str(soup)
