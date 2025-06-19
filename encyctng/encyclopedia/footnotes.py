@@ -11,7 +11,7 @@ REF_TAGS = [
 
 class Footnotary():
     """Turn <ref>footnotes</ref> in page.body into links and notes with backlinks
-    
+
     IMPORTANT: Footnotes <ref> tags are stored as entity references (&lt;/ref&gt;).
     This way they are visible to the user in the UI but are hidden from Wagtail's
     RichTextBlock editor and parser.
@@ -20,9 +20,9 @@ class Footnotary():
     @staticmethod
     def update_footnotes(page, fields, request=None, save=True):
         """Copy Mediawiki-style <ref> footnotes from page body to a Footnotes block
-        
+
         Run in after_create_page and after_edit_page hooks.
-        
+
         save=False is used in migrations.Articles.import_article to process
         footnotes before Articles' initial save/attachement to parent Page.
         """
@@ -92,7 +92,6 @@ def _fix_old_footnotes(html):
         str(ref).replace('<ref>','').replace('</ref>','').strip()
         for ref in soup.find_all('ref')
     ]
-
 
 def _rewrite_body_html(html, n):
     """Replace <ref>footnotes</ref> in page body with links to footnotes

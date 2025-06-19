@@ -350,6 +350,8 @@ def do_after_page_edit(request, page):
 @hooks.register('before_serve_page')
 def prep_footnotes(page, request, serve_args, serve_kwargs):
     if isinstance(page, Article):
+        # uses BeautifulSoup to rewrite paragraph blocks with links to footnotes
+        # TODO this should happen BEFORE page is cached
         return footnotes.Footnotary.prep_footnotes(
             page, ARTICLE_FOOTNOTE_FIELDS, request
         )
