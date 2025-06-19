@@ -15,7 +15,7 @@
 
     <div class="page__content" id="body">
         <div class="grid">
-            {% include "patterns/components/in_page_nav/in_page_nav.html" %}
+            {% include "patterns/components/in_page_nav/in_page_nav.html" with items=page.contents %}
 
             <div class="sf grid grid--no-gutter">
                 {% for block in page.body %}

@@ -178,13 +178,13 @@ class Article(Page):
 
     def contents(self):
         """Generate Table-of-Contents block from article headings"""
-        headings = [
-            {'title': block.value['heading_text']}
+        return [
+            {
+                'title': block.value['heading_text'],
+                'url': f"#{slugify(block.value['heading_text'])}"
+            }
             for block in self.body if block.block_type in ['heading']
         ]
-        for heading in headings:
-            heading['url'] = f"#{slugify(heading['title'])}"
-        return headings
 
     def list_footnotes(self):
         return []
