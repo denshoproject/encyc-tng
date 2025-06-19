@@ -54,7 +54,11 @@ class Footnotary():
             if block.block_type == 'paragraph':
                 html,n = _rewrite_body_html(block.value.source, n)
                 block.value.source = html
-        page.footnotes = json.loads(page.footnotes)
+        try:
+            page.footnotes = json.loads(page.footnotes)
+        except json.JSONDecodeError:
+            # footnotes are probably in old HTML format
+            page.footnotes = _fix_old_footnotes(page.footnotes)
 
 
 def _extract_footnotes(html):
@@ -79,6 +83,16 @@ def _extract_footnotes(html):
         for ref in soup.find_all('ref')
     ]
     return footnotes
+
+def _fix_old_footnotes(html):
+    """Fix footnotes that were migrated using old code
+    """
+    soup = BeautifulSoup(html, 'lxml')
+    return [
+        str(ref).replace('<ref>','').replace('</ref>','').strip()
+        for ref in soup.find_all('ref')
+    ]
+
 
 def _rewrite_body_html(html, n):
     """Replace <ref>footnotes</ref> in page body with links to footnotes
