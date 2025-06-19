@@ -66,10 +66,10 @@
         </section>
     {% endfor %}
 
-    {% if page.list_footnotes %}
+    {% if page.footnotes %}
         <section class="page__section">
             <div class="page__section-container grid">
-                {% include "patterns/components/footnotes/footnotes.html" with title="Footnotes" footnotes=page.list_footnotes %}
+                {% include "patterns/components/footnotes/footnotes.html" with title="Footnotes" footnotes=page.footnotes %}
             </div>
         </section>
     {% endif %}

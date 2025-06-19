@@ -4,7 +4,7 @@
         {% for footnote in footnotes %}
             <li class="footnotes__item meta meta--small" id="footnote-{{ forloop.counter }}">
                 {% include "patterns/components/icons/icon.html" with name="arrow-up" classname="footnotes__icon" %}
-                {{ footnote.note }}
+                {{ footnote }}
             </li>
         {% endfor %}
     </ol>
