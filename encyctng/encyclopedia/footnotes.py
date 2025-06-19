@@ -1,3 +1,5 @@
+import json
+
 from bs4 import BeautifulSoup
 
 
@@ -29,9 +31,10 @@ class Footnotary():
             block['value']
             for block in page.body.raw_data if block['type'] == 'paragraph'
         ])
+        # extract footnote text into a list
         footnotes = _extract_footnotes(html)
-        # replace the old footnotes block
-        page.footnotes = footnotes
+        # and save as JSON, replacing the old footnotes block
+        page.footnotes = json.dumps(footnotes)
         # save the page
         if save:
             new_revision = page.save_revision()
@@ -51,7 +54,7 @@ class Footnotary():
             if block.block_type == 'paragraph':
                 html,n = _rewrite_body_html(block.value.source, n)
                 block.value.source = html
-        page.footnotes = _rewrite_footnotes_html(page.footnotes)
+        page.footnotes = json.loads(page.footnotes)
 
 
 def _extract_footnotes(html):
@@ -68,12 +71,14 @@ def _extract_footnotes(html):
     # the <ref> tags might have been escaped so fix them
     for broken,fixed in REF_TAGS:
         html = html.replace(broken,fixed)
-    # extract each <ref></ref> tag and build HTML
+    # strain out just the <ref> tags and return their contents,
+    # *preserving* any HTML tags in the footnotes
     soup = BeautifulSoup(html, 'lxml')
-    html2 = '\n'.join([
-        str(ref) for ref in soup.find_all('ref')
-    ])
-    return html2
+    footnotes = [
+        str(ref).replace('<ref>','').replace('</ref>','').strip()
+        for ref in soup.find_all('ref')
+    ]
+    return footnotes
 
 def _rewrite_body_html(html, n):
     """Replace <ref>footnotes</ref> in page body with links to footnotes
