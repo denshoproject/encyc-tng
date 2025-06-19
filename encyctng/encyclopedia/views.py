@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.cache import cache_page
@@ -21,6 +21,13 @@ def about(request): return render(request, 'encyclopedia/about.html', {})
 def history(request): return render(request, 'encyclopedia/history.html', {})
 def terminology(request): return render(request, 'encyclopedia/terminology.html', {})
 def timeline(request): return render(request, 'encyclopedia/timeline.html', {})
+
+def redirect_wiki(request, title):
+    """Redirect links between articles TEMPORARY
+    TODO get links right in migration so we don't need this
+    """
+    url = f"/encyclopedia/{title}/"
+    return HttpResponseRedirect(url, preserve_request=True)
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def browse(request):
