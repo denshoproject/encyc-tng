@@ -4,7 +4,7 @@ from wagtail.images.models import Image
 from wagtail.models import Page
 from wagtail.models.media import Collection
 
-from encyclopedia.views import topics_items
+from encyclopedia.topics import topics_items
 
 
 class HomePage(Page):
