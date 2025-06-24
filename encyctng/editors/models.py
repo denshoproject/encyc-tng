@@ -13,12 +13,19 @@ class Author(models.Model):
     given_name = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
     description = RichTextField(blank=True, null=True)
+    image = models.ForeignKey(
+        "wagtailimages.Image",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     panels = [
         FieldPanel('family_name'),
         FieldPanel('given_name'),
         FieldPanel('display_name'),
         FieldPanel('description'),
+        FieldPanel('image'),
     ]
 
     class Meta:
@@ -32,11 +39,3 @@ class Author(models.Model):
 
     def title(self):
         return self.display_name
-
-    def image(self):
-        c = Collection.objects.get(name='Authors')
-        try:
-            i = Image.objects.get(collection=c, title=self.display_name)
-        except:
-            i = None
-        return i
