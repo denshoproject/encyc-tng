@@ -130,6 +130,9 @@ def initial_setup():
     # topics collection
     topics_collection = Collection(name='Topics')
     root_collection.add_child(instance=topics_collection)
+    # authors collection
+    authors_collection = Collection(name='Authors')
+    root_collection.add_child(instance=authors_collection)
     # articles index page
     home_page = Page.objects.get(title='Home')
     articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
