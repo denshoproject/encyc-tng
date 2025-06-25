@@ -123,10 +123,13 @@ def articles(debug, dryrun):
 # setup ----------------------------------------------------------------
 
 def initial_setup():
-    # article images collection
     root_collection = Collection.objects.get(name='Root')
-    article_images = Collection(name=ARTICLES_IMAGE_COLLECTION)
-    root_collection.add_child(instance=article_images)
+    # article images collection
+    article_images_collection = Collection(name=ARTICLES_IMAGE_COLLECTION)
+    root_collection.add_child(instance=article_images_collection)
+    # topics collection
+    topics_collection = Collection(name='Topics')
+    root_collection.add_child(instance=topics_collection)
     # articles index page
     home_page = Page.objects.get(title='Home')
     articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
