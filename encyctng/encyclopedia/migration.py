@@ -209,7 +209,11 @@ class Authors():
         if not cached:
             mw_author = LegacyPage.get(mw, title)
             cached = mw_author
-            cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+            try:
+                cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+            except RecursionError:
+                print(f"RecursionError: {key=}")
+                pass
         return cached
 
     @staticmethod
