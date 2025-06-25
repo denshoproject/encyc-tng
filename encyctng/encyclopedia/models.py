@@ -32,6 +32,7 @@ from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
 from encyclopedia import footnotes
+from home.models import HomePage
 
 
 def load_mediawiki_titles():
@@ -134,7 +135,7 @@ class Article(Page):
     ]
     settings_panels = []
 
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     subpage_types = []
     template = 'patterns/pages/article/article.html'
 
@@ -441,7 +442,7 @@ class ArticleAlbum(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
     class Meta:
@@ -469,7 +470,7 @@ class ArticleArticle(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
     class Meta:
@@ -507,7 +508,7 @@ class ArticleBook(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -550,7 +551,7 @@ class ArticleCamp(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -580,7 +581,7 @@ class ArticleExhibition(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -626,7 +627,7 @@ class ArticleFilm(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -666,7 +667,7 @@ class ArticleMagazine(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -697,7 +698,7 @@ class ArticleNewspaper(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -732,7 +733,7 @@ class ArticlePerson(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
     class Meta:
@@ -794,7 +795,7 @@ class ArticlePlay(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -823,7 +824,7 @@ class ArticleWebsite(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 

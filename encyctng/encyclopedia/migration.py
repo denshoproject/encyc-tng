@@ -55,7 +55,8 @@ from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-ARTICLES_INDEX_PAGE = 'Encyclopedia'
+#ARTICLES_INDEX_PAGE = 'Encyclopedia'
+ARTICLES_INDEX_PAGE = 'Home'
 ARTICLES_IMAGE_COLLECTION = 'Article Images'
 
 
@@ -133,10 +134,12 @@ def initial_setup():
     # authors collection
     authors_collection = Collection(name='Authors')
     root_collection.add_child(instance=authors_collection)
+
+    ## NOPE: articles will be under 'Home'
     # articles index page
-    home_page = Page.objects.get(title='Home')
     articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
-    home_page.add_child(instance=articles_index)
+    #home_page = Page.objects.get(title='Home')
+    #home_page.add_child(instance=articles_index)
 
 
 # authors --------------------------------------------------------------
@@ -858,7 +861,8 @@ class Articles():
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
-        return ArticlesIndexPage.objects.get(title=title)
+        #return ArticlesIndexPage.objects.get(title=title)
+        return Page.objects.get(title=title)
 
     """
 ENCYCFRONT ARTICLE STRUCTURE
