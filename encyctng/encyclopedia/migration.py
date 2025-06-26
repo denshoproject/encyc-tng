@@ -253,7 +253,7 @@ class Authors():
         return author_articles
 
     @staticmethod
-    def alt_names(filename='/opt/encyc-tng/data/author-alts.txt'):
+    def alt_names(filename='/opt/encyc-tng/data/authors/authors-alts.txt'):
         """Read file of alternative author names and return a dict
         Document is formatted:
         Odo,F:                 Odo,Franklin
@@ -570,7 +570,7 @@ class Articles():
         basedir.mkdir(parents=True, exist_ok=True)
         logger.info(f"Articles.download_articles(basedir={basedir}, titles={titles}")
 
-        alts_path = basedir / 'author-alts.txt'
+        alts_path = basedir / 'authors/authors-alts.txt'
         logger.info('Downloading authors')
         authors_by_names,authors_alts = Articles.download_authors(alts_path)
         Articles.dump_authors(
@@ -725,20 +725,20 @@ class Articles():
 
     @staticmethod
     def dump_authors(authors_by_names, authors_alts, basedir):
-        path = basedir / 'authors-by-names.pickle'
+        path = basedir / 'authors/authors-by-names.pickle'
         with path.open('wb') as f:
             sys.setrecursionlimit(10000)
             pickle.dump(authors_by_names, f, pickle.HIGHEST_PROTOCOL)
-        path = basedir / 'authors-alts.json'
+        path = basedir / 'authors/authors-alts.json'
         with path.open('w') as f:
             f.write(json.dumps(authors_alts))
 
     @staticmethod
     def load_authors(basedir):
-        path = basedir / 'authors-by-names.pickle'
+        path = basedir / 'authors/authors-by-names.pickle'
         with path.open('rb') as f:
             authors_by_names = pickle.load(f)
-        path = basedir / 'authors-alts.json'
+        path = basedir / 'authors/authors-alts.json'
         with path.open('r') as f:
             authors_alts = json.loads(f.read())
         return authors_by_names,authors_alts
@@ -760,17 +760,17 @@ class Articles():
 
     @staticmethod
     def dump_sources(sources_collection,sources_by_headword, basedir):
-        path = basedir / 'sources-collection.pickle'
+        path = basedir / 'sources/sources-collection.pickle'
         with path.open('wb') as f:
             sys.setrecursionlimit(10000)
             pickle.dump(sources_collection, f, pickle.HIGHEST_PROTOCOL)
-        path = basedir / 'sources-by-headword.json'
+        path = basedir / 'sources/sources-by-headword.json'
         with path.open('w') as f:
             f.write(json.dumps(sources_by_headword))
 
     @staticmethod
     def load_sources(basedir, jsonl_path):
-        path = basedir / 'sources-collection.pickle'
+        path = basedir / 'sources/sources-collection.pickle'
         with path.open('rb') as f:
             sources_collection = pickle.load(f)
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
