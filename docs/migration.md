@@ -152,6 +152,7 @@ result = migration.Sources.import_sources(primary_sources, sources_dir)
 
 Load article data and import:
 ``` python
+jsonl_path = '/opt/encyc-tng/data/sources/densho-psms-sources-YYYYMMDD.jsonl'
 from pathlib import Path
 from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
