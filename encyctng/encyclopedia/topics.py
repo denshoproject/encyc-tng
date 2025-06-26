@@ -1,3 +1,7 @@
+import json
+from pathlib import Path
+
+from django.conf import settings
 from django.urls import reverse
 
 from wagtail.images.models import Image
@@ -10,24 +14,17 @@ def topics_items():
         image.title: image
         for image in Image.objects.filter(collection=c)
     }
-    topics = [
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['arts']),         'title': 'Arts'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['camps']),        'title': 'Camps'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['chroniclers']),  'title': 'Chroniclers'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['communities']),  'title': 'Communities'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['definitions']),  'title': 'Definitions'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['events']),       'title': 'Events'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['legal']),        'title': 'Legal'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['military']),     'title': 'Military'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['newspapers']),   'title': 'Newspapers'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['organizations']),'title': 'Organizations'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['people']),       'title': 'People'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['post-war']),     'title': 'Post-War'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['pre-war']),      'title': 'Pre-War'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['redress']),      'title': 'Redress'},
-        {'articles': 453, 'image': '', 'url': reverse('encyc-articles-topic',args=['resettlement']), 'title': 'Resettlement'},
-    ]
+    # TODO cache this
+    # TODO store in database instead?
+    path = Path(settings.ENCYC_TOPICS_PATH)
+    if not path.exists():
+        raise Exception(f"Cannot read topics data file {path}.")
+    with path.open('r') as f:
+        topics = json.loads(f.read())
     for topic in topics:
+        topic_id = topic['id']
         if images.get(topic['title']):
             topic['image'] = images.pop(topic['title'])
+        topic['url'] = reverse('encyc-articles-topic',args=[topic_id])
+        topic['articles'] = 123
     return topics

@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 
 from wagtail.documents.models import Document
@@ -160,18 +161,15 @@ def collections_authors_tabs(url):
 def tags_collections_topics(topic=None):
     """
     [
-        {'name': 'All'}, {'name': 'Arts'}, {'name': 'Camps'}, ...
+        {'id':'all', 'name':'All'}, {'id':'arts', 'name':'Arts'}, {'id':'camps', 'name':'Camps'}, ...
     ]
     """
-    tags = [
-        {'name': item['title']}
-        for item in topics_items()
-    ]
-    tags.insert(0, {'name':'All', 'active':True})
+    tags = topics_items()
+    tags.insert(0, {'id':'all', 'title':'All', 'url':'', 'active':True})
     if topic:
-        topic = topic.capitalize()
+        topic = slugify(topic)
         for tag in tags:
-            if tag['name'].capitalize() == topic:
+            if tag['id'] == topic:
                 tag['active'] = True
                 tags[0].pop('active')
     return tags

@@ -32,6 +32,8 @@ from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
 from encyclopedia import footnotes
+from encyclopedia.topics import topics_items
+from home.models import HomePage
 
 
 def load_mediawiki_titles():
@@ -91,12 +93,6 @@ class ArticleTagPage(Page):
         return context
 
 
-ENCYCLOPEDIA_CATEGORIES = [
-    'arts', 'camps', 'chroniclers', 'communities', 'definitions', 'events',
-    'legal', 'military', 'newspapers', 'organizations', 'people', 'postwar',
-    'prewar', 'redress', 'resettlement',
-]
-
 class Article(Page):
     description = RichTextField(blank=True)
     body = StreamField([
@@ -134,7 +130,7 @@ class Article(Page):
     ]
     settings_panels = []
 
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     subpage_types = []
     template = 'patterns/pages/article/article.html'
 
@@ -317,10 +313,11 @@ class Article(Page):
     @staticmethod
     def articles_by_tag():
         """Dict of Articles grouped by tag"""
-        tags_articles = {tag: [] for tag in ENCYCLOPEDIA_CATEGORIES}
+        topic_ids = [topic['id'] for topic in topics_items()]
+        tags_articles = {tag: [] for tag in topic_ids}
         for article in Article.objects.filter(live=True).order_by('title'):
             for tag in article.tags.all():
-                if str(tag) in ENCYCLOPEDIA_CATEGORIES:
+                if str(tag) in topic_ids:
                     tags_articles[str(tag)].append(
                         (article.url, article.title)
                     )
@@ -441,7 +438,7 @@ class ArticleAlbum(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
     class Meta:
@@ -469,7 +466,7 @@ class ArticleArticle(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
     class Meta:
@@ -507,7 +504,7 @@ class ArticleBook(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -550,7 +547,7 @@ class ArticleCamp(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -580,7 +577,7 @@ class ArticleExhibition(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -626,7 +623,7 @@ class ArticleFilm(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -666,7 +663,7 @@ class ArticleMagazine(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -697,7 +694,7 @@ class ArticleNewspaper(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -732,7 +729,7 @@ class ArticlePerson(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
     class Meta:
@@ -794,7 +791,7 @@ class ArticlePlay(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 
@@ -823,7 +820,7 @@ class ArticleWebsite(Article):
         ObjectList(Article.promote_panels, heading='Promote'),
         ObjectList(Article.settings_panels, heading='Settings'),
     ])
-    parent_page_types = ['encyclopedia.ArticlesIndexPage']
+    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
 

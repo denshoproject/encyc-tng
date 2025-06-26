@@ -57,6 +57,7 @@ CSRF_TRUSTED_ORIGINS = [
 CACHE_TIMEOUT = 60 * 15
 CACHE_TIMEOUT_LONG = 60 * 60 * 12
 
+ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
 DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()
 
 # Application definition

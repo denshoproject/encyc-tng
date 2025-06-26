@@ -53,9 +53,11 @@ from encyclopedia.models import Page, Article
 from encyclopedia.models import MediawikiWagtail
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
+from encyclopedia.topics import topics_items
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
-ARTICLES_INDEX_PAGE = 'Encyclopedia'
+#ARTICLES_INDEX_PAGE = 'Encyclopedia'
+ARTICLES_INDEX_PAGE = 'Home'
 ARTICLES_IMAGE_COLLECTION = 'Article Images'
 
 
@@ -123,14 +125,25 @@ def articles(debug, dryrun):
 # setup ----------------------------------------------------------------
 
 def initial_setup():
-    # article images collection
     root_collection = Collection.objects.get(name='Root')
-    article_images = Collection(name=ARTICLES_IMAGE_COLLECTION)
-    root_collection.add_child(instance=article_images)
+    # article images collection
+    article_images_collection = Collection(name=ARTICLES_IMAGE_COLLECTION)
+    root_collection.add_child(instance=article_images_collection)
+    # homepage collection
+    homepage_collection = Collection(name='Home page')
+    root_collection.add_child(instance=homepage_collection)
+    # topics collection
+    topics_collection = Collection(name='Topics')
+    root_collection.add_child(instance=topics_collection)
+    # authors collection
+    authors_collection = Collection(name='Authors')
+    root_collection.add_child(instance=authors_collection)
+
+    ## NOPE: articles will be under 'Home'
     # articles index page
-    home_page = Page.objects.get(title='Home')
     articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
-    home_page.add_child(instance=articles_index)
+    #home_page = Page.objects.get(title='Home')
+    #home_page.add_child(instance=articles_index)
 
 
 # authors --------------------------------------------------------------
@@ -138,10 +151,11 @@ def initial_setup():
 class Authors():
 
     @staticmethod
-    def import_authors(debug):
+    def import_authors(basedir, debug):
         """Migrate MediaWiki author pages to editors.Author wagtail.snippets
         TODO check if author exists before creating
         """
+        authors_collection = Collection.objects.get(name='Authors')
         mw = wiki.MediaWiki()
         mwauthor_titles = Authors.mw_author_titles(mw)
         num = len(mwauthor_titles)
@@ -169,6 +183,12 @@ class Authors():
             wtauthor.display_name = display_name
             wtauthor.description = mwauthor.description
             if debug: click.echo(f"{wtauthor=}")
+            image_path = Path(basedir) / f"authors/authors-{slugify(display_name)}.jpg"
+            if image_path.exists():
+                f = ImageFile(image_path.open('rb'), name=display_name)
+                i = Image(file=f, title=display_name, collection=authors_collection)
+                i.save()
+                wtauthor.image = i
             result = wtauthor.save()
             if debug: click.echo('Saved: {result}')
 
@@ -206,7 +226,11 @@ class Authors():
         if not cached:
             mw_author = LegacyPage.get(mw, title)
             cached = mw_author
-            cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+            try:
+                cache.set(key, cached, settings.CACHE_TIMEOUT_LONG)
+            except RecursionError:
+                print(f"RecursionError: {key=}")
+                pass
         return cached
 
     @staticmethod
@@ -229,7 +253,7 @@ class Authors():
         return author_articles
 
     @staticmethod
-    def alt_names(filename='/opt/encyc-tng/data/author-alts.txt'):
+    def alt_names(filename='/opt/encyc-tng/data/authors/authors-alts.txt'):
         """Read file of alternative author names and return a dict
         Document is formatted:
         Odo,F:                 Odo,Franklin
@@ -486,6 +510,22 @@ class Sources():
         )
 
 
+# topics ---------------------------------------------------------------
+
+def import_topics_images(basedir):
+    topics_collection = Collection.objects.get(name='Topics')
+    print(f"{topics_collection=}")
+    for topic in topics_items():
+        tid = topic['id']
+        title = topic['title']
+        path = Path(basedir) / f"topics/encyctng-topics-{tid}.png"
+        print(f"{path=}")
+        f = ImageFile(path.open('rb'), name=title)  # django..ImageFile
+        i = Image(file=f, title=title, collection=topics_collection)
+        i.save()
+
+
+
 # articles -------------------------------------------------------------
 
 class PageIsRedirectException(Exception):
@@ -530,7 +570,7 @@ class Articles():
         basedir.mkdir(parents=True, exist_ok=True)
         logger.info(f"Articles.download_articles(basedir={basedir}, titles={titles}")
 
-        alts_path = basedir / 'author-alts.txt'
+        alts_path = basedir / 'authors/authors-alts.txt'
         logger.info('Downloading authors')
         authors_by_names,authors_alts = Articles.download_authors(alts_path)
         Articles.dump_authors(
@@ -685,20 +725,20 @@ class Articles():
 
     @staticmethod
     def dump_authors(authors_by_names, authors_alts, basedir):
-        path = basedir / 'authors-by-names.pickle'
+        path = basedir / 'authors/authors-by-names.pickle'
         with path.open('wb') as f:
             sys.setrecursionlimit(10000)
             pickle.dump(authors_by_names, f, pickle.HIGHEST_PROTOCOL)
-        path = basedir / 'authors-alts.json'
+        path = basedir / 'authors/authors-alts.json'
         with path.open('w') as f:
             f.write(json.dumps(authors_alts))
 
     @staticmethod
     def load_authors(basedir):
-        path = basedir / 'authors-by-names.pickle'
+        path = basedir / 'authors/authors-by-names.pickle'
         with path.open('rb') as f:
             authors_by_names = pickle.load(f)
-        path = basedir / 'authors-alts.json'
+        path = basedir / 'authors/authors-alts.json'
         with path.open('r') as f:
             authors_alts = json.loads(f.read())
         return authors_by_names,authors_alts
@@ -720,17 +760,17 @@ class Articles():
 
     @staticmethod
     def dump_sources(sources_collection,sources_by_headword, basedir):
-        path = basedir / 'sources-collection.pickle'
+        path = basedir / 'sources/sources-collection.pickle'
         with path.open('wb') as f:
             sys.setrecursionlimit(10000)
             pickle.dump(sources_collection, f, pickle.HIGHEST_PROTOCOL)
-        path = basedir / 'sources-by-headword.json'
+        path = basedir / 'sources/sources-by-headword.json'
         with path.open('w') as f:
             f.write(json.dumps(sources_by_headword))
 
     @staticmethod
     def load_sources(basedir, jsonl_path):
-        path = basedir / 'sources-collection.pickle'
+        path = basedir / 'sources/sources-collection.pickle'
         with path.open('rb') as f:
             sources_collection = pickle.load(f)
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
@@ -841,7 +881,8 @@ class Articles():
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
-        return ArticlesIndexPage.objects.get(title=title)
+        #return ArticlesIndexPage.objects.get(title=title)
+        return Page.objects.get(title=title)
 
     """
 ENCYCFRONT ARTICLE STRUCTURE

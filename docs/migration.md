@@ -41,9 +41,10 @@ rsync -avz ansible@192.168.0.24:/var/www/encycpsms/media/sources /opt/encyc-tng/
 ```
 Download Primary Source metadata from the API:
 ``` python
+jsonl_path = '/opt/encyc-tng/data/sources/densho-psms-sources-YYYYMMDD.jsonl'
 from encyclopedia.migration import Sources
 sources = [source for source in Sources.load_psms_sources_api().values()]
-Sources.save_psms_sources_jsonl(sources, '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl')
+Sources.save_psms_sources_jsonl(sources, jsonl_path)
 ```
 
 mkdir -p /opt/encyc-tng/data/articles
@@ -114,18 +115,27 @@ from encyclopedia import migration
 migration.initial_setup()
 ```
 
+## Topics
+
+``` python
+from encyclopedia import migration
+basedir = '/opt/encyc-tng/data'
+migration.import_topics_images(basedir)
+```
+
 ## Authors
 
 ``` python
 from encyclopedia import migration
-migration.Authors.import_authors(debug=True)
+basedir = '/opt/encyc-tng/data'
+migration.Authors.import_authors(basedir, debug=True)
 ```
 
 ## Primary Sources
 
 Load metadata and import Primary Sources:
 ``` python
-jsonl_path = '/opt/encyc-tng/data/densho-psms-sources-YYYYMMDD.jsonl'
+jsonl_path = '/opt/encyc-tng/data/sources/densho-psms-sources-YYYYMMDD.jsonl'
 from pathlib import Path
 from encyclopedia import migration
 jsonl_path = Path(jsonl_path)
@@ -142,12 +152,17 @@ result = migration.Sources.import_sources(primary_sources, sources_dir)
 
 Load article data and import:
 ``` python
+jsonl_path = '/opt/encyc-tng/data/sources/densho-psms-sources-YYYYMMDD.jsonl'
 from pathlib import Path
 from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
 migration.Articles.import_articles(basedir, jsonl_path)
 ```
 
+
+## Misc
+
+Not sure what this is...
 ``` python
 from pathlib import Path
 from encyc import wiki
