@@ -53,6 +53,7 @@ from encyclopedia.models import Page, Article
 from encyclopedia.models import MediawikiWagtail
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
+from encyclopedia.topics import topics_items
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 #ARTICLES_INDEX_PAGE = 'Encyclopedia'
@@ -507,6 +508,22 @@ class Sources():
             data['streams'][0]['height'],
             data['streams'][0]['duration'],
         )
+
+
+# topics ---------------------------------------------------------------
+
+def import_topics_images(basedir):
+    topics_collection = Collection.objects.get(name='Topics')
+    print(f"{topics_collection=}")
+    for topic in topics_items():
+        tid = topic['id']
+        title = topic['title']
+        path = Path(basedir) / f"topics/encyctng-topics-{tid}.png"
+        print(f"{path=}")
+        f = ImageFile(path.open('rb'), name=title)  # django..ImageFile
+        i = Image(file=f, title=title, collection=topics_collection)
+        i.save()
+
 
 
 # articles -------------------------------------------------------------

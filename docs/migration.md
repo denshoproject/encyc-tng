@@ -114,6 +114,14 @@ from encyclopedia import migration
 migration.initial_setup()
 ```
 
+## Topics
+
+``` python
+from encyclopedia import migration
+basedir = '/opt/encyc-tng/data'
+migration.import_topics_images(basedir)
+```
+
 ## Authors
 
 ``` python
