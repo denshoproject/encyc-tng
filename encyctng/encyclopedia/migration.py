@@ -128,6 +128,9 @@ def initial_setup():
     # article images collection
     article_images_collection = Collection(name=ARTICLES_IMAGE_COLLECTION)
     root_collection.add_child(instance=article_images_collection)
+    # homepage collection
+    homepage_collection = Collection(name='Home page')
+    root_collection.add_child(instance=homepage_collection)
     # topics collection
     topics_collection = Collection(name='Topics')
     root_collection.add_child(instance=topics_collection)
