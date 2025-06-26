@@ -118,7 +118,8 @@ migration.initial_setup()
 
 ``` python
 from encyclopedia import migration
-migration.Authors.import_authors(debug=True)
+basedir = '/opt/encyc-tng/data'
+migration.Authors.import_authors(basedir, debug=True)
 ```
 
 ## Primary Sources

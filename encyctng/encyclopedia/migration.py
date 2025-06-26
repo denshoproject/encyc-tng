@@ -144,10 +144,11 @@ def initial_setup():
 class Authors():
 
     @staticmethod
-    def import_authors(debug):
+    def import_authors(basedir, debug):
         """Migrate MediaWiki author pages to editors.Author wagtail.snippets
         TODO check if author exists before creating
         """
+        authors_collection = Collection.objects.get(name='Authors')
         mw = wiki.MediaWiki()
         mwauthor_titles = Authors.mw_author_titles(mw)
         num = len(mwauthor_titles)
@@ -175,6 +176,12 @@ class Authors():
             wtauthor.display_name = display_name
             wtauthor.description = mwauthor.description
             if debug: click.echo(f"{wtauthor=}")
+            image_path = Path(basedir) / f"authors/authors-{slugify(display_name)}.jpg"
+            if image_path.exists():
+                f = ImageFile(image_path.open('rb'), name=display_name)
+                i = Image(file=f, title=display_name, collection=authors_collection)
+                i.save()
+                wtauthor.image = i
             result = wtauthor.save()
             if debug: click.echo('Saved: {result}')
 
