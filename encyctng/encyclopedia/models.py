@@ -32,6 +32,7 @@ from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
 from encyclopedia import footnotes
+from encyclopedia.topics import topics_items
 from home.models import HomePage
 
 
@@ -91,12 +92,6 @@ class ArticleTagPage(Page):
         context['articles'] = articles
         return context
 
-
-ENCYCLOPEDIA_CATEGORIES = [
-    'arts', 'camps', 'chroniclers', 'communities', 'definitions', 'events',
-    'legal', 'military', 'newspapers', 'organizations', 'people', 'postwar',
-    'prewar', 'redress', 'resettlement',
-]
 
 class Article(Page):
     description = RichTextField(blank=True)
@@ -318,10 +313,11 @@ class Article(Page):
     @staticmethod
     def articles_by_tag():
         """Dict of Articles grouped by tag"""
-        tags_articles = {tag: [] for tag in ENCYCLOPEDIA_CATEGORIES}
+        topic_ids = [topic['id'] for topic in topics_items()]
+        tags_articles = {tag: [] for tag in topic_ids}
         for article in Article.objects.filter(live=True).order_by('title'):
             for tag in article.tags.all():
-                if str(tag) in ENCYCLOPEDIA_CATEGORIES:
+                if str(tag) in topic_ids:
                     tags_articles[str(tag)].append(
                         (article.url, article.title)
                     )
