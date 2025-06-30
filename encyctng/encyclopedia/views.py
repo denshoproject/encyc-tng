@@ -10,6 +10,7 @@ from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtailmedia.models import Media
 from wagtail.models.media import Collection
+from wagtail.search.utils import parse_query_string
 
 from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
@@ -89,7 +90,7 @@ def articles_search(request, topic=None):
     query_string = request.GET.get('query', None)
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
-    if query:
+    if query_string:
         filters, query = parse_query_string(query_string, operator='and')
         articles = Article.objects.filter(live=True).search(query)
         # Log the query so Wagtail can suggest promoted results
@@ -101,7 +102,7 @@ def articles_search(request, topic=None):
     page_obj = paginator.get_page(page_number)
     page_range = page_obj.paginator.get_elided_page_range(page_number)
     return render(request, 'patterns/pages/collections/collections-search.html', {
-        'query': query,
+        'query': query_string,
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
         'tags': tags_collections_topics(topic),
         'page_obj': page_obj,
