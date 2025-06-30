@@ -84,6 +84,30 @@ def articles_az(request):
         'page_range': page_range,
     })
 
+#@cache_page(settings.CACHE_TIMEOUT)
+def articles_search(request, topic=None):
+    query_string = request.GET.get('query', None)
+    page_size = int(request.GET.get('pagesize', 30))
+    page_number = int(request.GET.get('page', 1))
+    if query:
+        filters, query = parse_query_string(query_string, operator='and')
+        articles = Article.objects.filter(live=True).search(query)
+        # Log the query so Wagtail can suggest promoted results
+        #from wagtail.contrib.search_promotions.models import Query
+        #Query.get(query).add_hit()
+    else:
+        articles = Article.objects.none()
+    paginator = Paginator(articles, page_size)
+    page_obj = paginator.get_page(page_number)
+    page_range = page_obj.paginator.get_elided_page_range(page_number)
+    return render(request, 'patterns/pages/collections/collections-search.html', {
+        'query': query,
+        'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
+        'tags': tags_collections_topics(topic),
+        'page_obj': page_obj,
+        'page_range': page_range,
+    })
+
 """
 from django.db.models.functions import Left
 from encyclopedia.models import Article
