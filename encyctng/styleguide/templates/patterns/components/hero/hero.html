@@ -4,9 +4,9 @@
     <div class="hero__container">
         <div class="hero__content">
             <h1 class="hero__title">{{ hero.title }}</h1>
-            <form class="hero__search">
+            <form action="{% url "encyc-articles-search" %}" method="get" role="search" class="hero__search">
                 <label class="sr-only hero__search-label" for="hero-search">Search 1,700+ articles</label>
-                <input class="hero__search-input body" type="input" placeholder="Search 1,700+ articles" id="hero-search">
+                <input class="hero__search-input body" type="input" placeholder="Search 1,700+ articles" id="hero-search" name="query">
                 <button class="hero__search-button" type="submit" aria-label="Search">
                     {% include "patterns/components/icons/icon.html" with name="magnifying-glass" classname="hero__search-icon" %}
                 </button>
