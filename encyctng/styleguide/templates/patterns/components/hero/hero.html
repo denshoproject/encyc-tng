@@ -4,10 +4,19 @@
     <div class="hero__container">
         <div class="hero__content">
             <h1 class="hero__title">{{ hero.title }}</h1>
+            <!-- components/hero/hero.html -->
             <form action="{% url "encyc-articles-search" %}" method="get" role="search" class="hero__search">
-                <label class="sr-only hero__search-label" for="hero-search">Search 1,700+ articles</label>
-                <input class="hero__search-input body" type="input" placeholder="Search 1,700+ articles" id="hero-search" name="query">
-                <button class="hero__search-button" type="submit" aria-label="Search">
+                <label class="sr-only hero__search-label" for="hero-search">
+                    Search 1,700+ articles
+                </label>
+                <input
+                    name="query"
+                    type="input"
+                    placeholder="Search 1,700+ articles"
+                    class="hero__search-input body"
+                    id="hero-search"
+                    >
+                <button type="submit" aria-label="Search" class="hero__search-button">
                     {% include "patterns/components/icons/icon.html" with name="magnifying-glass" classname="hero__search-icon" %}
                 </button>
             </form>
