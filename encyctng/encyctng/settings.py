@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'modelcluster',
+    'ninja',
     'pattern_library',
     'taggit',
     'wagtail',

@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.images.models import Image
@@ -34,8 +35,14 @@ class Author(models.Model):
     def __str__(self):
         return f"{self.display_name}"
 
+    def slug(self):
+        return slugify(self.display_name)
+
     def get_absolute_url(self):
         return reverse('encyc-author', args=[self.id])
 
     def title(self):
         return self.display_name
+
+    def title_sort(self):
+        return slugify(f"{self.family_name} {self.given_name}")

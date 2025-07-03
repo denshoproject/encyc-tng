@@ -25,7 +25,10 @@ class Topics():
 
     def article_terms(self, title: str) -> int:
         slug = slugify(title)
-        term_ids = self.slugs_termids[slug]
+        try:
+            term_ids = self.slugs_termids[slug]
+        except KeyError:
+            return []
         terms = []
         for tid in term_ids:
             try:
