@@ -78,7 +78,7 @@ def authors_list(request: "HttpRequest"):
 
 @router.get("/authors/{slug}", url_name='author-detail')
 def author(request, slug: str):
-    author = Author.objects.get(id=slug)
+    author = Author.objects.get(slug=slug)
     data = {
         "title_sort": author.title_sort(),
         "links": {

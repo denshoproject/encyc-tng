@@ -142,9 +142,8 @@ def authors(request, template_name='encyclopedia/authors.html'):
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
-def author(request, author_id):
-    # TODO use slug instead of author_id
-    author = Author.objects.get(id=author_id)
+def author(request, slug):
+    author = Author.objects.get(slug=slug)
     # TODO optimize query (restrict fields)
     articles = author.article_set.all()
     return render(request, 'patterns/pages/collections/collections--author.html', {
