@@ -10,6 +10,7 @@ from wagtail.snippets.models import register_snippet
 
 @register_snippet
 class Author(models.Model):
+    slug = models.CharField(max_length=255, blank=True, null=True)
     family_name = models.CharField(max_length=255)
     given_name = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
@@ -33,16 +34,17 @@ class Author(models.Model):
         verbose_name_plural = 'Authors'
 
     def __str__(self):
-        return f"{self.display_name}"
-
-    def slug(self):
-        return slugify(self.display_name)
+        return self.slug
 
     def get_absolute_url(self):
-        return reverse('encyc-author', args=[self.id])
+        return reverse('encyc-author', args=[self.slug])
 
     def title(self):
         return self.display_name
 
     def title_sort(self):
         return slugify(f"{self.family_name} {self.given_name}")
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.display_name)
+        super(Author, self).save(*args, **kwargs)
