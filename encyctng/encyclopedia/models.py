@@ -94,6 +94,7 @@ class ArticleTagPage(Page):
 
 
 class Article(Page):
+    title_sort = models.CharField(max_length=255, blank=True, null=True)
     description = RichTextField(blank=True)
     body = StreamField([
             ('heading', HeadingBlock()),
@@ -124,6 +125,7 @@ class Article(Page):
     ]
     promote_panels = [
         MultiFieldPanel([
+            FieldPanel('title_sort'),
             FieldPanel('authors', widget=forms.SelectMultiple),
             FieldPanel('tags'),
         ], heading='Metadata'),
@@ -135,8 +137,14 @@ class Article(Page):
     template = 'patterns/pages/article/article.html'
 
     class Meta:
+        ordering = ['title_sort','title']
         verbose_name = "Article"
         verbose_name_plural = "Articles"
+
+    def save(self, *args, **kwargs):
+        if not self.title_sort:
+            self.title_sort = slugify(self.title)
+        super(Article, self).save(*args, **kwargs)
 
     def initial(self):
         return self.title[0].upper()
