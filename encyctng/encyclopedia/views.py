@@ -50,10 +50,13 @@ def articles_topic(request, topic=None):
             topic = None
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
+
     if topic:
-        articles = Article.objects.order_by('title').filter(tags__name__in=[topic]).prefetch_related('tags')
+        articles = Article.objects.filter(tags__name__in=[topic])
     else:
-        articles = Article.objects.order_by('title').all().prefetch_related('tags')
+        articles = Article.objects.all()
+    articles = articles.order_by('title_sort').prefetch_related('tags')
+
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
     page_range = page_obj.paginator.get_elided_page_range(page_number)
@@ -71,10 +74,13 @@ def articles_az(request):
         initial = None
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
+
     if initial:
-        articles = Article.objects.order_by('title').filter(title__istartswith=initial).prefetch_related('tags')
+        articles = Article.objects.filter(title_sort__istartswith=initial)
     else:
-        articles = Article.objects.order_by('title').all().prefetch_related('tags')
+        articles = Article.objects.all()
+    articles = articles.order_by('title_sort').prefetch_related('tags')
+
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
     page_range = page_obj.paginator.get_elided_page_range(page_number)
