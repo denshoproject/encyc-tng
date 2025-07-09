@@ -925,6 +925,11 @@ description
             article_is_new = True
         logger.info(f"{article=}")
 
+        if mwpage.title_sort:
+            article.title_sort = mwpage.title_sort
+        else:
+            article.title_sort = slugify(mwpage.title)
+
         Articles.set_databox_fields(article, databox, databox_name)
 
         #article.lastmod = mwpage.lastmod
