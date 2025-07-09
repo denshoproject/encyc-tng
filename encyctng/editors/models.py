@@ -34,7 +34,7 @@ class Author(models.Model):
         verbose_name_plural = 'Authors'
 
     def __str__(self):
-        return self.slug
+        return self.display_name
 
     def get_absolute_url(self):
         return reverse('encyc-author', args=[self.slug])
