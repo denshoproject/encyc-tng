@@ -31,6 +31,7 @@ class Author(models.Model):
     ]
 
     class Meta:
+        ordering = ['family_name','given_name']
         verbose_name_plural = 'Authors'
 
     def __str__(self):
