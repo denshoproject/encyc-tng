@@ -127,10 +127,13 @@ def authors(request, template_name='encyclopedia/authors.html'):
         initial = None
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
+
     if initial:
-        authors = Author.objects.order_by('family_name','given_name').filter(family_name__istartswith=initial)
+        authors = Author.objects.filter(family_name__istartswith=initial)
     else:
-        authors = Author.objects.order_by('family_name','given_name').all()
+        authors = Author.objects.all()
+    authors = authors.order_by('family_name','given_name')
+
     paginator = Paginator(authors, page_size)
     page_obj = paginator.get_page(page_number)
     page_range = page_obj.paginator.get_elided_page_range(page_number)
