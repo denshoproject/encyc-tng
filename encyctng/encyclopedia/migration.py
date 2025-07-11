@@ -608,7 +608,7 @@ class Articles():
                 logger.error(traceback.format_exc())
 
     @staticmethod
-    def import_articles(basedir, sources_jsonl, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, skip=[], errfile=''):
+    def import_articles(basedir, sources_jsonl, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
         """
         """
         logger.info(f"Articles.import_articles(basedir={basedir}, dryrun={dryrun})")
@@ -631,6 +631,8 @@ class Articles():
         num = len(titles)
         start = datetime.now()
         for n,title in enumerate(titles):
+            if limit and n > limit:
+                break
             if (title in skip) or (n < offset):
                 skipped = '[skipped] '
             else:
