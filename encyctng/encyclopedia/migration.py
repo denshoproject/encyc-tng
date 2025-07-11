@@ -1404,7 +1404,7 @@ description
         </div>
         </div>
         """
-        soup = BeautifulSoup(mwtext)
+        soup = BeautifulSoup(mwtext, 'lxml')
         div = soup.find(id='RelatedArticlesSectionDisplay')
         if div:
             return [(li.a['href'],li.a['title']) for li in div.find_all('li')]
