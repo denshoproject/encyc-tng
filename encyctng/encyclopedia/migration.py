@@ -633,17 +633,17 @@ class Articles():
         for n,title in enumerate(titles):
             if limit and n > limit:
                 logger.info('LIMIT')
-                click.echo('LIMIT')
+                click.secho('LIMIT')
                 break
 
             if (title in skip) or (n < offset):
                 logger.info(f"{n+1}/{num} [ skipped] {title=}")
-                click.echo(f"{n+1}/{num} [ skipped] {title=}")
+                click.secho(f"{n+1}/{num} [ skipped] {title=}", fg=(50,50,50))
                 continue
 
             if title in redirects.keys():
                 logger.info(f"{n+1}/{num} [redirect] {title=} -> {redirects[title]}")
-                click.echo(f"{n+1}/{num} [redirect] {title=} -> {redirects[title]}")
+                click.secho(f"{n+1}/{num} [redirect] {title=} -> {redirects[title]}", fg=(50,50,50))
                 # TODO add Wagtail redirect
                 continue
 
@@ -658,23 +658,23 @@ class Articles():
                 Articles.log_error(title, err, errfile)
             if not mwpage:
                 logger.info(f"{n+1}/{num} [  ERROR ] {title=} -- NO MWPAGE")
-                click.echo( f"{n+1}/{num} [  ERROR ] {title=} -- NO MWPAGE")
+                click.secho(f"{n+1}/{num} [  ERROR ] {title=} -- NO MWPAGE", fg='red')
                 continue
 
             if Articles.is_author(mwpage, mw):
                 logger.info(f"{n+1}/{num} [  author] {title=}")
-                click.echo(f"{n+1}/{num} [  author] {title=}")
+                click.secho(f"{n+1}/{num} [  author] {title=}", fg=(50,50,50))
                 continue
 
             is_resourceguide_only = Articles.is_resourceguide_only(mwpage, pagedata)
             logging.info(f"{is_resourceguide_only=}")
             if is_resourceguide_only:
                 logger.info(f"{n+1}/{num} [ rsguide] {title=}")
-                click.echo(f"{n+1}/{num} [ rsguide] {title=}")
+                click.secho(f"{n+1}/{num} [ rsguide] {title=}", fg=(50,50,50))
                 continue
 
             logger.info(f"{n+1}/{num} [ARTICLE ] {title=}")
-            click.echo(f"{n+1}/{num} [ARTICLE ] {title=}")
+            click.secho(f"{n+1}/{num} [ARTICLE ] {title=}", bold=True)
             try:
                 article = Articles.import_article(
                     mw, mwpage, mwtext, pagedata,
