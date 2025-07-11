@@ -632,19 +632,21 @@ class Articles():
         start = datetime.now()
         for n,title in enumerate(titles):
             if limit and n > limit:
+                logger.info('LIMIT')
+                click.echo('LIMIT')
                 break
+
             if (title in skip) or (n < offset):
-                skipped = '[skipped] '
-            else:
-                skipped = ''
-            logger.info(f"{n+1}/{num} {skipped}{title=}")
-            click.echo(f"{n+1}/{num} {skipped}{title=}")
-            if (title in skip) or (n < offset):
+                logger.info(f"{n+1}/{num} [ skipped] {title=}")
+                click.echo(f"{n+1}/{num} [ skipped] {title=}")
                 continue
+
             if title in redirects.keys():
-                print(f"REDIRECT {title} -> {redirects[title]}")
+                logger.info(f"{n+1}/{num} [redirect] {title=} -> {redirects[title]}")
+                click.echo(f"{n+1}/{num} [redirect] {title=} -> {redirects[title]}")
                 # TODO add Wagtail redirect
                 continue
+
             try:
                 mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
                 if justload:
@@ -654,7 +656,25 @@ class Articles():
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
                 logger.error(traceback.format_exc())
                 Articles.log_error(title, err, errfile)
-            logger.info('importing...')
+            if not mwpage:
+                logger.info(f"{n+1}/{num} [  ERROR ] {title=} -- NO MWPAGE")
+                click.echo( f"{n+1}/{num} [  ERROR ] {title=} -- NO MWPAGE")
+                continue
+
+            if Articles.is_author(mwpage, mw):
+                logger.info(f"{n+1}/{num} [  author] {title=}")
+                click.echo(f"{n+1}/{num} [  author] {title=}")
+                continue
+
+            is_resourceguide_only = Articles.is_resourceguide_only(mwpage, pagedata)
+            logging.info(f"{is_resourceguide_only=}")
+            if is_resourceguide_only:
+                logger.info(f"{n+1}/{num} [ rsguide] {title=}")
+                click.echo(f"{n+1}/{num} [ rsguide] {title=}")
+                continue
+
+            logger.info(f"{n+1}/{num} [ARTICLE ] {title=}")
+            click.echo(f"{n+1}/{num} [ARTICLE ] {title=}")
             try:
                 article = Articles.import_article(
                     mw, mwpage, mwtext, pagedata,
@@ -904,16 +924,6 @@ description
 
     @staticmethod
     def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
-        # resource guide page?
-        if Articles.is_author(mwpage, mw):
-            logger.info('AUTHOR PAGE - SKIPPING')
-            return
-        is_resourceguide_only = Articles.is_resourceguide_only(mwpage, pagedata)
-        logging.info(f"{is_resourceguide_only=}")
-        if is_resourceguide_only:
-            logger.info('RESOURCE-GUIDE-ONLY PAGE - SKIPPING')
-            return
-
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
