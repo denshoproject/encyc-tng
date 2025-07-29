@@ -970,14 +970,14 @@ description
         # TODO write related articles to file? database?
         related_articles = Articles.parse_related_articles(mwtext)
 
-        sources_blocks = Articles.streamfield_media_blocks(
-            mwpage.title,
-            sources_by_headword,
-            Sources.source_keys_by_filename(
-                sources_by_headword.get(mwpage.title,[]),
-                sources_collection
-            )
+        sources_for_title = sources_by_headword.get(mwpage.title,[])
+        source_pks = Sources.source_keys_by_filename(
+            sources_for_title, sources_collection
         )
+        sources_blocks = Articles.streamfield_media_blocks(
+            sources_by_headword.get(mwpage.title, []), source_pks,
+        )
+
         article.description = mwpage.description
         if not article.description:
             article.description = ''
@@ -989,9 +989,11 @@ description
         if article_blocks and not article.description:
             logger.info("Making block 0 the description")
             article.description = article_blocks.pop(0)
-        article.body = json.dumps(
-            sources_blocks + article_blocks
-        )
+        # only prepend Source blocks that are not None
+        for source_block in sources_blocks:
+            if source_block:
+                article_blocks.insert(0, source_block)
+        article.body = json.dumps(article_blocks)
         Footnotary.update_footnotes(article, fields=None, request=None, save=False)
 
         if article_is_new and not dryrun:
@@ -1373,30 +1375,27 @@ description
         return newblocks
 
     @staticmethod
-    def streamfield_media_blocks(title, sources_by_headword, source_pks_by_filename):
+    def streamfield_media_blocks(sources, source_pks_by_filename):
         """Consume primary source data from a page and product DDRObjectBlock data
-     
+
         Block format:
         ('BLOCKTYPE', {'type':'BLOCKTYPE', 'value': {'FIELD1':VALUE1, ...}})
         """
         blocks = []
-        for source in sources_by_headword.get(title,[]):
+        for source in sources:
+            block = None
             if source['media_format'] == 'image':
-                blocks.append(
-                    ImageBlock.block_from_source(source, source_pks_by_filename)
-                )
+                block = ImageBlock.block_from_source(source, source_pks_by_filename)
             elif source['media_format'] == 'video':
-                blocks.append(
-                    VideoBlock.block_from_source(source, source_pks_by_filename)
-                )
+                block = VideoBlock.block_from_source(source, source_pks_by_filename)
             elif source['media_format'] == 'document':
-                blocks.append(
-                    DocumentBlock.block_from_source(source, source_pks_by_filename)
-                )
+                block = DocumentBlock.block_from_source(source, source_pks_by_filename)
             else:
                 raise Exception(
                     f"Don't recognize media_format '{source['media_format']}!"
                 )
+            if block:
+                blocks.append(block)
         return blocks
 
     @staticmethod
