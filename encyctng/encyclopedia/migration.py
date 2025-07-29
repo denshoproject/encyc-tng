@@ -673,6 +673,7 @@ class Articles():
                 click.secho(f"{n+1}/{num} [ rsguide] {title=}", fg=(50,50,50))
                 continue
 
+            logger.info('------------------------------------------------------------------------')
             logger.info(f"{n+1}/{num} [ARTICLE ] {title=}")
             click.secho(f"{n+1}/{num} [ARTICLE ] {title=}", bold=True)
             try:
@@ -711,6 +712,8 @@ class Articles():
                     return
             except Exception as err:
                 errors.append(title)
+                click.secho(f"{datetime.now() - start} {n+1}/{num} ERR {err} | {title}", fg='red')
+                click.echo(traceback.format_exc())
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
                 logger.error(traceback.format_exc())
                 Articles.log_error(title, err, errfile)
