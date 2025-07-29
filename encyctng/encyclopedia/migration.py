@@ -1562,7 +1562,26 @@ def _mw_databox(mw_page):
 
 
 
+def test_import_articles(limit=None):
+    jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
+    #from pathlib import Path
+    #from encyclopedia import migration
+    basedir = Path('/opt/encyc-tng/data')
+    Articles.import_articles(basedir, jsonl_path, limit=limit)
 
+def test_import_article(title):
+    #from pathlib import Path
+    #from encyc import wiki
+    #from encyclopedia.migration import Authors, Articles
+    jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
+    basedir = Path('/opt/encyc-tng/data')
+    url_prefix = '/wiki/'
+    mw = wiki.MediaWiki()
+    authors_by_names,authors_alts, sources_collection,sources_by_headword, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
+    index_page = Articles.prep_wagtail()
+    mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
+    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page)
+    return article,related_articles
 
 
 
