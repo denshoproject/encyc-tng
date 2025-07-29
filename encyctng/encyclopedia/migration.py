@@ -930,7 +930,7 @@ description
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
-            article = article_class.objects.get(title=title)
+            article = article_class.objects.get(title=mwpage.title)
             article_is_new = False
         except:
             article = article_class(
@@ -939,6 +939,7 @@ description
             )
             article_is_new = True
         logger.info(f"{article=}")
+        logger.info(f"{article_is_new=}")
 
         if mwpage.title_sort:
             article.title_sort = mwpage.title_sort
