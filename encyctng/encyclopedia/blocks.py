@@ -124,6 +124,23 @@ class ImageBlock(StructBlock):
         template = 'patterns/components/full_width_image/full_width_image.html'
         value_class = ImageBlockStructValue
 
+    @staticmethod
+    def block_from_source(source, source_pks_by_filename):
+        """StreamField representation of ImageBlock from PSMS source"""
+        filename = Path(source['original_path']).name
+        image_pk = source_pks_by_filename['image'].get(filename)
+        return {
+            'type': 'imageblock',
+            'value': {
+                'image': image_pk,
+                'caption': source['caption'],
+                'caption2': source['caption_extended'],
+                'courtesy': source['courtesy'],
+                'creative_commons': source['creative_commons'],
+                'ext_url': source['external_url'],
+            }
+        }
+
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
         # add our block value as the "item" variable for the template
@@ -169,6 +186,27 @@ class VideoBlock(StructBlock):
         template = 'patterns/components/full_width_image/full_width_image.html'
         value_class = VideoBlockStructValue
 
+    @staticmethod
+    def block_from_source(source, source_pks_by_filename):
+        """StreamField representation of VideoBlock from PSMS source"""
+        video_pk = source_pks_by_filename['video'].get(
+            Path(source['original_path']).name
+        )
+        transcript_pk = source_pks_by_filename['document'].get(
+            Path(source['transcript']).name
+        )
+        return {
+            'type': 'videoblock',
+            'value': {
+                'video': video_pk,
+                'transcript': transcript_pk,
+                'caption': source['caption'],
+                'caption2': source['caption_extended'],
+                'courtesy': source['courtesy'],
+                'creative_commons': source['creative_commons'],
+            }
+        }
+
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
         # add our block value as the "item" variable for the template
@@ -212,6 +250,28 @@ class DocumentBlock(StructBlock):
         label = 'Document'
         template = 'patterns/components/full_width_image/full_width_image.html'
         value_class = DocumentBlockStructValue
+
+    @staticmethod
+    def block_from_source(source, source_pks_by_filename):
+        """StreamField representation of DocumentBlock from PSMS source"""
+        document_pk = source_pks_by_filename['document'].get(
+            Path(source['original_path']).name
+        )
+        display_pk = source_pks_by_filename['image'].get(
+            Path(source['display_path']).name
+        )
+        return {
+            'type': 'documentblock',
+            'value': {
+                'document': document_pk,
+                'display': display_pk,
+                'caption': source['caption'],
+                'caption2': source['caption_extended'],
+                'courtesy': source['courtesy'],
+                'creative_commons': source['creative_commons'],
+                'ext_url': source['external_url'],
+            }
+        }
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
