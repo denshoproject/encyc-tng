@@ -759,9 +759,16 @@ class Articles():
 
     @staticmethod
     def load_authors(basedir):
-        path = basedir / 'authors-by-names.pickle'
-        with path.open('rb') as f:
-            authors_by_names = pickle.load(f)
+        #path = basedir / 'authors-by-names.pickle'
+        #with path.open('rb') as f:
+        #    authors_by_names = pickle.load(f)
+        # no longer makes sense to load from pickle
+        # migrate process has evolved and by this point in process
+        # the authors are already in the database
+        authors_by_names = {
+            f"{author.family_name},{author.given_name}": author
+            for author in Author.objects.all()
+        }
         path = basedir / 'authors-alts.json'
         with path.open('r') as f:
             authors_alts = json.loads(f.read())
@@ -1008,6 +1015,11 @@ description
         if not dryrun:
             for author in authors:
                 article.authors.add(author)
+            # remove mistaken authors on updates
+            if not article_is_new:
+                for author in article.authors.all():
+                    if author not in authors:
+                        article.authors.remove(author)
             article.save_revision().publish()
 
         wm = MediawikiWagtail(
