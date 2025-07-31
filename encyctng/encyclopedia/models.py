@@ -95,7 +95,13 @@ class ArticleTagPage(Page):
 
 class Article(Page):
     title_sort = models.CharField(max_length=255, blank=True, null=True)
-    description = RichTextField(blank=True)
+    description = StreamField([
+            ('paragraph', ArticleTextBlock()),
+        ],
+        blank=False,
+        use_json_field=True,
+        help_text='Description should only be one paragraph.',
+    )
     body = StreamField([
             ('heading', HeadingBlock()),
             ('paragraph', ArticleTextBlock()),
