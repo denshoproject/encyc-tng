@@ -28,7 +28,9 @@
                 {# endif #}
             </ul>
             <div class="hero-split__introduction intro">
-                {{ hero.introduction|richtext }}
+                <div class="sf__block sf__block--{{ block.block_type }}">
+                    {% include_block hero.introduction %}
+                </div>
             </div>
             {% if skip %}
                 <a href="#body" class="hero-split__skip meta meta--small">
