@@ -999,7 +999,9 @@ description
         logger.info(f"{len(article_blocks)=}")
         if article_blocks and not article.description:
             logger.info("Making block 0 the description")
-            article.description = article_blocks.pop(0)
+            # article.description is a StreamField,
+            # which is a list containing StreamBlocks
+            article.description = [article_blocks.pop(0)]
         # only prepend Source blocks that are not None
         for source_block in sources_blocks:
             if source_block:
