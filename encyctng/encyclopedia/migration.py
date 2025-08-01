@@ -1002,6 +1002,9 @@ description
             # article.description is a StreamField,
             # which is a list containing StreamBlocks
             article.description = [article_blocks.pop(0)]
+        # merge successive paragraph blocks
+        # (must come after article.description separation)
+        article_blocks = Articles.merge_streamfield_blocks(article_blocks)
         # only prepend Source blocks that are not None
         for source_block in sources_blocks:
             if source_block:
@@ -1177,8 +1180,7 @@ description
         mwtext_cleaned = Articles.clean_mediawiki_text(mwtext)
         mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles_slugs, url_prefix)
         streamfield_blocks = Articles.html_to_streamfield(article, mwhtml)
-        merged_blocks = Articles.merge_streamfield_blocks(streamfield_blocks)
-        return merged_blocks
+        return streamfield_blocks
 
     @staticmethod
     def clean_mediawiki_text(mw_txt: str) -> str:
