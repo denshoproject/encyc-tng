@@ -115,7 +115,7 @@ class Article(Page):
         use_json_field=True,
         help_text='BODY HELP TEXT GOES HERE.',
     )
-    footnotes = RichTextField(blank=True, null=True)
+    footnotes = RichTextField(blank=True, null=True, editable=False)
     authors = ParentalManyToManyField('editors.Author', blank=True)
     tags = ClusterTaggableManager(through=ArticleTag, blank=True)
 
@@ -127,7 +127,7 @@ class Article(Page):
     content_panels = Page.content_panels + [
         FieldPanel('description'),
         FieldPanel('body'),
-        FieldPanel('footnotes'),
+        #FieldPanel('footnotes'),
     ]
     promote_panels = [
         MultiFieldPanel([
