@@ -338,16 +338,23 @@ class Article(Page):
         return tags_articles
 
 ARTICLE_FOOTNOTE_FIELDS = {
-    'richtextfields': ['description'],
-    'streamfields': ['body'],
+    'richtextfields': [],
+    'streamfields': ['description', 'body'],
 }
+
+ARTICLE_FOOTNOTE_BLOCK_TYPES = [
+    'paragraph',
+    'quote',
+]
 
 @hooks.register('after_create_page')
 def do_after_page_create(request, page):
     # TODO save first Image to self.image
     if isinstance(page, Article):
         return footnotes.Footnotary.update_footnotes(
-            page, ARTICLE_FOOTNOTE_FIELDS, request
+            page, request=request,
+            fields=ARTICLE_FOOTNOTE_FIELDS,
+            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
         )
 
 @hooks.register('after_edit_page')
@@ -355,7 +362,9 @@ def do_after_page_edit(request, page):
     # TODO save first Image to self.image
     if isinstance(page, Article):
         return footnotes.Footnotary.update_footnotes(
-            page, ARTICLE_FOOTNOTE_FIELDS, request
+            page, request=request,
+            fields=ARTICLE_FOOTNOTE_FIELDS,
+            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
         )
 
 @hooks.register('before_serve_page')
@@ -364,7 +373,9 @@ def prep_footnotes(page, request, serve_args, serve_kwargs):
         # uses BeautifulSoup to rewrite paragraph blocks with links to footnotes
         # TODO this should happen BEFORE page is cached
         return footnotes.Footnotary.prep_footnotes(
-            page, ARTICLE_FOOTNOTE_FIELDS, request
+            page, request=request,
+            fields=ARTICLE_FOOTNOTE_FIELDS,
+            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
         )
 
 

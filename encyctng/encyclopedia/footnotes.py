@@ -18,7 +18,7 @@ class Footnotary():
     """
 
     @staticmethod
-    def update_footnotes(page, fields, request=None, save=True):
+    def update_footnotes(page, fields, block_types, request=None, save=True):
         """Copy Mediawiki-style <ref> footnotes from page body to a Footnotes block
 
         Run in after_create_page and after_edit_page hooks.
@@ -27,9 +27,16 @@ class Footnotary():
         footnotes before Articles' initial save/attachement to parent Page.
         """
         # get only the paragraph blocks, smoosh them into one string
+        blocks = [
+            block for block in page.description.raw_data
+            if block['type'] in block_types
+        ]
+        blocks += [
+            block for block in page.body.raw_data
+            if block['type'] in block_types
+        ]
         html = '\n'.join([
-            block['value']
-            for block in page.body.raw_data if block['type'] == 'paragraph'
+            block['value'] for block in blocks
         ])
         # extract footnote text into a list
         footnotes = _extract_footnotes(html)
@@ -44,16 +51,17 @@ class Footnotary():
             new_revision.publish()
 
     @staticmethod
-    def prep_footnotes(page, fields, request):
+    def prep_footnotes(page, fields, block_types, request):
         """Prep <ref>footnotes</ref> in the text for display
 
         Run in before_serve_page hooks.
         """
         n = 1
-        for block in page.body:
-            if block.block_type == 'paragraph':
-                html,n = _rewrite_body_html(block.value.source, n)
-                block.value.source = html
+        for field in fields['streamfields']:
+            for block in getattr(page, field):
+                if block.block_type in block_types:
+                    html,n = _rewrite_body_html(block.value.source, n)
+                    block.value.source = html
         try:
             page.footnotes = json.loads(page.footnotes)
         except json.JSONDecodeError:

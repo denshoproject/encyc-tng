@@ -51,6 +51,9 @@ from encyclopedia.blocks import (
 from encyclopedia.models import ArticlesIndexPage
 from encyclopedia.models import Page, Article
 from encyclopedia.models import MediawikiWagtail
+from encyclopedia.models import (
+    ARTICLE_FOOTNOTE_FIELDS, ARTICLE_FOOTNOTE_BLOCK_TYPES
+)
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 from encyclopedia.topics import topics_items
@@ -1010,7 +1013,12 @@ description
             if source_block:
                 article_blocks.insert(0, source_block)
         article.body = json.dumps(article_blocks)
-        Footnotary.update_footnotes(article, fields=None, request=None, save=False)
+        Footnotary.update_footnotes(
+            article,
+            fields=ARTICLE_FOOTNOTE_FIELDS,
+            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
+            request=None, save=False
+        )
 
         if article_is_new and not dryrun:
             # place page under encyclopedia index
