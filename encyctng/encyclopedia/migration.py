@@ -1578,12 +1578,16 @@ def _mw_databox(mw_page):
 
 
 
-def test_import_articles(limit=None):
+def test_import_articles(titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
     jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
     #from pathlib import Path
     #from encyclopedia import migration
     basedir = Path('/opt/encyc-tng/data')
-    Articles.import_articles(basedir, jsonl_path, limit=limit)
+    Articles.import_articles(
+        basedir, sources_jsonl=jsonl_path, titles=titles,
+        justload=justload, dryrun=dryrun, errorquit=errorquit,
+        offset=offset, limit=limit, skip=skip, errfile=errfile
+    )
 
 def test_import_article(title):
     #from pathlib import Path
