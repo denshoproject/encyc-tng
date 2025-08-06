@@ -23,6 +23,7 @@
                         {% include_block block %}
                     </div>
                 {% endfor %}
+                <!--
                 {# placeholders until https://github.com/denshoproject/encyc-tng/issues/60 is resolved #}
                 <div class="sf__block sf__block--heading">
                     {% include "patterns/components/heading/heading.html" with heading="Test heading" %}
@@ -54,17 +55,10 @@
                 <div class="sf__block sf__block--heading">
                     {% include "patterns/components/rich_text/rich_text.html" %}
                 </div>
+                -->
             </div>
         </div>
     </div>
-
-    {% for author in page.authors_all %}
-        <section class="page__section">
-            <div class="page__section-container grid">
-                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author modifier="standalone" %}
-            </div>
-        </section>
-    {% endfor %}
 
     {% if page.footnotes %}
         <section class="page__section">
@@ -73,6 +67,14 @@
             </div>
         </section>
     {% endif %}
+
+    {% for author in page.authors_all %}
+        <section class="page__section">
+            <div class="page__section-container grid">
+                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author modifier="standalone" %}
+            </div>
+        </section>
+    {% endfor %}
 
     {% if page.related_links %}
         <section class="page__section">

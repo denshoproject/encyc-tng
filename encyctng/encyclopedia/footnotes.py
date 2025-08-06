@@ -18,7 +18,7 @@ class Footnotary():
     """
 
     @staticmethod
-    def update_footnotes(page, fields, request=None, save=True):
+    def update_footnotes(page, fields, block_types, request=None, save=True):
         """Copy Mediawiki-style <ref> footnotes from page body to a Footnotes block
 
         Run in after_create_page and after_edit_page hooks.
@@ -27,10 +27,22 @@ class Footnotary():
         footnotes before Articles' initial save/attachement to parent Page.
         """
         # get only the paragraph blocks, smoosh them into one string
-        html = '\n'.join([
-            block['value']
-            for block in page.body.raw_data if block['type'] == 'paragraph'
-        ])
+        blocks = [
+            block for block in page.description.raw_data
+            if block['type'] in block_types
+        ]
+        blocks += [
+            block for block in page.body.raw_data
+            if block['type'] in block_types
+        ]
+        blocks_html = []
+        for block in blocks:
+            if block['type'] == 'paragraph':
+                blocks_html.append(block['value'])
+            elif block['type'] == 'quote':
+                blocks_html.append(block['value']['quotation'])
+                blocks_html.append(block['value']['attribution'])
+        html = '\n'.join(blocks_html)
         # extract footnote text into a list
         footnotes = _extract_footnotes(html)
         # and save as JSON, replacing the old footnotes block
@@ -44,16 +56,24 @@ class Footnotary():
             new_revision.publish()
 
     @staticmethod
-    def prep_footnotes(page, fields, request):
+    def prep_footnotes(page, fields, block_types, request):
         """Prep <ref>footnotes</ref> in the text for display
 
         Run in before_serve_page hooks.
         """
         n = 1
-        for block in page.body:
-            if block.block_type == 'paragraph':
-                html,n = _rewrite_body_html(block.value.source, n)
-                block.value.source = html
+        for field in fields['streamfields']:
+            field_blocks = getattr(page, field, None)
+            field_blocks_type = type(field_blocks)
+            for block in field_blocks:
+                if block.block_type == 'paragraph':
+                    html,n = _rewrite_body_html(block.value.source, n)
+                    block.value.source = html
+                elif block.block_type == 'quote':
+                    html,n = _rewrite_body_html(block.value['quotation'].source, n)
+                    block.value['quotation'].source = html
+                    html,n = _rewrite_body_html(block.value['attribution'], n)
+                    block.value['attribution'] = html
         try:
             page.footnotes = json.loads(page.footnotes)
         except json.JSONDecodeError:
