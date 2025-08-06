@@ -3,7 +3,7 @@
     <div class="quote-block__text">
         <p class="quote-block__quote intro">{{ value.quotation }}</p>
         {% if value.attribution %}
-            <p class="quote-block__attribution">{{ value.attribution }}</p>
+            <p class="quote-block__attribution">{{ value.attribution | safe }}</p>
         {% endif %}
     </div>
 </blockquote>
