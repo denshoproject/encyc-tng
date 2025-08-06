@@ -1328,7 +1328,7 @@ description
             logger.debug(f"{tag=}")
             if type(tag) == NavigableString:
                 continue
-            if tag.name in ['blockquote', 'i', 'li', 'pre', 'ul', 'dl']:
+            if tag.name in ['i', 'li', 'pre', 'ul', 'dl']:
                 continue
             # TODO what to do with <div id="authorByline">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
@@ -1367,6 +1367,15 @@ description
                         'size': tag.name,
                         'heading_text': heading_text,
                     }
+                }
+            elif tag.name == 'blockquote':
+                block = {
+                    'type': 'quote',
+                    'value': {
+                        'quotation': str(tag).strip(),
+                        #'quotation': '',
+                        'attribution': '',
+                    },
                 }
             else:
                 raise UnhandledTagException(f"UnhandledTagException: Don't know what to do with \"{tag.name}\"")
