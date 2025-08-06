@@ -35,9 +35,14 @@ class Footnotary():
             block for block in page.body.raw_data
             if block['type'] in block_types
         ]
-        html = '\n'.join([
-            block['value'] for block in blocks
-        ])
+        blocks_html = []
+        for block in blocks:
+            if block['type'] == 'paragraph':
+                blocks_html.append(block['value'])
+            elif block['type'] == 'quote':
+                blocks_html.append(block['value']['quotation'])
+                blocks_html.append(block['value']['attribution'])
+        html = '\n'.join(blocks_html)
         # extract footnote text into a list
         footnotes = _extract_footnotes(html)
         # and save as JSON, replacing the old footnotes block
@@ -58,10 +63,17 @@ class Footnotary():
         """
         n = 1
         for field in fields['streamfields']:
-            for block in getattr(page, field):
-                if block.block_type in block_types:
+            field_blocks = getattr(page, field, None)
+            field_blocks_type = type(field_blocks)
+            for block in field_blocks:
+                if block.block_type == 'paragraph':
                     html,n = _rewrite_body_html(block.value.source, n)
                     block.value.source = html
+                elif block.block_type == 'quote':
+                    html,n = _rewrite_body_html(block.value['quotation'].source, n)
+                    block.value['quotation'].source = html
+                    html,n = _rewrite_body_html(block.value['attribution'], n)
+                    block.value['attribution'] = html
         try:
             page.footnotes = json.loads(page.footnotes)
         except json.JSONDecodeError:
