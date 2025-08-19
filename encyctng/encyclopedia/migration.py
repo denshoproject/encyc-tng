@@ -564,7 +564,7 @@ class Articles():
     @staticmethod
     def download_articles(mw, basedir, titles=[]):
         """Download articles and metadata from MediaWiki
-        
+
         TODO Handle redirects
         TODO Handle titles with apersands
         TODO Handle ValueErrors (on authors?)
@@ -624,7 +624,7 @@ class Articles():
             redirects = Articles.load_articles_metadata(basedir, sources_jsonl)
         if not titles:
             titles = saved_titles
-        
+
         logger.info(f"{mw=}")
         index_page = Articles.prep_wagtail()
         logger.info(f"{index_page=}")
@@ -1285,7 +1285,7 @@ description
     @staticmethod
     def rewrite_internal_urls(soup, mw_titles_slugs, url_prefix):
         """Rewrite MediaWiki internal URLs to Wagtail slug URLs
-     
+
         example: "/wiki/Manzanar_Free_Press_(newspaper)" -> "/wiki/manzanar-free-press-newspaper"
         """
         notmatched = []
@@ -1303,7 +1303,7 @@ description
     @staticmethod
     def html_to_streamfield(article, html: str, debug: bool=False) -> list[str]:
         """Convert HTML into list of StreamField (role,html) tuples
-     
+
         Role is one of ['heading', 'paragraph', 'embed', 'quote', ...]
         (see encyclopedia.models.Article.body)
         """
@@ -1386,7 +1386,7 @@ description
     @staticmethod
     def merge_streamfield_blocks(blocks: list[str]) -> list[str]:
         """Merge certain successive streamfield blocks (paragraphs)
-     
+
         blocks = [
             {'type':'heading','value':{'heading_text':'1','size':'h2'}}, {'type':'heading','value':{'heading_text':'2','size':'h2'}},
             {'type':'paragraph','value':'<p>1'},
@@ -1438,7 +1438,7 @@ description
     @staticmethod
     def parse_related_articles(mwtext):
         """Parse mwtext and return list of related articles
-        
+
         <div id="RelatedArticlesDisplay">
         <h2>Related Articles</h2>
         <p class="mw-empty-elt"></p>
