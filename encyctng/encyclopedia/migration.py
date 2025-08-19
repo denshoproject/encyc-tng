@@ -28,6 +28,7 @@ from django.db.utils import IntegrityError
 from django.template.defaultfilters import truncatewords
 from django.utils.text import slugify
 import djclick as click  # https://github.com/GaretJax/django-click
+import httpx
 from psycopg.errors import NotNullViolation
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
@@ -1620,6 +1621,24 @@ def test_import_article(title):
     article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page)
     return article,related_articles
 
+
+def title_status(title, schema='http', domain='encyctng.local'):
+    url = f"{schema}://{domain}/{slugify(title)}/"
+    r = httpx.get(url)
+    if r.status_code == 500:
+        soup = BeautifulSoup(r.content, 'lxml')
+        header = soup.find('header', id='summary')
+        h1 = header.find('h1').contents[0].replace('\n','').replace('       ',' ')
+        exception = header.find('pre').contents[0]
+        return r.status_code, r.reason_phrase, f"{h1} {exception}"
+    return r.status_code, r.reason_phrase, 'ok'
+
+def check_titles():
+    for n,r in enumerate(Article.objects.values('id','title').order_by()):
+        title = r['title']
+        status,reason,note = title_status(title)
+        if status != 200:
+            print(n,title,status,reason,note)
 
 
 if __name__ == '__main__':
