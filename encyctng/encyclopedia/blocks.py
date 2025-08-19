@@ -127,12 +127,9 @@ class ImageBlock(StructBlock):
     @staticmethod
     def block_from_source(source, source_pks_by_filename):
         """StreamField representation of ImageBlock from PSMS source"""
-        filename = Path(source['original_path']).name
-        image_pk = source_pks_by_filename['image'].get(filename)
-        return {
+        block = {
             'type': 'imageblock',
             'value': {
-                'image': image_pk,
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
@@ -140,6 +137,11 @@ class ImageBlock(StructBlock):
                 'ext_url': source['external_url'],
             }
         }
+        filename = Path(source['original_path']).name
+        image_pk = source_pks_by_filename['image'].get(filename)
+        if image_pk:
+            block['image'] = image_pk
+        return block
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
@@ -189,23 +191,26 @@ class VideoBlock(StructBlock):
     @staticmethod
     def block_from_source(source, source_pks_by_filename):
         """StreamField representation of VideoBlock from PSMS source"""
-        video_pk = source_pks_by_filename['video'].get(
-            Path(source['original_path']).name
-        )
-        transcript_pk = source_pks_by_filename['document'].get(
-            Path(source['transcript']).name
-        )
-        return {
+        block = {
             'type': 'videoblock',
             'value': {
-                'video': video_pk,
-                'transcript': transcript_pk,
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
                 'creative_commons': source['creative_commons'],
             }
         }
+        video_pk = source_pks_by_filename['video'].get(
+            Path(source['original_path']).name
+        )
+        if video_pk:
+            block['video'] = video_pk
+        transcript_pk = source_pks_by_filename['document'].get(
+            Path(source['transcript']).name
+        )
+        if transcript_pk:
+            block['transcript'] = transcript_pk
+        return block
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
@@ -254,17 +259,9 @@ class DocumentBlock(StructBlock):
     @staticmethod
     def block_from_source(source, source_pks_by_filename):
         """StreamField representation of DocumentBlock from PSMS source"""
-        document_pk = source_pks_by_filename['document'].get(
-            Path(source['original_path']).name
-        )
-        display_pk = source_pks_by_filename['image'].get(
-            Path(source['display_path']).name
-        )
-        return {
+        block = {
             'type': 'documentblock',
             'value': {
-                'document': document_pk,
-                'display': display_pk,
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
@@ -272,6 +269,17 @@ class DocumentBlock(StructBlock):
                 'ext_url': source['external_url'],
             }
         }
+        document_pk = source_pks_by_filename['document'].get(
+            Path(source['original_path']).name
+        )
+        if document_pk:
+            block['document'] = document_pk
+        display_pk = source_pks_by_filename['image'].get(
+            Path(source['display_path']).name
+        )
+        if display_pk:
+            block['display'] = display_pk
+        return block
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
