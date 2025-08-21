@@ -198,7 +198,9 @@ def tags_collections_topics(topic=None):
     ]
     """
     tags = topics_items()
-    tags.insert(0, {'id':'all', 'title':'All', 'url':'', 'active':True})
+    tags.insert(0, {
+        'id':'all', 'title':'All', 'url':reverse('encyc-articles-topic'), 'active':True
+    })
     if topic:
         topic = slugify(topic)
         for tag in tags:
