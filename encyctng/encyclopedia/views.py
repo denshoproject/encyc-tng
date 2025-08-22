@@ -75,8 +75,10 @@ def articles_az(request):
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
 
-    if initial:
+    if initial and initial[0].isalpha():
         articles = Article.objects.filter(title_sort__istartswith=initial)
+    elif initial and initial[0].isdigit():
+        articles = Article.objects.filter(title_sort__regex=r"^(\d)")
     else:
         articles = Article.objects.all()
     articles = articles.order_by('title_sort').prefetch_related('tags')
