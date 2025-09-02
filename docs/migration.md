@@ -157,6 +157,10 @@ from pathlib import Path
 from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
 migration.Articles.import_articles(basedir, jsonl_path)
+
+csv_path = '/tmp/unconverted-article-urls.csv'
+migration.Articles.rewrite_article_urls()
+migration.Articles.unconverted_article_urls(csvpath=csv_path)
 ```
 
 

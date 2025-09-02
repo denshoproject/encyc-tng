@@ -63,6 +63,9 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 #ARTICLES_INDEX_PAGE = 'Encyclopedia'
 ARTICLES_INDEX_PAGE = 'Home'
 ARTICLES_IMAGE_COLLECTION = 'Article Images'
+CSV_DELIMITER = ','
+CSV_QUOTECHAR = '"'
+CSV_QUOTING = csv.QUOTE_ALL
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -1484,6 +1487,133 @@ description
         for key in errors_by_sig.keys():
             print(f"{len(errors_by_sig[key])}: {key}")
         return errors_by_sig
+
+    @staticmethod
+    def rewrite_article_urls():
+        """Rewrite internal links in a block to Wagtail format
+        """
+        logger.info(f"Articles.rewrite_article_urls()")
+        article_ids_by_url = Articles.get_article_ids_by_url()
+        articles = Article.objects.order_by('title_sort')
+        num = len(articles)
+        for n,article in enumerate(articles):
+            click.secho(f"{n+1}/{num} {article.title}", bold=True)
+            Articles._rewrite_article_urls(article, article_ids_by_url)
+            article.save()
+
+    @staticmethod
+    def get_article_ids_by_url():
+        return {a.url: a.id for a in Article.objects.all()}
+
+    @staticmethod
+    def _rewrite_article_urls(article, article_ids_by_url):
+        for block in article.description:
+            Articles._rewrite_block_urls(block, article_ids_by_url)
+        for block in article.body:
+            Articles._rewrite_block_urls(block, article_ids_by_url)
+
+    @staticmethod
+    def _rewrite_block_urls(block, article_ids_by_url):
+        """Rewrite internal links in a block to Wagtail format
+        
+        Migration format: <a href="/wiki/title-here">Title Here</a>
+        Wagtail format:   <a linktype="page" id="1234">Title Here</a>
+        Wagtail Article.url: /title-here/
+        """
+        if block.block_type == 'paragraph':
+            block_source = block.value.source
+        elif block.block_type == 'quotation':
+            block_source = block.value['quotation']
+        else:
+            return block
+        soup = BeautifulSoup(block_source, 'lxml')
+        for a in soup.find_all('a'):
+            # skip already converted links
+            linktype = a.get('linktype')
+            a_id = a.get('id')
+            if linktype and a_id:
+                continue
+            # convert from migration format
+            #     '/wiki/title-here'
+            # to Wagtail Article.url format
+            #     '/title-here/'
+            # so we can get Article.id
+            url = a.get('href').replace('/wiki', '') + '/'
+            target_id = article_ids_by_url.get(url, None)
+            if target_id:
+                # rewrite link
+                a['linktype'] = 'page'
+                a['id'] = target_id
+                del a['href']
+        html = str(soup)
+        # remove the wrapper that BeautifulSoup adds
+        html = html.replace('<html><body>','').replace('</body></html>','')
+        # replace original value
+        if block.block_type == 'paragraph':
+            block.value.source = html
+        elif block.block_type == 'quotation':
+            block.value['quotation'] = html
+        return block
+
+    @staticmethod
+    def unconverted_article_urls(csvpath=None):
+        """Report unconverted article urls, optionally as a CSV
+        """
+        logger.info(f"Articles.unconverted_article_urls()")
+        if csvpath:
+            csvpath = Path(csvpath)
+        yes = 0
+        rows = []
+        for article in Article.objects.order_by('title_sort'):
+            urls = Articles._unconverted_article_urls(article)
+            if urls:
+                yes += 1
+                click.secho(f"{yes} {len(urls)} {article.title}", bold=True)
+                for url in urls:
+                    rows.append( [article.title,url.contents[0]] )
+        if csvpath and rows:
+            with open(csvpath, 'w') as f:
+                writer = csv.writer(
+                    f,
+                    delimiter=CSV_DELIMITER,
+                    quoting=CSV_QUOTING,
+                    quotechar=CSV_QUOTECHAR,
+                )
+                writer.writerows(rows)
+
+    @staticmethod
+    def _unconverted_article_urls(article, ignore_external=True):
+        """Find unconverted urls in an article
+        """
+        urls = []
+        blocks = [b for b in article.description] + [b for b in article.body]
+        for block in blocks:
+            these = [u for u in Articles._unconverted_block_urls(block)]
+            if these:
+                urls += these
+        return urls
+
+    @staticmethod
+    def _unconverted_block_urls(block, ignore_external=True):
+        """Find unconverted urls in a block
+        """
+        if block.block_type == 'paragraph':
+            block_source = block.value.source
+        elif block.block_type == 'quotation':
+            block_source = block.value['quotation']
+        else:
+            return
+        soup = BeautifulSoup(block_source, 'lxml')
+        for a in soup.find_all('a'):
+            # skip already converted links
+            linktype = a.get('linktype')
+            a_id = a.get('id')
+            if linktype and a_id:
+                continue
+            if ignore_external and a.get('href'):
+                if 'https://' in a['href'] or 'http://' in a['href']:
+                    continue
+            yield a
 
 
 def ddrobject_block(source):
