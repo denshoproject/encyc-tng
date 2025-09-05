@@ -57,7 +57,6 @@ def ddr_objects(title, term_id=None):
 #    def get_objects(term_id=None):
 #        url = f"{API_BASE}/facet/topics/{term_id}/objects/?format=json"
 #        response = httpx.get(url)
-#        #python12 if HTTPStatus(response.status_code).is_success:
-#        if response.status_code in range(200,299):
+#        if HTTPStatus(response.status_code).is_success:
 #            return response.json()['objects']
 #        return []

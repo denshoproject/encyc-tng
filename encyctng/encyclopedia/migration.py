@@ -6,6 +6,7 @@
 # Yes I know the name clashes with Django's migrations/ dir.
 
 from datetime import datetime
+from http import HTTPStatus
 import json
 import logging
 logger = logging.getLogger(__name__)
@@ -1625,7 +1626,7 @@ def test_import_article(title):
 def title_status(title, schema='http', domain='encyctng.local'):
     url = f"{schema}://{domain}/{slugify(title)}/"
     r = httpx.get(url)
-    if r.status_code == 500:
+    if HTTPStatus(r.status_code).is_server_error:
         soup = BeautifulSoup(r.content, 'lxml')
         header = soup.find('header', id='summary')
         h1 = header.find('h1').contents[0].replace('\n','').replace('       ',' ')
@@ -1637,7 +1638,7 @@ def check_titles():
     for n,r in enumerate(Article.objects.values('id','title').order_by()):
         title = r['title']
         status,reason,note = title_status(title)
-        if status != 200:
+        if HTTPStatus(status).is_success:
             print(n,title,status,reason,note)
 
 
