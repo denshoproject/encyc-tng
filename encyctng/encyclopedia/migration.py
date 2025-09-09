@@ -1555,6 +1555,31 @@ class Workflows():
             wt.save()
         return w
 
+    @staticmethod
+    def all_statuses(workflows=WORKFLOWS):
+        """Extract just the Task names from WORKFLOWS"""
+        statuses = []
+        for value in workflows.values():
+            statuses.extend(value)
+        return statuses
+
+    @staticmethod
+    def article_workflow_states(pagedata):
+        """Extract the workflow states from mwpage pagedata categories list
+
+        >>> mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
+        >>> statuses = Workflows.article_workflow_states(pagedata)
+        >>> statuses
+        ['Status_1']
+        """
+        states = []
+        all_statuses = Workflows.all_statuses()
+        for line in pagedata['categories']:
+            for v in line.values():
+                if v in all_statuses:
+                    states.append(v)
+        return states
+
 
 def ddrobject_block(source):
     """Take a source from mwpage.sources and return a StreamField block
