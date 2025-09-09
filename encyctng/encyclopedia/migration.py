@@ -22,6 +22,7 @@ from bs4 import BeautifulSoup, Comment
 from bs4.element import Tag, NavigableString
 from dateutil import parser
 from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.core.cache import cache
 from django.core.files import File
 from django.core.files.images import ImageFile
@@ -130,6 +131,11 @@ def articles(debug, dryrun):
 # setup ----------------------------------------------------------------
 
 def initial_setup():
+    admin_user = User.objects.get(username='gjost')
+    for group_name in ['Editors', 'Moderators']:
+        group = Group.objects.get(name=group_name)
+        group.user_set.add(admin_user)
+
     root_collection = Collection.objects.get(name='Root')
     # article images collection
     article_images_collection = Collection(name=ARTICLES_IMAGE_COLLECTION)
