@@ -35,6 +35,7 @@ from psycopg.errors import NotNullViolation
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtail.models.media import Collection
+from wagtail.models.workflows import Workflow, Task, WorkflowTask
 from wagtailmedia.models import Media
 
 # encyc-core
@@ -155,6 +156,9 @@ def initial_setup():
     articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
     #home_page = Page.objects.get(title='Home')
     #home_page.add_child(instance=articles_index)
+
+    # Create editos workflows listed in WORKFLOWS
+    Workflows.create_workflows()
 
 
 # authors --------------------------------------------------------------
@@ -1491,6 +1495,65 @@ description
         for key in errors_by_sig.keys():
             print(f"{len(errors_by_sig[key])}: {key}")
         return errors_by_sig
+
+
+STATUS_CATEGORIES = [
+    'Status_1',
+    'Status_2',
+    'Status_3',
+    'Pages_Needing_Cleanup',
+    'Pages_Needing_Footnote_Edits',
+    'Articles_Needing_Primary_Source_Video',
+    'Articles_Needing_Primary_Source_Photos_and_Docs',
+    'Articles_Needing_PS_Review',
+    'Pages_Needing_Editor_Attention',
+    'Pages_Needing_Technical_Attention',
+    'BetaArticle',
+    'Pages_Needing_Approval',
+    'Published',
+]
+
+WORKFLOWS = {
+    'Stages': [
+        'Status_1',
+        'Status_2',
+        'Status_3',
+    ],
+    'Primary Sources': [
+        'Articles_Needing_Primary_Source_Video',
+        'Articles_Needing_Primary_Source_Photos_and_Docs',
+        'Articles_Needing_PS_Review',
+    ],
+    #'Flagged': [
+    #    'Pages_Needing_Editor_Attention',
+    #],
+}
+
+class Workflows():
+
+    @staticmethod
+    def create_workflows():
+        """Create all the workflows in WORKFLOWS"""
+        for workflow_name in WORKFLOWS.keys():
+            Workflows.create_workflow(workflow_name)
+
+    @staticmethod
+    def create_workflow(workflow_name):
+        """Create a Wagtail Workflow and Tasks
+
+        Like everything else Wagtail, there's documentation for the UI
+        but nothing once you get under the hood.
+        You'd think you could look at the Wagtail code itself
+        but it's a horrible mess of abstractions.
+        """
+        w = Workflow(name=workflow_name, active=True)
+        w.save()
+        for task_name in WORKFLOWS[workflow_name]:
+            t = Task(name=task_name, active=True)
+            t.save()
+            wt = WorkflowTask(workflow=w, task=t)
+            wt.save()
+        return w
 
 
 def ddrobject_block(source):
