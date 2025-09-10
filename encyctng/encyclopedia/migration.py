@@ -1580,6 +1580,42 @@ class Workflows():
                     states.append(v)
         return states
 
+    @staticmethod
+    def clear_article_workflow_states(article):
+        for state in article.workflow_states:
+            state.delete()
+
+    @staticmethod
+    def set_article_workflow_state(article, workflow_name, task_name, user, debug=False):
+        """
+        BEFORE WE CAN ACTUALLY USE THIS WE NEED TO
+        - we need a way to take the task_name and get the workflow name
+        - we may need to handle multiple workflows
+        - load Workflow objects once before the import_articles loop starts
+        - decide what to do with all those extra statuses
+        """
+        workflow = Workflow.objects.get(name=workflow_name)
+        if debug:
+            click.echo(f"    {workflow=}")
+        result = workflow.start(article, user)
+        #click.echo(result)
+        n = 0
+        while(n < len(workflow.tasks)):
+            task_state = article.current_workflow_task_state
+            if debug:
+                click.echo(f"    {n=} {task_state}")
+            if task_state.task.name == task_name:
+                if debug:
+                    click.echo(f"    {n=} break")
+                break
+            n += 1
+            result = task_state.approve(
+                user, update=True,
+                comment=f"{task_state.task.name} approved"
+            )
+            if debug:
+                click.echo(f"    {n=} {result}")
+
 
 def ddrobject_block(source):
     """Take a source from mwpage.sources and return a StreamField block
