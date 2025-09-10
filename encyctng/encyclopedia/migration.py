@@ -623,7 +623,7 @@ class Articles():
                 logger.error(traceback.format_exc())
 
     @staticmethod
-    def import_articles(basedir, sources_jsonl, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
+    def import_articles(basedir, sources_jsonl, user, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
         """
         """
         logger.info(f"Articles.import_articles(basedir={basedir}, dryrun={dryrun})")
@@ -698,6 +698,7 @@ class Articles():
                     authors_by_names, authors_alts,
                     sources_collection, sources_by_headword,
                     index_page,
+                    user=user,
                     dryrun=dryrun,
                 )
                 logger.info(f"ok")
@@ -948,7 +949,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
@@ -1032,12 +1033,16 @@ description
             request=None, save=False
         )
 
-        if article_is_new and not dryrun:
-            # place page under encyclopedia index
-            logger.info(f"{index_page}.add_child(instance={article})")
-            result = index_page.add_child(instance=article)
-
         if not dryrun:
+
+            # ensure article will not be published automatically
+            article.live = False
+
+            if article_is_new:
+                # place page under encyclopedia index
+                logger.info(f"{index_page}.add_child(instance={article})")
+                result = index_page.add_child(instance=article)
+
             for author in authors:
                 article.authors.add(author)
             # remove mistaken authors on updates
@@ -1045,7 +1050,28 @@ description
                 for author in article.authors.all():
                     if author not in authors:
                         article.authors.remove(author)
-            article.save_revision().publish()
+
+            # aka save draft
+            article.save_revision()
+
+            # apply workflow statuses
+            Workflows.clear_article_workflow_states(article)
+            statuses = Workflows.article_workflow_states(pagedata)
+            if statuses:
+                # in-progress article
+                for status in statuses:
+                    # TODO enable other workflows
+                    if status in WORKFLOWS['Stages']:
+                        Workflows.set_article_workflow_state(
+                            article,
+                            workflow_name='Stages',
+                            task_name=status,
+                            user=user,
+                            debug=True,
+                        )
+            else:
+                # published article
+                article.save_revision().publish()
 
         wm = MediawikiWagtail(
             mediawiki_url=mwpage.url_title,
@@ -1727,18 +1753,19 @@ def _mw_databox(mw_page):
 
 
 
-def test_import_articles(titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
+def test_import_articles(user, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
     jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
     #from pathlib import Path
     #from encyclopedia import migration
     basedir = Path('/opt/encyc-tng/data')
     Articles.import_articles(
-        basedir, sources_jsonl=jsonl_path, titles=titles,
+        basedir, sources_jsonl=jsonl_path, user=user,
+        titles=titles,
         justload=justload, dryrun=dryrun, errorquit=errorquit,
         offset=offset, limit=limit, skip=skip, errfile=errfile
     )
 
-def test_import_article(title):
+def test_import_article(title, user):
     #from pathlib import Path
     #from encyc import wiki
     #from encyclopedia.migration import Authors, Articles
@@ -1749,7 +1776,7 @@ def test_import_article(title):
     authors_by_names,authors_alts, sources_collection,sources_by_headword, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
     index_page = Articles.prep_wagtail()
     mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
-    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page)
+    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, user)
     return article,related_articles
 
 

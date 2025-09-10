@@ -152,11 +152,12 @@ result = migration.Sources.import_sources(primary_sources, sources_dir)
 
 Load article data and import:
 ``` python
+user = User.objects.get(username='gjost')
 jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
 from pathlib import Path
 from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
-migration.Articles.import_articles(basedir, jsonl_path)
+migration.Articles.import_articles(basedir, jsonl_path, user=user)
 ```
 
 
