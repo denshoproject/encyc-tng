@@ -156,6 +156,10 @@ class Article(Page):
         return self.title[0].upper()
 
     def citation(self):
+        try:
+            last_published_at = self.last_published_at.strftime('%c %Z')
+        except:
+            last_published_at = None
         c = Citation(self)
         return {
             'title': self.title,
@@ -163,8 +167,7 @@ class Article(Page):
                 {'label': 'Page name', 'value': self.title},
                 {'label': 'Author(s)', 'value': 'Densho Encyclopedia contributors'},
                 {'label': 'Publisher', 'value': 'Densho Encyclopedia'},
-                {'label': 'Date of last revision',
-                 'value': self.last_published_at.strftime('%c %Z')},
+                {'label': 'Date of last revision', 'value': last_published_at},
                 {'label': 'Date retrieved',
                  'value': timezone.now().strftime('%c %Z')},
                 {'label': 'Permanent URL',
