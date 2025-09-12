@@ -1090,13 +1090,14 @@ description
             Workflows.clear_article_workflow_states(article)
             statuses = Workflows.article_workflow_states(pagedata)
             if statuses:
+                tasks_workflows = Workflows.workflow_by_task()  # TODO cache or use global
                 # in-progress article
                 for status in statuses:
-                    # TODO enable other workflows
-                    if status in WORKFLOWS['Stages']:
+                    if tasks_workflows.get(status):
+                        workflow_name = tasks_workflows[status]
                         Workflows.set_article_workflow_state(
                             article,
-                            workflow_name='Stages',
+                            workflow_name=workflow_name,
                             task_name=status,
                             user=user,
                             debug=True,
@@ -1620,6 +1621,15 @@ class Workflows():
         for value in workflows.values():
             statuses.extend(value)
         return statuses
+
+    @staticmethod
+    def workflow_by_task(workflows=WORKFLOWS):
+        """Find the workflow which the specified task is part of"""
+        tasks_workflows = {}
+        for workflow_name,tasks in WORKFLOWS.items():
+            for task in tasks:
+                tasks_workflows[task] = workflow_name
+        return tasks_workflows
 
     @staticmethod
     def article_workflow_states(pagedata):
