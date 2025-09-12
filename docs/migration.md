@@ -110,10 +110,16 @@ python encyctng/manage.py createsuperuser
 ## Initial Setup
 
 This creates things like the "Encyclopedia" page at the top of the `Articles` hierarchy and the `Collection` objects that the various types of Primary Sources will be added to.
+
+Export usernames/passwords as an environment var:
+``` bash
+export TNGUSERS="gjost:REDACTED;gfroh:REDACTED;pkikawa:REDACTED:sbeckman:REDACTED;cjohnson:REDACTED;bniiya:REDACTED"
+```
 ``` python
 from encyclopedia import migration
 migration.initial_setup()
 ```
+Remember to edit `.bash_history` afterwards to remove those passwords.
 
 ## Topics
 

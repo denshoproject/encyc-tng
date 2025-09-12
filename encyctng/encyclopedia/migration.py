@@ -10,6 +10,7 @@ from http import HTTPStatus
 import json
 import logging
 logger = logging.getLogger(__name__)
+import os
 from pathlib import Path
 import pickle
 import re
@@ -132,11 +133,10 @@ def articles(debug, dryrun):
 # setup ----------------------------------------------------------------
 
 def initial_setup():
-    admin_user = User.objects.get(username='gjost')
-    for group_name in ['Editors', 'Moderators']:
-        group = Group.objects.get(name=group_name)
-        group.user_set.add(admin_user)
+    # admin users
+    make_users()
 
+    # collections
     root_collection = Collection.objects.get(name='Root')
     # article images collection
     article_images_collection = Collection(name=ARTICLES_IMAGE_COLLECTION)
@@ -159,6 +159,38 @@ def initial_setup():
 
     # Create editos workflows listed in WORKFLOWS
     Workflows.create_workflows()
+
+WAGTAIL_ADMIN_GROUPS = [
+    'Editors',
+    'Moderators'
+]
+
+def make_users(path='/opt/encyc-tng/data/superusers-testing'):
+    usernames_passwords = {
+        up.split(':')[0]: up.split(':')[1]
+        for up in os.environ.get('TNGUSERS').strip().split(';')
+    }
+    with Path(path).open('r') as f:
+        lines = f.readlines()
+    for line in lines:
+        username,email = line.strip().split(':')
+        password = usernames_passwords[username]
+        make_user(username, password, email)
+
+def make_user(username, password, email, groups=WAGTAIL_ADMIN_GROUPS):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        user = User(username=username, email=email)
+    user.set_password(password)
+    user.is_active = True
+    user.is_staff = True
+    user.save()
+    print(user)
+    for group_name in groups:
+        group = Group.objects.get(name=group_name)
+        group.user_set.add(user)
+    return user
 
 
 # authors --------------------------------------------------------------
