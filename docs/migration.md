@@ -90,6 +90,13 @@ ALTER DATABASE encyctngdev OWNER TO encyctng;
 GRANT CREATE ON SCHEMA public TO encyctng;
 \q
 ```
+
+If you're doing this a lot or trying to speedrun you can do it in two lines:
+```
+DROP DATABASE encyctng; CREATE DATABASE encyctng; ALTER DATABASE encyctng OWNER TO encyctng;
+\connect encyctngdev; GRANT CREATE ON SCHEMA public TO encyctng; \q
+```
+
 Run Django commands to setup a fresh database:
 ``` bash
 python encyctng/manage.py migrate
