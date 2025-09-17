@@ -1560,16 +1560,16 @@ STATUS_CATEGORIES = [
     'Status_1',
     'Status_2',
     'Status_3',
-    'Pages_Needing_Cleanup',
-    'Pages_Needing_Footnote_Edits',
-    'Articles_Needing_Primary_Source_Video',
-    'Articles_Needing_Primary_Source_Photos_and_Docs',
-    'Articles_Needing_PS_Review',
-    'Pages_Needing_Editor_Attention',
-    'Pages_Needing_Technical_Attention',
-    'BetaArticle',
-    'Pages_Needing_Approval',
-    'Published',
+    #'Pages_Needing_Cleanup',
+    #'Pages_Needing_Footnote_Edits',
+    #'Articles_Needing_Primary_Source_Video',
+    #'Articles_Needing_Primary_Source_Photos_and_Docs',
+    #'Articles_Needing_PS_Review',
+    #'Pages_Needing_Editor_Attention',
+    #'Pages_Needing_Technical_Attention',
+    #'BetaArticle',
+    #'Pages_Needing_Approval',
+    #'Published',
 ]
 
 WORKFLOWS = {
@@ -1578,14 +1578,6 @@ WORKFLOWS = {
         'Status_2',
         'Status_3',
     ],
-    'Primary Sources': [
-        'Articles_Needing_Primary_Source_Video',
-        'Articles_Needing_Primary_Source_Photos_and_Docs',
-        'Articles_Needing_PS_Review',
-    ],
-    #'Flagged': [
-    #    'Pages_Needing_Editor_Attention',
-    #],
 }
 
 class Workflows():
