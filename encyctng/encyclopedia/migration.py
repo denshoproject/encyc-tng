@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup, Comment
 from bs4.element import Tag, NavigableString
 from dateutil import parser
 from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.core.cache import cache
 from django.core.files import File
 from django.core.files.images import ImageFile
@@ -35,6 +36,7 @@ from psycopg.errors import NotNullViolation
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtail.models.media import Collection
+from wagtail.models.workflows import Workflow, Task, WorkflowTask
 from wagtailmedia.models import Media
 
 # encyc-core
@@ -154,6 +156,9 @@ def initial_setup():
     articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
     #home_page = Page.objects.get(title='Home')
     #home_page.add_child(instance=articles_index)
+
+    # Create editos workflows listed in WORKFLOWS
+    Workflows.create_workflows()
 
 WAGTAIL_ADMIN_GROUPS = [
     'Editors',
@@ -650,7 +655,7 @@ class Articles():
                 logger.error(traceback.format_exc())
 
     @staticmethod
-    def import_articles(basedir, sources_jsonl, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
+    def import_articles(basedir, sources_jsonl, user, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
         """
         """
         logger.info(f"Articles.import_articles(basedir={basedir}, dryrun={dryrun})")
@@ -725,6 +730,7 @@ class Articles():
                     authors_by_names, authors_alts,
                     sources_collection, sources_by_headword,
                     index_page,
+                    user=user,
                     dryrun=dryrun,
                 )
                 logger.info(f"ok")
@@ -975,7 +981,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
@@ -1059,12 +1065,16 @@ description
             request=None, save=False
         )
 
-        if article_is_new and not dryrun:
-            # place page under encyclopedia index
-            logger.info(f"{index_page}.add_child(instance={article})")
-            result = index_page.add_child(instance=article)
-
         if not dryrun:
+
+            # ensure article will not be published automatically
+            article.live = False
+
+            if article_is_new:
+                # place page under encyclopedia index
+                logger.info(f"{index_page}.add_child(instance={article})")
+                result = index_page.add_child(instance=article)
+
             for author in authors:
                 article.authors.add(author)
             # remove mistaken authors on updates
@@ -1072,7 +1082,29 @@ description
                 for author in article.authors.all():
                     if author not in authors:
                         article.authors.remove(author)
-            article.save_revision().publish()
+
+            # aka save draft
+            article.save_revision()
+
+            # apply workflow statuses
+            Workflows.clear_article_workflow_states(article)
+            statuses = Workflows.article_workflow_states(pagedata)
+            if statuses:
+                tasks_workflows = Workflows.workflow_by_task()  # TODO cache or use global
+                # in-progress article
+                for status in statuses:
+                    if tasks_workflows.get(status):
+                        workflow_name = tasks_workflows[status]
+                        Workflows.set_article_workflow_state(
+                            article,
+                            workflow_name=workflow_name,
+                            task_name=status,
+                            user=user,
+                            debug=True,
+                        )
+            else:
+                # published article
+                article.save_revision().publish()
 
         wm = MediawikiWagtail(
             mediawiki_url=mwpage.url_title,
@@ -1524,6 +1556,127 @@ description
         return errors_by_sig
 
 
+STATUS_CATEGORIES = [
+    'Status_1',
+    'Status_2',
+    'Status_3',
+    #'Pages_Needing_Cleanup',
+    #'Pages_Needing_Footnote_Edits',
+    #'Articles_Needing_Primary_Source_Video',
+    #'Articles_Needing_Primary_Source_Photos_and_Docs',
+    #'Articles_Needing_PS_Review',
+    #'Pages_Needing_Editor_Attention',
+    #'Pages_Needing_Technical_Attention',
+    #'BetaArticle',
+    #'Pages_Needing_Approval',
+    #'Published',
+]
+
+WORKFLOWS = {
+    'Stages': [
+        'Status_1',
+        'Status_2',
+        'Status_3',
+    ],
+}
+
+class Workflows():
+
+    @staticmethod
+    def create_workflows():
+        """Create all the workflows in WORKFLOWS"""
+        for workflow_name in WORKFLOWS.keys():
+            Workflows.create_workflow(workflow_name)
+
+    @staticmethod
+    def create_workflow(workflow_name):
+        """Create a Wagtail Workflow and Tasks
+
+        Like everything else Wagtail, there's documentation for the UI
+        but nothing once you get under the hood.
+        You'd think you could look at the Wagtail code itself
+        but it's a horrible mess of abstractions.
+        """
+        w = Workflow(name=workflow_name, active=True)
+        w.save()
+        for task_name in WORKFLOWS[workflow_name]:
+            t = Task(name=task_name, active=True)
+            t.save()
+            wt = WorkflowTask(workflow=w, task=t)
+            wt.save()
+        return w
+
+    @staticmethod
+    def all_statuses(workflows=WORKFLOWS):
+        """Extract just the Task names from WORKFLOWS"""
+        statuses = []
+        for value in workflows.values():
+            statuses.extend(value)
+        return statuses
+
+    @staticmethod
+    def workflow_by_task(workflows=WORKFLOWS):
+        """Find the workflow which the specified task is part of"""
+        tasks_workflows = {}
+        for workflow_name,tasks in WORKFLOWS.items():
+            for task in tasks:
+                tasks_workflows[task] = workflow_name
+        return tasks_workflows
+
+    @staticmethod
+    def article_workflow_states(pagedata):
+        """Extract the workflow states from mwpage pagedata categories list
+
+        >>> mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
+        >>> statuses = Workflows.article_workflow_states(pagedata)
+        >>> statuses
+        ['Status_1']
+        """
+        states = []
+        all_statuses = Workflows.all_statuses()
+        for line in pagedata['categories']:
+            for v in line.values():
+                if v in all_statuses:
+                    states.append(v)
+        return states
+
+    @staticmethod
+    def clear_article_workflow_states(article):
+        for state in article.workflow_states:
+            state.delete()
+
+    @staticmethod
+    def set_article_workflow_state(article, workflow_name, task_name, user, debug=False):
+        """
+        BEFORE WE CAN ACTUALLY USE THIS WE NEED TO
+        - we need a way to take the task_name and get the workflow name
+        - we may need to handle multiple workflows
+        - load Workflow objects once before the import_articles loop starts
+        - decide what to do with all those extra statuses
+        """
+        workflow = Workflow.objects.get(name=workflow_name)
+        if debug:
+            click.echo(f"    {workflow=}")
+        result = workflow.start(article, user)
+        #click.echo(result)
+        n = 0
+        while(n < len(workflow.tasks)):
+            task_state = article.current_workflow_task_state
+            if debug:
+                click.echo(f"    {n=} {task_state}")
+            if task_state.task.name == task_name:
+                if debug:
+                    click.echo(f"    {n=} break")
+                break
+            n += 1
+            result = task_state.approve(
+                user, update=True,
+                comment=f"{task_state.task.name} approved"
+            )
+            if debug:
+                click.echo(f"    {n=} {result}")
+
+
 def ddrobject_block(source):
     """Take a source from mwpage.sources and return a StreamField block
     """
@@ -1634,18 +1787,19 @@ def _mw_databox(mw_page):
 
 
 
-def test_import_articles(titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
+def test_import_articles(user, titles=[], justload=False, dryrun=False, errorquit=False, offset=0, limit=None, skip=[], errfile=''):
     jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
     #from pathlib import Path
     #from encyclopedia import migration
     basedir = Path('/opt/encyc-tng/data')
     Articles.import_articles(
-        basedir, sources_jsonl=jsonl_path, titles=titles,
+        basedir, sources_jsonl=jsonl_path, user=user,
+        titles=titles,
         justload=justload, dryrun=dryrun, errorquit=errorquit,
         offset=offset, limit=limit, skip=skip, errfile=errfile
     )
 
-def test_import_article(title):
+def test_import_article(title, user):
     #from pathlib import Path
     #from encyc import wiki
     #from encyclopedia.migration import Authors, Articles
@@ -1656,7 +1810,7 @@ def test_import_article(title):
     authors_by_names,authors_alts, sources_collection,sources_by_headword, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
     index_page = Articles.prep_wagtail()
     mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
-    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page)
+    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, user)
     return article,related_articles
 
 
