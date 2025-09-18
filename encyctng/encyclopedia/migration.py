@@ -1025,6 +1025,13 @@ description
         for tag in mwpage.categories:
             article.tags.add(tag.lower())
 
+        # comingsoon/BetaArticle
+        all_categories = Articles.pagedata_categories(pagedata)
+        if 'BetaArticle' in all_categories:
+            article.tags.add('comingsoon')
+        if 'Pages_Needing_Editor_Attention' in all_categories:
+            article.tags.add('editorattention')
+
         # TODO collect related articles and attach when we have Wagtail IDs
         # TODO write related articles to file? database?
         related_articles = Articles.parse_related_articles(mwtext)
@@ -1214,6 +1221,17 @@ description
         if 'Template:publish-rgonly' in templates:
             return True
         return False
+
+    @staticmethod
+    def pagedata_categories(pagedata):
+        """Get categories from pagedata (gets more than mwpage.categories)
+        """
+        statuses = []
+        for line in pagedata['categories']:
+            for v in line.values():
+                if v:
+                    statuses.append(v)
+        return statuses
 
     @staticmethod
     def article_type(mwpage):
