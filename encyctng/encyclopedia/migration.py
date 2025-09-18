@@ -1025,6 +1025,13 @@ description
         for tag in mwpage.categories:
             article.tags.add(tag.lower())
 
+        # comingsoon/BetaArticle
+        all_categories = Articles.pagedata_categories(pagedata)
+        if 'BetaArticle' in all_categories:
+            article.tags.add('comingsoon')
+        if 'Pages_Needing_Editor_Attention' in all_categories:
+            article.tags.add('editorattention')
+
         # TODO collect related articles and attach when we have Wagtail IDs
         # TODO write related articles to file? database?
         related_articles = Articles.parse_related_articles(mwtext)
@@ -1214,6 +1221,17 @@ description
         if 'Template:publish-rgonly' in templates:
             return True
         return False
+
+    @staticmethod
+    def pagedata_categories(pagedata):
+        """Get categories from pagedata (gets more than mwpage.categories)
+        """
+        statuses = []
+        for line in pagedata['categories']:
+            for v in line.values():
+                if v:
+                    statuses.append(v)
+        return statuses
 
     @staticmethod
     def article_type(mwpage):
@@ -1407,14 +1425,14 @@ description
             # TODO what to do with <div id="citationAuthor">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'citationAuthor':
                 continue
-            if tag.name == 'div' and tag.has_attr('class') and tag['class'] == 'alert alert-info':
+            if tag.name == 'div' and tag.has_attr('class') and ('alert-info' in tag['class']):
                 # <div class="alert alert-info">...little available research
                 # <div class="alert alert-info">...still under development
                 # article tags attached in import_article
                 if 'little available research' in tag.contents:
                     article.tags.add('needsmoreresearch')
                     continue
-                if 'still under development' in tag.contents:
+                if 'still under development' in str(tag.contents):
                     article.tags.add('underdevelopment')
                     continue
             # drop RG Media Type databoxes
