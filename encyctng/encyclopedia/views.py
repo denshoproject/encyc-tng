@@ -41,6 +41,21 @@ class UnpublishedChangesReportView(PageReportView):
             return permission_denied(request)
         return super().dispatch(request, *args, **kwargs)
 
+class ComingSoonReportView(PageReportView):
+    index_url_name = 'coming_soon_report'
+    index_results_url_name = 'coming_soon_report_results'
+    results_template_name = 'reports/coming_soon_report_results.html'
+    header_icon = 'doc-empty-inverse'
+    page_title = 'Coming Soon'
+
+    def get_queryset(self):
+        return Article.objects.filter(tags__name='comingsoon')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super().dispatch(request, *args, **kwargs)
+
 
 # Public UI
 
