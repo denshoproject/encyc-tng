@@ -1030,7 +1030,7 @@ description
         if 'BetaArticle' in all_categories:
             article.tags.add('comingsoon')
         if 'Pages_Needing_Editor_Attention' in all_categories:
-            article.tags.add('editorattention')
+            article.tags.add('needseditor')
 
         # TODO collect related articles and attach when we have Wagtail IDs
         # TODO write related articles to file? database?
