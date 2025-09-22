@@ -56,6 +56,21 @@ class ComingSoonReportView(PageReportView):
             return permission_denied(request)
         return super().dispatch(request, *args, **kwargs)
 
+class NeedsEditorReportView(PageReportView):
+    index_url_name = 'needs_editor_report'
+    index_results_url_name = 'needs_editor_report_results'
+    results_template_name = 'reports/needs_editor_report_results.html'
+    header_icon = 'doc-empty-inverse'
+    page_title = 'Needs Editor Attention'
+
+    def get_queryset(self):
+        return Article.objects.filter(tags__name='needseditor')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super().dispatch(request, *args, **kwargs)
+
 
 # Public UI
 

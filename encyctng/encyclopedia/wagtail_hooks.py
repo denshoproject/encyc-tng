@@ -4,7 +4,7 @@ from wagtail.admin.menu import AdminOnlyMenuItem
 from wagtail import hooks
 
 from .views import UnpublishedChangesReportView
-from .views import ComingSoonReportView
+from .views import ComingSoonReportView, NeedsEditorReportView
 
 
 @hooks.register('register_reports_menu_item')
@@ -52,5 +52,29 @@ def register_coming_soon_report_url():
             'reports/coming-soon/results/',
             ComingSoonReportView.as_view(results_only=True),
             name='coming_soon_report_results'
+        ),
+    ]
+
+
+@hooks.register('register_reports_menu_item')
+def register_needs_editor_report_menu_item():
+    return AdminOnlyMenuItem(
+        "Needs Editor Attention",
+        reverse('needs_editor_report'),
+        icon_name=NeedsEditorReportView.header_icon,
+        order=700
+    )
+@hooks.register('register_admin_urls')
+def register_needs_editor_report_url():
+    return [
+        path(
+            'reports/needs-editor/',
+            NeedsEditorReportView.as_view(),
+            name='needs_editor_report'
+        ),
+        path(
+            'reports/needs-editor/results/',
+            NeedsEditorReportView.as_view(results_only=True),
+            name='needs_editor_report_results'
         ),
     ]
