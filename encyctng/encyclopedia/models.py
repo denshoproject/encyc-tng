@@ -181,6 +181,9 @@ class Article(Page):
             'mla':     c.mla,
     }
 
+    def comingsoon(self):
+        return 'comingsoon' in [t.name for t in self.tags.all()]
+
     def hero(self):
         return {
             'title': self.title,
