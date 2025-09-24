@@ -122,11 +122,15 @@ def articles_topic(request, topic=None):
     page_range = page_obj.paginator.get_elided_page_range(
         page_number, on_each_side=PAGINATOR_ON_EACH_SIDE, on_ends=PAGINATOR_ON_ENDS,
     )
+    page_range_bottom = page_obj.paginator.get_elided_page_range(
+        page_number, on_each_side=PAGINATOR_ON_EACH_SIDE, on_ends=PAGINATOR_ON_ENDS,
+    )
     return render(request, 'patterns/pages/collections/collections.html', {
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
         'tags': tags_collections_topics(topic),
         'page_obj': page_obj,
         'page_range': page_range,
+        'page_range_bottom': page_range_bottom,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -150,11 +154,15 @@ def articles_az(request):
     page_range = page_obj.paginator.get_elided_page_range(
         page_number, on_each_side=PAGINATOR_ON_EACH_SIDE, on_ends=PAGINATOR_ON_ENDS,
     )
+    page_range_bottom = page_obj.paginator.get_elided_page_range(
+        page_number, on_each_side=PAGINATOR_ON_EACH_SIDE, on_ends=PAGINATOR_ON_ENDS,
+    )
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-az')),
         'tags': tags_collections_az(initial),
         'page_obj': page_obj,
         'page_range': page_range,
+        'page_range_bottom': page_range_bottom,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
@@ -175,12 +183,16 @@ def articles_search(request, topic=None):
     page_range = page_obj.paginator.get_elided_page_range(
         page_number, on_each_side=PAGINATOR_ON_EACH_SIDE, on_ends=PAGINATOR_ON_ENDS,
     )
+    page_range_bottom = page_obj.paginator.get_elided_page_range(
+        page_number, on_each_side=PAGINATOR_ON_EACH_SIDE, on_ends=PAGINATOR_ON_ENDS,
+    )
     return render(request, 'patterns/pages/collections/collections-search.html', {
         'query': query_string,
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
         'tags': tags_collections_topics(topic),
         'page_obj': page_obj,
         'page_range': page_range,
+        'page_range_bottom': page_range_bottom,
     })
 
 """
@@ -213,11 +225,15 @@ def authors(request, template_name='encyclopedia/authors.html'):
     page_range = page_obj.paginator.get_elided_page_range(
         page_number, on_each_side=PAGINATOR_ON_EACH_SIDE, on_ends=PAGINATOR_ON_ENDS,
     )
+    page_range_bottom = page_obj.paginator.get_elided_page_range(
+        page_number, on_each_side=PAGINATOR_ON_EACH_SIDE, on_ends=PAGINATOR_ON_ENDS,
+    )
     return render(request, 'patterns/pages/collections/collections--authors.html', {
         'tabs': collections_authors_tabs(url=reverse('encyc-authors')),
         'tags': tags_authors_az(initial),
         'page_obj': page_obj,
         'page_range': page_range,
+        'page_range_bottom': page_range_bottom,
     })
 
 #@cache_page(settings.CACHE_TIMEOUT)
