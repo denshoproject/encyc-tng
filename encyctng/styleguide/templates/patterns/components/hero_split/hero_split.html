@@ -27,6 +27,13 @@
                     </li>
                 {# endif #}
             </ul>
+	    {% if page.comingsoon %}
+	    <div class="alert alert-info" style="border:5px dashed red; padding:5px; margin-bottom:15px;">
+	      <p>
+		The content in this article is still under development. A completed version will appear soon!
+	      </p>
+	    </div>
+	    {% endif %}{# comingsoon #}
             <div class="hero-split__introduction intro">
                 <div class="sf__block sf__block--{{ block.block_type }}">
                     {% include_block hero.introduction %}

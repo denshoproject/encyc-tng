@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
 
+from wagtail.admin.auth import permission_denied
+from wagtail.admin.views.reports import ReportView, PageReportView
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtailmedia.models import Media
@@ -16,6 +18,61 @@ from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
 from encyclopedia.topics import topics_items
 
+
+# CMS / Editors' UI
+
+class UnpublishedChangesReportView(PageReportView):
+    index_url_name = 'unpublished_changes_report'
+    index_results_url_name = 'unpublished_changes_report_results'
+    results_template_name = 'reports/unpublished_changes_report_results.html'
+    header_icon = 'doc-empty-inverse'
+    page_title = 'Pages with unpublished changes'
+    list_export = PageReportView.list_export + ['last_published_at']
+    export_headings = dict(
+        last_published_at='Last Published',
+        **PageReportView.export_headings
+    )
+
+    def get_queryset(self):
+        return Article.objects.filter(has_unpublished_changes=True)
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super().dispatch(request, *args, **kwargs)
+
+class ComingSoonReportView(PageReportView):
+    index_url_name = 'coming_soon_report'
+    index_results_url_name = 'coming_soon_report_results'
+    results_template_name = 'reports/coming_soon_report_results.html'
+    header_icon = 'doc-empty-inverse'
+    page_title = 'Coming Soon'
+
+    def get_queryset(self):
+        return Article.objects.filter(tags__name='comingsoon')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super().dispatch(request, *args, **kwargs)
+
+class NeedsEditorReportView(PageReportView):
+    index_url_name = 'needs_editor_report'
+    index_results_url_name = 'needs_editor_report_results'
+    results_template_name = 'reports/needs_editor_report_results.html'
+    header_icon = 'doc-empty-inverse'
+    page_title = 'Needs Editor Attention'
+
+    def get_queryset(self):
+        return Article.objects.filter(tags__name='needseditor')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super().dispatch(request, *args, **kwargs)
+
+
+# Public UI
 
 # home/index page comes from home.models.HomePage
 

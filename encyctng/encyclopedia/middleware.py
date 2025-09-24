@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -14,7 +16,7 @@ class RedirectLegacyURLsMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        if response.status_code == 404:
+        if response.status_code == HTTPStatus.NOT_FOUND:
             
             # get what might be an article title
             title = request.META['PATH_INFO']

@@ -90,6 +90,13 @@ ALTER DATABASE encyctngdev OWNER TO encyctng;
 GRANT CREATE ON SCHEMA public TO encyctng;
 \q
 ```
+
+If you're doing this a lot or trying to speedrun you can do it in two lines:
+```
+DROP DATABASE encyctng; CREATE DATABASE encyctng; ALTER DATABASE encyctng OWNER TO encyctng;
+\connect encyctngdev; GRANT CREATE ON SCHEMA public TO encyctng; \q
+```
+
 Run Django commands to setup a fresh database:
 ``` bash
 python encyctng/manage.py migrate
@@ -110,10 +117,16 @@ python encyctng/manage.py createsuperuser
 ## Initial Setup
 
 This creates things like the "Encyclopedia" page at the top of the `Articles` hierarchy and the `Collection` objects that the various types of Primary Sources will be added to.
+
+Export usernames/passwords as an environment var:
+``` bash
+export TNGUSERS="gjost:REDACTED;gfroh:REDACTED;pkikawa:REDACTED:sbeckman:REDACTED;cjohnson:REDACTED;bniiya:REDACTED"
+```
 ``` python
 from encyclopedia import migration
 migration.initial_setup()
 ```
+Remember to edit `.bash_history` afterwards to remove those passwords.
 
 ## Topics
 
@@ -152,11 +165,12 @@ result = migration.Sources.import_sources(primary_sources, sources_dir)
 
 Load article data and import:
 ``` python
+user = User.objects.get(username='gjost')
 jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
 from pathlib import Path
 from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
-migration.Articles.import_articles(basedir, jsonl_path)
+migration.Articles.import_articles(basedir, jsonl_path, user=user)
 ```
 And then rewrite internal URLs
 ```
