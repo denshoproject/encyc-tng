@@ -5,6 +5,7 @@
 
 # Yes I know the name clashes with Django's migrations/ dir.
 
+import csv
 from datetime import datetime
 import json
 import logging
@@ -906,16 +907,33 @@ class Articles():
         return mwpage,mwtext,pagedata,errors
 
     @staticmethod
-    def load_redirects(basedir):
-        path = basedir / 'redirects.txt'
+    def process_redirects(basedir):
+        path = basedir / 'redirects-raw.txt'
+        jsonl_path = basedir / 'redirects.jsonl'
         with path.open('r') as f:
-            text = f.read()
-        return {
-            line.split('|')[0].strip(): line.split('|')[1].strip()
-            for line in [
-                    line.replace('\u200e','') for line in text.splitlines()
-            ]
-        }
+            lines = f.readlines()
+        with jsonl_path.open('w') as f:
+            output = []
+            for line in lines:
+                title,target = line.strip().split('→\u200e')
+                output.append(
+                    json.dumps({
+                        'old_path':title.strip(),
+                        'redirect_to':target.strip()
+                    })
+                )
+            f.write('\n'.join(output))
+
+    @staticmethod
+    def load_redirects(basedir):
+        jsonl_path = basedir / 'redirects.jsonl'
+        with jsonl_path.open('r') as f:
+            lines = f.readlines()
+        redirects = {}
+        for line in lines:
+            item = json.loads(line)
+            redirects[item['old_path']] = item['redirect_to']
+        return redirects
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
@@ -1489,7 +1507,7 @@ description
         return errors_by_sig
 
     @staticmethod
-    def rewrite_article_urls():
+    def rewrite_article_urls(redirects):
         """Rewrite internal links in a block to Wagtail format
         """
         logger.info(f"Articles.rewrite_article_urls()")
@@ -1498,7 +1516,7 @@ description
         num = len(articles)
         for n,article in enumerate(articles):
             click.secho(f"{n+1}/{num} {article.title}", bold=True)
-            Articles._rewrite_article_urls(article, article_ids_by_url)
+            Articles._rewrite_article_urls(article, article_ids_by_url, redirects)
             article.save()
 
     @staticmethod
@@ -1506,14 +1524,14 @@ description
         return {a.url: a.id for a in Article.objects.all()}
 
     @staticmethod
-    def _rewrite_article_urls(article, article_ids_by_url):
+    def _rewrite_article_urls(article, article_ids_by_url, redirects):
         for block in article.description:
-            Articles._rewrite_block_urls(block, article_ids_by_url)
+            Articles._rewrite_block_urls(article, block, article_ids_by_url, redirects)
         for block in article.body:
-            Articles._rewrite_block_urls(block, article_ids_by_url)
+            Articles._rewrite_block_urls(article, block, article_ids_by_url, redirects)
 
     @staticmethod
-    def _rewrite_block_urls(block, article_ids_by_url):
+    def _rewrite_block_urls(article, block, article_ids_by_url, redirects):
         """Rewrite internal links in a block to Wagtail format
         
         Migration format: <a href="/wiki/title-here">Title Here</a>
@@ -1540,6 +1558,13 @@ description
             # so we can get Article.id
             url = a.get('href').replace('/wiki', '') + '/'
             target_id = article_ids_by_url.get(url, None)
+            
+            #if (not target_id) and redirects.get(article.title, None):
+            #    # this might be a redirect
+            #    slug = slugify(article.title)
+            #    url = f"/{slug}/"
+            #    target_id = article_ids_by_url.get(url, None)
+            
             if target_id:
                 # rewrite link
                 a['linktype'] = 'page'

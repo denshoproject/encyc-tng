@@ -157,9 +157,15 @@ from pathlib import Path
 from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
 migration.Articles.import_articles(basedir, jsonl_path)
-
+```
+And then rewrite internal URLs
+```
+from pathlib import Path
+from encyclopedia import migration
+basedir = Path('/opt/encyc-tng/data')
+redirects = migration.Articles.load_redirects(basedir)
+migration.Articles.rewrite_article_urls(redirects)
 csv_path = '/tmp/unconverted-article-urls.csv'
-migration.Articles.rewrite_article_urls()
 migration.Articles.unconverted_article_urls(csvpath=csv_path)
 ```
 
