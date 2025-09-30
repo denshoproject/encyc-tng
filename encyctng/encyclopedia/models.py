@@ -226,40 +226,82 @@ class Article(Page):
         return
 
     def carousel(self):
-        """Any Image blocks at the top of self.body are gathered into carousel
+        """Image blocks at the top of self.body are gathered into carousel
         """
-        # select only media blocks that appear at the beginning of Article.body
-        # list of StreamBlocks
-        media_blocks_range = 0
-        for block in self.body:
-            if block.block_type not in ['imageblock']:
-                break
-            media_blocks_range += 1
-        # pop those into separate list so they don't get displayed again
-        media_blocks = []
-        for n in range(0, media_blocks_range):
-            media_blocks.append(self.body.pop(0))
-        return [
-            {
-                'type': 'Image',
-                'image': block.value['image'],
-                'caption': block.value['caption'],
-                'url': '#',
-                'modal': {
-                    'id': f"modal-{n}",
-                    'open': False,
-                    'media_type': 'Image',
-                    'title': block.value['caption'],
-                    'content': block.value['caption'],
+        items = []
+        for n,block in enumerate(self.carousel_blocks()):
+            if block.block_type == 'imageblock':
+                # TODO this looks like encyclopedia.blocks.ImageBlockStructValue.modal
+                items.append({
+                    'type': 'Image',
+                    'image': block.value['image'],
                     'caption': block.value['caption'],
-                    'densho_id': 'ddr-densho-123-45',
-                    'download_url': '',
-                    'cite_url': '',
-                    'view_url': '',
-                },
-            }
-            for n,block in enumerate(media_blocks)
+                    'url': '#',
+                    'modal': {
+                        'id': f"modal-{n}",
+                        'open': False,
+                        'media_type': 'Image',
+                        'title': block.value['caption'],
+                        'content': block.value['caption'],
+                        'caption': block.value['caption'],
+                        'densho_id': 'ddr-densho-123-45',
+                        'download_url': '',
+                        'cite_url': '',
+                        'view_url': '',
+                    }
+                })
+        return items
+
+    def carousel_blocks(self):
+        """Pulls out top-of-article media blocks for the top-of-article carousel
+
+        In more detail, this function
+        - collects media objects that appear before the first header/paragraph
+        - out of these, selects only the images
+        - pops these out into a separate self.carousel_blocks list
+        - leaving the rest of the media objects where they were
+        It should *not* touch any media objects that appear *after* the
+        first header/paragraph/etc.
+
+        History lesson: The article carousel started off as me not knowing
+        what to do with Primary Sources when I'd migrated them.  The old
+        Encyclopedia had them in a sidebar so there was no way to place them
+        within te article text, which is an editorial decision, so I just
+        stuck them at the top and figured the editors would take care of it.
+        The Torchbox people saw media at the top and made this carousel thing,
+        and here we are.
+        Primary sources can be Images, Videos (and audio) or Documents,
+        but the carousel template they gave us only displays *images*.
+        """
+        if hasattr(self, '_carousel_blocks') and self._carousel_blocks:
+            return self._carousel_blocks
+        MEDIA_BLOCK_TYPES = ['imageblock', 'videoblock', 'documentblock']
+        CAROUSEL_BLOCK_TYPES = ['imageblock']
+        self._carousel_blocks = []
+        # we only want media blocks that appear at the beginning of Article.body,
+        # before the text
+        carousel_blocks_range = 0
+        for block in self.body:
+            if block.block_type not in MEDIA_BLOCK_TYPES:
+                # this is a non-media block, like a header or paragraph
+                # we've started the article now so stop
+                break
+            carousel_blocks_range += 1
+        # list *indices* of CAROUSEL_BLOCK_TYPES blocks in carousel_blocks_range
+        blocks_for_carousel = [
+            n for n in range(0, carousel_blocks_range)
+            if self.body[n].block_type in CAROUSEL_BLOCK_TYPES
         ]
+        # reverse the list bc we can't start popping at zero
+        blocks_for_carousel = [n for n in reversed([n for n in blocks_for_carousel])]
+        ## pop CAROUSEL_BLOCK_TYPES blocks out of page body into separate list
+        carousel_blocks = [
+            self.body.pop(n)
+            for n in blocks_for_carousel
+        ]
+        # and restore to original order
+        self._carousel_blocks = [b for b in reversed(carousel_blocks)]
+        return self._carousel_blocks
 
     def related_links(self):
         return [
