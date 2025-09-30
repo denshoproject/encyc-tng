@@ -116,6 +116,17 @@ python encyctng/manage.py createsuperuser
 
 ## Initial Setup
 
+Create a Site object with the URL and set it as default. Reset the `localhost` site to not be the default.
+``` python
+HOSTNAME = 'encyclopedia.densho.org'
+SITE_NAME = 'Densho Encyclopedia'
+site = Site(hostname=HOSTNAME, site_name=SITE_NAME, root_page=Page.objects.get(title='Home'), is_default_site=True)
+site.save()
+localhost = Site.objects.get(hostname='localhost')
+localhost.is_default_site = False
+localhost.save()
+```
+
 This creates things like the "Encyclopedia" page at the top of the `Articles` hierarchy and the `Collection` objects that the various types of Primary Sources will be added to.
 
 Export usernames/passwords as an environment var:
