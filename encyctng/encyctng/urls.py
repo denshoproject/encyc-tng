@@ -22,6 +22,7 @@ from django.urls import path, include
 from ninja import NinjaAPI
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail import urls as wagtail_urls
+from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 
 from encyclopedia import urls as encyclopedia_urls
@@ -49,6 +50,7 @@ urlpatterns += [
     path("api/1.0/", api.urls),
     path('admin/', admin.site.urls),
     path('cms/', include(wagtailadmin_urls)),
+    path('sitemap.xml', sitemap),
     path('documents/', include(wagtaildocs_urls)),
     path('', include(encyclopedia_urls)), # match encyc URLs before wagtail ones
     path('', include(wagtail_urls)),
