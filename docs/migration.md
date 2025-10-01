@@ -131,7 +131,7 @@ This creates things like the "Encyclopedia" page at the top of the `Articles` hi
 
 Export usernames/passwords as an environment var:
 ``` bash
-export TNGUSERS="gjost:REDACTED;gfroh:REDACTED;pkikawa:REDACTED:sbeckman:REDACTED;cjohnson:REDACTED;bniiya:REDACTED"
+export TNGUSERS="USER1:REDACTED;USER2:REDACTED;..."
 ```
 ``` python
 from encyclopedia import migration
