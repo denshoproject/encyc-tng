@@ -193,19 +193,3 @@ migration.Articles.rewrite_article_urls(redirects)
 csv_path = '/tmp/unconverted-article-urls.csv'
 migration.Articles.unconverted_article_urls(csvpath=csv_path)
 ```
-
-
-## Misc
-
-Not sure what this is...
-``` python
-from pathlib import Path
-from encyc import wiki
-from encyclopedia import migration
-basedir = Path('/tmp/migration')
-mw = wiki.MediaWiki()
-authors_by_names,authors_alts, sources_collection,sources_by_headword, saved_titles,mw_titles,mw_titles_slugs = migration.Articles.load_articles_metadata(basedir)
-
-for title in titles:
-    mwpage,mwtext,pagedata,pgerrors = migration.Articles.load_article(basedir, title)
-```
