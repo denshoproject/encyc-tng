@@ -111,6 +111,7 @@ class ImageBlockStructValue(StructValue):
         }
 
 class ImageBlock(StructBlock):
+    signature = BooleanBlock(required=False)
     image = ImageBlock(required=True)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
