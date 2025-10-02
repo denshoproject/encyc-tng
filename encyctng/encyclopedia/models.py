@@ -102,6 +102,13 @@ class Article(Page):
         use_json_field=True,
         help_text='Description should only be one paragraph.',
     )
+    signature_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
     body = StreamField([
             ('heading', HeadingBlock()),
             ('paragraph', ArticleTextBlock()),
@@ -150,6 +157,7 @@ class Article(Page):
     def save(self, *args, **kwargs):
         if not self.title_sort:
             self.title_sort = slugify(self.title)
+        self.signature_image = self.get_signature_image()
         super(Article, self).save(*args, **kwargs)
 
     def initial(self):
@@ -208,22 +216,34 @@ class Article(Page):
     def authors_all(self):
         return [a for a in self.authors.all()]
 
-    def first_image(self):
-        """Returns Image object from the first image block or None
+    def get_signature_image(self):
+        """Scans media blocks and returns the signature image
+
+        Article.signature_image is the image that is shown in lists.
+
+        This function
+        - Iterates through article.body blocks
+        - Gets the first ImageBlock where signature is checked.
+        - If ImageBlock has an 'image', set article.signature_image and break.
+        - If no blocks are selected
+        - iterate through article.body blocks
+        - select the first one with an 'image' and set article.signature_image.
+        There might be multiple ImageBlocks with checkboxes but that's the
+        author's problem.
         """
-        media_blocks = []
-        try:
-            allblocks = [block for block in self.body]
-        except:
-            allblocks = []
-        for block in allblocks:
-            if block.block_type in ['imageblock']:
-                media_blocks.append(block)
-        if media_blocks:
-            block = media_blocks[0]
-            image = block.value['image']
-            return image
-        return
+        # Get the first ImageBlock where signature is checked
+        # If it has an image, that's the signature image
+        for block in self.body:
+            if block.block_type == 'imageblock' \
+            and block.value.get('signature', None):
+                if block.value.get('image', None):
+                    return block.value['image']
+        # Didn't find one, so just get the first image
+        for block in self.body:
+            if block.block_type == 'imageblock' \
+            and block.value.get('image', None):
+                return block.value['image']
+        return None
 
     def carousel(self):
         """Image blocks at the top of self.body are gathered into carousel

@@ -3,7 +3,7 @@
 <div class="article-listing-item{% if modifier %} article-listing-item--{{ modifier }}{% endif %}">
     <div class="article-listing-item__container">
         <div class="article-listing-item__image-container">
-            {% image article.first_image fill-340x340 format-webp as image %}
+            {% image article.signature_image fill-340x340 format-webp as image %}
             <a class="article-listing-item__link" href="{{ article.url }}"><img class="article-listing-item__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}"></a>
         </div>
         <div class="article-listing-item__content">
