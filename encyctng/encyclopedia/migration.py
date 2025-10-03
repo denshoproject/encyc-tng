@@ -481,7 +481,7 @@ class Sources():
             f.write('\n'.join(lines))
 
     @staticmethod
-    def source_keys_by_filename(sources, collection):
+    def source_keys_by_filename(collection):
         """Map source images to their format and wagtail..Image ID
         """
         return {
@@ -669,7 +669,7 @@ class Articles():
         mw = wiki.MediaWiki()
         url_prefix = '/wiki/'
         authors_by_names,authors_alts, \
-            sources_collection,sources_by_headword, \
+            sources_collection,sources_by_headword,source_pks_by_filename, \
             saved_titles,mw_titles,mw_titles_slugs, \
             redirects = Articles.load_articles_metadata(basedir, sources_jsonl)
         if not titles:
@@ -734,7 +734,7 @@ class Articles():
                     mw, mwpage, mwtext, pagedata,
                     mw_titles, mw_titles_slugs, url_prefix,
                     authors_by_names, authors_alts,
-                    sources_collection, sources_by_headword,
+                    sources_collection, sources_by_headword, source_pks_by_filename,
                     index_page,
                     user=user,
                     dryrun=dryrun,
@@ -782,12 +782,12 @@ class Articles():
     @staticmethod
     def load_articles_metadata(basedir, sources_jsonl):
         authors_by_names,authors_alts = Articles.load_authors(basedir)
-        sources_collection,sources_by_headword = Articles.load_sources(basedir, sources_jsonl)
+        sources_collection,sources_by_headword,source_pks_by_filename = Articles.load_sources(basedir, sources_jsonl)
         saved_titles,mw_titles,mw_titles_slugs = Articles.load_mw(basedir)
         redirects = Articles.load_redirects(basedir)
         return [
             authors_by_names,authors_alts,
-            sources_collection,sources_by_headword,
+            sources_collection,sources_by_headword,source_pks_by_filename,
             saved_titles,mw_titles,mw_titles_slugs,
             redirects
         ]
@@ -839,7 +839,7 @@ class Articles():
             click.echo(f"Collection {Collection} does not exist: Try running migration.initial_setup().")
             return
         source_pks_by_filename = Sources.source_keys_by_filename(
-            sources_by_headword, sources_collection
+            sources_collection
         )
         return sources_collection,sources_by_headword
 
@@ -859,7 +859,10 @@ class Articles():
         with path.open('rb') as f:
             sources_collection = pickle.load(f)
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-        return sources_collection,sources_by_headword
+        source_pks_by_filename = Sources.source_keys_by_filename(
+            sources_collection
+        )
+        return sources_collection,sources_by_headword,source_pks_by_filename
 
     @staticmethod
     def download_mw(mw, url_prefix, titles=[]):
@@ -1004,7 +1007,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, user, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
@@ -1060,11 +1063,8 @@ description
         related_articles = Articles.parse_related_articles(mwtext)
 
         sources_for_title = sources_by_headword.get(mwpage.title,[])
-        source_pks = Sources.source_keys_by_filename(
-            sources_for_title, sources_collection
-        )
         sources_blocks = Articles.streamfield_media_blocks(
-            sources_by_headword.get(mwpage.title, []), source_pks,
+            sources_by_headword.get(mwpage.title, []), source_pks_by_filename,
         )
 
         article.description = mwpage.description
@@ -1982,10 +1982,10 @@ def test_import_article(title, user):
     basedir = Path('/opt/encyc-tng/data')
     url_prefix = '/wiki/'
     mw = wiki.MediaWiki()
-    authors_by_names,authors_alts, sources_collection,sources_by_headword, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
+    authors_by_names,authors_alts, sources_collection,sources_by_headword, source_pks_by_filename, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
     index_page = Articles.prep_wagtail()
     mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
-    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, user)
+    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user)
     return article,related_articles
 
 
