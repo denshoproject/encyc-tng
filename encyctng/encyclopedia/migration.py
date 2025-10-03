@@ -337,18 +337,18 @@ class Authors():
 class Sources():
 
     @staticmethod
-    def import_sources(psms_sources, sources_dir, title=None, dryrun=False):
-        """Import files from sources_dir using metadata from psms_sources JSONL file
+    def import_sources(sources_by_headword, sources_dir, title=None, dryrun=False):
+        """Import files from sources_dir using metadata from sources_by_headword JSONL file
         """
         # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
         # https://stackoverflow.com/questions/63181320/bulk-uploading-and-creating-pages-with-images-in-wagtail-migration
-        print(f"{len(psms_sources)=}")
+        click.echo(f"{len(sources_by_headword)=}")
         # PSMS images attached to a collection
         collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
         print(f"{collection=}")
         errors = []
-        num = len(psms_sources)
-        for n,article_sources in enumerate(psms_sources.items()):
+        num = len(sources_by_headword)
+        for n,article_sources in enumerate(sources_by_headword.items()):
             article_title,sources = article_sources
             if title and not (article_title == title):
                 continue

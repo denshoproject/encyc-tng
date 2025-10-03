@@ -159,16 +159,16 @@ migration.Authors.import_authors(basedir, debug=True)
 
 Load metadata and import Primary Sources:
 ``` python
-jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
 from pathlib import Path
 from encyclopedia import migration
-jsonl_path = Path(jsonl_path)
-sources_dir = jsonl_path.parent
-primary_sources = migration.Sources.load_psms_sources_jsonl(jsonl_path)
-# just one for now
-primary_sources = primary_sources[:1]
-# import
-result = migration.Sources.import_sources(primary_sources, sources_dir)
+basedir = Path('/opt/encyc-tng/data')
+sources_jsonl = Path('/opt/encyc-tng/data/densho-psms-sources.jsonl')
+sources_dir = sources_jsonl.parent
+sources_collection,sources_by_headword = migration.Articles.load_sources(basedir, sources_jsonl)
+# import all
+result = migration.Sources.import_sources(sources_by_headword, sources_dir)
+# import title
+result = migration.Sources.import_sources(sources_by_headword, sources_dir, title='Manzanar')
 ```
 
 
