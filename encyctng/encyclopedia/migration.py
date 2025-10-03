@@ -337,7 +337,7 @@ class Authors():
 class Sources():
 
     @staticmethod
-    def import_sources(psms_sources, sources_dir, dryrun=False):
+    def import_sources(psms_sources, sources_dir, title=None, dryrun=False):
         """Import files from sources_dir using metadata from psms_sources JSONL file
         """
         # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
@@ -349,11 +349,13 @@ class Sources():
         errors = []
         num = len(psms_sources)
         for n,article_sources in enumerate(psms_sources.items()):
-            article,sources = article_sources
+            article_title,sources = article_sources
+            if title and not (article_title == title):
+                continue
             for source in sources:
-                print(f"{n}/{num} {article } - {source['media_format']} {source['encyclopedia_id']}")
+                print(f"{n}/{num} {article_title} - {source['media_format']} {source['encyclopedia_id']}")
                 result = Sources.import_file(
-                    article, source, sources_dir, collection=collection, dryrun=dryrun
+                    article_title, source, sources_dir, collection=collection, dryrun=dryrun
                 )
                 if result and result.get('error'):
                     errors.append(result)
@@ -363,7 +365,7 @@ class Sources():
         return errors
 
     @staticmethod
-    def import_file(article, source, sources_dir, collection, dryrun=False):
+    def import_file(article_title, source, sources_dir, collection, dryrun=False):
         """
         """
         src_dir = Path(sources_dir)
@@ -374,7 +376,7 @@ class Sources():
                     image.save()
                 #print(f"{image=}")
             except Exception as err:
-                return {'article': article, 'error': err, 'source': source}
+                return {'article_title': article_title, 'error': err, 'source': source}
         elif source['media_format'] == 'document':
             try:
                 doc = Sources.get_document(collection, src_dir / Path(source['original_path']))
@@ -386,7 +388,7 @@ class Sources():
                     display.save()
                 #print(f"{display=}")
             except Exception as err:
-                return {'article': article, 'error': err, 'source': source}
+                return {'article_title': article_title, 'error': err, 'source': source}
         elif source['media_format'] == 'video':
             try:
                 display = Sources.get_image(collection, src_dir / Path(source['display_path']))
@@ -406,7 +408,7 @@ class Sources():
                     transcript.save()
                 #print(f"{transcript=}")
             except Exception as err:
-                return {'article': article, 'error': err, 'source': source}
+                return {'article_title': article_title, 'error': err, 'source': source}
         return {}
 
     @staticmethod
