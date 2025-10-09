@@ -111,11 +111,9 @@ def articles_topic(request, topic=None):
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
 
+    articles = Article.objects.live().order_by('title_sort').prefetch_related('tags')
     if topic:
         articles = Article.objects.filter(tags__name__in=[topic])
-    else:
-        articles = Article.objects.all()
-    articles = articles.order_by('title_sort').prefetch_related('tags')
 
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
@@ -141,13 +139,11 @@ def articles_az(request):
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
 
+    articles = Article.objects.live().order_by('title_sort').prefetch_related('tags')
     if initial and initial[0].isalpha():
-        articles = Article.objects.filter(title_sort__istartswith=initial)
+        articles = articles.filter(title_sort__istartswith=initial)
     elif initial and initial[0].isdigit():
-        articles = Article.objects.filter(title_sort__regex=r"^(\d)")
-    else:
-        articles = Article.objects.all()
-    articles = articles.order_by('title_sort').prefetch_related('tags')
+        articles = articles.filter(title_sort__regex=r"^(\d)")
 
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
@@ -170,14 +166,17 @@ def articles_search(request, topic=None):
     query_string = request.GET.get('query', None)
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
+
     if query_string:
+        articles = Article.objects.live().order_by('title_sort').prefetch_related('tags')
         filters, query = parse_query_string(query_string, operator='and')
-        articles = Article.objects.filter(live=True).search(query)
+        articles = articles.filter(live=True).search(query)
         # Log the query so Wagtail can suggest promoted results
         #from wagtail.contrib.search_promotions.models import Query
         #Query.get(query).add_hit()
     else:
         articles = Article.objects.none()
+
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
     page_range = page_obj.paginator.get_elided_page_range(
@@ -240,7 +239,7 @@ def authors(request, template_name='encyclopedia/authors.html'):
 def author(request, slug):
     author = Author.objects.get(slug=slug)
     # TODO optimize query (restrict fields)
-    articles = author.article_set.all()
+    articles = author.article_set.live()
     return render(request, 'patterns/pages/collections/collections--author.html', {
         'tabs': collections_authors_tabs(url=reverse('encyc-authors')),
         'author': author,
