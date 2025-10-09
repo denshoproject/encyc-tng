@@ -1062,11 +1062,7 @@ description
         # TODO write related articles to file? database?
         related_articles = Articles.parse_related_articles(mwtext)
 
-        sources_for_title = sources_by_headword.get(mwpage.title,[])
-        sources_blocks = Articles.streamfield_media_blocks(
-            sources_by_headword.get(mwpage.title, []), source_pks_by_filename,
-        )
-
+        # description and body streamblocks
         article.description = mwpage.description
         if not article.description:
             article.description = ''
@@ -1084,8 +1080,18 @@ description
         # (must come after article.description separation)
         article_blocks = Articles.merge_streamfield_blocks(article_blocks)
 
+        # primary sources
+        sources_for_title = sources_by_headword.get(mwpage.title,[])
+        sources_blocks = Articles.streamfield_media_blocks(
+            sources_by_headword.get(mwpage.title, []), source_pks_by_filename,
+        )
+        # insert primary sources at head of list
         article_blocks = Articles.insert_media_blocks(sources_blocks, article_blocks)
+
+        # populate article body streamblocks
         article.body = json.dumps(article_blocks)
+
+        # attach media files to streamblocks
         Articles.attach_media_files(article, sources_blocks)
 
         Footnotary.update_footnotes(
