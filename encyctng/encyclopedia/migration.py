@@ -337,23 +337,25 @@ class Authors():
 class Sources():
 
     @staticmethod
-    def import_sources(psms_sources, sources_dir, dryrun=False):
-        """Import files from sources_dir using metadata from psms_sources JSONL file
+    def import_sources(sources_by_headword, sources_dir, title=None, dryrun=False):
+        """Import files from sources_dir using metadata from sources_by_headword JSONL file
         """
         # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
         # https://stackoverflow.com/questions/63181320/bulk-uploading-and-creating-pages-with-images-in-wagtail-migration
-        print(f"{len(psms_sources)=}")
+        click.echo(f"{len(sources_by_headword)=}")
         # PSMS images attached to a collection
         collection = Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION)
         print(f"{collection=}")
         errors = []
-        num = len(psms_sources)
-        for n,article_sources in enumerate(psms_sources.items()):
-            article,sources = article_sources
+        num = len(sources_by_headword)
+        for n,article_sources in enumerate(sources_by_headword.items()):
+            article_title,sources = article_sources
+            if title and not (article_title == title):
+                continue
             for source in sources:
-                print(f"{n}/{num} {article } - {source['media_format']} {source['encyclopedia_id']}")
+                print(f"{n}/{num} {article_title} - {source['media_format']} {source['encyclopedia_id']}")
                 result = Sources.import_file(
-                    article, source, sources_dir, collection=collection, dryrun=dryrun
+                    article_title, source, sources_dir, collection=collection, dryrun=dryrun
                 )
                 if result and result.get('error'):
                     errors.append(result)
@@ -363,7 +365,7 @@ class Sources():
         return errors
 
     @staticmethod
-    def import_file(article, source, sources_dir, collection, dryrun=False):
+    def import_file(article_title, source, sources_dir, collection, dryrun=False):
         """
         """
         src_dir = Path(sources_dir)
@@ -374,7 +376,7 @@ class Sources():
                     image.save()
                 #print(f"{image=}")
             except Exception as err:
-                return {'article': article, 'error': err, 'source': source}
+                return {'article_title': article_title, 'error': err, 'source': source}
         elif source['media_format'] == 'document':
             try:
                 doc = Sources.get_document(collection, src_dir / Path(source['original_path']))
@@ -386,7 +388,7 @@ class Sources():
                     display.save()
                 #print(f"{display=}")
             except Exception as err:
-                return {'article': article, 'error': err, 'source': source}
+                return {'article_title': article_title, 'error': err, 'source': source}
         elif source['media_format'] == 'video':
             try:
                 display = Sources.get_image(collection, src_dir / Path(source['display_path']))
@@ -406,7 +408,7 @@ class Sources():
                     transcript.save()
                 #print(f"{transcript=}")
             except Exception as err:
-                return {'article': article, 'error': err, 'source': source}
+                return {'article_title': article_title, 'error': err, 'source': source}
         return {}
 
     @staticmethod
@@ -479,7 +481,7 @@ class Sources():
             f.write('\n'.join(lines))
 
     @staticmethod
-    def source_keys_by_filename(sources, collection):
+    def source_keys_by_filename(collection):
         """Map source images to their format and wagtail..Image ID
         """
         return {
@@ -667,7 +669,7 @@ class Articles():
         mw = wiki.MediaWiki()
         url_prefix = '/wiki/'
         authors_by_names,authors_alts, \
-            sources_collection,sources_by_headword, \
+            sources_collection,sources_by_headword,source_pks_by_filename, \
             saved_titles,mw_titles,mw_titles_slugs, \
             redirects = Articles.load_articles_metadata(basedir, sources_jsonl)
         if not titles:
@@ -732,7 +734,7 @@ class Articles():
                     mw, mwpage, mwtext, pagedata,
                     mw_titles, mw_titles_slugs, url_prefix,
                     authors_by_names, authors_alts,
-                    sources_collection, sources_by_headword,
+                    sources_collection, sources_by_headword, source_pks_by_filename,
                     index_page,
                     user=user,
                     dryrun=dryrun,
@@ -780,12 +782,12 @@ class Articles():
     @staticmethod
     def load_articles_metadata(basedir, sources_jsonl):
         authors_by_names,authors_alts = Articles.load_authors(basedir)
-        sources_collection,sources_by_headword = Articles.load_sources(basedir, sources_jsonl)
+        sources_collection,sources_by_headword,source_pks_by_filename = Articles.load_sources(basedir, sources_jsonl)
         saved_titles,mw_titles,mw_titles_slugs = Articles.load_mw(basedir)
         redirects = Articles.load_redirects(basedir)
         return [
             authors_by_names,authors_alts,
-            sources_collection,sources_by_headword,
+            sources_collection,sources_by_headword,source_pks_by_filename,
             saved_titles,mw_titles,mw_titles_slugs,
             redirects
         ]
@@ -837,7 +839,7 @@ class Articles():
             click.echo(f"Collection {Collection} does not exist: Try running migration.initial_setup().")
             return
         source_pks_by_filename = Sources.source_keys_by_filename(
-            sources_by_headword, sources_collection
+            sources_collection
         )
         return sources_collection,sources_by_headword
 
@@ -857,7 +859,10 @@ class Articles():
         with path.open('rb') as f:
             sources_collection = pickle.load(f)
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-        return sources_collection,sources_by_headword
+        source_pks_by_filename = Sources.source_keys_by_filename(
+            sources_collection
+        )
+        return sources_collection,sources_by_headword,source_pks_by_filename
 
     @staticmethod
     def download_mw(mw, url_prefix, titles=[]):
@@ -1002,7 +1007,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, user, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
@@ -1057,14 +1062,7 @@ description
         # TODO write related articles to file? database?
         related_articles = Articles.parse_related_articles(mwtext)
 
-        sources_for_title = sources_by_headword.get(mwpage.title,[])
-        source_pks = Sources.source_keys_by_filename(
-            sources_for_title, sources_collection
-        )
-        sources_blocks = Articles.streamfield_media_blocks(
-            sources_by_headword.get(mwpage.title, []), source_pks,
-        )
-
+        # description and body streamblocks
         article.description = mwpage.description
         if not article.description:
             article.description = ''
@@ -1081,11 +1079,21 @@ description
         # merge successive paragraph blocks
         # (must come after article.description separation)
         article_blocks = Articles.merge_streamfield_blocks(article_blocks)
-        # only prepend Source blocks that are not None
-        for source_block in sources_blocks:
-            if source_block:
-                article_blocks.insert(0, source_block)
+
+        # primary sources
+        sources_for_title = sources_by_headword.get(mwpage.title,[])
+        sources_blocks = Articles.streamfield_media_blocks(
+            sources_by_headword.get(mwpage.title, []), source_pks_by_filename,
+        )
+        # insert primary sources at head of list
+        article_blocks = Articles.insert_media_blocks(sources_blocks, article_blocks)
+
+        # populate article body streamblocks
         article.body = json.dumps(article_blocks)
+
+        # attach media files to streamblocks
+        Articles.attach_media_files(article, sources_blocks)
+
         Footnotary.update_footnotes(
             article,
             fields=ARTICLE_FOOTNOTE_FIELDS,
@@ -1546,6 +1554,65 @@ description
         return blocks
 
     @staticmethod
+    def insert_media_blocks(sources_blocks, article_blocks):
+        """Insert Image/Video/Document blocks at the beginning of the Article
+
+        NOTE: These media blocks don't have their Image/Media/Document objects
+        at this point. See note in .attach_media_files.
+
+        We put them here at the beginning because we don't know where else
+        to put them. In the Encyclopedia they're just in the sidebar.
+        The Torchbox designers saw media blocks at the top and made that
+        image carousel thing, so here we are.
+        """
+        return sources_blocks + article_blocks
+
+    @staticmethod
+    def attach_media_files(article, sources_blocks):
+        """Media Blocks are added to the Article, now attach File objects
+
+        We cannot insert the actual media file objects
+        in encyclopedia.blocks.(Media)Block.block_from_source()
+        because the Wagtail code for adding blocks to Page.body
+        will only accept *serializable* values and won't Do The Right Thing
+        with the File pk values even though the pk's are what... whatever.
+        So we insert them here.
+        I hope the body blocks correspond to the sources_blocks...
+        """
+        for n,block in enumerate(article.body):
+            if block and block.block_type in ['imageblock','videoblock','documentblock']:
+                sources_block = sources_blocks[n]
+                # TODO we should try to make sure block matches sources_block
+                # image_pk is in sources_block but block.image is just None
+                # and there's no filename in block so what do we match on?  caption?
+                if block.block_type == 'imageblock':
+                    try:
+                        image = Image.objects.get(pk=sources_block['image'])
+                        block.value['image'] = image
+                    except KeyError:
+                        pass
+                elif block.block_type == 'videoblock':
+                    try:
+                        video = Media.objects.get(pk=sources_block['video'])
+                        block.value['video'] = video
+                        display = Image.objects.get(pk=sources_block['display'])
+                        block.value['display'] = display
+                        transcript = Media.objects.get(pk=sources_block['transcript'])
+                        block.value['transcript'] = transcript
+                    except Media.DoesNotExist:
+                        pass
+                    except KeyError:
+                        pass
+                elif block.block_type == 'documentblock':
+                    try:
+                        document = Document.objects.get(pk=sources_block['document'])
+                        block.value['document'] = document
+                        display = Image.objects.get(pk=sources_block['display'])
+                        block.value['display'] = display
+                    except KeyError:
+                        pass
+
+    @staticmethod
     def parse_related_articles(mwtext):
         """Parse mwtext and return list of related articles
 
@@ -1980,10 +2047,10 @@ def test_import_article(title, user):
     basedir = Path('/opt/encyc-tng/data')
     url_prefix = '/wiki/'
     mw = wiki.MediaWiki()
-    authors_by_names,authors_alts, sources_collection,sources_by_headword, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
+    authors_by_names,authors_alts, sources_collection,sources_by_headword, source_pks_by_filename, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
     index_page = Articles.prep_wagtail()
     mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
-    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, index_page, user)
+    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user)
     return article,related_articles
 
 

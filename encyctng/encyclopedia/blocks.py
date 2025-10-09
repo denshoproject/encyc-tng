@@ -9,7 +9,7 @@ from wagtail.blocks import (
 )
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
-from wagtail.images.blocks import ImageBlock
+from wagtail.images.blocks import ImageBlock as WagtailImageBlock
 from wagtailmedia.blocks import VideoChooserBlock
 
 
@@ -112,7 +112,7 @@ class ImageBlockStructValue(StructValue):
 
 class ImageBlock(StructBlock):
     signature = BooleanBlock(required=False)
-    image = ImageBlock(required=True)
+    image = WagtailImageBlock(required=True)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
     courtesy = CharBlock(required=False)
@@ -177,6 +177,7 @@ class VideoBlock(StructBlock):
         source.transcript_path
     """
     video = VideoChooserBlock(required=False)
+    display = WagtailImageBlock(required=False)
     transcript = DocumentChooserBlock(required=False)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
@@ -206,6 +207,11 @@ class VideoBlock(StructBlock):
         )
         if video_pk:
             block['video'] = video_pk
+        display_pk = source_pks_by_filename['image'].get(
+            Path(source['display_path']).name
+        )
+        if display_pk:
+            block['display'] = display_pk
         transcript_pk = source_pks_by_filename['document'].get(
             Path(source['transcript']).name
         )
@@ -244,7 +250,7 @@ class DocumentBlock(StructBlock):
         document_download_url
     """
     document = DocumentChooserBlock(required=True)
-    display = ImageBlock(required=False)
+    display = WagtailImageBlock(required=False)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
     courtesy = CharBlock(required=False)
