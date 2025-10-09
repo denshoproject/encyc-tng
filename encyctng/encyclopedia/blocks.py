@@ -207,6 +207,11 @@ class VideoBlock(StructBlock):
         )
         if video_pk:
             block['video'] = video_pk
+        display_pk = source_pks_by_filename['image'].get(
+            Path(source['display_path']).name
+        )
+        if display_pk:
+            block['display'] = display_pk
         transcript_pk = source_pks_by_filename['document'].get(
             Path(source['transcript']).name
         )

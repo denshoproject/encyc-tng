@@ -1595,6 +1595,8 @@ description
                     try:
                         video = Media.objects.get(pk=sources_block['video'])
                         block.value['video'] = video
+                        display = Image.objects.get(pk=sources_block['display'])
+                        block.value['display'] = display
                         transcript = Media.objects.get(pk=sources_block['transcript'])
                         block.value['transcript'] = transcript
                     except Media.DoesNotExist:
