@@ -1083,11 +1083,11 @@ description
         # merge successive paragraph blocks
         # (must come after article.description separation)
         article_blocks = Articles.merge_streamfield_blocks(article_blocks)
-        # only prepend Source blocks that are not None
-        for source_block in sources_blocks:
-            if source_block:
-                article_blocks.insert(0, source_block)
+
+        article_blocks = Articles.insert_media_blocks(sources_blocks, article_blocks)
         article.body = json.dumps(article_blocks)
+        Articles.attach_media_files(article, sources_blocks)
+
         Footnotary.update_footnotes(
             article,
             fields=ARTICLE_FOOTNOTE_FIELDS,
@@ -1546,6 +1546,63 @@ description
             if block:
                 blocks.append(block)
         return blocks
+
+    @staticmethod
+    def insert_media_blocks(sources_blocks, article_blocks):
+        """Insert Image/Video/Document blocks at the beginning of the Article
+
+        NOTE: These media blocks don't have their Image/Media/Document objects
+        at this point. See note in .attach_media_files.
+
+        We put them here at the beginning because we don't know where else
+        to put them. In the Encyclopedia they're just in the sidebar.
+        The Torchbox designers saw media blocks at the top and made that
+        image carousel thing, so here we are.
+        """
+        return sources_blocks + article_blocks
+
+    @staticmethod
+    def attach_media_files(article, sources_blocks):
+        """Media Blocks are added to the Article, now attach File objects
+
+        We cannot insert the actual media file objects
+        in encyclopedia.blocks.(Media)Block.block_from_source()
+        because the Wagtail code for adding blocks to Page.body
+        will only accept *serializable* values and won't Do The Right Thing
+        with the File pk values even though the pk's are what... whatever.
+        So we insert them here.
+        I hope the body blocks correspond to the sources_blocks...
+        """
+        for n,block in enumerate(article.body):
+            if block and block.block_type in ['imageblock','videoblock','documentblock']:
+                sources_block = sources_blocks[n]
+                # TODO we should try to make sure block matches sources_block
+                # image_pk is in sources_block but block.image is just None
+                # and there's no filename in block so what do we match on?  caption?
+                if block.block_type == 'imageblock':
+                    try:
+                        image = Image.objects.get(pk=sources_block['image'])
+                        block.value['image'] = image
+                    except KeyError:
+                        pass
+                elif block.block_type == 'videoblock':
+                    try:
+                        video = Media.objects.get(pk=sources_block['video'])
+                        block.value['video'] = video
+                        transcript = Media.objects.get(pk=sources_block['transcript'])
+                        block.value['transcript'] = transcript
+                    except Media.DoesNotExist:
+                        pass
+                    except KeyError:
+                        pass
+                elif block.block_type == 'documentblock':
+                    try:
+                        document = Document.objects.get(pk=sources_block['document'])
+                        block.value['document'] = document
+                        display = Image.objects.get(pk=sources_block['display'])
+                        block.value['display'] = display
+                    except KeyError:
+                        pass
 
     @staticmethod
     def parse_related_articles(mwtext):
