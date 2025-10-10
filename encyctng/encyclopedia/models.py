@@ -217,6 +217,14 @@ class Article(Page):
     def authors_all(self):
         return [a for a in self.authors.all()]
 
+    def media_blocks(self):
+        """Generator that returns only Article's media blocks
+        """
+        MEDIA_BLOCK_TYPES = ['imageblock','videoblock','documentblock']
+        for block in self.body:
+            if block.block_type in MEDIA_BLOCK_TYPES:
+                yield block
+
     def get_signature_image(self, force=False):
         """Scans media blocks and returns the signature image
 
@@ -234,24 +242,27 @@ class Article(Page):
         """
         if self.signature_image and not force:
             return self.signature_image
-        MEDIA_BLOCK_TYPES = ['imageblock','videoblock','documentblock']
+        # placeholder if no media blocks
+        if len([b for b in self.media_blocks()]) == 0:
+            return placeholder_image()
         # Get the first ImageBlock where signature is checked
         # If it has an image, that's the signature image
-        for block in self.body:
-            if block.block_type in MEDIA_BLOCK_TYPES \
-            and block.value.get('signature', None):
+        for block in self.media_blocks():
+            if block.value.get('signature', None):
                 if block.value.get('image', None):
                     return block.value['image']
                 elif block.value.get('display', None):
                     return block.value['display']
         # Didn't find one, so just get the first image
-        for block in self.body:
-            if block.block_type in MEDIA_BLOCK_TYPES:
-                if block.value.get('image', None):
-                    return block.value['image']
-                elif block.value.get('display', None):
-                    return block.value['display']
-        return placeholder_image()
+        for block in self.media_blocks():
+            if block.value.get('image', None):
+                return block.value['image']
+            elif block.value.get('display', None):
+                return block.value['display']
+        # We want to know if images are missing from media blocks
+        # If signature is still blank at this point just return None
+        #return placeholder_image()
+        return None
 
     def carousel(self):
         """Image blocks at the top of self.body are gathered into carousel
