@@ -18,6 +18,7 @@ from wagtail.fields import RichTextField, StreamField
 from wagtail import hooks
 from wagtail.contrib.table_block.blocks import TableBlock
 from wagtail.contrib.typed_table_block.blocks import TypedTableBlock
+from wagtail.images.models import Image
 from wagtail.models import Page, Orderable
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
@@ -216,7 +217,7 @@ class Article(Page):
     def authors_all(self):
         return [a for a in self.authors.all()]
 
-    def get_signature_image(self):
+    def get_signature_image(self, force=False):
         """Scans media blocks and returns the signature image
 
         Article.signature_image is the image that is shown in lists.
@@ -231,6 +232,8 @@ class Article(Page):
         There might be multiple media Blocks with checkboxes but that's the
         author's problem.
         """
+        if self.signature_image and not force:
+            return self.signature_image
         MEDIA_BLOCK_TYPES = ['imageblock','videoblock','documentblock']
         # Get the first ImageBlock where signature is checked
         # If it has an image, that's the signature image
@@ -248,7 +251,7 @@ class Article(Page):
                     return block.value['image']
                 elif block.value.get('display', None):
                     return block.value['display']
-        return None
+        return placeholder_image()
 
     def carousel(self):
         """Image blocks at the top of self.body are gathered into carousel
@@ -450,6 +453,15 @@ def prep_footnotes(page, request, serve_args, serve_kwargs):
             fields=ARTICLE_FOOTNOTE_FIELDS,
             block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
         )
+
+def placeholder_image():
+    """Return a placeholder Image object
+    TODO cache this!
+    """
+    try:
+        return Image.objects.get(title='placeholder')
+    except Image.DoesNotExist:
+        return None
 
 
 class MediawikiWagtail(models.Model):
