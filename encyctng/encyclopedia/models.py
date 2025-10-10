@@ -459,8 +459,10 @@ def placeholder_image():
     TODO cache this!
     """
     try:
-        return Image.objects.get(title='placeholder')
+        return Image.objects.filter(title='placeholder')[0]
     except Image.DoesNotExist:
+        return None
+    except IndexError:
         return None
 
 
