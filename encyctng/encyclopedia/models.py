@@ -223,26 +223,31 @@ class Article(Page):
 
         This function
         - Iterates through article.body blocks
-        - Gets the first ImageBlock where signature is checked.
-        - If ImageBlock has an 'image', set article.signature_image and break.
+        - Gets the first Image/Video/DocumentBlock where signature is checked.
+        - If Block has an 'image' or 'display', set article.signature_image and break.
         - If no blocks are selected
         - iterate through article.body blocks
-        - select the first one with an 'image' and set article.signature_image.
-        There might be multiple ImageBlocks with checkboxes but that's the
+        - select the first Block with an 'image' or 'display' and set.
+        There might be multiple media Blocks with checkboxes but that's the
         author's problem.
         """
+        MEDIA_BLOCK_TYPES = ['imageblock','videoblock','documentblock']
         # Get the first ImageBlock where signature is checked
         # If it has an image, that's the signature image
         for block in self.body:
-            if block.block_type == 'imageblock' \
+            if block.block_type in MEDIA_BLOCK_TYPES \
             and block.value.get('signature', None):
                 if block.value.get('image', None):
                     return block.value['image']
+                elif block.value.get('display', None):
+                    return block.value['display']
         # Didn't find one, so just get the first image
         for block in self.body:
-            if block.block_type == 'imageblock' \
-            and block.value.get('image', None):
-                return block.value['image']
+            if block.block_type in MEDIA_BLOCK_TYPES:
+                if block.value.get('image', None):
+                    return block.value['image']
+                elif block.value.get('display', None):
+                    return block.value['display']
         return None
 
     def carousel(self):
