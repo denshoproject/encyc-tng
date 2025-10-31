@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 from wagtail.admin.panels import FieldPanel
@@ -32,11 +34,11 @@ class HomePage(Page):
 
 
 def latest_homepage_image():
-    c = Collection.objects.get(name='Home page')
-    try:
-        return Image.objects.filter(collection=c)[0]
-    except:
-        return None
+    # TODO cache
+    carousel = HomePageCarousel.objects.live()
+    carousel = carousel.filter(publish_date__lte=datetime.now())[0]
+    images = [image.value['image'] for image in carousel.images]
+    return images[0]
 
 
 class HomePageCarouselIndexPage(Page):
