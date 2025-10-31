@@ -67,7 +67,7 @@ from home.models import HomePageCarouselIndexPage, HomePageCarousel
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 #ARTICLES_INDEX_PAGE = 'Encyclopedia'
-ARTICLES_INDEX_PAGE = 'Articles'
+ARTICLES_INDEX_PAGE = 'Home'
 ARTICLES_IMAGE_COLLECTION = 'Article Images'
 HOMEPAGE_CAROUSEL_INDEX_PAGE = 'Home Page Carousels'
 CSV_DELIMITER = ','
@@ -157,14 +157,12 @@ def initial_setup():
     authors_collection = Collection(name='Authors')
     root_collection.add_child(instance=authors_collection)
 
-    # remove "Home" page
-    #home_page = Page.objects.get(title='Home')
-    #home_page.delete()
-
-    # Add an "Articles" page. Encyc articles will be under "Articles"
     root_page = Page.objects.get(title='Root')
+
+    # Articles will be under "Home"
     articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
-    root_page.add_child(instance=articles_index)
+    # don't need to add this - there's already a "Home"
+    #root_page.add_child(instance=articles_index)
 
     # home page carousels will go under this
     homepage_carousels_index = HomePageCarouselIndexPage(
