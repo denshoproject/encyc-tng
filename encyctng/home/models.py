@@ -1,9 +1,13 @@
 from django.db import models
 
+from wagtail.admin.panels import FieldPanel
+from wagtail.fields import RichTextField, StreamField
 from wagtail.images.models import Image
 from wagtail.models import Page
 from wagtail.models.media import Collection
+from wagtail.search import index
 
+from encyclopedia.blocks import ImageBlock
 from encyclopedia.topics import topics_items
 
 
@@ -37,3 +41,37 @@ def latest_homepage_image():
 
 class HomePageCarouselIndexPage(Page):
     content_panels = Page.content_panels + []
+    subpage_types = ['home.HomePageCarousel']
+
+
+class HomePageCarousel(Page):
+    publish_date = models.DateTimeField()
+    description = RichTextField(blank=True)
+    images = StreamField([
+            ('imageblock', ImageBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+        help_text='Add one or more Image objects.',
+    )
+
+    search_fields = Page.search_fields + [
+        index.SearchField('description'),
+        index.SearchField('images'),
+    ]
+    content_panels = Page.content_panels + [
+        FieldPanel('publish_date'),
+        FieldPanel('description'),
+        FieldPanel('images'),
+    ]
+    promote_panels = []
+    settings_panels = []
+
+    parent_page_types = ['home.HomePageCarouselIndexPage']
+    subpage_types = []
+    template = 'patterns/pages/article/article.html'
+
+    class Meta:
+        ordering = ['title']
+        verbose_name = "Home Page Carousel"
+        verbose_name_plural = "Home Page Carousels"
