@@ -35,10 +35,14 @@ class HomePage(Page):
 
 def latest_homepage_image():
     # TODO cache
-    carousel = HomePageCarousel.objects.live()
-    carousel = carousel.filter(publish_date__lte=datetime.now())[0]
-    images = [image.value['image'] for image in carousel.images]
-    return images[0]
+    try:
+        carousel = HomePageCarousel.objects.live()
+        carousel = carousel.filter(publish_date__lte=datetime.now())[0]
+        images = [image.value['image'] for image in carousel.images]
+        image = images[0]
+        return image
+    except IndexError:
+        return None
 
 
 class HomePageCarouselIndexPage(Page):
