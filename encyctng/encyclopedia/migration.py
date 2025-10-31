@@ -66,7 +66,7 @@ from encyclopedia.topics import topics_items
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 #ARTICLES_INDEX_PAGE = 'Encyclopedia'
-ARTICLES_INDEX_PAGE = 'Home'
+ARTICLES_INDEX_PAGE = 'Articles'
 ARTICLES_IMAGE_COLLECTION = 'Article Images'
 CSV_DELIMITER = ','
 CSV_QUOTECHAR = '"'
@@ -155,11 +155,14 @@ def initial_setup():
     authors_collection = Collection(name='Authors')
     root_collection.add_child(instance=authors_collection)
 
-    ## NOPE: articles will be under 'Home'
-    # articles index page
-    articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
+    # remove "Home" page
     #home_page = Page.objects.get(title='Home')
-    #home_page.add_child(instance=articles_index)
+    #home_page.delete()
+
+    # Add an "Articles" page. Encyc articles will be under "Articles"
+    root_page = Page.objects.get(title='Root')
+    articles_index = ArticlesIndexPage(title=ARTICLES_INDEX_PAGE)
+    root_page.add_child(instance=articles_index)
 
     # Create editos workflows listed in WORKFLOWS
     Workflows.create_workflows()
