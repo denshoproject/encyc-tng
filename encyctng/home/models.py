@@ -33,3 +33,7 @@ def latest_homepage_image():
         return Image.objects.filter(collection=c)[0]
     except:
         return None
+
+
+class HomePageCarouselIndexPage(Page):
+    content_panels = Page.content_panels + []
