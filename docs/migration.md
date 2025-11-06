@@ -157,6 +157,15 @@ migration.Authors.import_authors(basedir, debug=True)
 
 ## Primary Sources
 
+Clear old media files:
+```
+rm -Rf /var/www/encyctng/media/documents/*
+rm -Rf /var/www/encyctng/media/images/*
+rm -Rf /var/www/encyctng/media/media/*
+rm -Rf /var/www/encyctng/media/media_thumbnails/*
+rm -Rf /var/www/encyctng/media/original_images/*
+```
+
 Load metadata and import Primary Sources:
 ``` python
 from pathlib import Path
@@ -167,7 +176,8 @@ sources_dir = sources_jsonl.parent
 sources_collection,sources_by_headword,source_pks_by_filename = migration.Articles.load_sources(basedir, sources_jsonl)
 # import all
 result = migration.Sources.import_sources(sources_by_headword, sources_dir)
-# import title
+```
+```# import title
 result = migration.Sources.import_sources(sources_by_headword, sources_dir, title='Manzanar')
 ```
 
@@ -190,6 +200,9 @@ from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
 redirects = migration.Articles.load_redirects(basedir)
 migration.Articles.rewrite_article_urls(redirects)
+```
+Report unconverted internal URLs
+```
 csv_path = '/tmp/unconverted-article-urls.csv'
 migration.Articles.unconverted_article_urls(csvpath=csv_path)
 ```
