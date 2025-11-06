@@ -703,6 +703,12 @@ class Articles():
         if not titles:
             titles = saved_titles
 
+        skip_path = basedir / 'articles-skip'
+        if skip_path.exists():
+            with skip_path.open('r') as f:
+                skip_titles = [title.strip() for title in f.readlines()]
+            skip = skip + skip_titles
+
         logger.info(f"{mw=}")
         index_page = Articles.prep_wagtail()
         logger.info(f"{index_page=}")
@@ -717,9 +723,9 @@ class Articles():
                 click.secho('LIMIT')
                 break
 
-            if (title in skip) or (n < offset):
-                logger.info(f"{n+1}/{num} [ skipped] {title=}")
-                click.secho(f"{n+1}/{num} [ skipped] {title=}", fg=(50,50,50))
+            if (title in skip) or (n < offset) or ('Dummy' in title):
+                logger.info(f"{n+1}/{num} [    skip] {title=}")
+                click.secho(f"{n+1}/{num} [    skip] {title=}", fg=(50,50,50))
                 continue
 
             if title in redirects.keys():
