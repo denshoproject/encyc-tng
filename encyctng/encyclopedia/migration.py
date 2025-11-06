@@ -346,7 +346,7 @@ class Authors():
 class Sources():
 
     @staticmethod
-    def import_sources(sources_by_headword, sources_dir, title=None, dryrun=False):
+    def import_sources(sources_by_headword, sources_dir, title=None, dryrun=False, limit=None):
         """Import files from sources_dir using metadata from sources_by_headword JSONL file
         """
         # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
@@ -358,6 +358,10 @@ class Sources():
         errors = []
         num = len(sources_by_headword)
         for n,article_sources in enumerate(sources_by_headword.items()):
+            if limit and n > limit:
+                logger.info('LIMIT')
+                click.secho('LIMIT')
+                break
             article_title,sources = article_sources
             if title and not (article_title == title):
                 continue
