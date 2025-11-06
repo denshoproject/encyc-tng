@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db import models
+from django.utils import timezone
 
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
@@ -36,11 +37,12 @@ class HomePage(Page):
 def latest_homepage_image():
     # TODO cache
     try:
-        carousel = HomePageCarousel.objects.live()
-        carousel = carousel.filter(publish_date__lte=datetime.now())[0]
+        carousel = HomePageCarousel.objects.live().order_by('-publish_date')
+        carousel = carousel.filter(
+            publish_date__lte=timezone.localtime(timezone.now())
+        )[0]
         images = [image.value['image'] for image in carousel.images]
-        image = images[0]
-        return image
+        return images[0]
     except IndexError:
         return None
 
