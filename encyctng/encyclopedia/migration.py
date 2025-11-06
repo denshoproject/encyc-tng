@@ -346,7 +346,7 @@ class Authors():
 class Sources():
 
     @staticmethod
-    def import_sources(sources_by_headword, sources_dir, title=None, dryrun=False):
+    def import_sources(sources_by_headword, sources_dir, title=None, dryrun=False, limit=None):
         """Import files from sources_dir using metadata from sources_by_headword JSONL file
         """
         # https://www.yellowduck.be/posts/programatically-importing-images-wagtail
@@ -358,6 +358,10 @@ class Sources():
         errors = []
         num = len(sources_by_headword)
         for n,article_sources in enumerate(sources_by_headword.items()):
+            if limit and n > limit:
+                logger.info('LIMIT')
+                click.secho('LIMIT')
+                break
             article_title,sources = article_sources
             if title and not (article_title == title):
                 continue
@@ -376,11 +380,20 @@ class Sources():
     @staticmethod
     def import_file(article_title, source, sources_dir, collection, dryrun=False):
         """
+        ', '.join([f"{key}:{s[key]}" for key in ['headword', 'caption', 'courtesy'] if s.get(key)])
+
         """
         src_dir = Path(sources_dir)
+        description = ', '.join([
+            f"{key}:{source[key]}"
+            for key in ['headword', 'caption', 'courtesy']
+            if source.get(key)
+        ])
         if source['media_format'] == 'image':
             try:
-                image = Sources.get_image(collection, src_dir / Path(source['original_path']))
+                image = Sources.get_image(
+                    collection, src_dir / Path(source['original_path']))
+                image.description = description
                 if not dryrun:
                     image.save()
                 #print(f"{image=}")
@@ -388,11 +401,14 @@ class Sources():
                 return {'article_title': article_title, 'error': err, 'source': source}
         elif source['media_format'] == 'document':
             try:
-                doc = Sources.get_document(collection, src_dir / Path(source['original_path']))
+                doc = Sources.get_document(
+                    collection, src_dir / Path(source['original_path']))
                 if not dryrun:
                     doc.save()
                 #print(f"{doc=}")
-                display = Sources.get_image(collection, src_dir / Path(source['display_path']))
+                display = Sources.get_image(
+                    collection, src_dir / Path(source['display_path']))
+                display.description = description
                 if not dryrun:
                     display.save()
                 #print(f"{display=}")
@@ -400,7 +416,9 @@ class Sources():
                 return {'article_title': article_title, 'error': err, 'source': source}
         elif source['media_format'] == 'video':
             try:
-                display = Sources.get_image(collection, src_dir / Path(source['display_path']))
+                display = Sources.get_image(
+                    collection, src_dir / Path(source['display_path']))
+                display.description = description
                 if not dryrun:
                     display.save()
                 #print(f"{display=}")
@@ -412,7 +430,8 @@ class Sources():
                 if not dryrun:
                     media.save()
                 #print(f"{media=}")
-                transcript = Sources.get_document(collection, src_dir / Path(source['transcript']))
+                transcript = Sources.get_document(
+                    collection, src_dir / Path(source['transcript']))
                 if not dryrun:
                     transcript.save()
                 #print(f"{transcript=}")
