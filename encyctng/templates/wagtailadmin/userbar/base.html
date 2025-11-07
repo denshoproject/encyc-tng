@@ -1,4 +1,4 @@
-{% load wagtailadmin_tags i18n %}
+{% load wagtailadmin_tags i18n static %}
 <!-- Wagtail user bar embed code -->
 <template id="wagtail-userbar-template">
     {# In preview panels, we still render the userbar UI, but hidden by default. #}
@@ -28,7 +28,9 @@
                 </svg>
 
                 <button aria-controls="wagtail-userbar-items" aria-haspopup="true" class="w-userbar-trigger" id="wagtail-userbar-trigger" data-wagtail-userbar-trigger>
-                    {% block branding_logo %}{% include "wagtailadmin/logo.html" with classname="w-userbar-icon" %}{% endblock %}
+		  {% block branding_logo %}
+		  <img src="{% static 'images/densho-logo-black.svg' %}" alt="Densho Project" width="150" />
+		  {% endblock %}
                     <span class="w-sr-only">{% trans 'View Wagtail quick actions' %}</span>
                 </button>
                 <ul aria-labelledby="wagtail-userbar-trigger" class="w-userbar-items" id="wagtail-userbar-items" role="menu">

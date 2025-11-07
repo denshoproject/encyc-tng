@@ -1,5 +1,5 @@
 {% extends "wagtailadmin/admin_base.html" %}
-{% load wagtailadmin_tags wagtailcore_tags i18n %}
+{% load wagtailadmin_tags wagtailcore_tags i18n static %}
 {% block titletag %}{% trans "Error 404: Page not found" %}{% endblock %}
 
 {# Avoid loading all of Wagtail’s icons sprite and JavaScript as they're unused here. #}
@@ -9,11 +9,9 @@
 {% block furniture %}
     <main class="page404__bg">
         <div class="w-w-full w-h-full w-max-w-6xl w-mx-auto w-flex w-items-center w-justify-center">
-            {% block branding_logo %}
-                <div class="page404__logo w-hidden sm:w-block">
-                    {% include "wagtailadmin/logo.html" %}
-                </div>
-            {% endblock %}
+	    {% block branding_logo %}
+	      <img src="{% static 'images/densho-logo-white.svg' %}" alt="Densho Project" width="350" />
+	    {% endblock %}
 
             <div class="page404__text-container">
                 <h1 class="page404__header">
