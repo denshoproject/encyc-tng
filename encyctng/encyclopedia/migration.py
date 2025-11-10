@@ -706,7 +706,7 @@ class Articles():
         skip_path = basedir / 'articles-skip'
         if skip_path.exists():
             with skip_path.open('r') as f:
-                skip_titles = [title.strip() for title in f.readlines()]
+                skip_titles = [title.strip().lower() for title in f.readlines()]
             skip = skip + skip_titles
 
         logger.info(f"{mw=}")
@@ -723,7 +723,7 @@ class Articles():
                 click.secho('LIMIT')
                 break
 
-            if (title in skip) or (n < offset) or ('Dummy' in title):
+            if (title.lower() in skip) or (n < offset) or ('dummy' in title):
                 logger.info(f"{n+1}/{num} [    skip] {title=}")
                 click.secho(f"{n+1}/{num} [    skip] {title=}", fg=(50,50,50))
                 continue
