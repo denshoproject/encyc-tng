@@ -388,7 +388,7 @@ class Sources():
             f"{key}:{source[key]}"
             for key in ['headword', 'caption', 'courtesy']
             if source.get(key)
-        ])
+        ])[:255]  # image.description is only this long
         if source['media_format'] == 'image':
             try:
                 image = Sources.get_image(
