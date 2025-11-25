@@ -1,3 +1,6 @@
+from copy import deepcopy
+import json
+
 from django.db import models
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField, StreamField
@@ -59,3 +62,23 @@ class SitePage(Page):
     class Meta:
         verbose_name = "Site Article"
         verbose_name_plural = "Site Articles"
+
+    def dump_to_jsonl(self):
+        """Dump page.body StreamFields to .jsonl text
+        """
+        p = self
+        blocks = [deepcopy(block) for block in p.body.raw_data]
+        [block.pop('id') for block in blocks]
+        lines = [json.dumps(block) for block in blocks]
+        text = "\n".join(lines)
+        return text
+
+"""
+title = 'About the Encyclopedia'
+import json
+from pathlib import Path
+from django.utils.text import slugify
+page = SitePage.objects.get(title=title)
+with Path(f"data/info-pages/{slugify(title)}.jsonl").open('w') as f:
+    f.write(page.dump_to_jsonl())
+"""
