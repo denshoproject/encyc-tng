@@ -54,7 +54,6 @@ from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
     ImageBlock, VideoBlock, DocumentBlock,
     DataboxCampBlock)
-from encyclopedia.models import ArticlesIndexPage
 from encyclopedia.models import Page, Article
 from encyclopedia.models import MediawikiWagtail
 from encyclopedia.models import (
@@ -63,13 +62,16 @@ from encyclopedia.models import (
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 from encyclopedia.topics import topics_items
+from encyclopedia.models import ArticlesIndexPage
 from home.models import HomePageCarouselIndexPage, HomePageCarousel
+from info.models import SitePagesIndexPage, SitePage
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 #ARTICLES_INDEX_PAGE = 'Encyclopedia'
 ARTICLES_INDEX_PAGE = 'Home'
 ARTICLES_IMAGE_COLLECTION = 'Article Images'
 HOMEPAGE_CAROUSEL_INDEX_PAGE = 'Home Page Carousels'
+SITE_PAGES_INDEX_PAGE = 'Site Pages'
 CSV_DELIMITER = ','
 CSV_QUOTECHAR = '"'
 CSV_QUOTING = csv.QUOTE_ALL
@@ -169,6 +171,15 @@ def initial_setup():
         title=HOMEPAGE_CAROUSEL_INDEX_PAGE
     )
     root_page.add_child(instance=homepage_carousels_index)
+
+    # static pages like /about/ and /tos/ go under this
+    site_pages_index = SitePagesIndexPage(title=SITE_PAGES_INDEX_PAGE)
+    root_page.add_child(instance=site_pages_index)
+    site_pages_index.add_child(instance=SitePage(title='A Message from the Editor'))
+    site_pages_index.add_child(instance=SitePage(title='About the Encyclopedia'))
+    site_pages_index.add_child(instance=SitePage(title='About the Incarceration'))
+    site_pages_index.add_child(instance=SitePage(title='Do Words Matter?'))
+    site_pages_index.add_child(instance=SitePage(title='Timeline'))
 
     # Create editos workflows listed in WORKFLOWS
     Workflows.create_workflows()
