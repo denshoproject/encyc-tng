@@ -26,6 +26,7 @@ from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 
 from encyclopedia import urls as encyclopedia_urls
+from info import urls as info_urls
 
 urlpatterns = []
 
@@ -52,6 +53,7 @@ urlpatterns += [
     path('cms/', include(wagtailadmin_urls)),
     path('sitemap.xml', sitemap),
     path('documents/', include(wagtaildocs_urls)),
+    path('', include(info_urls)), # match site info URLs before wagtail ones
     path('', include(encyclopedia_urls)), # match encyc URLs before wagtail ones
     path('', include(wagtail_urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -79,12 +79,6 @@ class NeedsEditorReportView(PageReportView):
 
 # home/index page comes from home.models.HomePage
 
-#@cache_page(settings.CACHE_TIMEOUT)
-def about(request): return render(request, 'encyclopedia/about.html', {})
-def history(request): return render(request, 'encyclopedia/history.html', {})
-def terminology(request): return render(request, 'encyclopedia/terminology.html', {})
-def timeline(request): return render(request, 'encyclopedia/timeline.html', {})
-
 def redirect_wiki(request, title):
     """Redirect links between articles TEMPORARY
     TODO get links right in migration so we don't need this

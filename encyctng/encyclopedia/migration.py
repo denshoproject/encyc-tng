@@ -54,7 +54,6 @@ from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
     ImageBlock, VideoBlock, DocumentBlock,
     DataboxCampBlock)
-from encyclopedia.models import ArticlesIndexPage
 from encyclopedia.models import Page, Article
 from encyclopedia.models import MediawikiWagtail
 from encyclopedia.models import (
@@ -63,13 +62,16 @@ from encyclopedia.models import (
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 from encyclopedia.topics import topics_items
+from encyclopedia.models import ArticlesIndexPage
 from home.models import HomePageCarouselIndexPage, HomePageCarousel
+from info.models import SitePagesIndexPage, SitePage
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 #ARTICLES_INDEX_PAGE = 'Encyclopedia'
 ARTICLES_INDEX_PAGE = 'Home'
 ARTICLES_IMAGE_COLLECTION = 'Article Images'
 HOMEPAGE_CAROUSEL_INDEX_PAGE = 'Home Page Carousels'
+SITE_PAGES_INDEX_PAGE = 'Site Pages'
 CSV_DELIMITER = ','
 CSV_QUOTECHAR = '"'
 CSV_QUOTING = csv.QUOTE_ALL
@@ -138,7 +140,7 @@ def articles(debug, dryrun):
 
 # setup ----------------------------------------------------------------
 
-def initial_setup():
+def initial_setup(basedir):
     # admin users
     make_users()
 
@@ -157,6 +159,9 @@ def initial_setup():
     authors_collection = Collection(name='Authors')
     root_collection.add_child(instance=authors_collection)
 
+    # Topics
+    import_topics_images(basedir)
+
     root_page = Page.objects.get(title='Root')
 
     # Articles will be under "Home"
@@ -169,6 +174,11 @@ def initial_setup():
         title=HOMEPAGE_CAROUSEL_INDEX_PAGE
     )
     root_page.add_child(instance=homepage_carousels_index)
+
+    # static pages like /about/ and /tos/ go under this
+    site_pages_index = SitePagesIndexPage(title=SITE_PAGES_INDEX_PAGE)
+    root_page.add_child(instance=site_pages_index)
+    import_sitepages(basedir)
 
     # Create editos workflows listed in WORKFLOWS
     Workflows.create_workflows()
@@ -605,6 +615,35 @@ def import_topics_images(basedir):
         i = Image(file=f, title=title, collection=topics_collection)
         i.save()
 
+
+# site-pages -----------------------------------------------------------
+# SitePages are things like /about/ etc
+
+def import_sitepages(basedir):
+    site_pages_index = get_sitepages_index()
+    info_dir = basedir / 'info-pages'
+    for dir,what,list in info_dir.walk():
+        for filename in list:
+            path = dir / filename
+            import_sitepage(path, site_pages_index)
+
+def get_sitepages_index():
+    root_page = Page.objects.get(title='Root')
+    for page in root_page.get_children():
+        if page.title == SITE_PAGES_INDEX_PAGE:
+            return page
+    return None
+
+def import_sitepage(path, site_pages_index):
+    with path.open('r') as f:
+        lines = f.readlines()
+    metadata = json.loads(lines.pop(0))
+    title = metadata['title']
+    print(title)
+    article = SitePage(title=title)
+    article_blocks = Articles.merge_streamfield_blocks([json.loads(line) for line in lines])
+    article.body = json.dumps(article_blocks)
+    site_pages_index.add_child(instance=article)
 
 
 # articles -------------------------------------------------------------
