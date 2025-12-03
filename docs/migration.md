@@ -147,6 +147,14 @@ basedir = '/opt/encyc-tng/data'
 migration.import_topics_images(basedir)
 ```
 
+## Site Pages
+
+``` python
+from encyclopedia import migration
+basedir = '/opt/encyc-tng/data'
+migration.import_sitepages(basedir)
+```
+
 ## Authors
 
 ``` python

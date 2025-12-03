@@ -175,11 +175,6 @@ def initial_setup():
     # static pages like /about/ and /tos/ go under this
     site_pages_index = SitePagesIndexPage(title=SITE_PAGES_INDEX_PAGE)
     root_page.add_child(instance=site_pages_index)
-    site_pages_index.add_child(instance=SitePage(title='A Message from the Editor'))
-    site_pages_index.add_child(instance=SitePage(title='About the Encyclopedia'))
-    site_pages_index.add_child(instance=SitePage(title='About the Incarceration'))
-    site_pages_index.add_child(instance=SitePage(title='Do Words Matter?'))
-    site_pages_index.add_child(instance=SitePage(title='Timeline'))
 
     # Create editos workflows listed in WORKFLOWS
     Workflows.create_workflows()
@@ -616,6 +611,35 @@ def import_topics_images(basedir):
         i = Image(file=f, title=title, collection=topics_collection)
         i.save()
 
+
+# site-pages -----------------------------------------------------------
+# SitePages are things like /about/ etc
+
+def import_sitepages(basedir):
+    site_pages_index = get_sitepages_index()
+    info_dir = basedir / 'info-pages'
+    for dir,what,list in info_dir.walk():
+        for filename in list:
+            path = dir / filename
+            import_sitepage(path, site_pages_index)
+
+def get_sitepages_index():
+    root_page = Page.objects.get(title='Root')
+    for page in root_page.get_children():
+        if page.title == SITE_PAGES_INDEX_PAGE:
+            return page
+    return None
+
+def import_sitepage(path, site_pages_index):
+    with path.open('r') as f:
+        lines = f.readlines()
+    metadata = json.loads(lines.pop(0))
+    title = metadata['title']
+    print(title)
+    article = SitePage(title=title)
+    article_blocks = Articles.merge_streamfield_blocks([json.loads(line) for line in lines])
+    article.body = json.dumps(article_blocks)
+    site_pages_index.add_child(instance=article)
 
 
 # articles -------------------------------------------------------------
