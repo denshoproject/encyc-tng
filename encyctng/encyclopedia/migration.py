@@ -140,7 +140,7 @@ def articles(debug, dryrun):
 
 # setup ----------------------------------------------------------------
 
-def initial_setup():
+def initial_setup(basedir):
     # admin users
     make_users()
 
@@ -159,6 +159,9 @@ def initial_setup():
     authors_collection = Collection(name='Authors')
     root_collection.add_child(instance=authors_collection)
 
+    # Topics
+    import_topics_images(basedir)
+
     root_page = Page.objects.get(title='Root')
 
     # Articles will be under "Home"
@@ -175,6 +178,7 @@ def initial_setup():
     # static pages like /about/ and /tos/ go under this
     site_pages_index = SitePagesIndexPage(title=SITE_PAGES_INDEX_PAGE)
     root_page.add_child(instance=site_pages_index)
+    import_sitepages(basedir)
 
     # Create editos workflows listed in WORKFLOWS
     Workflows.create_workflows()

@@ -135,25 +135,10 @@ export TNGUSERS="USER1:REDACTED;USER2:REDACTED;..."
 ```
 ``` python
 from encyclopedia import migration
+basedir = '/opt/encyc-tng/data'
 migration.initial_setup()
 ```
 Remember to edit `.bash_history` afterwards to remove those passwords.
-
-## Topics
-
-``` python
-from encyclopedia import migration
-basedir = '/opt/encyc-tng/data'
-migration.import_topics_images(basedir)
-```
-
-## Site Pages
-
-``` python
-from encyclopedia import migration
-basedir = '/opt/encyc-tng/data'
-migration.import_sitepages(basedir)
-```
 
 ## Authors
 
