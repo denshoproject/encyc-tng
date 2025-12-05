@@ -134,9 +134,10 @@ Export usernames/passwords as an environment var:
 export TNGUSERS="USER1:REDACTED;USER2:REDACTED;..."
 ```
 ``` python
+from pathlib import Path
 from encyclopedia import migration
-basedir = '/opt/encyc-tng/data'
-migration.initial_setup()
+basedir = Path('/opt/encyc-tng/data')
+migration.initial_setup(basedir)
 ```
 Remember to edit `.bash_history` afterwards to remove those passwords.
 
