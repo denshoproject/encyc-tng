@@ -1380,6 +1380,7 @@ description
         mwhtml = Articles.render_mediawiki_text(mw, mwtext_cleaned, mw_titles_slugs, url_prefix)
         streamfield_blocks = Articles.html_to_streamfield(article, mwhtml)
         streamfield_blocks = Articles.remove_databox_blocks(streamfield_blocks)
+        streamfield_blocks = Articles.remove_empty_blocks(streamfield_blocks)
         return streamfield_blocks
 
     @staticmethod
@@ -1595,6 +1596,19 @@ description
                         is_databox = True
                         break
                 if is_databox:
+                    continue
+                blocks.append(block)
+            else:
+                blocks.append(block)
+        return blocks
+
+    @staticmethod
+    def remove_empty_blocks(streamfield_blocks):
+        """Remove empty paragraphs from streamfield blocks"""
+        blocks = []
+        for block in streamfield_blocks:
+            if block['type'] == 'paragraph':
+                if block['value'] == '<p><br/>\n</p>':
                     continue
                 blocks.append(block)
             else:
