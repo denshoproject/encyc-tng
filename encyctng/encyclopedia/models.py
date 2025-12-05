@@ -536,6 +536,17 @@ class ArticleSources():
 
 DATABOX_MAX = 1024
 
+def databox_hero_meta(article, hero):
+    """Adds Article's databox fields to hero['meta'] for hero_split template
+    """
+    class_name = article.__class__.__name__
+    fieldnames = databoxes.ARTICLE_CLASS_FIELDNAMES.get(class_name, [])
+    for fieldname in fieldnames:
+        value = getattr(article, fieldname, None)
+        if value:
+            hero['meta'].append({'label':fieldname, 'value':value})
+    return hero
+
 
 class ArticleAlbum(Article):
     album_title = models.CharField(blank=True, max_length=DATABOX_MAX)
@@ -569,6 +580,9 @@ class ArticleAlbum(Article):
         verbose_name = "Album"
         verbose_name_plural = "Albums"
 
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleAlbum, self).hero())
+
 
 class ArticleArticle(Article):
     author = models.CharField(blank=True, max_length=DATABOX_MAX)
@@ -596,6 +610,9 @@ class ArticleArticle(Article):
         db_table = "encyclopedia_article_articles"
         verbose_name = "Article"
         verbose_name_plural = "Articles"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleArticle, self).hero())
 
 
 class ArticleBook(Article):
@@ -630,11 +647,13 @@ class ArticleBook(Article):
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
-
     class Meta:
         db_table = "encyclopedia_article_books"
         verbose_name = "Book"
         verbose_name_plural = "Books"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleBook, self).hero())
 
 
 class ArticleCamp(Article):
@@ -673,11 +692,13 @@ class ArticleCamp(Article):
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
-
     class Meta:
         db_table = "encyclopedia_article_camps"
         verbose_name = "Camp"
         verbose_name_plural = "Camps"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleCamp, self).hero())
 
 
 class ArticleExhibition(Article):
@@ -703,11 +724,13 @@ class ArticleExhibition(Article):
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
-
     class Meta:
         db_table = "encyclopedia_article_exhibitions"
         verbose_name = "Exhibition"
         verbose_name_plural = "Exhibitions"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleExhibition, self).hero())
 
 
 class ArticleFilm(Article):
@@ -749,11 +772,13 @@ class ArticleFilm(Article):
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
-
     class Meta:
         db_table = "encyclopedia_article_films"
         verbose_name = "Film"
         verbose_name_plural = "Films"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleFilm, self).hero())
 
 
 class ArticleMagazine(Article):
@@ -789,11 +814,13 @@ class ArticleMagazine(Article):
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
-
     class Meta:
         db_table = "encyclopedia_article_magazines"
         verbose_name = "Magazine"
         verbose_name_plural = "Magazines"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleMagazine, self).hero())
 
 
 class ArticleNewspaper(Article):
@@ -820,11 +847,13 @@ class ArticleNewspaper(Article):
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
-
     class Meta:
         db_table = "encyclopedia_article_newspapers"
         verbose_name = "Newspaper"
         verbose_name_plural = "Newspapers"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleNewspaper, self).hero())
 
 
 class ArticlePerson(Article):
@@ -861,26 +890,7 @@ class ArticlePerson(Article):
         verbose_name_plural = "People"
 
     def hero(self):
-        return {
-            'title': self.title,
-            'type': 'article',
-            'introduction': self.description,
-            'meta': [
-                {'label':'First Name', 'value':self.first_name},
-                {'label':'Last Name', 'value':self.last_name},
-                {'label':'Display Name', 'value':self.display_name},
-                {'label':'Birth Date', 'value':self.birth_date},
-                {'label':'Death Date', 'value':self.death_date},
-                {'label':'Birth Location', 'value':self.birth_location},
-                {'label':'Gender', 'value':self.gender},
-                {'label':'Ethnicity', 'value':self.ethnicity},
-                {'label':'Generation', 'value':self.generation},
-                {'label':'Nationality', 'value':self.nationality},
-                {'label':'external_url', 'value':self.external_url},
-                {'label':'primary_geography', 'value':self.primary_geography},
-                {'label':'religion', 'value':self.religion},
-            ],
-        }
+        return databox_hero_meta(self, super(ArticlePerson, self).hero())
 
 
 class ArticlePlay(Article):
@@ -917,11 +927,13 @@ class ArticlePlay(Article):
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
-
     class Meta:
         db_table = "encyclopedia_article_plays"
         verbose_name = "Play"
         verbose_name_plural = "Plays"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticlePlay, self).hero())
 
 
 class ArticleWebsite(Article):
@@ -946,8 +958,10 @@ class ArticleWebsite(Article):
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     template = 'patterns/pages/article/article.html'
 
-
     class Meta:
         db_table = "encyclopedia_article_website"
         verbose_name = "Web Site"
         verbose_name_plural = "Web Sites"
+
+    def hero(self):
+        return databox_hero_meta(self, super(ArticleWebsite, self).hero())
