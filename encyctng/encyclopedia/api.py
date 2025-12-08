@@ -28,7 +28,7 @@ def index(request: "HttpRequest"):
 class BaseArticleSchema(ModelSchema):
     url: str = Field(None, alias="get_url")
 
-    class Config:
+    class Meta:
         model = Article
         model_fields = [
             "title",
@@ -65,7 +65,7 @@ def article(request, slug: str):
 class BaseAuthorSchema(ModelSchema):
     url: str = Field(None, alias="get_absolute_url")
 
-    class Config:
+    class Meta:
         model = Author
         model_fields = [
             "display_name",
