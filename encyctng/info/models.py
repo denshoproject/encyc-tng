@@ -45,12 +45,10 @@ class SitePage(Page):
     search_fields = Page.search_fields + [
         index.SearchField('description'),
         index.SearchField('body'),
-        index.SearchField('footnotes'),
     ]
     content_panels = Page.content_panels + [
         FieldPanel('description'),
         FieldPanel('body'),
-        #FieldPanel('footnotes'),
     ]
     promote_panels = []
     settings_panels = []
