@@ -762,7 +762,7 @@ class Articles():
                 click.secho('LIMIT')
                 break
 
-            if (title.lower() in skip) or (n < offset) or ('dummy' in title):
+            if (title.lower() in skip) or (n < offset) or ('dummy' in title.lower()):
                 logger.info(f"{n+1}/{num} [    skip] {title=}")
                 click.secho(f"{n+1}/{num} [    skip] {title=}", fg=(50,50,50))
                 continue
