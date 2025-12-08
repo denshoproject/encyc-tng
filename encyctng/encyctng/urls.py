@@ -29,16 +29,16 @@ from encyclopedia import urls as encyclopedia_urls
 
 urlpatterns = []
 
-api = NinjaAPI(
-    title='Densho Encyclopedia',
-    description='DESCRIPTION TEXT GOES HERE',
-    openapi_extra={
-        "info": {
-            "termsOfService": "https://example.com/terms/",
-        }
-    },
-)
-api.add_router('/', 'encyclopedia.api.router')
+#api = NinjaAPI(
+#    title='Densho Encyclopedia',
+#    description='DESCRIPTION TEXT GOES HERE',
+#    openapi_extra={
+#        "info": {
+#            "termsOfService": "https://example.com/terms/",
+#        }
+#    },
+#)
+#api.add_router('/', 'encyclopedia.api.router')
 
 # Disable this in production!
 if apps.is_installed("pattern_library"):
@@ -47,7 +47,7 @@ if apps.is_installed("pattern_library"):
     ]
 
 urlpatterns += [
-    path("api/1.0/", api.urls),
+    #path("api/1.0/", api.urls),
     path('admin/', admin.site.urls),
     path('cms/', include(wagtailadmin_urls)),
     path('sitemap.xml', sitemap),
