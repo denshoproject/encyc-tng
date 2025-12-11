@@ -58,6 +58,14 @@ basedir = '/opt/encyc-tng/data'
 migration.Articles.download_articles(wiki.MediaWiki(), basedir)
 ```
 
+Copy current list of redirects from [the Editors' MediaWiki](https://editors.densho.org/index.php?title=Special:ListRedirects&limit=500&offset=0) and paste into `/opt/encyc-tng/data/redirects-raw.txt`. Then run the `process_redirects` function.
+```
+from pathlib import Path
+from encyclopedia import migration
+basedir = Path('/opt/encyc-tng/data')
+migration.Articles.process_redirects(basedir)
+```
+
 
 ## Static media
 

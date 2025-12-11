@@ -1030,6 +1030,8 @@ class Articles():
 
     @staticmethod
     def process_redirects(basedir):
+        """Convert cut-and-pasted list of MediaWiki redirects to jsonl
+        """
         path = basedir / 'redirects-raw.txt'
         jsonl_path = basedir / 'redirects.jsonl'
         with path.open('r') as f:
