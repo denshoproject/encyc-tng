@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import sys
 import traceback
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup, Comment
 from bs4.element import Tag, NavigableString
@@ -1780,6 +1781,9 @@ description
     @staticmethod
     def rewrite_article_urls(redirects):
         """Rewrite internal links in a block to Wagtail format
+
+        From <a href="/wiki/the-slugified-title" title="The Slugified Title">
+        to   <a id="123" linktype="page"         title="The Slugified Title">
         """
         logger.info(f"Articles.rewrite_article_urls()")
         article_ids_by_url = Articles.get_article_ids_by_url()
@@ -1792,7 +1796,12 @@ description
 
     @staticmethod
     def get_article_ids_by_url():
-        return {a.url: a.id for a in Article.objects.all()}
+        # remove URL schema and domain, leaving just the path
+        # e.g. {'/the-slugified-title/': 123}
+        return {
+            urlparse(a.url).path: a.id
+            for a in Article.objects.all()
+        }
 
     @staticmethod
     def _rewrite_article_urls(article, article_ids_by_url, redirects):
