@@ -158,6 +158,7 @@ class Article(Page):
     def save(self, *args, **kwargs):
         if not self.title_sort:
             self.title_sort = slugify(self.title)
+        self.slug = slugify(self.slug)  # force slug/url to be all-ASCII
         self.signature_image = self.get_signature_image()
         super(Article, self).save(*args, **kwargs)
 
