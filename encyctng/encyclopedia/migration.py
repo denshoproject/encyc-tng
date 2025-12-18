@@ -851,7 +851,12 @@ class Articles():
         logger.info(f"{len(errors)} ERRORS - - - - - - - - - - - - - - - - - -")
         for title in errors:
             logger.info(title)
-        logger.info(f"{len(errors) / len(titles)} percent")
+        click.echo(f"{len(errors) / len(titles)} percent")
+        lines = [json.dumps(item) for item in sources_by_headword.items()]
+        click.echo(f"{len(lines)} sources_by_headword remaining")
+        text = '\n'.join(lines)
+        with Path('/tmp/sources-by-headword-remaining.jsonl').open('w') as f:
+            f.write(text)
 
     @staticmethod
     def load_articles_metadata(basedir, sources_jsonl):
@@ -1157,10 +1162,12 @@ description
         article_blocks = Articles.merge_streamfield_blocks(article_blocks)
 
         # primary sources
-        sources_for_title = sources_by_headword.get(mwpage.title,[])
+        #sources_for_title = sources_by_headword.get(mwpage.title,[])
         sources_blocks = Articles.streamfield_media_blocks(
             sources_by_headword.get(mwpage.title, []), source_pks_by_filename,
         )
+        if sources_by_headword.get(mwpage.title):
+            sources_by_headword.pop(mwpage.title)
         # insert primary sources at head of list
         article_blocks = Articles.insert_media_blocks(sources_blocks, article_blocks)
 
