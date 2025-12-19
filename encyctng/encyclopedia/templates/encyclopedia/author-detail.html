@@ -12,13 +12,10 @@
     {% endif %}
 
     {% load wagtailcore_tags wagtailimages_tags %}
-    <div class="author-listing-item__image-container">
-        {% image author.image fill-200x200 format-webp as image %}
-        <img class="author-listing-item__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
-    </div>
+    {% image author.image fill-200x200 format-webp class="author-listing-item__image" loading="lazy" %}
     <div class="author-listing-item__content">
         <p class="author-listing-item__description">{{ author.role }}</p>
-        <p>{{ author.description }}</p>
+        <div>{{ author.description|richtext }}</div>
     </div>
 
 
