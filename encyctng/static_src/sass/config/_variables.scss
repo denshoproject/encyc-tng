@@ -11,6 +11,7 @@ $color--orange: #ed6e58;
 $color--light-orange: #fce9e6;
 $color--dark-orange: #b94430;
 $color--transparent-orange: rgba(237, 110, 88, 0.15);
+$color--transparent-blue: rgba(40, 56, 81, 0.05);
 $color--transparent-white: rgba(255, 255, 255, 0.1);
 $color--border: #d4d7dc;
 $color--border-dark: #424e5f;
@@ -44,6 +45,7 @@ $color--border-dark: #424e5f;
     --color--light-orange: #{$color--light-orange};
     --color--dark-orange: #{$color--dark-orange};
     --color--transparent-orange: #{$color--transparent-orange};
+    --color--transparent-blue: #{$color--transparent-blue};
 }
 
 // --------------------------------- Fonts ------------------------------------
