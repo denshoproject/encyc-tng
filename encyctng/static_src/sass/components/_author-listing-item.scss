@@ -5,6 +5,15 @@
 
     &--standalone {
         max-width: 100%;
+
+        & + & {
+            margin-top: $spacer-small;
+        }
+    }
+
+    &--header {
+        max-width: 100%;
+        margin: $spacer-small 0;
     }
 
     &__heading {
@@ -14,21 +23,14 @@
     &__container {
         display: flex;
         flex-direction: row;
+        align-items: center;
         gap: $spacer-small;
     }
 
-    &__image-container {
+    &__image {
         width: 100px;
         height: 100px;
         border-radius: 50%;
-        overflow: hidden;
-    }
-
-    &__image {
-        object-fit: cover;
-        object-position: center;
-        width: 100%;
-        height: 100%;
     }
 
     &__link {
@@ -62,16 +64,8 @@
         margin-bottom: 0;
     }
 
-    &__description {
-        display: none;
-
-        @include media-query(large) {
-            display: block;
-        }
-    }
-
     .page__section & {
-        @include media-query(medium) {
+        @include media-query(large) {
             grid-column: 3 / span 6;
         }
     }

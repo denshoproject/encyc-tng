@@ -68,13 +68,17 @@
         </section>
     {% endif %}
 
-    {% for author in page.authors_all %}
-        <section class="page__section">
-            <div class="page__section-container grid">
-                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author modifier="standalone" %}
-            </div>
-        </section>
-    {% endfor %}
+    {% with authors=page.authors_all %}
+        {% if authors %}
+            <section class="page__section">
+                <div class="page__section-container grid">
+                    {% for author in authors %}
+                        {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author modifier="standalone" %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    {% endwith %}
 
     {% if page.related_links %}
         <section class="page__section">
