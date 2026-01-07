@@ -126,6 +126,7 @@ class Article(Page):
     footnotes = RichTextField(blank=True, null=True, editable=False)
     authors = ParentalManyToManyField('editors.Author', blank=True)
     tags = ClusterTaggableManager(through=ArticleTag, blank=True)
+    mw_url = models.CharField(max_length=255, blank=True, null=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('description'),
