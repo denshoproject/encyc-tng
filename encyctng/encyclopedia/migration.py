@@ -1107,6 +1107,7 @@ description
             article.title_sort = mwpage.title_sort
         else:
             article.title_sort = slugify(mwpage.title)
+        article.mw_url = mwpage.url_title
 
         Articles.set_databox_fields(article, databox, databox_name)
 
