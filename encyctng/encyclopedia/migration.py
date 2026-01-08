@@ -721,8 +721,9 @@ class Articles():
             try:
                 mwpage,mwtext = Articles.load_mwpage(mw, title)
                 pagedata = json.loads(mwpage.pagedata(mw, title))['parse']
+                revisions = Articles.download_article_revisions(mw, mwpage)
                 mwppath,mwtpath,pgdpath,errpath = Articles.dump_article(
-                    mwpage, mwtext, pagedata, basedir
+                    mwpage, mwtext, pagedata, revisions, basedir
                 )
             except Exception as err:
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
@@ -988,12 +989,15 @@ class Articles():
         mwppath = article_dir / 'mwpage.pickle'
         mwtpath = article_dir / 'mwtext.json'
         pgdpath = article_dir / 'pagedata.json'
+        revpath = article_dir / 'revisions.json'
         errpath = article_dir / 'error.json'
-        return mwppath,mwtpath,pgdpath,errpath
+        return mwppath,mwtpath,pgdpath,revpath,errpath
 
     @staticmethod
-    def dump_article(mwpage, mwtext, pagedata, basedir):
-        mwppath,mwtpath,pgdpath,errpath = Articles.cache_paths(basedir, mwpage.title)
+    def dump_article(mwpage, mwtext, pagedata, revisions, basedir):
+        mwppath,mwtpath,pgdpath,revpath,errpath = Articles.cache_paths(
+            basedir, mwpage.title
+        )
         errors = {}
         # TODO makedir
         if 'redirectMsg' in mwtext:
@@ -1296,6 +1300,10 @@ description
             logger.debug(f"{n}/{num} {title}")
             mwpages.append( Articles.load_mwpage(mw,title) )
         return mwpages
+
+    @staticmethod
+    def download_article_revisions(mw, mwpage):
+        return [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]
 
     @staticmethod
     def mw_articles_lastmod(mw):
