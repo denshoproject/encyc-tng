@@ -10,8 +10,8 @@ from wagtail.models import Page
 from wagtail.models.media import Collection
 from wagtail.search import index
 
-from encyclopedia.blocks import ImageBlock
 from encyclopedia.topics import topics_items
+from .blocks import HomepageCarouselImageBlock
 
 
 class HomePage(Page):
@@ -56,7 +56,7 @@ class HomePageCarousel(Page):
     publish_date = models.DateTimeField()
     description = RichTextField(blank=True)
     images = StreamField([
-            ('imageblock', ImageBlock()),
+            ('imageblock', HomepageCarouselImageBlock()),
         ],
         blank=True,
         use_json_field=True,
