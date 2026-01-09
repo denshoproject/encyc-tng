@@ -1321,7 +1321,8 @@ description
 
     @staticmethod
     def download_article_revisions(mw, mwpage):
-        for r in [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]:
+        revisions = [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]
+        for r in revisions:
             r['timestamp'] = Articles._convert_struct_time_to_datetime(
                 r['timestamp']
             ).isoformat()
