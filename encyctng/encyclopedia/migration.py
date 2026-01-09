@@ -1010,6 +1010,8 @@ class Articles():
             f.write(json.dumps(mwtext))
         with pgdpath.open('w') as f:
             f.write(json.dumps(pagedata))
+        with revpath.open('w') as f:
+            f.write(json.dumps(revisions))
         with errpath.open('w') as f:
             f.write(json.dumps(errors))
         return mwppath,mwtpath,pgdpath,revpath,errpath
