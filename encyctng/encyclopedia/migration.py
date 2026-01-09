@@ -723,7 +723,7 @@ class Articles():
                 mwpage,mwtext = Articles.load_mwpage(mw, title)
                 pagedata = json.loads(mwpage.pagedata(mw, title))['parse']
                 revisions = Articles.download_article_revisions(mw, mwpage)
-                mwppath,mwtpath,pgdpath,errpath = Articles.dump_article(
+                mwppath,mwtpath,pgdpath,revpath,errpath = Articles.dump_article(
                     mwpage, mwtext, pagedata, revisions, basedir
                 )
             except Exception as err:
@@ -1012,11 +1012,11 @@ class Articles():
             f.write(json.dumps(pagedata))
         with errpath.open('w') as f:
             f.write(json.dumps(errors))
-        return mwppath,mwtpath,pgdpath,errpath
+        return mwppath,mwtpath,pgdpath,revpath,errpath
 
     @staticmethod
     def load_article(basedir, title):
-        mwppath,mwtpath,pgdpath,errpath = Articles.cache_paths(basedir, title)
+        mwppath,mwtpath,pgdpath,revpath,errpath = Articles.cache_paths(basedir, title)
         try:
             with mwppath.open('rb') as f:
                 mwpage = pickle.load(f)
@@ -1033,11 +1033,16 @@ class Articles():
         except FileNotFoundError:
             pagedata = None
         try:
+            with revpath.open('r') as f:
+                revisions = json.loads(f.read())
+        except FileNotFoundError:
+            revisions = None
+        try:
             with errpath.open('r') as f:
                 errors = json.loads(f.read())
         except FileNotFoundError:
             errors = None
-        return mwpage,mwtext,pagedata,errors
+        return mwpage,mwtext,pagedata,revisions,errors
 
     @staticmethod
     def process_redirects(basedir):
@@ -2206,7 +2211,7 @@ def test_import_article(title, user):
     mw = wiki.MediaWiki()
     authors_by_names,authors_alts, sources_collection,sources_by_headword, source_pks_by_filename, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
     index_page = Articles.prep_wagtail()
-    mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
+    mwpage,mwtext,pagedata,revisions,pgerrors = Articles.load_article(basedir, title)
     article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user)
     return article,related_articles
 
