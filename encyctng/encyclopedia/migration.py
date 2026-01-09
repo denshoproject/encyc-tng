@@ -18,6 +18,7 @@ import re
 import shutil
 import subprocess
 import sys
+from time import struct_time
 import traceback
 from urllib.parse import urlparse
 
@@ -1302,8 +1303,24 @@ description
         return mwpages
 
     @staticmethod
+    def _convert_struct_time_to_datetime(st: struct_time) -> datetime:
+        """Convert struct_time to datetime maintaining timezone information when present
+        """
+        tz = None
+        if st.tm_gmtoff is not None:
+            tz = datetime.timezone(datetime.timedelta(seconds=st.tm_gmtoff))
+        # Handle leap seconds
+        if st.tm_sec in {60, 61}:
+            return datetime(*st[:5], 59, tzinfo=tz)
+        return datetime(*st[:6], tzinfo=tz)
+
+    @staticmethod
     def download_article_revisions(mw, mwpage):
-        return [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]
+        for r in [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]:
+            r['timestamp'] = Articles._convert_struct_time_to_datetime(
+                r['timestamp']
+            ).isoformat()
+        return revisions
 
     @staticmethod
     def mw_articles_lastmod(mw):
