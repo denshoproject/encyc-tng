@@ -127,6 +127,8 @@ python encyctng/manage.py createsuperuser
 Create a Site object with the URL and set it as default. Reset the `localhost` site to not be the default.
 ``` python
 HOSTNAME = 'encyclopedia.densho.org'
+```
+``` python
 SITE_NAME = 'Densho Encyclopedia'
 site = Site(hostname=HOSTNAME, site_name=SITE_NAME, root_page=Page.objects.get(title='Home'), is_default_site=True)
 site.save()
