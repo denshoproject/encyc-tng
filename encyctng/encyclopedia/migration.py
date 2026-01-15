@@ -1122,6 +1122,15 @@ description
         logger.info(f"{article=}")
         logger.info(f"{article_is_new=}")
 
+        if not dryrun:
+            if article_is_new:
+                # place page under encyclopedia index
+                logger.info(f"{index_page}.add_child(instance={article})")
+                result = index_page.add_child(instance=article)
+                #article.save_revision()
+                Articles.apply_article_revisions(article, revisions)
+                article_is_new = False
+
         if mwpage.title_sort:
             article.title_sort = mwpage.title_sort
         else:
