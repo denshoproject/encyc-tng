@@ -21,10 +21,11 @@ import sys
 from time import struct_time
 import traceback
 from urllib.parse import urlparse
+import zoneinfo
 
 from bs4 import BeautifulSoup, Comment
 from bs4.element import Tag, NavigableString
-from dateutil import parser
+from dateutil import parser, tz
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.cache import cache
@@ -38,7 +39,9 @@ import httpx
 from psycopg.errors import NotNullViolation
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
+from wagtail.models import Revision
 from wagtail.models.media import Collection
+from wagtail.models.pages import PageLogEntry
 from wagtail.models.workflows import Workflow, Task, WorkflowTask
 from wagtailmedia.models import Media
 
@@ -77,6 +80,8 @@ SITE_PAGES_INDEX_PAGE = 'Site Pages'
 CSV_DELIMITER = ','
 CSV_QUOTECHAR = '"'
 CSV_QUOTING = csv.QUOTE_ALL
+TIME_ZONE = zoneinfo.ZoneInfo(settings.TIME_ZONE)
+DATEUTIL_DEFAULT_TZINFO = tz.gettz(settings.TIME_ZONE)
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -1340,6 +1345,34 @@ description
                 r['timestamp']
             ).isoformat()
         return revisions
+
+    @staticmethod
+    def apply_article_revisions(article, revisions):
+        """Add Mediawiki revisions to Article
+
+        Mediawiki revisions accessible through mwclient are just the metadata.
+        Wagtail has its own Revision object that stores the entire state of an
+        Article at a point in time.
+        Wagtail also adds a PageLogEntry each time(?) a Page is modified.
+        This function adds a Wagtail Revision and a log entry for each Mediawiki
+        revision. We have to do additional work to get the timestamps right.
+        """
+        for r in revisions:
+            ts = parser.parse(r['timestamp']).replace(tzinfo=DATEUTIL_DEFAULT_TZINFO)
+            #rstr = '; '.join([f"{k}:{v}" for k,v in r.items()])
+            #rstr = '\n '.join([f"{k}:{v}" for k,v in r.items()])
+            #rstr = "<br/>".join([f"{k}: {v}".strip() for k,v in r.items()])
+            rstr = json.dumps(r)
+            article.description = [('paragraph', rstr)]
+            revision = article.save_revision(log_action=True)
+            # we can't pass timestamp to save_revision() so we have to do this
+            revision.created_at = ts
+            revision.save()
+            # There's no way to set the PageLogEntry timestamp during
+            # save_revision so we have to go back and do it here.
+            log_entry = PageLogEntry.objects.get(revision_id=revision.id)
+            log_entry.timestamp = ts
+            log_entry.save()
 
     @staticmethod
     def mw_articles_lastmod(mw):
