@@ -1325,6 +1325,15 @@ description
 
     @staticmethod
     def download_article_revisions(mw, mwpage):
+        """Get revisions metadata from Mediawiki
+        This is *metadata* about the revisions not the diffs
+        Example:
+        {
+            'revid': 37424, 'parentid': 37143, 'user': 'Bniiya',
+            'timestamp': '2025-01-30T18:46:20',
+            'comment': '/* For More Information */'
+        }
+        """
         revisions = [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]
         for r in revisions:
             r['timestamp'] = Articles._convert_struct_time_to_datetime(
