@@ -777,7 +777,9 @@ class Articles():
                 continue
 
             try:
-                mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
+                mwpage,mwtext,pagedata,revisions,pgerrors = Articles.load_article(
+                    basedir, title
+                )
                 if justload:
                     # just load from MediaWiki and quit (testing)
                     continue
@@ -807,7 +809,7 @@ class Articles():
             click.secho(f"{n+1}/{num} [ARTICLE ] {title=}", bold=True)
             try:
                 article = Articles.import_article(
-                    mw, mwpage, mwtext, pagedata,
+                    mw, mwpage, mwtext, pagedata, revisions,
                     mw_titles, mw_titles_slugs, url_prefix,
                     authors_by_names, authors_alts,
                     sources_collection, sources_by_headword, source_pks_by_filename,
@@ -1100,7 +1102,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
