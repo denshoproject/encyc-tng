@@ -1366,6 +1366,8 @@ description
         This function adds a Wagtail Revision and a log entry for each Mediawiki
         revision. We have to do additional work to get the timestamps right.
         """
+        revisions_saved = []
+        log_entries = []
         for r in revisions:
             ts = parser.parse(r['timestamp']).replace(tzinfo=DATEUTIL_DEFAULT_TZINFO)
             #rstr = '; '.join([f"{k}:{v}" for k,v in r.items()])
@@ -1376,12 +1378,15 @@ description
             revision = article.save_revision(log_action=True)
             # we can't pass timestamp to save_revision() so we have to do this
             revision.created_at = ts
-            revision.save()
+            revisions_saved.append(revision)
             # There's no way to set the PageLogEntry timestamp during
             # save_revision so we have to go back and do it here.
             log_entry = PageLogEntry.objects.get(revision_id=revision.id)
             log_entry.timestamp = ts
-            log_entry.save()
+            log_entries.append(log_entry)
+        # bulk update
+        Revision.objects.bulk_update(revisions_saved, ['created_at'])
+        PageLogEntry.objects.bulk_update(log_entries, ['timestamp'])
 
     @staticmethod
     def mw_articles_lastmod(mw):
