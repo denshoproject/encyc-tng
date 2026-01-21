@@ -18,12 +18,14 @@ import re
 import shutil
 import subprocess
 import sys
+from time import struct_time
 import traceback
 from urllib.parse import urlparse
+import zoneinfo
 
 from bs4 import BeautifulSoup, Comment
 from bs4.element import Tag, NavigableString
-from dateutil import parser
+from dateutil import parser, tz
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.cache import cache
@@ -37,7 +39,9 @@ import httpx
 from psycopg.errors import NotNullViolation
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
+from wagtail.models import Revision
 from wagtail.models.media import Collection
+from wagtail.models.pages import PageLogEntry
 from wagtail.models.workflows import Workflow, Task, WorkflowTask
 from wagtailmedia.models import Media
 
@@ -76,6 +80,8 @@ SITE_PAGES_INDEX_PAGE = 'Site Pages'
 CSV_DELIMITER = ','
 CSV_QUOTECHAR = '"'
 CSV_QUOTING = csv.QUOTE_ALL
+TIME_ZONE = zoneinfo.ZoneInfo(settings.TIME_ZONE)
+DATEUTIL_DEFAULT_TZINFO = tz.gettz(settings.TIME_ZONE)
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -721,8 +727,9 @@ class Articles():
             try:
                 mwpage,mwtext = Articles.load_mwpage(mw, title)
                 pagedata = json.loads(mwpage.pagedata(mw, title))['parse']
-                mwppath,mwtpath,pgdpath,errpath = Articles.dump_article(
-                    mwpage, mwtext, pagedata, basedir
+                revisions = Articles.download_article_revisions(mw, mwpage)
+                mwppath,mwtpath,pgdpath,revpath,errpath = Articles.dump_article(
+                    mwpage, mwtext, pagedata, revisions, basedir
                 )
             except Exception as err:
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
@@ -775,7 +782,9 @@ class Articles():
                 continue
 
             try:
-                mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
+                mwpage,mwtext,pagedata,revisions,pgerrors = Articles.load_article(
+                    basedir, title
+                )
                 if justload:
                     # just load from MediaWiki and quit (testing)
                     continue
@@ -805,7 +814,7 @@ class Articles():
             click.secho(f"{n+1}/{num} [ARTICLE ] {title=}", bold=True)
             try:
                 article = Articles.import_article(
-                    mw, mwpage, mwtext, pagedata,
+                    mw, mwpage, mwtext, pagedata, revisions,
                     mw_titles, mw_titles_slugs, url_prefix,
                     authors_by_names, authors_alts,
                     sources_collection, sources_by_headword, source_pks_by_filename,
@@ -988,12 +997,15 @@ class Articles():
         mwppath = article_dir / 'mwpage.pickle'
         mwtpath = article_dir / 'mwtext.json'
         pgdpath = article_dir / 'pagedata.json'
+        revpath = article_dir / 'revisions.json'
         errpath = article_dir / 'error.json'
-        return mwppath,mwtpath,pgdpath,errpath
+        return mwppath,mwtpath,pgdpath,revpath,errpath
 
     @staticmethod
-    def dump_article(mwpage, mwtext, pagedata, basedir):
-        mwppath,mwtpath,pgdpath,errpath = Articles.cache_paths(basedir, mwpage.title)
+    def dump_article(mwpage, mwtext, pagedata, revisions, basedir):
+        mwppath,mwtpath,pgdpath,revpath,errpath = Articles.cache_paths(
+            basedir, mwpage.title
+        )
         errors = {}
         # TODO makedir
         if 'redirectMsg' in mwtext:
@@ -1005,13 +1017,15 @@ class Articles():
             f.write(json.dumps(mwtext))
         with pgdpath.open('w') as f:
             f.write(json.dumps(pagedata))
+        with revpath.open('w') as f:
+            f.write(json.dumps(revisions))
         with errpath.open('w') as f:
             f.write(json.dumps(errors))
-        return mwppath,mwtpath,pgdpath,errpath
+        return mwppath,mwtpath,pgdpath,revpath,errpath
 
     @staticmethod
     def load_article(basedir, title):
-        mwppath,mwtpath,pgdpath,errpath = Articles.cache_paths(basedir, title)
+        mwppath,mwtpath,pgdpath,revpath,errpath = Articles.cache_paths(basedir, title)
         try:
             with mwppath.open('rb') as f:
                 mwpage = pickle.load(f)
@@ -1028,11 +1042,16 @@ class Articles():
         except FileNotFoundError:
             pagedata = None
         try:
+            with revpath.open('r') as f:
+                revisions = json.loads(f.read())
+        except FileNotFoundError:
+            revisions = None
+        try:
             with errpath.open('r') as f:
                 errors = json.loads(f.read())
         except FileNotFoundError:
             errors = None
-        return mwpage,mwtext,pagedata,errors
+        return mwpage,mwtext,pagedata,revisions,errors
 
     @staticmethod
     def process_redirects(basedir):
@@ -1088,7 +1107,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
@@ -1102,6 +1121,15 @@ description
             article_is_new = True
         logger.info(f"{article=}")
         logger.info(f"{article_is_new=}")
+
+        if not dryrun:
+            if article_is_new:
+                # place page under encyclopedia index
+                logger.info(f"{index_page}.add_child(instance={article})")
+                result = index_page.add_child(instance=article)
+                #article.save_revision()
+                Articles.apply_article_revisions(article, revisions)
+                article_is_new = False
 
         if mwpage.title_sort:
             article.title_sort = mwpage.title_sort
@@ -1296,6 +1324,69 @@ description
             logger.debug(f"{n}/{num} {title}")
             mwpages.append( Articles.load_mwpage(mw,title) )
         return mwpages
+
+    @staticmethod
+    def _convert_struct_time_to_datetime(st: struct_time) -> datetime:
+        """Convert struct_time to datetime maintaining timezone information when present
+        """
+        tz = None
+        if st.tm_gmtoff is not None:
+            tz = datetime.timezone(datetime.timedelta(seconds=st.tm_gmtoff))
+        # Handle leap seconds
+        if st.tm_sec in {60, 61}:
+            return datetime(*st[:5], 59, tzinfo=tz)
+        return datetime(*st[:6], tzinfo=tz)
+
+    @staticmethod
+    def download_article_revisions(mw, mwpage):
+        """Get revisions metadata from Mediawiki
+        This is *metadata* about the revisions not the diffs
+        Example:
+        {
+            'revid': 37424, 'parentid': 37143, 'user': 'Bniiya',
+            'timestamp': '2025-01-30T18:46:20',
+            'comment': '/* For More Information */'
+        }
+        """
+        revisions = [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]
+        for r in revisions:
+            r['timestamp'] = Articles._convert_struct_time_to_datetime(
+                r['timestamp']
+            ).isoformat()
+        return revisions
+
+    @staticmethod
+    def apply_article_revisions(article, revisions):
+        """Add Mediawiki revisions to Article
+
+        Mediawiki revisions accessible through mwclient are just the metadata.
+        Wagtail has its own Revision object that stores the entire state of an
+        Article at a point in time.
+        Wagtail also adds a PageLogEntry each time(?) a Page is modified.
+        This function adds a Wagtail Revision and a log entry for each Mediawiki
+        revision. We have to do additional work to get the timestamps right.
+        """
+        revisions_saved = []
+        log_entries = []
+        for r in revisions:
+            ts = parser.parse(r['timestamp']).replace(tzinfo=DATEUTIL_DEFAULT_TZINFO)
+            #rstr = '; '.join([f"{k}:{v}" for k,v in r.items()])
+            #rstr = '\n '.join([f"{k}:{v}" for k,v in r.items()])
+            #rstr = "<br/>".join([f"{k}: {v}".strip() for k,v in r.items()])
+            rstr = json.dumps(r)
+            article.description = [('paragraph', rstr)]
+            revision = article.save_revision(log_action=True)
+            # we can't pass timestamp to save_revision() so we have to do this
+            revision.created_at = ts
+            revisions_saved.append(revision)
+            # There's no way to set the PageLogEntry timestamp during
+            # save_revision so we have to go back and do it here.
+            log_entry = PageLogEntry.objects.get(revision_id=revision.id)
+            log_entry.timestamp = ts
+            log_entries.append(log_entry)
+        # bulk update
+        Revision.objects.bulk_update(revisions_saved, ['created_at'])
+        PageLogEntry.objects.bulk_update(log_entries, ['timestamp'])
 
     @staticmethod
     def mw_articles_lastmod(mw):
@@ -2181,7 +2272,7 @@ def test_import_article(title, user):
     mw = wiki.MediaWiki()
     authors_by_names,authors_alts, sources_collection,sources_by_headword, source_pks_by_filename, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
     index_page = Articles.prep_wagtail()
-    mwpage,mwtext,pagedata,pgerrors = Articles.load_article(basedir, title)
+    mwpage,mwtext,pagedata,revisions,pgerrors = Articles.load_article(basedir, title)
     article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user)
     return article,related_articles
 
