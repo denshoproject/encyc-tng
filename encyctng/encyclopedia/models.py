@@ -1,5 +1,6 @@
 import random
 
+from bs4 import BeautifulSoup
 from django import forms
 from django.conf import settings
 from django.core.cache import cache
@@ -126,6 +127,7 @@ class Article(Page):
     footnotes = RichTextField(blank=True, null=True, editable=False)
     authors = ParentalManyToManyField('editors.Author', blank=True)
     tags = ClusterTaggableManager(through=ArticleTag, blank=True)
+    mw_url = models.CharField(max_length=255, blank=True, null=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('description'),
@@ -424,6 +426,68 @@ class Article(Page):
                         (article.url, article.title)
                     )
         return tags_articles
+
+    @staticmethod
+    def article_ids_by_title():
+        """Return dict of Wagtail Article IDs by title"""
+        return {a['title']: a['id'] for a in Article.objects.values('title','id')}
+
+    @staticmethod
+    def _rewrite_article_urls(article, article_ids_by_url):
+        for block in article.description:
+            Article._rewrite_block_urls(article, block, article_ids_by_url)
+        for block in article.body:
+            Article._rewrite_block_urls(article, block, article_ids_by_url)
+
+    @staticmethod
+    def _rewrite_block_urls(article, block, article_ids_by_url):
+        """Rewrite internal links in a block to Wagtail format
+
+        Migration format: <a href="/wiki/title-here">Title Here</a>
+        Wagtail format:   <a linktype="page" id="1234">Title Here</a>
+        Wagtail Article.url: /title-here/
+        """
+        if block.block_type == 'paragraph':
+            block_source = block.value.source
+        elif block.block_type == 'quotation':
+            block_source = block.value['quotation']
+        else:
+            return block
+        soup = BeautifulSoup(block_source, 'lxml')
+        for a in soup.find_all('a'):
+            # skip already converted links
+            if a.get('linktype') and a.get('id'):
+                continue
+            schema_domain = 'https://encyclopedia.densho.org/'
+            if a.get('href') and schema_domain in a['href']:
+                url_title = a['href'][:a['href'].rindex('/')].replace(schema_domain, '')
+            # convert from migration format
+            #     '/wiki/title-here'
+            # to Wagtail Article.url format
+            #     '/title-here/'
+            # so we can get Article.id
+            url = a.get('href').replace('/wiki', '') + '/'
+            target_id = article_ids_by_url.get(url, None)
+            #if (not target_id) and redirects.get(article.title, None):
+            #    # this might be a redirect
+            #    slug = slugify(article.title)
+            #    url = f"/{slug}/"
+            #    target_id = article_ids_by_url.get(url, None)
+            if target_id:
+                # rewrite link
+                a['linktype'] = 'page'
+                a['id'] = target_id
+                del a['href']
+        html = str(soup)
+        # remove the wrapper that BeautifulSoup adds
+        html = html.replace('<html><body>','').replace('</body></html>','')
+        # replace original value
+        if block.block_type == 'paragraph':
+            block.value.source = html
+        elif block.block_type == 'quotation':
+            block.value['quotation'] = html
+        return block
+
 
 ARTICLE_FOOTNOTE_FIELDS = {
     'richtextfields': [],
