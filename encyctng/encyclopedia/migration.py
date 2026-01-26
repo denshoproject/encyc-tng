@@ -1250,6 +1250,8 @@ description
                             user=user,
                             debug=True,
                         )
+                    article.live = False
+                    article.save()
             else:
                 # published article
                 article.save_revision().publish()
