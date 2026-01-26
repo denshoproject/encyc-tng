@@ -2121,26 +2121,22 @@ class Workflows():
         - decide what to do with all those extra statuses
         """
         workflow = Workflow.objects.get(name=workflow_name)
-        if debug:
-            click.secho(f"    {workflow=}", fg=(50,50,50))
+        #click.secho(f"    {workflow=}", fg=(50,50,50))
         result = workflow.start(article, user)
         #click.secho(result, fg=(50,50,50))
         n = 0
         while(n < len(workflow.tasks)):
             task_state = article.current_workflow_task_state
-            if debug:
-                click.secho(f"    {n=} {task_state}", fg=(50,50,50))
+            #click.secho(f"    {n=} {task_state}", fg=(50,50,50))
             if task_state.task.name == task_name:
-                if debug:
-                    click.secho(f"    {n=} break", fg=(50,50,50))
+                #click.secho(f"    {n=} break", fg=(50,50,50))
                 break
             n += 1
             result = task_state.approve(
                 user, update=True,
                 comment=f"{task_state.task.name} approved"
             )
-            if debug:
-                click.secho(f"    {n=} {result}", fg=(50,50,50))
+            #click.secho(f"    {n=} {result}", fg=(50,50,50))
 
 
 def ddrobject_block(source):
