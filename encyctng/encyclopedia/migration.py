@@ -2122,17 +2122,17 @@ class Workflows():
         """
         workflow = Workflow.objects.get(name=workflow_name)
         if debug:
-            click.echo(f"    {workflow=}")
+            click.secho(f"    {workflow=}", fg=(50,50,50))
         result = workflow.start(article, user)
-        #click.echo(result)
+        #click.secho(result, fg=(50,50,50))
         n = 0
         while(n < len(workflow.tasks)):
             task_state = article.current_workflow_task_state
             if debug:
-                click.echo(f"    {n=} {task_state}")
+                click.secho(f"    {n=} {task_state}", fg=(50,50,50))
             if task_state.task.name == task_name:
                 if debug:
-                    click.echo(f"    {n=} break")
+                    click.secho(f"    {n=} break", fg=(50,50,50))
                 break
             n += 1
             result = task_state.approve(
@@ -2140,7 +2140,7 @@ class Workflows():
                 comment=f"{task_state.task.name} approved"
             )
             if debug:
-                click.echo(f"    {n=} {result}")
+                click.secho(f"    {n=} {result}", fg=(50,50,50))
 
 
 def ddrobject_block(source):
