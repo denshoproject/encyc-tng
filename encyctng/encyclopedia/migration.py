@@ -2021,6 +2021,20 @@ description
                     continue
             yield a
 
+    @staticmethod
+    def report_compare_published():
+        """Compare titles published in encycfront with encyctng
+        """
+        encycfront_titles = [
+            a['title']
+            for a in httpx.get('https://encyclopedia.densho.org/api/0.1/articles/').json()
+        ]
+        encyctng_titles = [a.title for a in Article.objects.live()]
+        both = [t for t in encycfront_titles if t in encyctng_titles]
+        encycfront_only = [t for t in encycfront_titles if t not in encyctng_titles]
+        encyctng_only = [t for t in encyctng_titles if t not in encycfront_titles]
+        return both,encycfront_only,encyctng_only
+
 
 STATUS_CATEGORIES = [
     'Status_1',
