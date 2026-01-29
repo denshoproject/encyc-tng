@@ -211,5 +211,27 @@ csv_path = '/tmp/unconverted-article-urls.csv'
 migration.Articles.unconverted_article_urls(csvpath=csv_path)
 ```
 
+Report comparing published articles on encycfront and encyctng
+```
+from encyclopedia import migration
+both,encycfront_only,encyctng_only = migration.Articles.report_compare_published()
+len(both)
+len(encycfront_only)
+len(encyctng_only)
+```
+
+Report comparing PSMS sources and TNG sources
+- login to psms.densho.org
+- copy URL: https://psms.densho.org/api/2.0/sources/?format=json
+- save page to file: /tmp/sources-psms.json
+- scp that file to encyctng vm: /tmp/sources-psms.json
+```
+from encyclopedia import migration
+both,psms_only,tng_only = migration.Sources.report_compare_published(sources_psms_path)
+len(both)
+len(psms_only)
+len(tng_only)
+```
+
 
 ## Post-Migration Manual Tasks
