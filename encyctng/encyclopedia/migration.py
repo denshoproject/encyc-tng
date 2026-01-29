@@ -622,7 +622,7 @@ class Sources():
             ]
         sources_tng = [
             i.title for i in Image.objects.filter(
-                collection=Collection.objects.get(name='Article Images'))
+                collection=Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION))
         ]
         both = [t for t in sources_psms if t in sources_tng]
         psms_only = [t for t in sources_psms if t not in sources_tng]
