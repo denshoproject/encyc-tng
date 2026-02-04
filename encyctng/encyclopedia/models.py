@@ -605,11 +605,18 @@ def databox_hero_meta(article, hero):
     """Adds Article's databox fields to hero['meta'] for hero_split template
     """
     class_name = article.__class__.__name__
+    key = f"databox-{article._meta.verbose_name_plural}"
+    fields_labels = {
+        f['tng']: f['label'] for f in databoxes.DATABOXES[key]['fields']
+    }
     fieldnames = databoxes.ARTICLE_CLASS_FIELDNAMES.get(class_name, [])
     for fieldname in fieldnames:
         value = getattr(article, fieldname, None)
         if value:
-            hero['meta'].append({'label':fieldname, 'value':value})
+            hero['meta'].append({
+                'label':fields_labels[fieldname],
+                'value':value,
+            })
     return hero
 
 
