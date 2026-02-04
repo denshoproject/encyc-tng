@@ -905,11 +905,31 @@ class Articles():
         for title in errors:
             logger.info(title)
         click.echo(f"{len(errors) / len(titles)} percent")
+        # report
         lines = [json.dumps(item) for item in sources_by_headword.items()]
         click.echo(f"{len(lines)} sources_by_headword remaining")
         text = '\n'.join(lines)
-        with Path('/tmp/sources-by-headword-remaining.jsonl').open('w') as f:
+        sources_remaining_json_path = '/tmp/sources-by-headword-remaining.jsonl'
+        with Path(sources_remaining_json_path).open('w') as f:
             f.write(text)
+
+    @staticmethod
+    def report_sources_remaining(jsonl_path):
+        csvpath = '/tmp/sources-by-headword-remaining.csv'
+        with Path(jsonl_path).open('r') as f:
+            headwords_sources = [json.loads(line) for line in f.readlines()]
+        headers = ['headword', 'encyclopedia_id', 'caption', 'external_url']
+        rows = [headers]
+        for headword,sources in headwords_sources:
+            for source in sources:
+                encycid = source['encyclopedia_id']
+                caption = source['caption']
+                exturl = source['external_url']
+                rows.append((headword, encycid, caption, exturl))
+        if csvpath and rows:
+            with open(csvpath, 'w') as f:
+                writer = get_csv_writer(f)
+                writer.writerows(rows)
 
     @staticmethod
     def load_articles_metadata(basedir, sources_jsonl):
