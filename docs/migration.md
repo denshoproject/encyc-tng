@@ -197,6 +197,7 @@ from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
 migration.Articles.import_articles(basedir, jsonl_path, user=user)
 ```
+
 And then rewrite internal URLs
 ```
 from pathlib import Path
@@ -205,19 +206,24 @@ basedir = Path('/opt/encyc-tng/data')
 redirects = migration.Articles.load_redirects(basedir)
 migration.Articles.rewrite_article_urls(redirects)
 ```
+
 Report unconverted internal URLs
 ```
-csv_path = '/tmp/unconverted-article-urls.csv'
-migration.Articles.unconverted_article_urls(csvpath=csv_path)
+unconverted_urls_path = '/tmp/unconverted-article-urls.csv'
+migration.Articles.unconverted_article_urls(csvpath=unconverted_urls_path)
+```
+
+Report remaining unused Sources
+```
+sources_remaining_json_path = '/tmp/sources-by-headword-remaining.jsonl'
+from encyclopedia import migration
+migration.Articles.report_sources_remaining(sources_remaining_json_path)
 ```
 
 Report comparing published articles on encycfront and encyctng
 ```
 from encyclopedia import migration
-both,encycfront_only,encyctng_only = migration.Articles.report_compare_published()
-len(both)
-len(encycfront_only)
-len(encyctng_only)
+migration.Articles.report_compare_published()
 ```
 
 Report comparing PSMS sources and TNG sources
@@ -226,11 +232,18 @@ Report comparing PSMS sources and TNG sources
 - save page to file: /tmp/sources-psms.json
 - scp that file to encyctng vm: /tmp/sources-psms.json
 ```
+sources_psms_path = '/tmp/sources-psms.json'
 from encyclopedia import migration
-both,psms_only,tng_only = migration.Sources.report_compare_published(sources_psms_path)
-len(both)
-len(psms_only)
-len(tng_only)
+migration.Sources.report_compare_published(sources_psms_path)
+```
+
+Collect reports and make browseable
+```
+# make folder for this run and collect .csv files in folder
+export RIGHTNOW=`date +"%Y%m%d-%H%M"`
+export DESTDIR="/var/www/encyctng/media/migration/reports/$RIGHTNOW"
+mkdir $DESTDIR
+cp /tmp/*.csv $DESTDIR
 ```
 
 
