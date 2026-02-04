@@ -618,13 +618,13 @@ class Sources():
 
     @staticmethod
     def report_compare_published(sources_psms_path):
-        """Report comparing PSMS sources and TNG sources
-        Generate source_psms.json
+        """Report comparing PSMS sources and TNG sources: /tmp/sources-psms-tng.csv
         - login to psms.densho.org
         - copy URL: https://psms.densho.org/api/2.0/sources/?format=json
         - save page to file: sources-psms.json
         - scp that file to encyctng vm and note path
         """
+        csvpath = '/tmp/sources-psms-tng.csv'
         with Path(sources_psms_path).open('r') as f:
             sources_psms = [
                 Path(s['original']).name for s in json.loads(f.read())
@@ -633,10 +633,22 @@ class Sources():
             i.title for i in Image.objects.filter(
                 collection=Collection.objects.get(name=ARTICLES_IMAGE_COLLECTION))
         ]
-        both = [t for t in sources_psms if t in sources_tng]
-        psms_only = [t for t in sources_psms if t not in sources_tng]
-        tng_only = [t for t in sources_tng if t not in sources_psms]
-        return both,psms_only,tng_only
+        all = sorted(set(sources_psms + sources_tng))
+        headers = ['psms', 'tng', 'filename']
+        rows = [headers]
+        for title in all:
+            psms = ''; both = ''; tng = ''; filename = title
+            if title in sources_psms:
+                psms = 'psms'
+            if title in sources_tng:
+                tng = 'tng'
+            if psms and tng:
+                continue
+            rows.append((psms,tng,filename))
+        if csvpath and rows:
+            with open(csvpath, 'w') as f:
+                writer = get_csv_writer(f)
+                writer.writerows(rows)
 
 
 
@@ -2052,15 +2064,32 @@ description
     def report_compare_published():
         """Compare titles published in encycfront with encyctng
         """
+        csvpath = '/tmp/articles-current-tng.csv'
         encycfront_titles = [
             a['title']
             for a in httpx.get('https://encyclopedia.densho.org/api/0.1/articles/').json()
         ]
         encyctng_titles = [a.title for a in Article.objects.live()]
-        both = [t for t in encycfront_titles if t in encyctng_titles]
-        encycfront_only = [t for t in encycfront_titles if t not in encyctng_titles]
-        encyctng_only = [t for t in encyctng_titles if t not in encycfront_titles]
-        return both,encycfront_only,encyctng_only
+        #both = [t for t in encycfront_titles if t in encyctng_titles]
+        #encycfront_only = [t for t in encycfront_titles if t not in encyctng_titles]
+        #encyctng_only = [t for t in encyctng_titles if t not in encycfront_titles]
+        #return both,encycfront_only,encyctng_only
+        all = sorted(set(encycfront_titles + encyctng_titles))
+        headers = ['current', 'tng', 'title']
+        rows = [headers]
+        for title in all:
+            current = ''; both = ''; tng = ''
+            if title in encycfront_titles:
+                current = 'current'
+            if title in encyctng_titles:
+                tng = 'tng'
+            if current and tng:
+                continue
+            rows.append((current,tng,title))
+        if csvpath and rows:
+            with open(csvpath, 'w') as f:
+                writer = get_csv_writer(f)
+                writer.writerows(rows)
 
 
 STATUS_CATEGORIES = [
