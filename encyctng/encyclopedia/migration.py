@@ -84,6 +84,15 @@ TIME_ZONE = zoneinfo.ZoneInfo(settings.TIME_ZONE)
 DATEUTIL_DEFAULT_TZINFO = tz.gettz(settings.TIME_ZONE)
 
 
+def get_csv_writer(filename):
+    return csv.writer(
+        filename,
+        delimiter=CSV_DELIMITER,
+        quoting=CSV_QUOTING,
+        quotechar=CSV_QUOTECHAR,
+    )
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option('--debug','-d', is_flag=True, default=False)
 def encyctail(debug):
@@ -2002,12 +2011,7 @@ description
                     rows.append( [article.title,url.contents[0]] )
         if csvpath and rows:
             with open(csvpath, 'w') as f:
-                writer = csv.writer(
-                    f,
-                    delimiter=CSV_DELIMITER,
-                    quoting=CSV_QUOTING,
-                    quotechar=CSV_QUOTECHAR,
-                )
+                writer = get_csv_writer(f)
                 writer.writerows(rows)
 
     @staticmethod
