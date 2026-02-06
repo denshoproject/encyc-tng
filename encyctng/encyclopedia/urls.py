@@ -13,5 +13,5 @@ urlpatterns = [
     path('articles-az/', views.articles_az, name='encyc-articles-az'),
     path('authors/', views.authors, name='encyc-authors'),
     path('authors/<str:slug>/', views.author, name='encyc-author'),
-    path('sources/<str:source_type>/<int:source_id>/', views.source, name='encyc-source'),
+    path('sources/<str:source_type>/<str:source_id>/', views.source, name='encyc-source'),
 ]
