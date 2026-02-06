@@ -1,4 +1,6 @@
+from pathlib import Path
 import random
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from django import forms
@@ -273,23 +275,36 @@ class Article(Page):
         items = []
         for n,block in enumerate(self.carousel_blocks()):
             if block.block_type == 'imageblock':
+                #assert 0
                 # TODO this looks like encyclopedia.blocks.ImageBlockStructValue.modal
+                caption = ' '.join([
+                    block.value['caption'], block.value['caption2'],
+                    block.value['courtesy']
+                ])
+                ddr_id = ''
+                if 'ddr-' in block.value['ext_url']:
+                    ddr_id = urlparse(block.value['ext_url']).path.replace('/','')
+                image = block.value['image']
+                filename = Path(image.file.name).name
+                encyclopedia_id = filename
                 items.append({
                     'type': 'Image',
-                    'image': block.value['image'],
+                    'image': image,
                     'caption': block.value['caption'],
                     'url': '#',
                     'modal': {
                         'id': f"modal-{n}",
                         'open': False,
                         'media_type': 'Image',
+                        'image': image,
                         'title': block.value['caption'],
-                        'content': block.value['caption'],
-                        'caption': block.value['caption'],
-                        'densho_id': 'ddr-densho-123-45',
-                        'download_url': '',
-                        'cite_url': '',
-                        'view_url': '',
+                        'content': caption,
+                        'caption': caption,
+                        'densho_id': ddr_id,
+                        'download_url': image.file.url,
+                        'cite_url': f"/cite/{image.title}/",
+                        'view_url': f"/sources/image/{image.title}/",
+                        'creative_commons': block.value['creative_commons'],
                     }
                 })
         return items

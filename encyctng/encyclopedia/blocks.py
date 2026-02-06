@@ -96,18 +96,29 @@ templates/wikiprox/source.html
 
 class ImageBlockStructValue(StructValue):
     def modal(self):
+        caption = ' '.join([
+            self.get('caption'), self.get('caption2'),
+            self.get('courtesy')
+        ])
+        ddr_id = ''
+        if 'ddr-' in self.get('ext_url'):
+            ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
+        image = self.get('image')
+        filename = Path(image.file.name).name
+        encyclopedia_id = filename
         return {
-            'image': self.get('image'),
             'id': self.get('id'),
             'open': False,
-            'title': self.get('caption'),
-            'content': self.get('caption'),
             'media_type': 'Image',
-            'caption': 'caption goes here',
-            'densho_id': 'ddr-densho-123-456',
-            'download_url': 'download_url',
-            'cite_url': 'cite_url',
-            'view_url': 'view_url',
+            'image': image,
+            'title': self.get('caption'),
+            'content': caption,
+            'caption': caption,
+            'densho_id': ddr_id,
+            'download_url': image.file.url,
+            'cite_url': f"/cite/{image.title}/",
+            'view_url': f"/sources/image/{image.title}/",
+            'creative_commons': self.get('creative_commons'),
         }
 
 class ImageBlock(StructBlock):
@@ -153,18 +164,29 @@ class ImageBlock(StructBlock):
 
 class VideoBlockStructValue(StructValue):
     def modal(self):
+        caption = ' '.join([
+            self.get('caption'), self.get('caption2'),
+            self.get('courtesy'),
+        ])
+        ddr_id = 'DDR ID HERE'
+        if 'ddr-' in block.value['ext_url']:
+            ddr_id = urlparse(block.value['ext_url']).path.replace('/','')
+        video = self.get('video')
+        filename = Path(video.file.name).name
+        encyclopedia_id = filename
         return {
-            'video': self.get('video'),
             'id': self.get('id'),
             'open': False,
-            'title': self.get('caption'),
-            'content': self.get('caption'),
             'media_type': 'Video',
-            'caption': 'caption goes here',
-            'densho_id': 'ddr-densho-123-456',
-            'download_url': 'download_url',
-            'cite_url': 'cite_url',
-            'view_url': 'view_url',
+            'video': video,
+            'title': self.get('caption'),
+            'content': caption,
+            'caption': caption,
+            'densho_id': ddr_id,
+            'download_url': video.file.url,
+            'cite_url': f"/cite/{video.title}/",
+            'view_url': f"/sources/image/{video.title}/",
+            'creative_commons': self.get('creative_commons'),
         }
 
 class VideoBlock(StructBlock):
@@ -228,18 +250,29 @@ class VideoBlock(StructBlock):
 
 class DocumentBlockStructValue(StructValue):
     def modal(self):
+        caption = ' '.join([
+            self.get('caption'), self.get('caption2'),
+            self.get('courtesy'),
+        ])
+        ddr_id = 'DDR ID HERE'
+        if 'ddr-' in block.value['ext_url']:
+            ddr_id = urlparse(block.value['ext_url']).path.replace('/','')
+        document = self.get('document')
+        filename = Path(document.file.name).name
+        encyclopedia_id = filename
         return {
-            'document': self.get('document'),
             'id': self.get('id'),
             'open': False,
-            'title': self.get('caption'),
-            'content': self.get('caption'),
             'media_type': 'Document',
-            'caption': self.get('caption'),
-            'densho_id': 'ddr-densho-123-456',
-            'download_url': self.get('ext_url'),
-            'cite_url': 'cite_url',
-            'view_url': 'view_url',
+            'document': document,
+            'title': self.get('caption'),
+            'content': caption,
+            'caption': caption,
+            'densho_id': ddr_id,
+            'download_url': document.file.url,
+            'cite_url': f"/cite/{document.title}/",
+            'view_url': f"/sources/image/{document.title}/",
+            'creative_commons': self.get('creative_commons'),
         }
 
 class DocumentBlock(StructBlock):
