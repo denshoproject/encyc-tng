@@ -138,11 +138,12 @@ class ImageBlock(StructBlock):
         value_class = ImageBlockStructValue
 
     @staticmethod
-    def block_from_source(source, source_pks_by_filename):
+    def block_from_source(source, source_pks_by_encycid):
         """StreamField representation of ImageBlock from PSMS source"""
         block = {
             'type': 'imageblock',
             'value': {
+                'encyclopedia_id': source['encyclopedia_id'],
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
@@ -150,8 +151,7 @@ class ImageBlock(StructBlock):
                 'ext_url': source['external_url'],
             }
         }
-        filename = Path(source['original_path']).name
-        image_pk = source_pks_by_filename['image'].get(filename)
+        image_pk = source_pks_by_encycid['image'].get(source['encyclopedia_id'])
         if image_pk:
             block['image'] = image_pk
         return block
@@ -215,29 +215,30 @@ class VideoBlock(StructBlock):
         value_class = VideoBlockStructValue
 
     @staticmethod
-    def block_from_source(source, source_pks_by_filename):
+    def block_from_source(source, source_pks_by_encycid):
         """StreamField representation of VideoBlock from PSMS source"""
         block = {
             'type': 'videoblock',
             'value': {
+                'encyclopedia_id': source['encyclopedia_id'],
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
                 'creative_commons': source['creative_commons'],
             }
         }
-        video_pk = source_pks_by_filename['video'].get(
-            Path(source['original_path']).name
+        video_pk = source_pks_by_encycid['video'].get(
+            source['encyclopedia_id']
         )
         if video_pk:
             block['video'] = video_pk
-        display_pk = source_pks_by_filename['image'].get(
-            Path(source['display_path']).name
+        display_pk = source_pks_by_encycid['image'].get(
+            source['encyclopedia_id']
         )
         if display_pk:
             block['display'] = display_pk
-        transcript_pk = source_pks_by_filename['document'].get(
-            Path(source['transcript']).name
+        transcript_pk = source_pks_by_encycid['document'].get(
+            source['encyclopedia_id']
         )
         if transcript_pk:
             block['transcript'] = transcript_pk
@@ -300,11 +301,12 @@ class DocumentBlock(StructBlock):
         value_class = DocumentBlockStructValue
 
     @staticmethod
-    def block_from_source(source, source_pks_by_filename):
+    def block_from_source(source, source_pks_by_encycid):
         """StreamField representation of DocumentBlock from PSMS source"""
         block = {
             'type': 'documentblock',
             'value': {
+                'encyclopedia_id': source['encyclopedia_id'],
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
@@ -312,13 +314,13 @@ class DocumentBlock(StructBlock):
                 'ext_url': source['external_url'],
             }
         }
-        document_pk = source_pks_by_filename['document'].get(
-            Path(source['original_path']).name
+        document_pk = source_pks_by_encycid['document'].get(
+            source['encyclopedia_id']
         )
         if document_pk:
             block['document'] = document_pk
-        display_pk = source_pks_by_filename['image'].get(
-            Path(source['display_path']).name
+        display_pk = source_pks_by_encycid['image'].get(
+            source['encyclopedia_id']
         )
         if display_pk:
             block['display'] = display_pk

@@ -606,7 +606,7 @@ class ArticleSources():
     @staticmethod
     def source_article_block(source_type, source_id, article):
         for block in article.body:
-            if BLOCKTYPE_OBJECTTYPE[block.block_type] == source_type:
+            if BLOCKTYPE_OBJECTTYPE.get(block.block_type) == source_type:
                 obj = block.value[source_type]
                 if obj.id == source_id:
                     return block
