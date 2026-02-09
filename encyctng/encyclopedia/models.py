@@ -284,26 +284,27 @@ class Article(Page):
                 ddr_id = ''
                 if 'ddr-' in block.value['ext_url']:
                     ddr_id = urlparse(block.value['ext_url']).path.replace('/','')
-                image = block.value['image']
-                filename = Path(image.file.name).name
+                source_type = 'image'
+                source = block.value[source_type]
+                filename = Path(source.file.name).name
                 encyclopedia_id = filename
                 items.append({
                     'type': 'Image',
-                    'image': image,
+                    'image': source,
                     'caption': block.value['caption'],
                     'url': '#',
                     'modal': {
                         'id': f"modal-{n}",
                         'open': False,
                         'media_type': 'Image',
-                        'image': image,
+                        'image': source,
                         'title': block.value['caption'],
                         'content': caption,
                         'caption': caption,
                         'densho_id': ddr_id,
-                        'download_url': image.file.url,
-                        'cite_url': f"/cite/{image.title}/",
-                        'view_url': f"/sources/image/{image.title}/",
+                        'download_url': source.file.url,
+                        'cite_url': f"/cite/{source.title}/",
+                        'view_url': f"/sources/{source_type}/{source.title}/",
                         'creative_commons': block.value['creative_commons'],
                     }
                 })

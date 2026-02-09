@@ -101,23 +101,24 @@ class ImageBlockStructValue(StructValue):
             self.get('courtesy')
         ])
         ddr_id = ''
-        if 'ddr-' in self.get('ext_url'):
+        if 'ddr-' in self.get('ext_url', ''):
             ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
-        image = self.get('image')
-        filename = Path(image.file.name).name
+        source_type = 'image'
+        source = self.get(source_type)
+        filename = Path(source.file.name).name
         encyclopedia_id = filename
         return {
             'id': self.get('id'),
             'open': False,
             'media_type': 'Image',
-            'image': image,
+            'image': source,
             'title': self.get('caption'),
             'content': caption,
             'caption': caption,
             'densho_id': ddr_id,
-            'download_url': image.file.url,
-            'cite_url': f"/cite/{image.title}/",
-            'view_url': f"/sources/image/{image.title}/",
+            'download_url': source.file.url,
+            'cite_url': f"/cite/{source.title}/",
+            'view_url': f"/sources/{source_type}/{source.title}/",
             'creative_commons': self.get('creative_commons'),
         }
 
@@ -169,23 +170,24 @@ class VideoBlockStructValue(StructValue):
             self.get('courtesy'),
         ])
         ddr_id = 'DDR ID HERE'
-        if 'ddr-' in block.value['ext_url']:
-            ddr_id = urlparse(block.value['ext_url']).path.replace('/','')
-        video = self.get('video')
-        filename = Path(video.file.name).name
+        if 'ddr-' in self.get('ext_url', ''):
+            ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
+        source_type = 'video'
+        source = self.get(source_type)
+        filename = Path(source.file.name).name
         encyclopedia_id = filename
         return {
             'id': self.get('id'),
             'open': False,
             'media_type': 'Video',
-            'video': video,
+            'video': source,
             'title': self.get('caption'),
             'content': caption,
             'caption': caption,
             'densho_id': ddr_id,
-            'download_url': video.file.url,
-            'cite_url': f"/cite/{video.title}/",
-            'view_url': f"/sources/image/{video.title}/",
+            'download_url': source.file.url,
+            'cite_url': f"/cite/{source.title}/",
+            'view_url': f"/sources/{source_type}/{source.title}/",
             'creative_commons': self.get('creative_commons'),
         }
 
@@ -255,23 +257,24 @@ class DocumentBlockStructValue(StructValue):
             self.get('courtesy'),
         ])
         ddr_id = 'DDR ID HERE'
-        if 'ddr-' in block.value['ext_url']:
-            ddr_id = urlparse(block.value['ext_url']).path.replace('/','')
-        document = self.get('document')
-        filename = Path(document.file.name).name
+        if 'ddr-' in self.get('ext_url', ''):
+            ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
+        source_type = 'document'
+        source = self.get(source_type)
+        filename = Path(source.file.name).name
         encyclopedia_id = filename
         return {
             'id': self.get('id'),
             'open': False,
             'media_type': 'Document',
-            'document': document,
+            'document': source,
             'title': self.get('caption'),
             'content': caption,
             'caption': caption,
             'densho_id': ddr_id,
-            'download_url': document.file.url,
-            'cite_url': f"/cite/{document.title}/",
-            'view_url': f"/sources/image/{document.title}/",
+            'download_url': source.file.url,
+            'cite_url': f"/cite/{source.title}/",
+            'view_url': f"/sources/{source_type}/{source.title}/",
             'creative_commons': self.get('creative_commons'),
         }
 
