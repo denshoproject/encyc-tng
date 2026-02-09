@@ -418,7 +418,10 @@ class Sources():
         if source['media_format'] == 'image':
             try:
                 image = Sources.get_image(
-                    collection, src_dir / Path(source['original_path']))
+                    collection,
+                    src_dir / Path(source['original_path']),
+                    source['encyclopedia_id'],
+                )
                 image.description = description
                 if not dryrun:
                     image.save()
@@ -428,7 +431,10 @@ class Sources():
         elif source['media_format'] == 'document':
             try:
                 doc = Sources.get_document(
-                    collection, src_dir / Path(source['original_path']))
+                    collection,
+                    src_dir / Path(source['original_path']),
+                    source['encyclopedia_id'],
+                )
                 if not dryrun:
                     doc.save()
                 #print(f"{doc=}")
@@ -443,7 +449,10 @@ class Sources():
         elif source['media_format'] == 'video':
             try:
                 display = Sources.get_image(
-                    collection, src_dir / Path(source['display_path']))
+                    collection,
+                    src_dir / Path(source['display_path']),
+                    source['encyclopedia_id'],
+                )
                 display.description = description
                 if not dryrun:
                     display.save()
@@ -451,13 +460,17 @@ class Sources():
                 media = Sources.get_media(
                     collection,
                     src_dir / Path(source['original_path']),
-                    src_dir / Path(source['display_path'])
+                    src_dir / Path(source['display_path']),
+                    source['encyclopedia_id'],
                 )
                 if not dryrun:
                     media.save()
                 #print(f"{media=}")
                 transcript = Sources.get_document(
-                    collection, src_dir / Path(source['transcript']))
+                    collection,
+                    src_dir / Path(source['transcript']),
+                    source['encyclopedia_id'],
+                )
                 if not dryrun:
                     transcript.save()
                 #print(f"{transcript=}")
@@ -535,7 +548,7 @@ class Sources():
             f.write('\n'.join(lines))
 
     @staticmethod
-    def source_keys_by_filename(collection):
+    def source_keys_by_encycid(collection):
         """Map source images to their format and wagtail..Image ID
         """
         return {
@@ -560,43 +573,43 @@ class Sources():
                 shutil.copy(src,dst)
 
     @staticmethod
-    def get_image(collection, path):
+    def get_image(collection, path, encyclopedia_id):
         """Get new or existing wagtail.images.models.Image"""
         try:                               # existing
-            return Image.objects.get(collection=collection, title=path.name)
+            return Image.objects.get(collection=collection, title=encyclopedia_id)
         except Image.DoesNotExist as err:  # new
             f = ImageFile(path.open('rb'), name=path.name)  # django..ImageFile
-            return Image(collection=collection, file=f, title=path.name)
+            return Image(collection=collection, file=f, title=encyclopedia_id)
         except Image.MultipleObjectsReturned as err:
-            print(f"Image.objects.get(collection={collection}, title={path.name})")
+            print(f"Image.objects.get(collection={collection}, title={encyclopedia_id})")
             print(err); sys.exit(1)
 
     @staticmethod
-    def get_document(collection, path):
+    def get_document(collection, path, encyclopedia_id):
         """Get new or existing wagtail.documents.models.Document"""
         try:                               # existing
-            return Document.objects.get(collection=collection, title=path.name)
+            return Document.objects.get(collection=collection, title=encyclopedia_id)
         except Document.DoesNotExist as err:  # new
             f = File(path.open('rb'), name=path.name)  # django..File
-            return Document(collection=collection, file=f, title=path.name)
+            return Document(collection=collection, file=f, title=encyclopedia_id)
         except Document.MultipleObjectsReturned as err:
-            print(f"Document.objects.get(collection={collection}, title={path.name})")
+            print(f"Document.objects.get(collection={collection}, title={encyclopedia_id})")
             print(err); sys.exit(1)
 
     @staticmethod
-    def get_media(collection, original_path, display_path):
+    def get_media(collection, original_path, display_path, encyclopedia_id):
         """Get new or existing wagtailmedia.models.Media"""
         try:                               # existing
-            media = Media.objects.get(collection=collection, title=original_path.name)
+            media = Media.objects.get(collection=collection, title=encyclopedia_id)
         except Media.DoesNotExist as err:  # new
             media = Media(
                 collection=collection,
                 file=File(original_path.open('rb'), name=original_path.name),  # django..File
                 thumbnail=File(display_path.open('rb'), name=display_path.name),  # django..File
-                title=original_path.name,
+                title=encyclopedia_id,
             )
         except Media.MultipleObjectsReturned as err:
-            print(f"Media.objects.get(collection={collection}, title={original_path.name})")
+            print(f"Media.objects.get(collection={collection}, title={encyclopedia_id})")
             print(err); sys.exit(1)
         #if display:
         #    media.thumbnail = display
@@ -788,7 +801,7 @@ class Articles():
         mw = wiki.MediaWiki()
         url_prefix = '/wiki/'
         authors_by_names,authors_alts, \
-            sources_collection,sources_by_headword,source_pks_by_filename, \
+            sources_collection,sources_by_headword,source_pks_by_encycid, \
             saved_titles,mw_titles,mw_titles_slugs, \
             redirects = Articles.load_articles_metadata(basedir, sources_jsonl)
         if not titles:
@@ -861,7 +874,7 @@ class Articles():
                     mw, mwpage, mwtext, pagedata, revisions,
                     mw_titles, mw_titles_slugs, url_prefix,
                     authors_by_names, authors_alts,
-                    sources_collection, sources_by_headword, source_pks_by_filename,
+                    sources_collection, sources_by_headword, source_pks_by_encycid,
                     index_page,
                     user=user,
                     dryrun=dryrun,
@@ -934,12 +947,12 @@ class Articles():
     @staticmethod
     def load_articles_metadata(basedir, sources_jsonl):
         authors_by_names,authors_alts = Articles.load_authors(basedir)
-        sources_collection,sources_by_headword,source_pks_by_filename = Articles.load_sources(basedir, sources_jsonl)
+        sources_collection,sources_by_headword,source_pks_by_encycid = Articles.load_sources(basedir, sources_jsonl)
         saved_titles,mw_titles,mw_titles_slugs = Articles.load_mw(basedir)
         redirects = Articles.load_redirects(basedir)
         return [
             authors_by_names,authors_alts,
-            sources_collection,sources_by_headword,source_pks_by_filename,
+            sources_collection,sources_by_headword,source_pks_by_encycid,
             saved_titles,mw_titles,mw_titles_slugs,
             redirects
         ]
@@ -990,7 +1003,7 @@ class Articles():
         except Collection.DoesNotExist:
             click.echo(f"Collection {Collection} does not exist: Try running migration.initial_setup().")
             return
-        source_pks_by_filename = Sources.source_keys_by_filename(
+        source_pks_by_encycid = Sources.source_keys_by_encycid(
             sources_collection
         )
         return sources_collection,sources_by_headword
@@ -1011,10 +1024,10 @@ class Articles():
         with path.open('rb') as f:
             sources_collection = pickle.load(f)
         sources_by_headword = Sources.load_psms_sources_jsonl(jsonl_path)
-        source_pks_by_filename = Sources.source_keys_by_filename(
+        source_pks_by_encycid = Sources.source_keys_by_encycid(
             sources_collection
         )
-        return sources_collection,sources_by_headword,source_pks_by_filename
+        return sources_collection,sources_by_headword,source_pks_by_encycid
 
     @staticmethod
     def download_mw(mw, url_prefix, titles=[]):
@@ -1171,7 +1184,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
@@ -1257,7 +1270,7 @@ description
         # primary sources
         #sources_for_title = sources_by_headword.get(mwpage.title,[])
         sources_blocks = Articles.streamfield_media_blocks(
-            sources_by_headword.get(mwpage.title, []), source_pks_by_filename,
+            sources_by_headword.get(mwpage.title, []), source_pks_by_encycid,
         )
         if sources_by_headword.get(mwpage.title):
             sources_by_headword.pop(mwpage.title)
@@ -1812,7 +1825,7 @@ description
         return newblocks
 
     @staticmethod
-    def streamfield_media_blocks(sources, source_pks_by_filename):
+    def streamfield_media_blocks(sources, source_pks_by_encycid):
         """Consume primary source data from a page and product DDRObjectBlock data
 
         Block format:
@@ -1820,13 +1833,14 @@ description
         """
         blocks = []
         for source in sources:
+            print(f"{source=}")
             block = None
             if source['media_format'] == 'image':
-                block = ImageBlock.block_from_source(source, source_pks_by_filename)
+                block = ImageBlock.block_from_source(source, source_pks_by_encycid)
             elif source['media_format'] == 'video':
-                block = VideoBlock.block_from_source(source, source_pks_by_filename)
+                block = VideoBlock.block_from_source(source, source_pks_by_encycid)
             elif source['media_format'] == 'document':
-                block = DocumentBlock.block_from_source(source, source_pks_by_filename)
+                block = DocumentBlock.block_from_source(source, source_pks_by_encycid)
             else:
                 raise Exception(
                     f"Don't recognize media_format '{source['media_format']}!"
@@ -2359,10 +2373,11 @@ def test_import_article(title, user):
     basedir = Path('/opt/encyc-tng/data')
     url_prefix = '/wiki/'
     mw = wiki.MediaWiki()
-    authors_by_names,authors_alts, sources_collection,sources_by_headword, source_pks_by_filename, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
+    authors_by_names,authors_alts, sources_collection,sources_by_headword, source_pks_by_encycid, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
     index_page = Articles.prep_wagtail()
     mwpage,mwtext,pagedata,revisions,pgerrors = Articles.load_article(basedir, title)
-    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_filename, index_page, user)
+    revisions = Articles.download_article_revisions(mw, mwpage)
+    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user)
     return article,related_articles
 
 
