@@ -439,7 +439,10 @@ class Sources():
                     doc.save()
                 #print(f"{doc=}")
                 display = Sources.get_image(
-                    collection, src_dir / Path(source['display_path']))
+                    collection,
+                    src_dir / Path(source['display_path']),
+                    source['encyclopedia_id'],
+                )
                 display.description = description
                 if not dryrun:
                     display.save()
