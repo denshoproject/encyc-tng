@@ -30,6 +30,13 @@ api_htpass
 
 ## Download metadata and Primary Sources binaries to local
 
+Log in to `packrat` as `encyc` and dump data for the `sources` app:
+```
+cd /opt/encyc-psms
+python psms/manage.py dumpdata sources --format=jsonl > /tmp/encycpsms-sources-20260210-1544.jsonl
+```
+Copy it to the `encyc-tng-data` repo, commit, etc. git-pull to the destination system.
+
 Make a directory for migration data:
 ``` bash
 mkdir -p /opt/encyc-tng/data/sources/
@@ -183,6 +190,11 @@ result = migration.Sources.import_sources(sources_by_headword, sources_dir)
 ```
 ```# import title
 result = migration.Sources.import_sources(sources_by_headword, sources_dir, title='Manzanar')
+```
+
+Load data from old `encycpsms.sources` app:
+```
+python encyctng/manage.py loaddata data/sources-encycpsms-20260210-1544.jsonl --app=sources
 ```
 
 

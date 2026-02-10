@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'encyclopedia',
     'info',
     'search',
+    'sources',
     'styleguide',
 ]
 
