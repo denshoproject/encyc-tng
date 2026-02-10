@@ -156,16 +156,16 @@ install-encyc-tng: git-safe-dir install-redis install-virtualenv install-nodejs
 	apt-get install --assume-yes ffmpeg
 	source $(VIRTUALENV)/bin/activate; uv pip install .
 # logs dir
-	-mkdir $(LOG_BASE)
-	chown -R encyc.root $(LOG_BASE)
+	-mkdir -p $(LOG_BASE)
+	chown -R encyc:root $(LOG_BASE)
 	chmod -R 755 $(LOG_BASE)
 # static dir
 	-mkdir -p $(STATIC_ROOT)
-	chown -R encyc.root $(STATIC_ROOT)
+	chown -R encyc:root $(STATIC_ROOT)
 	chmod -R 755 $(STATIC_ROOT)
 # media dir
 	-mkdir -p $(MEDIA_ROOT)
-	chown -R encyc.root $(MEDIA_BASE)
+	chown -R encyc:root $(MEDIA_BASE)
 	chmod -R 755 $(MEDIA_BASE)
 
 install-encyc-tng-testing:
@@ -216,7 +216,7 @@ clean-pip:
 install-configs:
 	@echo ""
 	@echo "installing configs ----------------------------------------------------"
-	-mkdir $(CONF_BASE)
+	-mkdir -p $(CONF_BASE)
 	python3 -c 'import random; print("".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") for i in range(50)]))' > $(CONF_SECRET)
 	chown encyc:encyc $(CONF_SECRET)
 	chmod 640 $(CONF_SECRET)
@@ -238,12 +238,12 @@ install-daemons-configs:
 	@echo "configuring daemons -------------------------------------------------"
 # nginx
 	cp $(INSTALLDIR)/conf/nginx.conf $(NGINX_CONF)
-	chown root.root $(NGINX_CONF)
+	chown root:root $(NGINX_CONF)
 	chmod 644 $(NGINX_CONF)
 	-ln -s $(NGINX_CONF) $(NGINX_CONF_LINK)
 # supervisord
 	cp $(INSTALLDIR)/conf/supervisor.conf $(SUPERVISOR_GUNICORN_CONF)
-	chown root.root $(SUPERVISOR_GUNICORN_CONF)
+	chown root:root $(SUPERVISOR_GUNICORN_CONF)
 	chmod 644 $(SUPERVISOR_GUNICORN_CONF)
 
 uninstall-daemons-configs:
