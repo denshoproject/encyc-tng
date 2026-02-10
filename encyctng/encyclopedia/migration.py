@@ -44,6 +44,7 @@ from wagtail.models.media import Collection
 from wagtail.models.pages import PageLogEntry
 from wagtail.models.workflows import Workflow, Task, WorkflowTask
 from wagtailmedia.models import Media
+from willow.image import UnrecognisedImageFormatError
 
 # encyc-core
 from encyc import config
@@ -399,8 +400,21 @@ class Sources():
                 if result and result.get('error'):
                     errors.append(result)
         print(f"{len(errors)} errors")
-        for error in errors:
-            print(f"{error['error']}")
+        csvpath = '/tmp/sources-import-errors.csv'
+        headers = ['error', 'title', 'encyclopedia_id', 'original_path']
+        rows = [headers]
+        for e in errors:
+            #print(f"{e['article_title']} {e['error'].__class__.__name__} {e['source']['encyclopedia_id']} {e['source']['original_path']}")
+            rows.append((
+                e['error'].__class__.__name__,
+                e['article_title'],
+                e['source']['encyclopedia_id'],
+                e['source']['original_path'],
+            ))
+        if csvpath and rows:
+            with open(csvpath, 'w') as f:
+                writer = get_csv_writer(f)
+                writer.writerows(rows)
         return errors
 
     @staticmethod
@@ -426,8 +440,14 @@ class Sources():
                 if not dryrun:
                     image.save()
                 #print(f"{image=}")
-            except Exception as err:
+            except UnrecognisedImageFormatError as err:
                 return {'article_title': article_title, 'error': err, 'source': source}
+            except IsADirectoryError as err:
+                return {'article_title': article_title, 'error': err, 'source': source}
+            except FileNotFoundError as err:
+                return {'article_title': article_title, 'error': err, 'source': source}
+            #except Exception as err:
+            #    return {'article_title': article_title, 'error': err, 'source': source}
         elif source['media_format'] == 'document':
             try:
                 doc = Sources.get_document(
@@ -447,8 +467,14 @@ class Sources():
                 if not dryrun:
                     display.save()
                 #print(f"{display=}")
-            except Exception as err:
+            except UnrecognisedImageFormatError as err:
                 return {'article_title': article_title, 'error': err, 'source': source}
+            except IsADirectoryError as err:
+                return {'article_title': article_title, 'error': err, 'source': source}
+            except FileNotFoundError as err:
+                return {'article_title': article_title, 'error': err, 'source': source}
+            #except Exception as err:
+            #    return {'article_title': article_title, 'error': err, 'source': source}
         elif source['media_format'] == 'video':
             try:
                 display = Sources.get_image(
@@ -477,8 +503,14 @@ class Sources():
                 if not dryrun:
                     transcript.save()
                 #print(f"{transcript=}")
-            except Exception as err:
+            except UnrecognisedImageFormatError as err:
                 return {'article_title': article_title, 'error': err, 'source': source}
+            except IsADirectoryError as err:
+                return {'article_title': article_title, 'error': err, 'source': source}
+            except FileNotFoundError as err:
+                return {'article_title': article_title, 'error': err, 'source': source}
+            #except Exception as err:
+            #    return {'article_title': article_title, 'error': err, 'source': source}
         return {}
 
     @staticmethod
