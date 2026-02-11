@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
@@ -326,13 +326,8 @@ def redirect_wiki(request, title):
 def redirect_source(request, encyclopedia_id):
     """Redirect old PSMS Source links to the Article they appear in
     """
-    try:
-        source = Source.objects.get(encyclopedia_id=encyclopedia_id)
-    except Source.DoesNotExist:
-        return Http404
-    # maybe use the list of old titles here?
-    try:
-        article = Article.objects.get(title=source.headword)
-    except Article.DoesNotExist:
-        return Http404
+    source = get_object_or_404(Source, encyclopedia_id=encyclopedia_id)
+    # TODO redirection may not if Source.headword differs from Article.title
+    # TODO example: Miné Okubo
+    article = get_object_or_404(Article, title=source.headword)
     return HttpResponseRedirect(article.url, preserve_request=True)
