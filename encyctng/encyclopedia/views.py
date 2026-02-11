@@ -80,13 +80,6 @@ class NeedsEditorReportView(PageReportView):
 
 # home/index page comes from home.models.HomePage
 
-def redirect_wiki(request, title):
-    """Redirect links between articles TEMPORARY
-    TODO get links right in migration so we don't need this
-    """
-    url = f"/encyclopedia/{title}/"
-    return HttpResponseRedirect(url, preserve_request=True)
-
 #@cache_page(settings.CACHE_TIMEOUT)
 def browse(request):
     topics = {
@@ -241,20 +234,6 @@ def author(request, slug):
         'collections': articles,
     })
 
-def redirect_source(request, encyclopedia_id):
-    """Redirect old PSMS Source links to the Article they appear in
-    """
-    try:
-        source = Source.objects.get(encyclopedia_id=encyclopedia_id)
-    except Source.DoesNotExist:
-        return Http404
-    # maybe use the list of old titles here?
-    try:
-        article = Article.objects.get(title=source.headword)
-    except Article.DoesNotExist:
-        assert False
-    return HttpResponseRedirect(article.url, preserve_request=True)
-
 
 def collections_authors_tabs(url):
     """Return tabs for collection navigation pages
@@ -335,3 +314,25 @@ def author_images():
         for image in Image.objects.filter(collection=c)
     }
     return images
+
+
+def redirect_wiki(request, title):
+    """Redirect links between articles TEMPORARY
+    TODO get links right in migration so we don't need this
+    """
+    url = f"/encyclopedia/{title}/"
+    return HttpResponseRedirect(url, preserve_request=True)
+
+def redirect_source(request, encyclopedia_id):
+    """Redirect old PSMS Source links to the Article they appear in
+    """
+    try:
+        source = Source.objects.get(encyclopedia_id=encyclopedia_id)
+    except Source.DoesNotExist:
+        return Http404
+    # maybe use the list of old titles here?
+    try:
+        article = Article.objects.get(title=source.headword)
+    except Article.DoesNotExist:
+        assert False
+    return HttpResponseRedirect(article.url, preserve_request=True)
