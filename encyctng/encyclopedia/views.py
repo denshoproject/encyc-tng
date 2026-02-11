@@ -334,5 +334,5 @@ def redirect_source(request, encyclopedia_id):
     try:
         article = Article.objects.get(title=source.headword)
     except Article.DoesNotExist:
-        assert False
+        return Http404
     return HttpResponseRedirect(article.url, preserve_request=True)
