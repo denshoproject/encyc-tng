@@ -1868,7 +1868,7 @@ description
         """
         blocks = []
         for source in sources:
-            print(f"{source=}")
+            #print(f"{source=}")
             block = None
             if source['media_format'] == 'image':
                 block = ImageBlock.block_from_source(source, source_pks_by_encycid)
