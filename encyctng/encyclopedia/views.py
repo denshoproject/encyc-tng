@@ -17,6 +17,7 @@ from wagtail.search.utils import parse_query_string
 from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
 from encyclopedia.topics import topics_items
+from sources.models import Source
 
 PAGINATOR_ON_EACH_SIDE = 2
 PAGINATOR_ON_ENDS = 1
@@ -240,20 +241,19 @@ def author(request, slug):
         'collections': articles,
     })
 
-def source(request, source_type, source_id):
-    """Display Primary Source with captions from Article(s) it appears in
+def redirect_source(request, encyclopedia_id):
+    """Redirect old PSMS Source links to the Article they appear in
     """
-    if   source_type == 'image':    source = Image.objects.get(title=source_id)
-    elif source_type == 'document': source = Document.objects.get(title=source_id)
-    elif source_type == 'video':    source = Media.objects.get(title=source_id)
-    #articles_blocks = ArticleSources.source_article_blocks(source)
-    # IDEA ArticleMedia.metadata(source)
-    template = f"encyclopedia/source-{source_type}.html"
-    return render(request, template, {
-        'source_type': source_type,
-        'source': source,
-        #'articles_blocks': articles_blocks,
-    })
+    try:
+        source = Source.objects.get(encyclopedia_id=encyclopedia_id)
+    except Source.DoesNotExist:
+        return Http404
+    # maybe use the list of old titles here?
+    try:
+        article = Article.objects.get(title=source.headword)
+    except Article.DoesNotExist:
+        assert False
+    return HttpResponseRedirect(article.url, preserve_request=True)
 
 
 def collections_authors_tabs(url):
