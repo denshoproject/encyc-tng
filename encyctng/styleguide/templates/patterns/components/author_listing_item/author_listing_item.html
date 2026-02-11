@@ -5,12 +5,7 @@
         <h2 class="author-listing-item__heading heading heading--three section-heading">Authored by</h2>
     {% endif %}
     <div class="author-listing-item__container">
-        <div class="author-listing-item__image-container">
-            {% image author.image fill-200x200 format-webp as image %}
-            <a class="author-listing-item__link" href="{{ author.get_absolute_url }}">
-                <img class="author-listing-item__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
-            </a>
-        </div>
+        {% image author.image fill-200x200 format-webp class="author-listing-item__image" loading="lazy" %}
         <div class="author-listing-item__content">
             <h3 class="author-listing-item__title heading heading--four">
                 <a class="author-listing-item__link" href="{{ author.get_absolute_url }}">
@@ -20,7 +15,7 @@
             </h3>
             <p class="author-listing-item__description">{{ author.role }}</p>
             {% if author.description %}
-                <p class="author-listing-item__description">{{ author.description }}</p>
+                <div class="author-listing-item__description">{{ author.description|richtext }}</div>
             {% endif %}
         </div>
     </div>
