@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.text import slugify
 from django.views.decorators.cache import cache_page
@@ -17,6 +17,7 @@ from wagtail.search.utils import parse_query_string
 from editors.models import Author
 from encyclopedia.models import Article, ArticleSources
 from encyclopedia.topics import topics_items
+from sources.models import Source
 
 PAGINATOR_ON_EACH_SIDE = 2
 PAGINATOR_ON_ENDS = 1
@@ -78,13 +79,6 @@ class NeedsEditorReportView(PageReportView):
 # Public UI
 
 # home/index page comes from home.models.HomePage
-
-def redirect_wiki(request, title):
-    """Redirect links between articles TEMPORARY
-    TODO get links right in migration so we don't need this
-    """
-    url = f"/encyclopedia/{title}/"
-    return HttpResponseRedirect(url, preserve_request=True)
 
 #@cache_page(settings.CACHE_TIMEOUT)
 def browse(request):
@@ -240,21 +234,6 @@ def author(request, slug):
         'collections': articles,
     })
 
-def source(request, source_type, source_id):
-    """Display Primary Source with captions from Article(s) it appears in
-    """
-    if   source_type == 'image':    source = Image.objects.get(title=source_id)
-    elif source_type == 'document': source = Document.objects.get(title=source_id)
-    elif source_type == 'video':    source = Media.objects.get(title=source_id)
-    #articles_blocks = ArticleSources.source_article_blocks(source)
-    # IDEA ArticleMedia.metadata(source)
-    template = f"encyclopedia/source-{source_type}.html"
-    return render(request, template, {
-        'source_type': source_type,
-        'source': source,
-        #'articles_blocks': articles_blocks,
-    })
-
 
 def collections_authors_tabs(url):
     """Return tabs for collection navigation pages
@@ -335,3 +314,20 @@ def author_images():
         for image in Image.objects.filter(collection=c)
     }
     return images
+
+
+def redirect_wiki(request, title):
+    """Redirect links between articles TEMPORARY
+    TODO get links right in migration so we don't need this
+    """
+    url = f"/encyclopedia/{title}/"
+    return HttpResponseRedirect(url, preserve_request=True)
+
+def redirect_source(request, encyclopedia_id):
+    """Redirect old PSMS Source links to the Article they appear in
+    """
+    source = get_object_or_404(Source, encyclopedia_id=encyclopedia_id)
+    # TODO redirection may not if Source.headword differs from Article.title
+    # TODO example: Miné Okubo
+    article = get_object_or_404(Article, title=source.headword)
+    return HttpResponseRedirect(article.url, preserve_request=True)
