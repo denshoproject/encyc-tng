@@ -150,7 +150,7 @@ get-encyc-tng: git-safe-dir
 setup-encyc-tng:
 	source $(VIRTUALENV)/bin/activate; uv pip install .
 
-install-encyc-tng: git-safe-dir install-redis install-virtualenv install-nodejs
+install-encyc-tng: git-safe-dir install-redis install-virtualenv npm-build
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
 	apt-get install --assume-yes ffmpeg
@@ -252,7 +252,7 @@ uninstall-daemons-configs:
 	-rm $(SUPERVISOR_GUNICORN_CONF)
 
 
-npm-build: collectstatic
+npm-build: install-nodejs collectstatic
 	@echo ""
 	@echo "npm-build -----------------------------------------------------------"
 	source $(INSTALL_NVM)/nvm.sh; npm run build:prod
