@@ -150,11 +150,15 @@ get-encyc-tng: git-safe-dir
 setup-encyc-tng:
 	source $(VIRTUALENV)/bin/activate; uv pip install .
 
-install-encyc-tng: git-safe-dir install-redis install-virtualenv npm-build
+install-pyproject:
+	@echo ""
+	@echo "install pyproject -------------------------------------------------"
+	source $(VIRTUALENV)/bin/activate; uv pip install .
+
+install-encyc-tng: git-safe-dir install-redis install-virtualenv install-pyproject npm-build
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
 	apt-get install --assume-yes ffmpeg
-	source $(VIRTUALENV)/bin/activate; uv pip install .
 # logs dir
 	-mkdir -p $(LOG_BASE)
 	chown -R encyc:root $(LOG_BASE)
@@ -259,7 +263,7 @@ npm-build: install-nodejs collectstatic
 
 install-static: collectstatic
 
-collectstatic:
+collectstatic: install-pyproject
 	@echo ""
 	@echo "collectstatic -------------------------------------------------------"
 	source $(VIRTUALENV)/bin/activate; \
