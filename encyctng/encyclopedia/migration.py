@@ -70,6 +70,7 @@ from encyclopedia import databoxes
 from encyclopedia.topics import topics_items
 from encyclopedia.models import ArticlesIndexPage
 from home.models import HomePageCarouselIndexPage, HomePageCarousel
+from home.blocks import HomepageCarouselImageBlock
 from info.models import SitePagesIndexPage, SitePage
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -743,6 +744,48 @@ def import_sitepage(path, site_pages_index):
     article_blocks = Articles.merge_streamfield_blocks([json.loads(line) for line in lines])
     article.body = json.dumps(article_blocks)
     site_pages_index.add_child(instance=article)
+
+
+# homepage carousel ----------------------------------------------------
+
+def initial_homepage_carousel(basedir):
+    index = HomePageCarouselIndexPage.objects.get(
+        title=HOMEPAGE_CAROUSEL_INDEX_PAGE
+    )
+    # make carousel
+    now = timezone.now()
+    today = timezone.datetime(now.year, now.month, now.day, 0,0,0)
+    carousel = HomePageCarousel(
+        title='Old Encyclopedia Carousel',
+        description='',
+        publish_date=today,
+    )
+    click.echo(f"{carousel=}")
+    # load images
+    path = basedir / 'homepage-carousel.jsonl'
+    with path.open('r') as f:
+        image_data = [json.loads(line) for line in f.readlines()]
+    blocks = []
+    for data in image_data:
+        #print(f"{data=}")
+        title = f"{data['id']}.jpg"
+        try:
+            image = Image.objects.get(title=title)
+        except Image.DoesNotExist:
+            continue
+        #print(f"{image=}")
+        #<block imageblock: HomepageCarouselImageBlockStructValue({'image': <Image: en-montoy-flowers-1.jpg>, 'article_title': 'Mary Mon Toy', 'article_url': '', 'description': ''})>
+        block = HomepageCarouselImageBlock(
+            image=image,
+            article_title=data['title'],
+            article_url='',
+            description=data['caption'],
+        )
+        print(f"{block=}")
+        blocks.append(block)
+    carousel.images = blocks
+    # save
+    index.add_child(instance=carousel)
 
 
 # articles -------------------------------------------------------------
