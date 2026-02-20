@@ -1211,9 +1211,12 @@ class Articles():
     @staticmethod
     def process_redirects(basedir):
         """Convert cut-and-pasted list of MediaWiki redirects to jsonl
+
+        Source: https://editors.densho.org/wiki/Special:ListRedirects
+        Saved as redirects-mt-int.txt and converted to redirects-mt-int.jsonl
         """
-        path = basedir / 'redirects-raw.txt'
-        jsonl_path = basedir / 'redirects.jsonl'
+        path = basedir / 'redirects-mw-int-raw.txt'
+        jsonl_path = basedir / 'redirects-mw-int.jsonl'
         with path.open('r') as f:
             lines = f.readlines()
         with jsonl_path.open('w') as f:
@@ -1230,7 +1233,7 @@ class Articles():
 
     @staticmethod
     def load_redirects(basedir):
-        jsonl_path = basedir / 'redirects.jsonl'
+        jsonl_path = basedir / 'redirects-mw-int.jsonl'
         with jsonl_path.open('r') as f:
             lines = f.readlines()
         redirects = {}
