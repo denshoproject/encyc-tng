@@ -20,7 +20,7 @@ import subprocess
 import sys
 from time import struct_time
 import traceback
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 import zoneinfo
 
 from bs4 import BeautifulSoup, Comment
@@ -37,6 +37,7 @@ from django.utils.text import slugify
 import djclick as click  # https://github.com/GaretJax/django-click
 import httpx
 from psycopg.errors import NotNullViolation
+from wagtail.contrib.redirects.models import Redirect
 from wagtail.documents.models import Document
 from wagtail.images.models import Image
 from wagtail.models import Revision
@@ -1211,9 +1212,12 @@ class Articles():
     @staticmethod
     def process_redirects(basedir):
         """Convert cut-and-pasted list of MediaWiki redirects to jsonl
+
+        Source: https://editors.densho.org/wiki/Special:ListRedirects
+        Saved as redirects-mt-int.txt and converted to redirects-mt-int.jsonl
         """
-        path = basedir / 'redirects-raw.txt'
-        jsonl_path = basedir / 'redirects.jsonl'
+        path = basedir / 'redirects-mw-int-raw.txt'
+        jsonl_path = basedir / 'redirects-mw-int.jsonl'
         with path.open('r') as f:
             lines = f.readlines()
         with jsonl_path.open('w') as f:
@@ -1230,7 +1234,7 @@ class Articles():
 
     @staticmethod
     def load_redirects(basedir):
-        jsonl_path = basedir / 'redirects.jsonl'
+        jsonl_path = basedir / 'redirects-mw-int.jsonl'
         with jsonl_path.open('r') as f:
             lines = f.readlines()
         redirects = {}
@@ -1238,6 +1242,45 @@ class Articles():
             item = json.loads(line)
             redirects[item['old_path']] = item['redirect_to']
         return redirects
+
+    @staticmethod
+    def mw_internal_redirects(basedir):
+        """Using Mediawiki List Of Redirects page translat to Wagtail Redirects
+        https://editors.densho.org/wiki/Special:ListRedirects
+        example:
+        - '"Go For Broke" (essay)' -> "Go For Broke (essay)" (article)
+        """
+        redirects = Articles.load_redirects(basedir)
+        n = 0; num = len(redirects.keys())
+        for old_title,new_title in list(redirects.items()):
+            print(f"{n}/{num} {old_title} -> {new_title}")
+            old_path = f"/{quote(old_title)}"
+            try:
+                target = Article.objects.get(title=new_title)
+            except Article.DoesNotExist:
+                target = None
+            result = Redirect.add_redirect(old_path, redirect_to=target)
+            n += 1
+
+    @staticmethod
+    def mw_titles_to_tng_redirects(basedir):
+        """Using list of titles, translate from existing encycfront URLs to TNG-friendly ones
+
+        Example:
+        - 100th%20Infantry%20Battalion -> 100th Infantry Battalion (Article)
+        """
+        path = basedir / 'titles.json'
+        with path.open('r') as f:
+            titles = json.loads(f.read())
+        num = len(titles)
+        for n,title in enumerate(titles):
+            print(f"{n}/{num} {title}")
+            old_path = f"/{quote(title)}"
+            try:
+                target = Article.objects.get(title=title)
+            except Article.DoesNotExist:
+                target = None
+            result = Redirect.add_redirect(old_path, redirect_to=target)
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
