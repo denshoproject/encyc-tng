@@ -219,6 +219,14 @@ redirects = migration.Articles.load_redirects(basedir)
 migration.Articles.rewrite_article_urls(redirects)
 ```
 
+Add Mediawiki internal redirects and redirects from old Mediawiki titles to Wagtail Articles.
+```
+from pathlib import Path; from encyclopedia import migration
+basedir = Path('/opt/encyc-tng/data')
+migration.Articles.mw_internal_redirects(basedir)
+migration.Articles.mw_titles_to_tng_redirects(basedir)
+```
+
 Report unconverted internal URLs
 ```
 unconverted_urls_path = '/tmp/unconverted-article-urls.csv'
