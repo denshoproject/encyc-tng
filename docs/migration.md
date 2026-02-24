@@ -223,8 +223,8 @@ Add Mediawiki internal redirects and redirects from old Mediawiki titles to Wagt
 ```
 from pathlib import Path; from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
-migration.Articles.mw_internal_redirects(basedir)
-migration.Articles.mw_titles_to_tng_redirects(basedir)
+migration.Articles.mw_internal_redirects(basedir, csvpath='/tmp/redirects-mw-internal.csv')
+migration.Articles.mw_titles_to_tng_redirects(basedir, csvpath='/tmp/redirects-mw-to-tng.csv')
 ```
 
 Report unconverted internal URLs

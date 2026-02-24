@@ -1246,12 +1246,14 @@ class Articles():
         return redirects
 
     @staticmethod
-    def mw_internal_redirects(basedir):
+    def mw_internal_redirects(basedir, csvpath=None):
         """Using Mediawiki List Of Redirects page translat to Wagtail Redirects
         https://editors.densho.org/wiki/Special:ListRedirects
         example:
         - '"Go For Broke" (essay)' -> "Go For Broke (essay)" (article)
         """
+        if csvpath:
+            csvpath = Path(csvpath)
         redirects = Articles.load_redirects(basedir)
         fails = []
         n = 0; num = len(redirects.keys())
@@ -1271,10 +1273,14 @@ class Articles():
                 target = None
             result = Redirect.add_redirect(old_path, redirect_to=target)
             n += 1
+        if csvpath and fails:
+            with open(csvpath, 'w') as f:
+                writer = get_csv_writer(f)
+                writer.writerows(fails)
         return fails
 
     @staticmethod
-    def mw_titles_to_tng_redirects(basedir):
+    def mw_titles_to_tng_redirects(basedir, csvpath=None):
         """Using list of titles, translate from existing encycfront URLs to TNG-friendly ones
 
         Example:
@@ -1283,6 +1289,8 @@ class Articles():
         path = basedir / 'titles.json'
         with path.open('r') as f:
             titles = json.loads(f.read())
+        if csvpath:
+            csvpath = Path(csvpath)
         fails = []
         num = len(titles)
         for n,title in enumerate(titles):
@@ -1293,13 +1301,17 @@ class Articles():
                     'encyc-redirect-wiki', args=([title])
                 ).replace('/wiki','',count=1)
             except NoReverseMatch:
-                fails.append(title)
+                fails.append([title])
                 continue
             try:
                 target = Article.objects.get(title=title)
             except Article.DoesNotExist:
                 target = None
             result = Redirect.add_redirect(old_path, redirect_to=target)
+        if csvpath and fails:
+            with open(csvpath, 'w') as f:
+                writer = get_csv_writer(f)
+                writer.writerows(fails)
         return fails
 
     @staticmethod
