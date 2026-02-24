@@ -33,6 +33,8 @@ from django.core.files import File
 from django.core.files.images import ImageFile
 from django.db.utils import IntegrityError
 from django.template.defaultfilters import truncatewords
+from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.text import slugify
 import djclick as click  # https://github.com/GaretJax/django-click
 import httpx
@@ -1251,16 +1253,25 @@ class Articles():
         - '"Go For Broke" (essay)' -> "Go For Broke (essay)" (article)
         """
         redirects = Articles.load_redirects(basedir)
+        fails = []
         n = 0; num = len(redirects.keys())
         for old_title,new_title in list(redirects.items()):
             print(f"{n}/{num} {old_title} -> {new_title}")
-            old_path = f"/{quote(old_title)}"
+            try:
+                # same URL generation code as encycfront citations
+                old_path = reverse(
+                    'encyc-redirect-wiki', args=([old_title])
+                ).replace('/wiki','',count=1)
+            except NoReverseMatch:
+                fails.append((old_title,new_title))
+                continue
             try:
                 target = Article.objects.get(title=new_title)
             except Article.DoesNotExist:
                 target = None
             result = Redirect.add_redirect(old_path, redirect_to=target)
             n += 1
+        return fails
 
     @staticmethod
     def mw_titles_to_tng_redirects(basedir):
@@ -1272,15 +1283,24 @@ class Articles():
         path = basedir / 'titles.json'
         with path.open('r') as f:
             titles = json.loads(f.read())
+        fails = []
         num = len(titles)
         for n,title in enumerate(titles):
             print(f"{n}/{num} {title}")
-            old_path = f"/{quote(title)}"
+            try:
+                # same URL generation code as encycfront citations
+                old_path = reverse(
+                    'encyc-redirect-wiki', args=([title])
+                ).replace('/wiki','',count=1)
+            except NoReverseMatch:
+                fails.append(title)
+                continue
             try:
                 target = Article.objects.get(title=title)
             except Article.DoesNotExist:
                 target = None
             result = Redirect.add_redirect(old_path, redirect_to=target)
+        return fails
 
     @staticmethod
     def wagtail_index_page(title=ARTICLES_INDEX_PAGE):
