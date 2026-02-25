@@ -30,16 +30,16 @@ from info import urls as info_urls
 
 urlpatterns = []
 
-#api = NinjaAPI(
-#    title='Densho Encyclopedia',
-#    description='DESCRIPTION TEXT GOES HERE',
-#    openapi_extra={
-#        "info": {
-#            "termsOfService": "https://example.com/terms/",
-#        }
-#    },
-#)
-#api.add_router('/', 'encyclopedia.api.router')
+api = NinjaAPI(
+    title='Densho Encyclopedia',
+    description='DESCRIPTION TEXT GOES HERE',
+    openapi_extra={
+        "info": {
+            "termsOfService": "/about/#tosprivacy",
+        }
+    },
+)
+api.add_router('/', 'encyclopedia.api.router')
 
 # Disable this in production!
 if apps.is_installed("pattern_library"):
@@ -48,9 +48,9 @@ if apps.is_installed("pattern_library"):
     ]
 
 urlpatterns += [
-    #path("api/1.0/", api.urls),
     path('admin/', admin.site.urls),
     path('cms/', include(wagtailadmin_urls)),
+    path("api/1.0/", api.urls),
     path('sitemap.xml', sitemap),
     path('documents/', include(wagtaildocs_urls)),
     path('', include(info_urls)), # match site info URLs before wagtail ones

@@ -18,6 +18,7 @@ router = Router()
 @router.get("/")
 def index(request: "HttpRequest"):
     return {
+        "docs": reverse_lazy('api-1.0.0:openapi-view'),
         "articles": reverse_lazy('api-1.0.0:articles-list'),
         "authors": reverse_lazy('api-1.0.0:authors-list'),
         "topics": reverse_lazy('api-1.0.0:topics-list'),
@@ -30,7 +31,7 @@ class BaseArticleSchema(ModelSchema):
 
     class Meta:
         model = Article
-        model_fields = [
+        fields = [
             "title",
             "slug",
         ]
@@ -58,7 +59,7 @@ def article(request, slug: str):
         "authors": [
             author.get_absolute_url() for author in article.authors_all()
         ],
-        "description": article.description,
+        #"description": article.description,
     }
 
 
@@ -67,7 +68,7 @@ class BaseAuthorSchema(ModelSchema):
 
     class Meta:
         model = Author
-        model_fields = [
+        fields = [
             "display_name",
             #"slug",
         ]
