@@ -47,9 +47,33 @@ def index(request: "HttpRequest"):
         #"events": "http://encyclopedia.densho.org/api/0.1/events/"
     }
 
+@router.get("/topics/", url_name='topics-list')
+def topics_list(request: "HttpRequest"):
+    data = [
+        {
+            'links': {
+                'json': reverse_lazy(
+                    "api-1.0.0:topics-detail",
+                    args=[slugify(topic['title'])]
+                ),
+                'html': reverse('encyc-articles-topic', args=[topic['title']]),
+            },
+            'title': topic['title'],
+        }
+        for topic in topics_items()
+    ]
+    return data
+
+@router.get("/topics/{slug}", response=list[BaseArticleSchema], url_name='topics-detail')
+def topic(request, slug: str):
+    articles = Article.objects.live().public().exclude(id=1).order_by('title')
+    articles = articles.filter(tags__name__in=[slug])
+    return articles
+
 @router.get("/articles/", response=list[BaseArticleSchema], url_name='articles-list')
 def articles_list(request: "HttpRequest"):
-    return Article.objects.live().public().exclude(id=1)
+    articles = Article.objects.live().public().exclude(id=1).order_by('title')
+    return articles
 
 @router.get("/articles/{slug}", url_name='article-detail')
 def article(request, slug: str):
@@ -98,24 +122,3 @@ def author(request, slug: str):
         ]
     }
     return data
-
-@router.get("/topics/", url_name='topics-list')
-def topics_list(request: "HttpRequest"):
-    data = [
-        {
-            'links': {
-                'json': reverse_lazy(
-                    "api-1.0.0:topics-detail",
-                    args=[slugify(topic['title'])]
-                ),
-                'html': reverse('encyc-articles-topic', args=[topic['title']]),
-            },
-            'title': topic['title'],
-        }
-        for topic in topics_items()
-    ]
-    return data
-
-@router.get("/topics/{slug}", response=list[BaseArticleSchema], url_name='topics-detail')
-def topic(request, slug: str):
-    return Article.objects.live().public().exclude(id=1).order_by('title').filter(tags__name__in=[slug])
