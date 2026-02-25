@@ -12,19 +12,6 @@ from editors.models import Author
 from .models import Article
 from .topics import topics_items
 
-router = Router()
-
-
-@router.get("/")
-def index(request: "HttpRequest"):
-    return {
-        "docs": reverse_lazy('api-1.0.0:openapi-view'),
-        "articles": reverse_lazy('api-1.0.0:articles-list'),
-        "authors": reverse_lazy('api-1.0.0:authors-list'),
-        "topics": reverse_lazy('api-1.0.0:topics-list'),
-        #"events": "http://encyclopedia.densho.org/api/0.1/events/"
-    }
-
 
 class BaseArticleSchema(ModelSchema):
     url: str = Field(None, alias="get_url")
@@ -35,6 +22,30 @@ class BaseArticleSchema(ModelSchema):
             "title",
             "slug",
         ]
+
+
+class BaseAuthorSchema(ModelSchema):
+    url: str = Field(None, alias="get_absolute_url")
+
+    class Meta:
+        model = Author
+        fields = [
+            "display_name",
+            #"slug",
+        ]
+
+
+router = Router()
+
+@router.get("/")
+def index(request: "HttpRequest"):
+    return {
+        "docs": reverse_lazy('api-1.0.0:openapi-view'),
+        "articles": reverse_lazy('api-1.0.0:articles-list'),
+        "authors": reverse_lazy('api-1.0.0:authors-list'),
+        "topics": reverse_lazy('api-1.0.0:topics-list'),
+        #"events": "http://encyclopedia.densho.org/api/0.1/events/"
+    }
 
 @router.get("/articles/", response=list[BaseArticleSchema], url_name='articles-list')
 def articles_list(request: "HttpRequest"):
@@ -61,17 +72,6 @@ def article(request, slug: str):
         ],
         #"description": article.description,
     }
-
-
-class BaseAuthorSchema(ModelSchema):
-    url: str = Field(None, alias="get_absolute_url")
-
-    class Meta:
-        model = Author
-        fields = [
-            "display_name",
-            #"slug",
-        ]
 
 @router.get("/authors/", response=list[BaseAuthorSchema], url_name='authors-list')
 def authors_list(request: "HttpRequest"):
