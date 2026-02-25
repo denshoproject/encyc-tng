@@ -35,6 +35,9 @@ class BaseAuthorSchema(ModelSchema):
         ]
 
 
+def api_stub(request):
+    return HttpResponseRedirect(reverse_lazy('api-1.0.0:api-root'))
+
 router = Router()
 
 @router.get("/")

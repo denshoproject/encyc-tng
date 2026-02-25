@@ -25,6 +25,7 @@ from wagtail import urls as wagtail_urls
 from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 
+from encyclopedia.api import api_stub
 from encyclopedia import urls as encyclopedia_urls
 from info import urls as info_urls
 
@@ -50,6 +51,7 @@ if apps.is_installed("pattern_library"):
 urlpatterns += [
     path('admin/', admin.site.urls),
     path('cms/', include(wagtailadmin_urls)),
+    path('api/', api_stub, name='api-stub'),
     path("api/1.0/", api.urls),
     path('sitemap.xml', sitemap),
     path('documents/', include(wagtaildocs_urls)),
