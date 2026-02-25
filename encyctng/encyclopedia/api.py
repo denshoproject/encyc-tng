@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-from django.http import HttpRequest
+from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
@@ -77,7 +77,10 @@ def articles_list(request: "HttpRequest"):
 
 @router.get("/articles/{slug}", url_name='article-detail')
 def article(request, slug: str):
-    article = Article.objects.get(slug=slug)
+    try:
+        article = Article.objects.get(slug=slug, live=True)
+    except Article.DoesNotExist:
+        raise Http404('Article matching query does not exist.')
     return {
         "url_title": article.slug,
         "title_sort": None,
