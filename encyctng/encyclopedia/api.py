@@ -66,12 +66,14 @@ def topics_list(request: "HttpRequest"):
 def topic(request, slug: str):
     articles = Article.objects.live().public().exclude(id=1).order_by('title')
     articles = articles.filter(tags__name__in=[slug])
+    articles = articles.only('id', 'slug', 'title', 'description')
     return [
         {
             "url": request.build_absolute_uri(
                 reverse_lazy("api-1.0.0:article-detail", args=[article.slug])
             ),
             "title": article.title,
+            "description": str(article.description),
         }
         for article in articles
     ]
@@ -79,12 +81,14 @@ def topic(request, slug: str):
 @router.get("/articles/", url_name='articles-list')
 def articles_list(request: "HttpRequest"):
     articles = Article.objects.live().public().exclude(id=1).order_by('title')
+    articles = articles.only('id', 'slug', 'title', 'description')
     return [
         {
             "url": request.build_absolute_uri(
                 reverse_lazy("api-1.0.0:article-detail", args=[article.slug])
             ),
             "title": article.title,
+            "description": str(article.description),
         }
         for article in articles
     ]
@@ -106,6 +110,7 @@ def article(request, slug: str):
         },
         "modified": article.last_published_at,
         "title": article.title,
+        "description": str(article.description),
         "topics": [
             tag.name for tag in article.tags.all()
         ],
@@ -116,7 +121,7 @@ def article(request, slug: str):
             request.build_absolute_uri(author.get_absolute_url())
             for author in article.authors_all()
         ],
-        #"description": article.description,
+        "body": str(article.body),
     }
 
 @router.get("/authors/", url_name='authors-list')
