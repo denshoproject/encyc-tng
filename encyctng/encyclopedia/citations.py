@@ -42,13 +42,13 @@ class Citation():
             [author.family_name, author.given_name]
             for author in article.authors.all()
         ]
+        self.retrieved = datetime.now()
         self.apa = format_apa(self)
         self.bibtex = format_bibtex(self)
         self.chicago = format_chicago(self)
         self.cse = format_cse(self)
         self.mhra = format_mhra(self)
         self.mla = format_mla(self)
-        self.retrieved = datetime.now()
 
 
 def surname_givenname(parsed):
