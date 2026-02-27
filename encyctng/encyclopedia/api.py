@@ -118,7 +118,9 @@ def article(request, slug: str):
         "coordinates": {},
         "ddr_topic_terms": article.related_media()[:3],
         "authors": [
-            request.build_absolute_uri(author.get_absolute_url())
+            request.build_absolute_uri(
+                reverse_lazy("api-1.0.0:author-detail", args=[author.slug])
+            )
             for author in article.authors_all()
         ],
         "body": str(article.body),
