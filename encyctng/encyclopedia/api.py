@@ -1,12 +1,12 @@
 from datetime import datetime
-from typing import Literal
+from typing import List, Literal
 
 from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
-
 from ninja import Field, ModelSchema, NinjaAPI, Router
+from ninja.pagination import paginate, PageNumberPagination
 
 from editors.models import Author
 from .models import Article
@@ -62,7 +62,8 @@ def topics_list(request: "HttpRequest"):
         for topic in topics_items()
     ]
 
-@router.get("/topics/{slug}", url_name='topics-detail')
+@router.get("/topics/{slug}", url_name='topics-detail', response=List[dict])
+@paginate(PageNumberPagination)
 def topic(request, slug: str):
     articles = Article.objects.live().public().exclude(id=1).order_by('title')
     articles = articles.filter(tags__name__in=[slug])
@@ -78,8 +79,9 @@ def topic(request, slug: str):
         for article in articles
     ]
 
-@router.get("/articles/", url_name='articles-list')
-def articles_list(request: "HttpRequest"):
+@router.get("/articles/", url_name='articles-list', response=List[dict])
+@paginate(PageNumberPagination)
+def articles_list(request):
     articles = Article.objects.live().public().exclude(id=1).order_by('title')
     articles = articles.only('id', 'slug', 'title', 'description')
     return [
