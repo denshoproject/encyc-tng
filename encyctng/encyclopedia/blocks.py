@@ -106,8 +106,17 @@ class ImageBlockStructValue(StructValue):
             ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
         source_type = 'image'
         source = self.get(source_type)
-        filename = Path(source.file.name).name
-        encyclopedia_id = filename
+        if source:
+            filename = Path(source.file.name).name
+            encyclopedia_id = filename
+            download_url = source.file.url
+            cite_url = f"/cite/{source.title}/"
+            view_url = f"/sources/{source_type}/{source.title}/"
+        else:
+            encyclopedia_id = None
+            download_url = None
+            cite_url = None
+            view_url = None
         return {
             'id': self.get('id'),
             'open': False,
@@ -117,9 +126,9 @@ class ImageBlockStructValue(StructValue):
             'content': caption,
             'caption': caption,
             'densho_id': ddr_id,
-            'download_url': source.file.url,
-            'cite_url': f"/cite/{source.title}/",
-            'view_url': f"/sources/{source_type}/{source.title}/",
+            'download_url': download_url,
+            'cite_url': cite_url,
+            'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
         }
 
@@ -175,8 +184,17 @@ class VideoBlockStructValue(StructValue):
             ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
         source_type = 'video'
         source = self.get(source_type)
-        filename = Path(source.file.name).name
-        encyclopedia_id = filename
+        if source:
+            filename = Path(source.file.name).name
+            encyclopedia_id = filename
+            download_url = source.file.url
+            cite_url = f"/cite/{source.title}/"
+            view_url = f"/sources/{source_type}/{source.title}/"
+        else:
+            encyclopedia_id = None
+            download_url = None
+            cite_url = None
+            view_url = None
         return {
             'id': self.get('id'),
             'open': False,
@@ -186,9 +204,9 @@ class VideoBlockStructValue(StructValue):
             'content': caption,
             'caption': caption,
             'densho_id': ddr_id,
-            'download_url': source.file.url,
-            'cite_url': f"/cite/{source.title}/",
-            'view_url': f"/sources/{source_type}/{source.title}/",
+            'download_url': download_url,
+            'cite_url': cite_url,
+            'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
         }
 
@@ -263,8 +281,17 @@ class DocumentBlockStructValue(StructValue):
             ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
         source_type = 'document'
         source = self.get(source_type)
-        filename = Path(source.file.name).name
-        encyclopedia_id = filename
+        if source:
+            filename = Path(source.file.name).name
+            encyclopedia_id = filename
+            download_url = source.file.url
+            cite_url = f"/cite/{source.title}/"
+            view_url = f"/sources/{source_type}/{source.title}/"
+        else:
+            encyclopedia_id = None
+            download_url = None
+            cite_url = None
+            view_url = None
         return {
             'id': self.get('id'),
             'open': False,
@@ -274,9 +301,9 @@ class DocumentBlockStructValue(StructValue):
             'content': caption,
             'caption': caption,
             'densho_id': ddr_id,
-            'download_url': source.file.url,
-            'cite_url': f"/cite/{source.title}/",
-            'view_url': f"/sources/{source_type}/{source.title}/",
+            'download_url': download_url,
+            'cite_url': cite_url,
+            'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
         }
 
