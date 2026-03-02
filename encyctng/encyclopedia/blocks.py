@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urlparse
 
 from wagtail.admin.panels import (
     FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel
