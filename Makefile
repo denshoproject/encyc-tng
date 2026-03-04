@@ -17,7 +17,7 @@ INSTALL_STATIC=$(INSTALLDIR)/static
 INSTALL_NVM=$(INSTALLDIR)/.nvm
 INSTALL_VOCAB=/opt/densho-vocab
 
-VIRTUALENV=$(INSTALLDIR)/venv/encyctng
+VIRTUALENV=$(INSTALLDIR)/.venv
 
 CONF_BASE=/etc/encyc
 CONF_PRODUCTION=$(CONF_BASE)/encyctng.cfg
@@ -47,7 +47,7 @@ ifeq ($(DEBIAN_CODENAME), bookworm)
 	PYTHON_VERSION=3.11.2
 endif
 ifeq ($(DEBIAN_CODENAME), trixie)
-	PYTHON_VERSION=3.11.6
+	PYTHON_VERSION=3.13
 endif
 
 
@@ -105,11 +105,10 @@ remove-supervisor:
 install-virtualenv:
 	@echo ""
 	@echo "install-virtualenv -----------------------------------------------------"
-	apt-get --assume-yes install python3-pip python3-venv
-	python3 -m venv $(VIRTUALENV)
-	source $(VIRTUALENV)/bin/activate; \
-	pip3 install -U --cache-dir=$(PIP_CACHE_DIR) uv
-
+	apt-get install --assume-yes extrepo
+	extrepo enable uv
+	apt-get install --assume-yes uv
+	uv venv --relocatable --managed-python --allow-existing --python /usr/bin/python3
 
 install-nodejs:
 	@echo ""
@@ -148,12 +147,12 @@ get-encyc-tng: git-safe-dir
 	git pull
 
 setup-encyc-tng:
-	source $(VIRTUALENV)/bin/activate; uv pip install .
+	source $(VIRTUALENV)/bin/activate; uv sync
 
-install-pyproject:
+install-pyproject: install-virtualenv
 	@echo ""
 	@echo "install pyproject -------------------------------------------------"
-	source $(VIRTUALENV)/bin/activate; uv pip install .
+	source $(VIRTUALENV)/bin/activate; uv sync
 
 install-encyc-tng: git-safe-dir install-redis install-virtualenv install-pyproject npm-build
 	@echo ""
@@ -207,6 +206,7 @@ clean-encyc-tng:
 	-rm -Rf $(INSTALLDIR)/.nvm/
 	-rm -Rf $(INSTALLDIR)/build/
 	-rm -Rf $(INSTALLDIR)/node_modules/
+	-rm -Rf $(INSTALLDIR)/.venv/
 	-rm -Rf $(INSTALLDIR)/venv/
 	-rm -Rf $(APPDIR)/build/
 	-rm -Rf $(APPDIR)/*.egg-info

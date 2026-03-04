@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.13",
     "Framework :: Django",
     "Framework :: Django :: 5.1",
     "Framework :: Wagtail",
@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 dynamic = ["version"]  # will read __version__ from encyctng/__init__.py
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     'beautifulsoup4',
     'Django',
@@ -49,18 +49,11 @@ dependencies = [
     'encyc-core @ git+file:///opt/encyc-core@wagtail',
 ]
 
-[project.optional-dependencies]
-testing = []
-
-[project.scripts]
-encyctail = "encyctng.encyclopedia.migration.encytail:encyctail"
+#[project.optional-dependencies]
+#testing = []
 
 [project.urls]
 Repository = "https://github.com/denshoproject/encyc-tng"
-
-[build-system]
-requires = ["setuptools >= 61.0"]
-build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ['encyctng']
