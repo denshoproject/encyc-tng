@@ -119,7 +119,7 @@ install-nodejs:
 	else git clone $(SRC_REPO_NVM) $(INSTALL_NVM); \
 	fi
 	source $(INSTALL_NVM)/nvm.sh; nvm install
-	source $(INSTALL_NVM)/nvm.sh; npm install; npm audit fix --force
+	source $(INSTALL_NVM)/nvm.sh; npm install
 
 
 get-densho-vocab:
