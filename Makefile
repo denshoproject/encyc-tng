@@ -47,7 +47,7 @@ ifeq ($(DEBIAN_CODENAME), bookworm)
 	PYTHON_VERSION=3.11.2
 endif
 ifeq ($(DEBIAN_CODENAME), trixie)
-	PYTHON_VERSION=3.11.6
+	PYTHON_VERSION=3.13
 endif
 
 
