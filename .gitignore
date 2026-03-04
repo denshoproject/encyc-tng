@@ -16,7 +16,7 @@ node_modules/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+*.py[oc]
 *$py.class
 
 # C extensions
@@ -37,7 +37,7 @@ sdist/
 var/
 wheels/
 share/python-wheels/
-*.egg-info/
+*.egg-info
 .installed.cfg
 *.egg
 MANIFEST
