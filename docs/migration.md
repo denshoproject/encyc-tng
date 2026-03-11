@@ -268,3 +268,11 @@ cp /tmp/*.csv $DESTDIR
 
 
 ## Post-Migration Manual Tasks
+
+Set "Stages" as the default `Workflow` for `Article` pages:
+
+- Log in to CMS
+- Go to Settings > Workflows > Stages
+- In section "Assign your workflow to pages", under "Assigned pages",
+- Click "Choose page" and select the root page under which Articles appear.
+- Click Save

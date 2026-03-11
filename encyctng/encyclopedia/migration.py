@@ -45,7 +45,7 @@ from wagtail.images.models import Image
 from wagtail.models import Revision
 from wagtail.models.media import Collection
 from wagtail.models.pages import PageLogEntry
-from wagtail.models.workflows import Workflow, Task, WorkflowTask
+from wagtail.models.workflows import Workflow, WorkflowTask, GroupApprovalTask
 from wagtailmedia.models import Media
 from willow.image import UnrecognisedImageFormatError
 
@@ -2323,7 +2323,7 @@ class Workflows():
         w = Workflow(name=workflow_name, active=True)
         w.save()
         for task_name in WORKFLOWS[workflow_name]:
-            t = Task(name=task_name, active=True)
+            t = GroupApprovalTask(name=task_name, active=True)
             t.save()
             wt = WorkflowTask(workflow=w, task=t)
             wt.save()

@@ -282,6 +282,8 @@ WAGTAILDOCS_EXTENSIONS = [
     'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
 ]
 
+WAGTAIL_WORKFLOW_ENABLED = True
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
