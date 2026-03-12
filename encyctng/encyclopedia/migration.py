@@ -209,19 +209,15 @@ WAGTAIL_ADMIN_GROUPS = [
     'Moderators'
 ]
 
-def make_users(path='/opt/encyc-tng/data/superusers-testing'):
-    usernames_passwords = {
-        up.split(':')[0]: up.split(':')[1]
-        for up in os.environ.get('TNGUSERS').strip().split(';')
-    }
+def make_users(path='/opt/encyc-tng/data/superusers-testing.jsonl'):
     with Path(path).open('r') as f:
-        lines = f.readlines()
-    for line in lines:
-        username,email = line.strip().split(':')
-        password = usernames_passwords[username]
-        make_user(username, password, email)
+        for u in [json.loads(line) for line in f.readlines()]:
+            make_user(
+                u['username'], u['password'], u['email'],
+                u.get('superuser')
+            )
 
-def make_user(username, password, email, groups=WAGTAIL_ADMIN_GROUPS):
+def make_user(username, password, email, superuser=False, groups=WAGTAIL_ADMIN_GROUPS):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -229,6 +225,8 @@ def make_user(username, password, email, groups=WAGTAIL_ADMIN_GROUPS):
     user.set_password(password)
     user.is_active = True
     user.is_staff = True
+    if superuser:
+        user.is_superuser = True
     user.save()
     print(user)
     for group_name in groups:
