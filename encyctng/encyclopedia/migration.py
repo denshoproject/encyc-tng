@@ -45,6 +45,7 @@ from wagtail.images.models import Image
 from wagtail.models import Revision
 from wagtail.models.media import Collection
 from wagtail.models.pages import PageLogEntry
+from wagtail.models.sites import Site
 from wagtail.models.workflows import Workflow, WorkflowTask, GroupApprovalTask
 from wagtailmedia.models import Media
 from willow.image import UnrecognisedImageFormatError
@@ -161,7 +162,9 @@ def articles(debug, dryrun):
 
 # setup ----------------------------------------------------------------
 
-def initial_setup(basedir):
+def initial_setup(basedir, hostname):
+    setup_site(hostname)
+
     # admin users
     make_users()
 
@@ -203,6 +206,20 @@ def initial_setup(basedir):
 
     # Create editos workflows listed in WORKFLOWS
     Workflows.create_workflows()
+
+def setup_site(hostname):
+    """Create Site object and make it the default/owner/whatever
+    """
+    site = Site(
+        hostname=hostname,
+        site_name='Densho Encyclopedia',
+        root_page=Page.objects.get(title='Home'),
+        is_default_site=True
+    )
+    site.save()
+    localhost = Site.objects.get(hostname='localhost')
+    localhost.is_default_site = False
+    localhost.save()
 
 WAGTAIL_ADMIN_GROUPS = [
     'Editors',
