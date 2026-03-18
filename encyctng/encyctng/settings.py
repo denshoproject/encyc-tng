@@ -284,6 +284,22 @@ WAGTAILDOCS_EXTENSIONS = [
 
 WAGTAIL_WORKFLOW_ENABLED = True
 
+WAGTAIL_WORKFLOW_REQUIRE_REAPPROVAL_ON_EDIT = False
+
+# Disable commenting
+WAGTAILADMIN_COMMENTS_ENABLED = False
+
+# Limit slugs to ASCII characters
+WAGTAIL_ALLOW_UNICODE_SLUGS = False
+
+# If true, the preview panel in the page editor is automatically updated on each change.
+# If false, the preview panel is only updated when the refresh button is clicked.
+WAGTAIL_AUTO_UPDATE_PREVIEW = False
+
+TAGGIT_CASE_INSENSITIVE = False
+TAG_SPACES_ALLOWED = False
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
