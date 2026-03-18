@@ -156,8 +156,8 @@ class Article(Page):
 
     class Meta:
         ordering = ['title_sort','title']
-        verbose_name = "Article"
-        verbose_name_plural = "Articles"
+        verbose_name = "Basic Article"
+        verbose_name_plural = "Basic Articles"
 
     def save(self, *args, **kwargs):
         if not self.title_sort:
@@ -696,8 +696,8 @@ class ArticleArticle(Article):
 
     class Meta:
         db_table = "encyclopedia_article_articles"
-        verbose_name = "Article"
-        verbose_name_plural = "Articles"
+        verbose_name = "Article/essay/story/etc"
+        verbose_name_plural = "Articles/essays/stories/etc"
 
     def hero(self):
         return databox_hero_meta(self, super(ArticleArticle, self).hero())
