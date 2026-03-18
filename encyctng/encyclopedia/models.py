@@ -98,13 +98,16 @@ class ArticleTagPage(Page):
 
 
 class Article(Page):
-    title_sort = models.CharField(max_length=255, blank=True, null=True)
+    title_sort = models.CharField(
+        max_length=255, blank=True, null=True,
+        help_text='Stripped-down title used for ordering articles in lists. Stop words removed, etc.',
+    )
     description = StreamField([
             ('paragraph', ArticleTextBlock()),
         ],
         blank=False,
         use_json_field=True,
-        help_text='Description should only be one paragraph.',
+        help_text='Single paragraph that will be shown in lists, search results, etc.',
     )
     signature_image = models.ForeignKey(
         'wagtailimages.Image',
@@ -124,7 +127,7 @@ class Article(Page):
         ],
         blank=True,
         use_json_field=True,
-        help_text='BODY HELP TEXT GOES HERE.',
+        help_text='The main body of the article.',
     )
     footnotes = RichTextField(blank=True, null=True, editable=False)
     authors = ParentalManyToManyField('editors.Author', blank=True)
