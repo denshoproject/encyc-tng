@@ -57,3 +57,8 @@ Repository = "https://github.com/denshoproject/encyc-tng"
 
 [tool.setuptools]
 packages = ['encyctng']
+
+# Dependency Cooldown - allow time for malware to be detected and remediated
+# https://blog.pypi.org/posts/2026-04-02-incident-report-litellm-telnyx-supply-chain-attack/
+[tool.uv]
+exclude-newer = "P5D"  # "5 days" in RFC 3339 format
