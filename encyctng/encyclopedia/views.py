@@ -80,7 +80,7 @@ class NeedsEditorReportView(PageReportView):
 
 # home/index page comes from home.models.HomePage
 
-#@cache_page(settings.CACHE_TIMEOUT)
+@cache_page(settings.CACHE_TIMEOUT)
 def browse(request):
     topics = {
         'title': 'Browse Topics',
@@ -90,7 +90,7 @@ def browse(request):
         'topics': topics,
     })
 
-#@cache_page(settings.CACHE_TIMEOUT)
+@cache_page(settings.CACHE_TIMEOUT)
 def articles_topic(request, topic=None):
     if topic:
         topic = topic.lower()
@@ -120,7 +120,7 @@ def articles_topic(request, topic=None):
         'page_range_bottom': page_range_bottom,
     })
 
-#@cache_page(settings.CACHE_TIMEOUT)
+@cache_page(settings.CACHE_TIMEOUT)
 def articles_az(request):
     initial = request.GET.get('initial', None)
     if initial and initial.lower() == 'all':
@@ -151,7 +151,7 @@ def articles_az(request):
         'page_range_bottom': page_range_bottom,
     })
 
-#@cache_page(settings.CACHE_TIMEOUT)
+@cache_page(settings.CACHE_TIMEOUT)
 def articles_search(request, topic=None):
     query_string = request.GET.get('query', None)
     page_size = int(request.GET.get('pagesize', 30))
@@ -196,7 +196,7 @@ TODO prefetch_related() to get tags?
 TODO optimize image query https://docs.wagtail.org/en/stable/advanced_topics/images/renditions.html
 """
 
-#@cache_page(settings.CACHE_TIMEOUT)
+@cache_page(settings.CACHE_TIMEOUT)
 def authors(request, template_name='encyclopedia/authors.html'):
     initial = request.GET.get('initial', None)
     if initial and initial.lower() == 'all':
@@ -226,7 +226,7 @@ def authors(request, template_name='encyclopedia/authors.html'):
         'page_range_bottom': page_range_bottom,
     })
 
-#@cache_page(settings.CACHE_TIMEOUT)
+@cache_page(settings.CACHE_TIMEOUT)
 def author(request, slug):
     author = Author.objects.get(slug=slug)
     # TODO optimize query (restrict fields)
