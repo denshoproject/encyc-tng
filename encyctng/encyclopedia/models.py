@@ -397,6 +397,26 @@ class Article(Page):
         return self.related_ddr
 
     @staticmethod
+    def remove_description_footnotes(articles):
+        """Remove footnote <ref> tags from descriptions for display in lists
+        """
+        for article in articles:
+            for block in article.description.raw_data:
+                html = block['value']
+                # <ref> tags converted to use HTML entities
+                # to hide them from the Wagtail parser
+                html = html.replace('&lt;ref&gt;',  '<ref>')
+                html = html.replace('&lt;/ref&gt;', '</ref>')
+                soup = BeautifulSoup(html, 'lxml')
+                # remove <ref> tags and contents
+                for ref in soup.find_all('ref'):
+                    ref.decompose()
+                # remove the <html><body> that soup adds
+                soup.html.unwrap()
+                soup.body.unwrap()
+                block['value'] = str(soup)
+
+    @staticmethod
     def articles_by_author():
         """List of Articles grouped by author"""
         def format_name(author):
