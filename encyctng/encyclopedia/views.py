@@ -102,6 +102,7 @@ def articles_topic(request, topic=None):
     articles = Article.objects.live().order_by('title_sort').prefetch_related('tags')
     if topic:
         articles = Article.objects.filter(tags__name__in=[topic])
+    Article.remove_description_footnotes(articles)
 
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
@@ -132,6 +133,7 @@ def articles_az(request):
         articles = articles.filter(title_sort__istartswith=initial)
     elif initial and initial[0].isdigit():
         articles = articles.filter(title_sort__regex=r"^(\d)")
+    Article.remove_description_footnotes(articles)
 
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
@@ -164,6 +166,7 @@ def articles_search(request, topic=None):
         #Query.get(query).add_hit()
     else:
         articles = Article.objects.none()
+    Article.remove_description_footnotes(articles)
 
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
@@ -228,6 +231,7 @@ def author(request, slug):
     author = Author.objects.get(slug=slug)
     # TODO optimize query (restrict fields)
     articles = author.article_set.live()
+    Article.remove_description_footnotes(articles)
     return render(request, 'patterns/pages/collections/collections--author.html', {
         'tabs': collections_authors_tabs(url=reverse('encyc-authors')),
         'author': author,
