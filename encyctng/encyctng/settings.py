@@ -54,8 +54,8 @@ CSRF_TRUSTED_ORIGINS = [
     if host.strip()
 ]
 
-CACHE_TIMEOUT = 60 * 15
-CACHE_TIMEOUT_LONG = 60 * 60 * 12
+CACHE_TIMEOUT = config.getint('performance', 'cache_timeout')
+CACHE_TIMEOUT_LONG = config.getint('performance', 'cache_timeout_long')
 
 PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
 
