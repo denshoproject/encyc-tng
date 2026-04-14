@@ -90,6 +90,16 @@ def browse(request):
         'topics': topics,
     })
 
+def articles_base_query():
+    """Base query used by all the list views
+    """
+    articles = Article.objects.live().order_by('title_sort') \
+                .defer("body") \
+                .prefetch_related('tags')
+    # TODO Prefetching image renditions
+    # https://docs.wagtail.org/en/stable/advanced_topics/images/renditions.html
+    return articles
+
 @cache_page(settings.CACHE_TIMEOUT)
 def articles_topic(request, topic=None):
     if topic:
@@ -99,7 +109,7 @@ def articles_topic(request, topic=None):
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
 
-    articles = Article.objects.live().order_by('title_sort').prefetch_related('tags')
+    articles = articles_base_query()
     if topic:
         articles = Article.objects.filter(tags__name__in=[topic])
     Article.remove_description_footnotes(articles)
@@ -128,7 +138,7 @@ def articles_az(request):
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
 
-    articles = Article.objects.live().order_by('title_sort').prefetch_related('tags')
+    articles = articles_base_query()
     if initial and initial[0].isalpha():
         articles = articles.filter(title_sort__istartswith=initial)
     elif initial and initial[0].isdigit():
@@ -158,7 +168,7 @@ def articles_search(request, topic=None):
     page_number = int(request.GET.get('page', 1))
 
     if query_string:
-        articles = Article.objects.live().order_by('title_sort').prefetch_related('tags')
+        articles = articles_base_query()
         filters, query = parse_query_string(query_string, operator='and')
         articles = articles.filter(live=True).search(query)
         # Log the query so Wagtail can suggest promoted results
