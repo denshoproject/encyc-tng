@@ -289,7 +289,12 @@ class Article(Page):
                     ddr_id = urlparse(block.value['ext_url']).path.replace('/','')
                 source_type = 'image'
                 source = block.value[source_type]
-                filename = Path(source.file.name).name
+                filename = download_url = cite_url = view_url = None
+                if source:
+                    filename = Path(source.file.name).name
+                    download_url = source.file.url
+                    cite_url = f"/cite/{source.title}/"
+                    view_url = f"/sources/{source_type}/{source.title}/"
                 encyclopedia_id = filename
                 items.append({
                     'type': 'Image',
@@ -305,9 +310,9 @@ class Article(Page):
                         'content': caption,
                         'caption': caption,
                         'densho_id': ddr_id,
-                        'download_url': source.file.url,
-                        'cite_url': f"/cite/{source.title}/",
-                        'view_url': f"/sources/{source_type}/{source.title}/",
+                        'download_url': download_url,
+                        'cite_url': cite_url,
+                        'view_url': view_url,
                         'creative_commons': block.value['creative_commons'],
                     }
                 })
