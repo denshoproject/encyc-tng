@@ -365,6 +365,9 @@ class Article(Page):
         return self._carousel_blocks
 
     def related_links(self):
+        """For more information
+        TODO implement related_links
+        """
         return [
             {
                 'title': 'Guide to the Mike Lowry Congressional Papers, 1978–1988',
@@ -384,6 +387,8 @@ class Article(Page):
         ]
 
     def related_media(self):
+        """Get From The Archive / DDR content
+        """
         if not hasattr(self, 'related_ddr'):
             # only load once
             self.related_ddr = [
@@ -395,6 +400,11 @@ class Article(Page):
                 for o in ddr.ddr_objects(self.title)
             ]
         return self.related_ddr
+
+    def related_content(self):
+        """Get Related Articles / You may also like...
+        """
+        return {}
 
     @staticmethod
     def remove_description_footnotes(articles):
