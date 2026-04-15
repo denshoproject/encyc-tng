@@ -403,8 +403,53 @@ class Article(Page):
 
     def related_content(self):
         """Get Related Articles / You may also like...
+
+        TODO optimize Save JSON at Article.save()
         """
-        return {}
+        # list of articles selected by author/editor
+        related_articles = getattr(self, 'related_articles', None)
+        # or scrape description/body and get internal Wagtail links
+        if not related_articles:
+            related_articles = self._internal_url_articles()
+        # package to be displayed by template
+        return {
+            'title': 'You may also like',
+            'items': self._package_related_articles(related_articles),
+        }
+
+    def _internal_url_articles(self):
+        """Scrape internal Wagtail links in description,body and get target Articles
+        """
+        blocktypes = ['paragraph']
+        description = '\n'.join([
+            b['value'] for b in self.description.raw_data if b['type'] in blocktypes
+        ])
+        body = '\n'.join([
+            b['value'] for b in self.body.raw_data if b['type'] in blocktypes
+        ])
+        html = f"{description}\n{body}"
+        soup = BeautifulSoup(html, 'lxml')
+        article_ids = [int(a['id']) for a in soup.find_all('a', linktype='page')]
+        return Article.objects.filter(id__in=article_ids).only('title','description')
+
+    def _package_related_articles(self, articles):
+        """Package related articles data
+        """
+        #return [
+        #    {
+        #        'type': 'Article',
+        #        'url': article.url,
+        #        'title': article.title,
+        #        'description': article.description,
+        #        'image': article.get_signature_image(),
+        #        #'author': 'John Doe',
+        #        #'tags': [
+        #        #    #{'name': 'Camps', 'url': '/tags/tag-1/'},
+        #        #],
+        #    }
+        #    for article in articles
+        #]
+        return articles
 
     @staticmethod
     def remove_description_footnotes(articles):
