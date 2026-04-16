@@ -411,15 +411,18 @@ class Article(Page):
 
         TODO optimize Save JSON at Article.save()
         """
-        # list of articles selected by author/editor
-        related_articles = getattr(self, 'related_articles', None)
-        # or scrape description/body and get internal Wagtail links
-        if not related_articles:
-            related_articles = self._internal_url_articles()
-        # package to be displayed by template
+        # function gets called multiple times, only retrieve the first time
+        if not hasattr(self, '_related_articles'):
+            # list of articles selected by author/editor
+            related_articles = getattr(self, 'related_articles', None)
+            # or scrape description/body and get internal Wagtail links
+            if not related_articles:
+                related_articles = self._internal_url_articles()
+            # package to be displayed by template
+            self._related_articles = self._package_related_articles(related_articles)
         return {
             'title': 'You may also like',
-            'items': self._package_related_articles(related_articles),
+            'items': self._related_articles,
         }
 
     def _internal_url_articles(self):
