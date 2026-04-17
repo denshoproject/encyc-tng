@@ -83,6 +83,7 @@ ARTICLES_INDEX_PAGE = 'Home'
 ARTICLES_IMAGE_COLLECTION = 'Article Images'
 HOMEPAGE_CAROUSEL_INDEX_PAGE = 'Home Page Carousels'
 SITE_PAGES_INDEX_PAGE = 'Site Pages'
+LEGACY_ARTICLES_INDEX_PAGE = 'Legacy Articles'
 CSV_DELIMITER = ','
 CSV_QUOTECHAR = '"'
 CSV_QUOTING = csv.QUOTE_ALL
@@ -203,6 +204,9 @@ def initial_setup(basedir, hostname):
     site_pages_index = SitePagesIndexPage(title=SITE_PAGES_INDEX_PAGE)
     root_page.add_child(instance=site_pages_index)
     import_sitepages(basedir)
+
+    legacy_index = ArticlesIndexPage(title=LEGACY_ARTICLES_INDEX_PAGE)
+    root_page.add_child(instance=legacy_index)
 
     # Create editos workflows listed in WORKFLOWS
     Workflows.create_workflows()
