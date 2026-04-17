@@ -371,25 +371,24 @@ class Article(Page):
 
     def related_links(self):
         """For more information
-        TODO implement related_links
+
+        Note: We'll leave his blank. Many articles have "For More Info" sections
+        already. We could probably parse and extract these but we decided to just
+        leave as-is.
         """
-        return [
-            {
-                'title': 'Guide to the Mike Lowry Congressional Papers, 1978–1988',
-                'source': 'University of Washington Libraries',
-                'url': '#',
-            },
-            {
-                'title': 'Shimabukuro, Robert Sadamu. Born in Seattle: The Campaign for Japanese American Redress',
-                'source': 'Seattle: University of Washington Press, 2001',
-                'url': '#',
-            },
-            {
-                'title': 'Guide to the Mike Lowry Congressional Papers, 1978–1988',
-                'source': 'University of Washington Libraries',
-                'url': '#',
-            },
-        ]
+        #return [
+        #    {
+        #        'title': 'Guide to the Mike Lowry Congressional Papers, 1978–1988',
+        #        'source': 'University of Washington Libraries',
+        #        'url': '#',
+        #    },
+        #    {
+        #        'title': 'Guide to the Mike Lowry Congressional Papers, 1978–1988',
+        #        'source': 'University of Washington Libraries',
+        #        'url': '#',
+        #    },
+        #]
+        return None
 
     def related_media(self):
         """Get From The Archive / DDR content
