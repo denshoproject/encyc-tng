@@ -370,6 +370,9 @@ class Article(Page):
         return self._carousel_blocks
 
     def related_links(self):
+        """For more information
+        TODO implement related_links
+        """
         return [
             {
                 'title': 'Guide to the Mike Lowry Congressional Papers, 1978–1988',
@@ -389,6 +392,8 @@ class Article(Page):
         ]
 
     def related_media(self):
+        """Get From The Archive / DDR content
+        """
         if not hasattr(self, 'related_ddr'):
             # only load once
             self.related_ddr = [
@@ -400,6 +405,59 @@ class Article(Page):
                 for o in ddr.ddr_objects(self.title)
             ]
         return self.related_ddr
+
+    def related_content(self):
+        """Get Related Articles / You may also like...
+
+        TODO optimize Save JSON at Article.save()
+        """
+        # function gets called multiple times, only retrieve the first time
+        if not hasattr(self, '_related_articles'):
+            # list of articles selected by author/editor
+            related_articles = getattr(self, 'related_articles', None)
+            # or scrape description/body and get internal Wagtail links
+            if not related_articles:
+                related_articles = self._internal_url_articles()
+            # package to be displayed by template
+            self._related_articles = self._package_related_articles(related_articles)
+        return {
+            'title': 'You may also like',
+            'items': self._related_articles,
+        }
+
+    def _internal_url_articles(self):
+        """Scrape internal Wagtail links in description,body and get target Articles
+        """
+        blocktypes = ['paragraph']
+        description = '\n'.join([
+            b['value'] for b in self.description.raw_data if b['type'] in blocktypes
+        ])
+        body = '\n'.join([
+            b['value'] for b in self.body.raw_data if b['type'] in blocktypes
+        ])
+        html = f"{description}\n{body}"
+        soup = BeautifulSoup(html, 'lxml')
+        article_ids = [int(a['id']) for a in soup.find_all('a', linktype='page')]
+        return Article.objects.filter(id__in=article_ids).only('title','description')
+
+    def _package_related_articles(self, articles):
+        """Package related articles data
+        """
+        #return [
+        #    {
+        #        'type': 'Article',
+        #        'url': article.url,
+        #        'title': article.title,
+        #        'description': article.description,
+        #        'image': article.get_signature_image(),
+        #        #'author': 'John Doe',
+        #        #'tags': [
+        #        #    #{'name': 'Camps', 'url': '/tags/tag-1/'},
+        #        #],
+        #    }
+        #    for article in articles
+        #]
+        return articles
 
     @staticmethod
     def remove_description_footnotes(articles):
