@@ -131,6 +131,12 @@ class Article(Page):
     )
     footnotes = RichTextField(blank=True, null=True, editable=False)
     authors = ParentalManyToManyField('editors.Author', blank=True)
+    related_articles = StreamField(
+        [('paragraph', ArticleTextBlock())],
+        blank=True, null=True, use_json_field=True,
+        help_text='List of related articles in the Encyclopedia.',
+    )
+    related_json = models.TextField(blank=True, null=True, editable=False)
     tags = ClusterTaggableManager(through=ArticleTag, blank=True)
     mw_url = models.CharField(max_length=255, blank=True, null=True)
 
@@ -148,6 +154,7 @@ class Article(Page):
         MultiFieldPanel([
             FieldPanel('title_sort'),
             FieldPanel('authors', widget=forms.SelectMultiple),
+            FieldPanel('related_articles'),
             FieldPanel('tags'),
         ], heading='Metadata'),
     ]
@@ -413,51 +420,31 @@ class Article(Page):
         """
         # function gets called multiple times, only retrieve the first time
         if not hasattr(self, '_related_articles'):
-            # list of articles selected by author/editor
-            related_articles = getattr(self, 'related_articles', None)
-            # or scrape description/body and get internal Wagtail links
-            if not related_articles:
-                related_articles = self._internal_url_articles()
-            # package to be displayed by template
-            self._related_articles = self._package_related_articles(related_articles)
+            # get HTML from related_articles OR body+description
+            blocktypes = ['paragraph']
+            if self.related_articles:
+                html = '\n'.join([
+                    b['value'] for b in self.related_articles.raw_data
+                    if b['type'] in blocktypes
+                ])
+            else:
+                description = '\n'.join([
+                    b['value'] for b in self.description.raw_data if b['type'] in blocktypes
+                ])
+                body = '\n'.join([
+                    b['value'] for b in self.body.raw_data if b['type'] in blocktypes
+                ])
+                html = f"{description}\n{body}"
+            # scrape for internal Wagtail links
+            soup = BeautifulSoup(html, 'lxml')
+            article_ids = [int(a['id']) for a in soup.find_all('a', linktype='page')]
+            # "cache" so we only do this once per request
+            self._related_articles = Article.objects.filter(
+                id__in=article_ids).only('title','description')
         return {
             'title': 'You may also like',
             'items': self._related_articles,
         }
-
-    def _internal_url_articles(self):
-        """Scrape internal Wagtail links in description,body and get target Articles
-        """
-        blocktypes = ['paragraph']
-        description = '\n'.join([
-            b['value'] for b in self.description.raw_data if b['type'] in blocktypes
-        ])
-        body = '\n'.join([
-            b['value'] for b in self.body.raw_data if b['type'] in blocktypes
-        ])
-        html = f"{description}\n{body}"
-        soup = BeautifulSoup(html, 'lxml')
-        article_ids = [int(a['id']) for a in soup.find_all('a', linktype='page')]
-        return Article.objects.filter(id__in=article_ids).only('title','description')
-
-    def _package_related_articles(self, articles):
-        """Package related articles data
-        """
-        #return [
-        #    {
-        #        'type': 'Article',
-        #        'url': article.url,
-        #        'title': article.title,
-        #        'description': article.description,
-        #        'image': article.get_signature_image(),
-        #        #'author': 'John Doe',
-        #        #'tags': [
-        #        #    #{'name': 'Camps', 'url': '/tags/tag-1/'},
-        #        #],
-        #    }
-        #    for article in articles
-        #]
-        return articles
 
     @staticmethod
     def remove_description_footnotes(articles):
