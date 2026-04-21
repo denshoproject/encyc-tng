@@ -18,14 +18,32 @@ class HomePage(Page):
     template = "patterns/pages/home_page/home_page.html"
 
     def hero(self):
-        return {
+        context = {
             'title': 'Discover the history of the Japanese American incarceration during WWII',
             'actions': [
                 {'text': 'Browse by Topic', 'url': '/articles-topic/'},
                 {'text': 'Browse by A-Z', 'url': '/articles-az/'},
             ],
             'image': latest_homepage_image(),
+            'carousel': {},
         }
+        carousel = HomePageCarousel()
+        if carousel:
+            context['carousel'] = {
+                'publish_date': carousel.publish_date,
+                'title': carousel.title,
+                'description': carousel.description,
+                'items': [
+                    {
+                        'image': block.value['image'],
+                        'url': block.value['article_url'],
+                        'title': block.value['article_title'],
+                        'description': block.value['description'],
+                    }
+                    for block in carousel.images
+                ],
+            }
+        return context
 
     def topics(self):
         return {
@@ -83,3 +101,14 @@ class HomePageCarousel(Page):
         ordering = ['title']
         verbose_name = "Home Page Carousel"
         verbose_name_plural = "Home Page Carousels"
+
+    @staticmethod
+    def latest():
+        try:
+            carousel = HomePageCarousel.objects.live().order_by('-publish_date')
+            carousel = carousel.filter(
+                publish_date__lte=timezone.localtime(timezone.now())
+            )[0]
+            return carousel
+        except IndexError:
+            return None
