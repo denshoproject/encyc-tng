@@ -21,8 +21,8 @@ classifiers = [
     "Framework :: Django",
     "Framework :: Django :: 5.1",
     "Framework :: Wagtail",
-    "Framework :: Wagtail :: 6",
-    "Framework :: Wagtail :: 6.3",
+    "Framework :: Wagtail :: 7",
+    "Framework :: Wagtail :: 7.3",
 ]
 
 dynamic = ["version"]  # will read __version__ from encyctng/__init__.py
@@ -40,7 +40,7 @@ dependencies = [
     'psycopg',
     'pyclean',
     'python-dateutil',
-    'wagtail==7.2.2',
+    'wagtail==7.3.1',
     'wagtailmedia',
     'walrus',
     'densho-wagtail-notes @ git+https://github.com/denshoproject/densho-wagtail-notes',
