@@ -2,19 +2,13 @@
   <h2 class="listing__heading meta meta--large">
     <span class="listing__header-text">
       <b>{{ page_obj.paginator.count }}</b> Articles
+      (Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }})
     </span>
   </h2>
 </div>
 
 <nav class="pagination meta meta--small" aria-label="Pagination">
     <div class="pagination__container">
-
-        <div class="pagination__overview">
-            <p class="pagination__overview-text">
-                Page {{ page_obj.number }}
-                of {{ page_obj.paginator.num_pages }}
-            </p>
-        </div>
 
         <ul class="pagination__list">
 
