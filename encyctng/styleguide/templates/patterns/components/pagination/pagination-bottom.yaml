@@ -1,4 +1,4 @@
-name: Pagination
+name: Pagination-bottom
 context:
   page_obj:
     has_previous: True
@@ -8,7 +8,7 @@ context:
       ELLIPSIS: ...
       num_pages: 20
     number: 8
-  page_range:
+  page_range_bottom:
     - 1
     - 2
     - ...

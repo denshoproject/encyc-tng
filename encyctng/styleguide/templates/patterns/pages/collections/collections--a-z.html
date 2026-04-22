@@ -10,15 +10,7 @@
         {% if page_obj %}
             <div class="listing">
 
-                <div class="listing__header">
-                    <h2 class="listing__heading meta meta--large">
-                        <span class="listing__header-text">
-                            <b>{{ page_obj.paginator.count }}</b> Articles
-                        </span>
-                    </h2>
-                </div>
-
-                {% include "patterns/components/pagination/pagination.html" with page_obj=page_obj %}
+                {% include "patterns/components/pagination/pagination-top.html" with page_obj=page_obj %}
 
                 <div class="listing__content">
                     {% for article in page_obj %}
@@ -31,9 +23,7 @@
                     {% endfor %}
                 </div>
 
-                <div class="listing__footer">
-                    {% include "patterns/components/pagination/pagination-bottom.html" with page_obj=page_obj %}
-                </div>
+                {% include "patterns/components/pagination/pagination-bottom.html" with page_obj=page_obj %}
 
             </div>
         {% endif %}
