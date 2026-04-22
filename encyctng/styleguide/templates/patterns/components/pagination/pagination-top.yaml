@@ -1,4 +1,4 @@
-name: Pagination
+name: Pagination-top
 context:
   page_obj:
     has_previous: True
