@@ -5,6 +5,7 @@ context:
     previous_page_number: 1
     has_next: True
     paginator:
+      count: 250
       ELLIPSIS: ...
       num_pages: 20
     number: 8
