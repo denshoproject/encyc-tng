@@ -5,9 +5,10 @@ import httpx
 from . import vocab
 
 API_BASE = 'https://ddr.densho.org/api/0.2'
+DDR_OBJECTS_LIMIT = 15
 
 
-def ddr_objects(title, term_id=None):
+def ddr_objects(title, term_id=None, limit=DDR_OBJECTS_LIMIT):
     """DDR objects associated with article
 
     Data comes from densho-vocab/.../topics.json
@@ -33,7 +34,7 @@ def ddr_objects(title, term_id=None):
         data = httpx.get(url, timeout=3).json()
         for o in data['objects']:
             objects.append(o)
-    return objects
+    return objects[:limit]
 
 
 #def objects_for_title(title: str) -> list:
