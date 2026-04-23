@@ -29,7 +29,7 @@ CONF_PRODUCTION=$(CONF_BASE)/encyctng.cfg
 CONF_LOCAL=$(CONF_BASE)/encyctng-local.cfg
 CONF_SECRET=$(CONF_BASE)/encyctng-secret-key.txt
 
-LOG_BASE=/var/log/encyc
+LOG_BASE=/var/log/encyctng
 
 MEDIA_BASE=/var/www/encyctng
 MEDIA_ROOT=$(MEDIA_BASE)/media
