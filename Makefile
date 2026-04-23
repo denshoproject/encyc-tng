@@ -58,6 +58,20 @@ TGZ_FILE=$(APP)_$(APP_VERSION)
 TGZ_DIR=$(INSTALLDIR)/$(TGZ_FILE)
 TGZ_TNG=$(TGZ_DIR)/encyc-tng
 
+# Adding '-rcN' to VERSION will name the package "encyctng-release"
+# instead of "encytng-BRANCH"
+DEB_BRANCH := $(shell python3 bin/package-branch.py)
+DEB_ARCH=amd64
+DEB_NAME_TRIXIE=$(APP)-$(DEB_BRANCH)
+# Application version, separator (~), Debian release tag e.g. deb8
+# Release tag used because sortable and follows Debian project usage.
+DEB_VERSION_TRIXIE=$(APP_VERSION)~deb13
+DEB_FILE_TRIXIE=$(DEB_NAME_TRIXIE)_$(DEB_VERSION_TRIXIE)_$(DEB_ARCH).deb
+DEB_VENDOR=Densho.org
+DEB_MAINTAINER=<geoffrey.jost@densho.org>
+DEB_DESCRIPTION=Densho Encyclopedia
+DEB_BASE=opt/encyc-tng
+
 
 .PHONY: help
 
