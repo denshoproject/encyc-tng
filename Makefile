@@ -1,13 +1,18 @@
 PROJECT=encyc-tng
+APP=encyctng
 USER=encyc
 SHELL = /bin/bash
 
+APP_VERSION := $(shell cat VERSION)
+
 SRC_REPO=https://github.com/denshoproject/encyc-tng
+SRC_REPO_ASSETS=https://github.com/denshoproject/ddr-public-assets.git
 SRC_REPO_NVM=https://github.com/nvm-sh/nvm.git
 SRC_REPO_VOCAB=https://github.com/denshoproject/densho-vocab.git
 
 INSTALL_BASE=/opt
 INSTALLDIR=$(INSTALL_BASE)/encyc-tng
+INSTALL_ASSETS=/opt/encyc-tng-assets
 APPDIR=$(INSTALLDIR)/encyctng
 REQUIREMENTS=$(INSTALLDIR)/requirements.txt
 PIP_CACHE_DIR=$(INSTALL_BASE)/pip-cache
@@ -24,7 +29,7 @@ CONF_PRODUCTION=$(CONF_BASE)/encyctng.cfg
 CONF_LOCAL=$(CONF_BASE)/encyctng-local.cfg
 CONF_SECRET=$(CONF_BASE)/encyctng-secret-key.txt
 
-LOG_BASE=/var/log/encyc
+LOG_BASE=/var/log/encyctng
 
 MEDIA_BASE=/var/www/encyctng
 MEDIA_ROOT=$(MEDIA_BASE)/media
@@ -49,6 +54,25 @@ endif
 ifeq ($(DEBIAN_CODENAME), trixie)
 	PYTHON_VERSION=3.13
 endif
+
+TGZ_BRANCH := $(shell python3 bin/package-branch.py)
+TGZ_FILE=$(APP)_$(APP_VERSION)
+TGZ_DIR=$(INSTALLDIR)/$(TGZ_FILE)
+TGZ_TNG=$(TGZ_DIR)/encyc-tng
+
+# Adding '-rcN' to VERSION will name the package "encyctng-release"
+# instead of "encytng-BRANCH"
+DEB_BRANCH := $(shell python3 bin/package-branch.py)
+DEB_ARCH=amd64
+DEB_NAME_TRIXIE=$(APP)-$(DEB_BRANCH)
+# Application version, separator (~), Debian release tag e.g. deb8
+# Release tag used because sortable and follows Debian project usage.
+DEB_VERSION_TRIXIE=$(APP_VERSION)~deb13
+DEB_FILE_TRIXIE=$(DEB_NAME_TRIXIE)_$(DEB_VERSION_TRIXIE)_$(DEB_ARCH).deb
+DEB_VENDOR=Densho.org
+DEB_MAINTAINER=<geoffrey.jost@densho.org>
+DEB_DESCRIPTION=Densho Encyclopedia
+DEB_BASE=opt/encyc-tng
 
 
 .PHONY: help
@@ -130,7 +154,7 @@ get-densho-vocab:
 	fi
 
 
-get-app: get-encyc-tng get-densho-vocab
+get-app: get-encyc-tng get-encyc-tng-assets get-densho-vocab
 
 install-app: install-encyc-tng
 
@@ -145,6 +169,14 @@ get-encyc-tng: git-safe-dir
 	@echo ""
 	@echo "get-encyc-tng -----------------------------------------------------"
 	git pull
+
+get-encyc-tng-assets:
+	@echo ""
+	@echo "get-encyc-tng-assets --------------------------------------------------"
+	if test -d $(INSTALL_ASSETS); \
+	then cd $(INSTALL_ASSETS) && git pull; \
+	else cd $(INSTALL_BASE) && git clone $(SRC_REPO_ASSETS); \
+	fi
 
 setup-encyc-tng:
 	source $(VIRTUALENV)/bin/activate; uv sync
@@ -181,6 +213,7 @@ git-safe-dir:
 	@echo ""
 	@echo "git-safe-dir -----------------------------------------------------------"
 	sudo -u encyc git config --global --add safe.directory $(INSTALLDIR)
+	sudo -u encyc git config --global --add safe.directory $(INSTALL_ASSETS)
 	sudo -u encyc git config --global --add safe.directory $(INSTALL_VOCAB)
 
 shell:
@@ -279,3 +312,23 @@ test-encyc-tng-pa11y:
 	@echo ""
 	@echo "test-encyc-tng-accessibility ----------------------------------------"
 	cd $(INSTALLDIR); pa11y-ci --config pa11y.config.js
+
+
+tgz-local:
+	rm -Rf $(TGZ_DIR)
+	git clone $(INSTALLDIR) $(TGZ_TNG)
+	git clone $(INSTALL_ASSETS) $(TGZ_ASSETS)
+	cd $(TGZ_TNG); git checkout develop; git checkout master
+	cd $(TGZ_ASSETS); git checkout develop; git checkout master
+	tar czf $(TGZ_FILE).tgz $(TGZ_FILE)
+	rm -Rf $(TGZ_DIR)
+
+
+tgz:
+	rm -Rf $(TGZ_DIR)
+	git clone $(SRC_REPO) $(TGZ_TNG)
+	git clone $(SRC_REPO_ASSETS) $(TGZ_ASSETS)
+	cd $(TGZ_TNG); git checkout develop; git checkout master
+	cd $(TGZ_ASSETS); git checkout develop; git checkout master
+	tar czf $(TGZ_FILE).tgz $(TGZ_FILE)
+	rm -Rf $(TGZ_DIR)
