@@ -6,11 +6,13 @@ SHELL = /bin/bash
 APP_VERSION := $(shell cat VERSION)
 
 SRC_REPO=https://github.com/denshoproject/encyc-tng
+SRC_REPO_ASSETS=https://github.com/denshoproject/ddr-public-assets.git
 SRC_REPO_NVM=https://github.com/nvm-sh/nvm.git
 SRC_REPO_VOCAB=https://github.com/denshoproject/densho-vocab.git
 
 INSTALL_BASE=/opt
 INSTALLDIR=$(INSTALL_BASE)/encyc-tng
+INSTALL_ASSETS=/opt/encyc-tng-assets
 APPDIR=$(INSTALLDIR)/encyctng
 REQUIREMENTS=$(INSTALLDIR)/requirements.txt
 PIP_CACHE_DIR=$(INSTALL_BASE)/pip-cache
@@ -152,7 +154,7 @@ get-densho-vocab:
 	fi
 
 
-get-app: get-encyc-tng get-densho-vocab
+get-app: get-encyc-tng get-encyc-tng-assets get-densho-vocab
 
 install-app: install-encyc-tng
 
@@ -167,6 +169,14 @@ get-encyc-tng: git-safe-dir
 	@echo ""
 	@echo "get-encyc-tng -----------------------------------------------------"
 	git pull
+
+get-encyc-tng-assets:
+	@echo ""
+	@echo "get-encyc-tng-assets --------------------------------------------------"
+	if test -d $(INSTALL_ASSETS); \
+	then cd $(INSTALL_ASSETS) && git pull; \
+	else cd $(INSTALL_BASE) && git clone $(SRC_REPO_ASSETS); \
+	fi
 
 setup-encyc-tng:
 	source $(VIRTUALENV)/bin/activate; uv sync
@@ -203,6 +213,7 @@ git-safe-dir:
 	@echo ""
 	@echo "git-safe-dir -----------------------------------------------------------"
 	sudo -u encyc git config --global --add safe.directory $(INSTALLDIR)
+	sudo -u encyc git config --global --add safe.directory $(INSTALL_ASSETS)
 	sudo -u encyc git config --global --add safe.directory $(INSTALL_VOCAB)
 
 shell:
@@ -306,7 +317,9 @@ test-encyc-tng-pa11y:
 tgz-local:
 	rm -Rf $(TGZ_DIR)
 	git clone $(INSTALLDIR) $(TGZ_TNG)
+	git clone $(INSTALL_ASSETS) $(TGZ_ASSETS)
 	cd $(TGZ_TNG); git checkout develop; git checkout master
+	cd $(TGZ_ASSETS); git checkout develop; git checkout master
 	tar czf $(TGZ_FILE).tgz $(TGZ_FILE)
 	rm -Rf $(TGZ_DIR)
 
@@ -314,6 +327,8 @@ tgz-local:
 tgz:
 	rm -Rf $(TGZ_DIR)
 	git clone $(SRC_REPO) $(TGZ_TNG)
+	git clone $(SRC_REPO_ASSETS) $(TGZ_ASSETS)
 	cd $(TGZ_TNG); git checkout develop; git checkout master
+	cd $(TGZ_ASSETS); git checkout develop; git checkout master
 	tar czf $(TGZ_FILE).tgz $(TGZ_FILE)
 	rm -Rf $(TGZ_DIR)
