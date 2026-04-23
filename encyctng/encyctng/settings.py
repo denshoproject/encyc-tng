@@ -39,6 +39,8 @@ SECRET_KEY = config.get('security', 'secret_key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.get('debug', 'debug')
 
+APPLICATION_ENVIRONMENT = config.get('security', 'environment')
+
 LOG_LEVEL = config.get('debug', 'log_level')
 LOG_FILE = config.get('debug', 'log_file')
 
@@ -75,7 +77,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'modelcluster',
     'ninja',
-    'pattern_library',
     'taggit',
     'wagtail',
     'wagtail.admin',
@@ -98,6 +99,8 @@ INSTALLED_APPS = [
     'sources',
     'styleguide',
 ]
+if APPLICATION_ENVIRONMENT == 'development':
+    INSTALLED_APPS += ['pattern_library']
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
