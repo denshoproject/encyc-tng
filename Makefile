@@ -1,6 +1,9 @@
 PROJECT=encyc-tng
+APP=encyctng
 USER=encyc
 SHELL = /bin/bash
+
+APP_VERSION := $(shell cat VERSION)
 
 SRC_REPO=https://github.com/denshoproject/encyc-tng
 SRC_REPO_NVM=https://github.com/nvm-sh/nvm.git
@@ -49,6 +52,11 @@ endif
 ifeq ($(DEBIAN_CODENAME), trixie)
 	PYTHON_VERSION=3.13
 endif
+
+TGZ_BRANCH := $(shell python3 bin/package-branch.py)
+TGZ_FILE=$(APP)_$(APP_VERSION)
+TGZ_DIR=$(INSTALLDIR)/$(TGZ_FILE)
+TGZ_TNG=$(TGZ_DIR)/encyc-tng
 
 
 .PHONY: help
@@ -279,3 +287,19 @@ test-encyc-tng-pa11y:
 	@echo ""
 	@echo "test-encyc-tng-accessibility ----------------------------------------"
 	cd $(INSTALLDIR); pa11y-ci --config pa11y.config.js
+
+
+tgz-local:
+	rm -Rf $(TGZ_DIR)
+	git clone $(INSTALLDIR) $(TGZ_TNG)
+	cd $(TGZ_TNG); git checkout develop; git checkout master
+	tar czf $(TGZ_FILE).tgz $(TGZ_FILE)
+	rm -Rf $(TGZ_DIR)
+
+
+tgz:
+	rm -Rf $(TGZ_DIR)
+	git clone $(SRC_REPO) $(TGZ_TNG)
+	cd $(TGZ_TNG); git checkout develop; git checkout master
+	tar czf $(TGZ_FILE).tgz $(TGZ_FILE)
+	rm -Rf $(TGZ_DIR)
