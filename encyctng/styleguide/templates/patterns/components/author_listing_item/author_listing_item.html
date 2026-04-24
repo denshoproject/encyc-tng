@@ -15,7 +15,11 @@
             </h3>
             <p class="author-listing-item__description">{{ author.role }}</p>
             {% if author.description %}
-                <div class="author-listing-item__description">{{ author.description|richtext }}</div>
+                <div class="author-listing-item__description">
+                  {% if detail %}{{ author.description|richtext }}
+                  {% else %}{{ author.description|richtext|truncatewords:50 }}
+                  {% endif %}
+                </div>
             {% endif %}
         </div>
     </div>
