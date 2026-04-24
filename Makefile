@@ -6,7 +6,7 @@ SHELL = /bin/bash
 APP_VERSION := $(shell cat VERSION)
 
 SRC_REPO=https://github.com/denshoproject/encyc-tng
-SRC_REPO_ASSETS=https://github.com/denshoproject/ddr-public-assets.git
+SRC_REPO_ASSETS=https://github.com/denshoproject/encyc-tng-assets.git
 SRC_REPO_NVM=https://github.com/nvm-sh/nvm.git
 SRC_REPO_VOCAB=https://github.com/denshoproject/densho-vocab.git
 
