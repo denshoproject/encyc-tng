@@ -199,9 +199,8 @@ install-encyc-tng-dirs:
 	chown -R encyc:root $(LOG_BASE)
 	chmod -R 755 $(LOG_BASE)
 # static dir
-	-mkdir -p $(STATIC_ROOT)
-	chown -R encyc:root $(STATIC_ROOT)
-	chmod -R 755 $(STATIC_ROOT)
+	ln -s $(INSTALL_ASSETS)/static $(INSTALLDIR)/static
+	ln -s $(INSTALL_ASSETS)/static $(STATIC_ROOT)
 # media dir
 	-mkdir -p $(MEDIA_ROOT)
 	chown -R encyc:root $(MEDIA_BASE)
