@@ -111,7 +111,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
-    'encyclopedia.middleware.RedirectLegacyURLsMiddleware',
 ]
 
 ROOT_URLCONF = 'encyctng.urls'
