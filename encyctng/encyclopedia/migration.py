@@ -72,7 +72,7 @@ from encyclopedia.models import (
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 from encyclopedia.topics import topics_items
-from encyclopedia.models import ArticlesIndexPage
+from encyclopedia.models import ArticlesIndexPage, ArticleTopic
 from home.models import HomePageCarouselIndexPage, HomePageCarousel
 from home.blocks import HomepageCarouselImageBlock
 from info.models import SitePagesIndexPage, SitePage
@@ -185,6 +185,7 @@ def initial_setup(basedir, hostname):
     root_collection.add_child(instance=authors_collection)
 
     # Topics
+    make_topics(basedir)
     import_topics_images(basedir)
 
     root_page = Page.objects.get(title='Root')
@@ -724,6 +725,21 @@ class Sources():
 
 
 # topics ---------------------------------------------------------------
+
+def make_topics(basedir):
+    existing = [topic.id for topic in ArticleTopic.objects.all()]
+    path = Path(settings.ENCYC_TOPICS_PATH)
+    if not path.exists():
+        raise Exception(f"Cannot read topics data file {path}.")
+    with path.open('r') as f:
+        topics = json.loads(f.read())
+    for topic in topics:
+        if not topic['id'] in existing:
+            article_topic = ArticleTopic(
+                id=topic['id'],
+                name=topic['title'],
+            )
+            article_topic.save()
 
 def import_topics_images(basedir):
     topics_collection = Collection.objects.get(name='Topics')
