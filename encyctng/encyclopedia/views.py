@@ -124,7 +124,7 @@ def articles_topic(request, topic=None):
     )
     return render(request, 'patterns/pages/collections/collections.html', {
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
-        'tags': tags_collections_topics(topic),
+        'topic_tags': tags_collections_topics([topic]),
         'page_obj': page_obj,
         'page_range': page_range,
         'page_range_bottom': page_range_bottom,
@@ -155,7 +155,7 @@ def articles_az(request):
     )
     return render(request, 'patterns/pages/collections/collections--a-z.html', {
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-az')),
-        'tags': tags_collections_az(initial),
+        'az_tags': tags_collections_az(initial),
         'page_obj': page_obj,
         'page_range': page_range,
         'page_range_bottom': page_range_bottom,
@@ -208,7 +208,7 @@ def articles_search(request):
     return render(request, 'patterns/pages/collections/collections-search.html', {
         'query': query_string,
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
-        'tags': tags_collections_topics(topics),
+        'topic_tags': tags_collections_topics(topics),
         'page_obj': page_obj,
         'page_range': page_range,
         'page_range_bottom': page_range_bottom,
@@ -249,7 +249,7 @@ def authors(request, template_name='encyclopedia/authors.html'):
     )
     return render(request, 'patterns/pages/collections/collections--authors.html', {
         'tabs': collections_authors_tabs(url=reverse('encyc-authors')),
-        'tags': tags_authors_az(initial),
+        'az_tags': tags_authors_az(initial),
         'page_obj': page_obj,
         'page_range': page_range,
         'page_range_bottom': page_range_bottom,
@@ -281,22 +281,22 @@ def collections_authors_tabs(url):
             tab['active'] = True
     return tabs
 
-def tags_collections_topics(topic=None):
+def tags_collections_topics(topics=[]):
     """
     [
-        {'id':'all', 'name':'All'}, {'id':'arts', 'name':'Arts'}, {'id':'camps', 'name':'Camps'}, ...
+        {'id':'all', 'title':'All'}, {'id':'arts', 'title':'Arts'}, {'id':'camps', 'title':'Camps'}, ...
     ]
     """
     tags = topics_items()
     tags.insert(0, {
         'id':'all', 'title':'All', 'url':reverse('encyc-articles-topic'), 'active':True
     })
-    if topic:
+    for topic in topics:
         topic = slugify(topic)
         for tag in tags:
             if tag['id'] == topic:
                 tag['active'] = True
-                tags[0].pop('active')
+                tags[0]['active'] = False
     return tags
 
 def tags_collections_az(initial=None):
