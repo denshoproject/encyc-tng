@@ -207,7 +207,7 @@ def articles_search(request):
     )
     return render(request, 'patterns/pages/collections/collections-search.html', {
         'query': query_string,
-        'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
+        'tabs': collections_authors_tabs(url=reverse('encyc-articles-search'), search=1),
         'topic_tags': tags_collections_topics(topics),
         'page_obj': page_obj,
         'page_range': page_range,
@@ -268,7 +268,7 @@ def author(request, slug):
     })
 
 
-def collections_authors_tabs(url):
+def collections_authors_tabs(url, search=None):
     """Return tabs for collection navigation pages
     """
     tabs = [
@@ -276,6 +276,8 @@ def collections_authors_tabs(url):
         {'label': 'Articles by A-Z',   'url': reverse('encyc-articles-az')},
         {'label': 'Authors by A-Z',    'url': reverse('encyc-authors')},
     ]
+    if search:
+        tabs.append({'label': 'Search','url': reverse('encyc-articles-search')})
     for tab in tabs:
         if tab['url'] == url:
             tab['active'] = True
