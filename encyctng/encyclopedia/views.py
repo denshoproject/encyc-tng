@@ -15,7 +15,7 @@ from wagtail.models.media import Collection
 from wagtail.search.utils import parse_query_string
 
 from editors.models import Author
-from encyclopedia.models import Article, ArticleSources
+from encyclopedia.models import ArticlesIndexPage, Article
 from encyclopedia.topics import topics_items
 from sources.models import Source
 
@@ -93,9 +93,9 @@ def browse(request):
 def articles_base_query():
     """Base query used by all the list views
     """
-    articles = Article.objects.live().order_by('title_sort') \
-                .defer("body") \
-                .prefetch_related('tags')
+    articles = Article.objects.live() \
+        .only('title','title_sort','description','signature_image') \
+        .prefetch_related('topics')
     # TODO Prefetching image renditions
     # https://docs.wagtail.org/en/stable/advanced_topics/images/renditions.html
     return articles
@@ -162,20 +162,39 @@ def articles_az(request):
     })
 
 @cache_page(settings.CACHE_TIMEOUT)
-def articles_search(request, topic=None):
-    query_string = request.GET.get('query', None)
+def articles_search(request):
+    """Search Articles
+
+    For whatever reason, Wagtail can't just filter on ManyToManyFields.
+    You have to filter on a list of IDs of Articles that match.
+    https://stackoverflow.com/questions/43082438/how-do-you-filter-search-results-in-wagtail-based-on-a-manytomanyfield?rq=4
+    https://groups.google.com/g/wagtail/c/k2-E4h2oLtI/m/uPOzbuwKBgAJ
+    """
+    query_string = request.GET.get('query', None).strip()
+    if not query_string:
+        assert False  # redirect to A-Z list? Topics list?
+    topics = request.GET.get('topics', '').split(' ')
+    if topics and topics == ['all']:
+        topics = []
+    if topics:
+        topic_ids = [topic['id'] for topic in topics_items()]
+        topics = [
+            topic.lower() for topic in topics if topic.lower() in topic_ids
+        ]
     page_size = int(request.GET.get('pagesize', 30))
     page_number = int(request.GET.get('page', 1))
 
-    if query_string:
-        articles = articles_base_query()
-        filters, query = parse_query_string(query_string, operator='and')
-        articles = articles.filter(live=True).search(query)
-        # Log the query so Wagtail can suggest promoted results
-        #from wagtail.contrib.search_promotions.models import Query
-        #Query.get(query).add_hit()
-    else:
-        articles = Article.objects.none()
+    articles = Article.objects.live().defer("body")
+    if topics:
+        # Get a list of Articles with the topics then filter on IDs
+        topic_article_ids = Article.objects.filter(
+            topics__id__in=topics).values_list('id', flat=True)
+        articles = articles.filter(id__in=topic_article_ids)
+    #filters, query = parse_query_string(query_string, operator='and')
+    articles = articles.search(query_string)
+    # Log the query so Wagtail can suggest promoted results
+    #from wagtail.contrib.search_promotions.models import Query
+    #Query.get(query).add_hit()
     Article.remove_description_footnotes(articles)
 
     paginator = Paginator(articles, page_size)
@@ -189,7 +208,7 @@ def articles_search(request, topic=None):
     return render(request, 'patterns/pages/collections/collections-search.html', {
         'query': query_string,
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-topic')),
-        'tags': tags_collections_topics(topic),
+        'tags': tags_collections_topics(topics),
         'page_obj': page_obj,
         'page_range': page_range,
         'page_range_bottom': page_range_bottom,
