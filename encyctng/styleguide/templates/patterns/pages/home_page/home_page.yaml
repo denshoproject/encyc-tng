@@ -9,6 +9,19 @@ context:
         - text: Browse by A-Z
           url: '#'
     image_url: https://placehold.co/400x400
+    carousel:
+        publish_date: 2026-01-1 00:00:00
+        title: Amache Silk Screen Workshop
+        description: Blah blah description goes here
+        items:
+          - image: https://placehold.co/400x400
+            url: '#'
+            title: Image 1
+            description: Image is a wagtail.images.models.Image
+          - image: https://placehold.co/400x400
+            url: '#'
+            title: Image 2
+            description: Image is a wagtail.images.models.Image
     topics:
       title: Browse Topics
       items:
