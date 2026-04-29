@@ -77,6 +77,20 @@ class ArticlesIndexPage(Page):
         return context
 
 
+class ArticleTopic(models.Model):
+    """Article topics/categories
+    Replaces taggit tags which were deemed too freeform
+    """
+    id = models.CharField(max_length=255, primary_key=True)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.id
+
+    def __repr__(self):
+        return f"<ArticleTopic {self.id}>"
+
+
 class ArticleTag(TaggedItemBase):
     content_object = ParentalKey(
         'Article',
@@ -136,6 +150,7 @@ class Article(Page):
         help_text='List of related articles in the Encyclopedia.',
     )
     related_json = models.TextField(blank=True, null=True, editable=False)
+    topics = models.ManyToManyField(ArticleTopic, blank=True)
     tags = ClusterTaggableManager(through=ArticleTag, blank=True)
     mw_url = models.CharField(max_length=255, blank=True, null=True)
 
@@ -154,6 +169,7 @@ class Article(Page):
             FieldPanel('title_sort'),
             FieldPanel('authors', widget=forms.SelectMultiple),
             FieldPanel('related_articles'),
+            FieldPanel('topics'),
             FieldPanel('tags'),
         ], heading='Metadata'),
     ]
