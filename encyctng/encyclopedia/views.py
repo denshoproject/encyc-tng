@@ -111,7 +111,7 @@ def articles_topic(request, topic=None):
 
     articles = articles_base_query()
     if topic:
-        articles = Article.objects.filter(tags__name__in=[topic])
+        articles = Article.objects.filter(topics__id__in=[topic])
     Article.remove_description_footnotes(articles)
 
     paginator = Paginator(articles, page_size)
