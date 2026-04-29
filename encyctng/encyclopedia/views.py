@@ -208,7 +208,7 @@ def articles_search(request):
     return render(request, 'patterns/pages/collections/collections-search.html', {
         'query': query_string,
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-search'), search=1),
-        'topic_tags': tags_collections_topics(topics),
+        'topic_tags': tags_collections_search(query_string, topics),
         'page_obj': page_obj,
         'page_range': page_range,
         'page_range_bottom': page_range_bottom,
@@ -284,7 +284,7 @@ def collections_authors_tabs(url, search=None):
     return tabs
 
 def tags_collections_topics(topics=[]):
-    """
+    """Topics/category tags for topics list page
     [
         {'id':'all', 'title':'All'}, {'id':'arts', 'title':'Arts'}, {'id':'camps', 'title':'Camps'}, ...
     ]
@@ -293,6 +293,25 @@ def tags_collections_topics(topics=[]):
     tags.insert(0, {
         'id':'all', 'title':'All', 'url':reverse('encyc-articles-topic'), 'active':True
     })
+    for topic in topics:
+        topic = slugify(topic)
+        for tag in tags:
+            if tag['id'] == topic:
+                tag['active'] = True
+                tags[0]['active'] = False
+    return tags
+
+def tags_collections_search(query, topics=[]):
+    """Topic/category tags for search page with links for filtering
+    """
+    tags = topics_items()
+    tags.insert(0, {
+        'id':'all', 'title':'All', 'active':True,
+        'url': f"{reverse('encyc-articles-search')}?query={query}",
+    })
+    path = reverse('encyc-articles-search')
+    for tag in tags:
+        tag['url'] = f"{path}?query={query}&topics={tag['id']}"
     for topic in topics:
         topic = slugify(topic)
         for tag in tags:
