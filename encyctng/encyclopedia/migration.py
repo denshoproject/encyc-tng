@@ -72,7 +72,7 @@ from encyclopedia.models import (
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
 from encyclopedia.topics import topics_items
-from encyclopedia.models import ArticlesIndexPage
+from encyclopedia.models import ArticlesIndexPage, ArticleTopic
 from home.models import HomePageCarouselIndexPage, HomePageCarousel
 from home.blocks import HomepageCarouselImageBlock
 from info.models import SitePagesIndexPage, SitePage
@@ -185,6 +185,7 @@ def initial_setup(basedir, hostname):
     root_collection.add_child(instance=authors_collection)
 
     # Topics
+    make_topics(basedir)
     import_topics_images(basedir)
 
     root_page = Page.objects.get(title='Root')
@@ -725,6 +726,27 @@ class Sources():
 
 # topics ---------------------------------------------------------------
 
+def make_topics(basedir):
+    existing = [topic.id for topic in ArticleTopic.objects.all()]
+    path = Path(settings.ENCYC_TOPICS_PATH)
+    if not path.exists():
+        raise Exception(f"Cannot read topics data file {path}.")
+    with path.open('r') as f:
+        topics = json.loads(f.read())
+    for topic in topics:
+        if not topic['id'] in existing:
+            article_topic = ArticleTopic(
+                id=topic['id'],
+                name=topic['title'],
+            )
+            article_topic.save()
+
+def load_topics_by_id(basedir):
+    return {
+        topic.id: topic
+        for topic in ArticleTopic.objects.all()
+    }
+
 def import_topics_images(basedir):
     topics_collection = Collection.objects.get(name='Topics')
     print(f"{topics_collection=}")
@@ -900,7 +922,7 @@ class Articles():
         basedir = Path(basedir)
         mw = wiki.MediaWiki()
         url_prefix = '/wiki/'
-        authors_by_names,authors_alts, \
+        topics_by_id, authors_by_names,authors_alts, \
             sources_collection,sources_by_headword,source_pks_by_encycid, \
             saved_titles,mw_titles,mw_titles_slugs, \
             redirects = Articles.load_articles_metadata(basedir, sources_jsonl)
@@ -973,6 +995,7 @@ class Articles():
                 article = Articles.import_article(
                     mw, mwpage, mwtext, pagedata, revisions,
                     mw_titles, mw_titles_slugs, url_prefix,
+                    topics_by_id,
                     authors_by_names, authors_alts,
                     sources_collection, sources_by_headword, source_pks_by_encycid,
                     index_page,
@@ -1046,11 +1069,13 @@ class Articles():
 
     @staticmethod
     def load_articles_metadata(basedir, sources_jsonl):
+        topics_by_id = load_topics_by_id(basedir)
         authors_by_names,authors_alts = Articles.load_authors(basedir)
         sources_collection,sources_by_headword,source_pks_by_encycid = Articles.load_sources(basedir, sources_jsonl)
         saved_titles,mw_titles,mw_titles_slugs = Articles.load_mw(basedir)
         redirects = Articles.load_redirects(basedir)
         return [
+            topics_by_id,
             authors_by_names,authors_alts,
             sources_collection,sources_by_headword,source_pks_by_encycid,
             saved_titles,mw_titles,mw_titles_slugs,
@@ -1356,7 +1381,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, topics_by_id, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
@@ -1407,8 +1432,12 @@ description
         # authors will be saved for later
         # article must have a primary key before authors can be added
 
+        # assign ArticleTopics
         for tag in mwpage.categories:
-            article.tags.add(tag.lower())
+            tag = tag.lower()
+            # TODO does topics_by_id have all the topics?
+            if topics_by_id.get(tag, None):
+                article.topics.add(topics_by_id[tag])
 
         # comingsoon/BetaArticle
         all_categories = Articles.pagedata_categories(pagedata)

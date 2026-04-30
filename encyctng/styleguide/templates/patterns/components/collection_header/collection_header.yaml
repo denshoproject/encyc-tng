@@ -9,34 +9,87 @@ context:
       url: '#'
     - label: Authors by A-Z
       url: '#'
-  tags:
-    - name: Arts
+  topic_tags:
+    - title: Arts
       url: '#'
-    - name: Camps
+    - title: Camps
       url: '#'
-    - name: Chroniclers
+    - title: Chroniclers
       url: '#'
-    - name: Communities
+    - title: Communities
       url: '#'
-    - name: Definitions
+    - title: Definitions
       url: '#'
-    - name: Events
+    - title: Events
       url: '#'
-    - name: Legal
+    - title: Legal
       url: '#'
-    - name: Military
+    - title: Military
       url: '#'
-    - name: Newspapers
+    - title: Newspapers
       url: '#'
-    - name: Organizations
+    - title: Organizations
       url: '#'
-    - name: People
+    - title: People
       url: '#'
-    - name: Postwar
+    - title: Postwar
       url: '#'
-    - name: Prewar
+    - title: Prewar
       url: '#'
-    - name: Redress
+    - title: Redress
       url: '#'
-    - name: Resettlement
+    - title: Resettlement
+      url: '#'
+  az_tags:
+    - name: A
+      url: '#'
+    - name: B
+      url: '#'
+    - name: C
+      url: '#'
+    - name: D
+      url: '#'
+    - name: E
+      url: '#'
+    - name: F
+      url: '#'
+    - name: G
+      url: '#'
+    - name: H
+      url: '#'
+    - name: I
+      url: '#'
+    - name: J
+      url: '#'
+    - name: K
+      url: '#'
+    - name: L
+      url: '#'
+    - name: M
+      url: '#'
+    - name: N
+      url: '#'
+    - name: O
+      url: '#'
+    - name: P
+      url: '#'
+    - name: Q
+      url: '#'
+    - name: R
+      url: '#'
+    - name: S
+      url: '#'
+    - name: T
+      url: '#'
+    - name: U
+      url: '#'
+    - name: V
+      url: '#'
+    - name: W
+      url: '#'
+    - name: X
+      url: '#'
+    - name: Y
+      url: '#'
+    - name: Z
       url: '#'

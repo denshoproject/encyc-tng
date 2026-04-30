@@ -28,20 +28,21 @@
     </div>
 </div>
 
-{% if tags %}
+{% if topic_tags or az_tags %}
     <div class="grid">
         <ul class="tags">
             <!--<li>
                 <a href="/" class="tag tag--active">All</a>
             </li>-->
-            {% if "articles-topic" in request.META.PATH_INFO %}
-            {% for tag in tags %}
+            {% if topic_tags %}
+            {% for tag in topic_tags %}
                 <li class="tags__tag-item">
                     <button class="tag{% if tag.active %} tag--active{% endif %}" onclick="window.location.href='{{ tag.url }}'">{{ tag.title }}</button>
                 </li>
             {% endfor %}
-            {% else %}
-            {% for tag in tags %}
+            {% endif %}
+            {% if az_tags %}
+            {% for tag in az_tags %}
                 <li class="tags__tag-item">
                     <button class="tag{% if tag.active %} tag--active{% endif %}" onclick="window.location.href='{% querystring initial=tag.name page=None %}'">{{ tag.name }}</button>
                 </li>
