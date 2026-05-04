@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import configparser
+from os import environ
 from pathlib import Path
 import sys
 
@@ -27,6 +28,9 @@ CONFIG_FILES = [
     '/etc/encyc/encyctng.cfg',
     '/etc/encyc/encyctng-local.cfg'
 ]
+ENCYCTNG_EDITORS = environ.get('ENCYCTNG_EDITORS')
+if ENCYCTNG_EDITORS and ENCYCTNG_EDITORS == 'true':
+    CONFIG_FILES += ['/etc/encyc/encyctng-editors.cfg']
 config = configparser.ConfigParser()
 configs_read = config.read(CONFIG_FILES)
 if not configs_read:
