@@ -1,20 +1,22 @@
 from pathlib import Path
+from urllib.parse import urlparse
 
 from wagtail.admin.panels import (
     FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel
 )
 from wagtail.blocks import (
     BooleanBlock, CharBlock, TextBlock, RichTextBlock, URLBlock, ChoiceBlock,
-    StreamBlock, StructBlock,
+    StreamBlock, StructBlock, StructValue,
 )
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
-from wagtail.images.blocks import ImageChooserBlock
+from wagtail.images.blocks import ImageBlock as WagtailImageBlock
 from wagtailmedia.blocks import VideoChooserBlock
 
 
 class ArticleTextBlock(RichTextBlock):
-    pass
+    class Meta:
+        template = 'patterns/components/rich_text/rich_text.html'
 
 
 class DataboxBlock(StructBlock):
@@ -23,28 +25,28 @@ class DataboxBlock(StructBlock):
 
 """
 MariaDB [encycpsms]> describe sources_source;
-    id               | int(11)      
-    created          | datetime     
-    modified         | datetime     
-    published        | tinyint(1)   
-    densho_id        | varchar(255) 
+    id               | int(11)
+    created          | datetime
+    modified         | datetime
+    published        | tinyint(1)
+    densho_id        | varchar(255)
     headword         | varchar(255) # discard
-    encyclopedia_id  | varchar(255) 
-    caption          | longtext     
-    caption_extended | longtext     
-    courtesy         | longtext     
+    encyclopedia_id  | varchar(255)
+    caption          | longtext
+    caption_extended | longtext
+    courtesy         | longtext
     institution_id   | varchar(255) # "Vol. 21, Sec. C, WRA no. C-705", "hwrd0148", "LC-DIG-hec-23812", ...
     collection_name  | varchar(255) # "Jiro Onuma papers (#2000-27)", "FSA-OWI Collection", ...
     external_url     | varchar(200) # "http://ddr.densho.org/ddr/densho/242/29/", "http://www.oac.cdlib.org/ark:/13030/ft800007k2/?brand=oac4", ...
-    creative_commons | tinyint(1)   
-    original         | varchar(100) 
-    original_size    | int(11)      
+    creative_commons | tinyint(1)
+    original         | varchar(100)
+    original_size    | int(11)
     streaming_url    | varchar(200) # ex: rtmp://streaming.densho.org/denshostream/production/encyclopedia/en-denshovh-kyuri-01-0007-1.mp4
     transcript       | varchar(100) # sources/1/1577/en-denshovh-bdennis-02-0005-1.htm
-    display          | varchar(100) 
-    update_display   | tinyint(1)   
-    media_format     | varchar(32)  
-    aspect_ratio     | varchar(32)  
+    display          | varchar(100)
+    update_display   | tinyint(1)
+    media_format     | varchar(32)
+    aspect_ratio     | varchar(32)
     notes            | longtext     # not used
 
 Observations:
@@ -89,11 +91,50 @@ templates/wikiprox/source.html
         source.aspect_ratio    # get from wagtailmedia?
         source.streaming_path  # discard: not used
         source.rtmp_path       # TODO 253 rows of rtmp://streaming.densho.org/denshostream/ links, but these are all .mp4 files
-        source.transcript_path 
+        source.transcript_path
 """
 
+
+class ImageBlockStructValue(StructValue):
+    def modal(self):
+        caption = ' '.join([
+            self.get('caption'), self.get('caption2'),
+            self.get('courtesy')
+        ])
+        ddr_id = ''
+        if 'ddr-' in self.get('ext_url', ''):
+            ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
+        source_type = 'image'
+        source = self.get(source_type)
+        if source:
+            filename = Path(source.file.name).name
+            encyclopedia_id = filename
+            download_url = source.file.url
+            cite_url = f"/cite/{source.title}/"
+            view_url = f"/sources/{source_type}/{source.title}/"
+        else:
+            encyclopedia_id = None
+            download_url = None
+            cite_url = None
+            view_url = None
+        return {
+            'id': self.get('id'),
+            'open': False,
+            'media_type': 'Image',
+            'image': source,
+            'title': self.get('caption'),
+            'content': caption,
+            'caption': caption,
+            'densho_id': ddr_id,
+            'download_url': download_url,
+            'cite_url': cite_url,
+            'view_url': view_url,
+            'creative_commons': self.get('creative_commons'),
+        }
+
 class ImageBlock(StructBlock):
-    image = ImageChooserBlock(required=True)
+    signature = BooleanBlock(required=False)
+    image = WagtailImageBlock(required=True)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
     courtesy = CharBlock(required=False)
@@ -103,25 +144,74 @@ class ImageBlock(StructBlock):
     class Meta:
         icon = 'image'
         label = 'Image'
-        template = 'encyclopedia/blocks/imageblock.html'
+        template = 'patterns/components/full_width_image/full_width_image.html'
+        value_class = ImageBlockStructValue
 
     @staticmethod
-    def block_from_source(source, source_pks_by_filename):
+    def block_from_source(source, source_pks_by_encycid):
         """StreamField representation of ImageBlock from PSMS source"""
-        filename = Path(source['original_path']).name
-        image_pk = source_pks_by_filename['image'].get(
-            filename
-        )
-        return {
+        block = {
             'type': 'imageblock',
             'value': {
-                'image': image_pk,
+                'encyclopedia_id': source['encyclopedia_id'],
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
                 'creative_commons': source['creative_commons'],
                 'ext_url': source['external_url'],
             }
+        }
+        image_pk = source_pks_by_encycid['image'].get(source['encyclopedia_id'])
+        if image_pk:
+            block['image'] = {
+                'image': image_pk,
+                'contextual_alt_text': source['caption'],
+                'decorative': False,
+            }
+        return block
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # add our block value as the "item" variable for the template
+        context['item'] = value
+        return context
+
+
+class VideoBlockStructValue(StructValue):
+    def modal(self):
+        caption = ' '.join([
+            self.get('caption'), self.get('caption2'),
+            self.get('courtesy'),
+        ])
+        ddr_id = 'DDR ID HERE'
+        if 'ddr-' in self.get('ext_url', ''):
+            ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
+        source_type = 'video'
+        source = self.get(source_type)
+        if source:
+            filename = Path(source.file.name).name
+            encyclopedia_id = filename
+            download_url = source.file.url
+            cite_url = f"/cite/{source.title}/"
+            view_url = f"/sources/{source_type}/{source.title}/"
+        else:
+            encyclopedia_id = None
+            download_url = None
+            cite_url = None
+            view_url = None
+        return {
+            'id': self.get('id'),
+            'open': False,
+            'media_type': 'Video',
+            'video': source,
+            'title': self.get('caption'),
+            'content': caption,
+            'caption': caption,
+            'densho_id': ddr_id,
+            'download_url': download_url,
+            'cite_url': cite_url,
+            'view_url': view_url,
+            'creative_commons': self.get('creative_commons'),
         }
 
 class VideoBlock(StructBlock):
@@ -134,6 +224,7 @@ class VideoBlock(StructBlock):
         source.transcript_path
     """
     video = VideoChooserBlock(required=False)
+    display = WagtailImageBlock(required=False)
     transcript = DocumentChooserBlock(required=False)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
@@ -143,29 +234,86 @@ class VideoBlock(StructBlock):
     class Meta:
         icon = 'media'
         label = 'Video'
-        template = 'encyclopedia/blocks/videoblock.html'
+        template = 'patterns/components/full_width_image/full_width_image.html'
+        value_class = VideoBlockStructValue
 
     @staticmethod
-    def block_from_source(source, source_pks_by_filename):
+    def block_from_source(source, source_pks_by_encycid):
         """StreamField representation of VideoBlock from PSMS source"""
-        video_pk = source_pks_by_filename['video'].get(
-            Path(source['original_path']).name
-        )
-        transcript_pk = source_pks_by_filename['document'].get(
-            Path(source['transcript']).name
-        )
-        return {
+        block = {
             'type': 'videoblock',
             'value': {
-                'video': video_pk,
-                'transcript': transcript_pk,
+                'encyclopedia_id': source['encyclopedia_id'],
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
                 'creative_commons': source['creative_commons'],
             }
         }
+        video_pk = source_pks_by_encycid['video'].get(
+            source['encyclopedia_id']
+        )
+        if video_pk:
+            block['video'] = video_pk
+        display_pk = source_pks_by_encycid['image'].get(
+            source['encyclopedia_id']
+        )
+        if display_pk:
+            block['display'] = {
+                'image': display_pk,
+                'contextual_alt_text': source['caption'],
+                'decorative': False,
+            }
+        transcript_pk = source_pks_by_encycid['document'].get(
+            source['encyclopedia_id']
+        )
+        if transcript_pk:
+            block['transcript'] = transcript_pk
+        return block
 
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # add our block value as the "item" variable for the template
+        context['item'] = value
+        return context
+
+
+class DocumentBlockStructValue(StructValue):
+    def modal(self):
+        caption = ' '.join([
+            self.get('caption'), self.get('caption2'),
+            self.get('courtesy'),
+        ])
+        ddr_id = 'DDR ID HERE'
+        if 'ddr-' in self.get('ext_url', ''):
+            ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
+        source_type = 'document'
+        source = self.get(source_type)
+        if source:
+            filename = Path(source.file.name).name
+            encyclopedia_id = filename
+            download_url = source.file.url
+            cite_url = f"/cite/{source.title}/"
+            view_url = f"/sources/{source_type}/{source.title}/"
+        else:
+            encyclopedia_id = None
+            download_url = None
+            cite_url = None
+            view_url = None
+        return {
+            'id': self.get('id'),
+            'open': False,
+            'media_type': 'Document',
+            'document': source,
+            'title': self.get('caption'),
+            'content': caption,
+            'caption': caption,
+            'densho_id': ddr_id,
+            'download_url': download_url,
+            'cite_url': cite_url,
+            'view_url': view_url,
+            'creative_commons': self.get('creative_commons'),
+        }
 
 class DocumentBlock(StructBlock):
     """
@@ -175,7 +323,7 @@ class DocumentBlock(StructBlock):
         document_download_url
     """
     document = DocumentChooserBlock(required=True)
-    display = ImageChooserBlock(required=False)
+    display = WagtailImageBlock(required=False)
     caption = TextBlock(required=False)
     caption2 = TextBlock(required=False)
     courtesy = CharBlock(required=False)
@@ -185,22 +333,16 @@ class DocumentBlock(StructBlock):
     class Meta:
         icon = 'doc-full'
         label = 'Document'
-        template = 'encyclopedia/blocks/documentblock.html'
+        template = 'patterns/components/full_width_image/full_width_image.html'
+        value_class = DocumentBlockStructValue
 
     @staticmethod
-    def block_from_source(source, source_pks_by_filename):
+    def block_from_source(source, source_pks_by_encycid):
         """StreamField representation of DocumentBlock from PSMS source"""
-        document_pk = source_pks_by_filename['document'].get(
-            Path(source['original_path']).name
-        )
-        display_pk = source_pks_by_filename['image'].get(
-            Path(source['display_path']).name
-        )
-        return {
+        block = {
             'type': 'documentblock',
             'value': {
-                'document': document_pk,
-                'display': display_pk,
+                'encyclopedia_id': source['encyclopedia_id'],
                 'caption': source['caption'],
                 'caption2': source['caption_extended'],
                 'courtesy': source['courtesy'],
@@ -208,6 +350,27 @@ class DocumentBlock(StructBlock):
                 'ext_url': source['external_url'],
             }
         }
+        document_pk = source_pks_by_encycid['document'].get(
+            source['encyclopedia_id']
+        )
+        if document_pk:
+            block['document'] = document_pk
+        display_pk = source_pks_by_encycid['image'].get(
+            source['encyclopedia_id']
+        )
+        if display_pk:
+            block['display'] = {
+                'image': display_pk,
+                'contextual_alt_text': source['caption'],
+                'decorative': False,
+            }
+        return block
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # add our block value as the "item" variable for the template
+        context['item'] = value
+        return context
 
 
 class DDRObjectBlock(StructBlock):
@@ -243,7 +406,7 @@ class HeadingBlock(StructBlock):
 
     class Meta:
         icon = 'title'
-        template = 'encyclopedia/blocks/heading_block.html'
+        template = 'patterns/components/heading/heading.html'
 
 
 class EncycStreamBlock(StreamBlock):
@@ -269,7 +432,7 @@ class QuoteBlock(StructBlock):
 
     class Meta:
         icon = 'openquote'
-        template = 'encyclopedia/blocks/quote_block.html'
+        template = 'patterns/components/quote_block/quote_block.html'
 
 
 class DataboxCampBlock(StructBlock):

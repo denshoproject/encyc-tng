@@ -1,0 +1,133 @@
+// --------------------------------- Colors ------------------------------------
+$color--white: #fff;
+$color--grey: #8080804d;
+$color--light-grey: #f4f5f6;
+$color--dark-grey: #222227;
+$color--blue: #283851;
+$color--mid-blue: #536074;
+$color--light-blue: #c6ccd5;
+$color--dark-blue: #191c22;
+$color--orange: #ed6e58;
+$color--light-orange: #fce9e6;
+$color--dark-orange: #b94430;
+$color--transparent-orange: rgba(237, 110, 88, 0.15);
+$color--transparent-blue: rgba(40, 56, 81, 0.05);
+$color--transparent-white: rgba(255, 255, 255, 0.1);
+$color--border: #d4d7dc;
+$color--border-dark: #424e5f;
+
+// Light mode by default
+:root,
+.mode-light {
+    --color--background: #{$color--white};
+    --color--subtle-background: #{$color--light-orange};
+    --color--headings: #{$color--blue};
+    --color--toggle-background: #{$color--dark-blue};
+    --color--resource-background: #{$color--blue};
+    --color--body: #{$color--dark-grey};
+    --color--links: #{$color--dark-orange};
+    --color--links-hover: #{$color--dark-orange};
+    --color--lines: #{$color--grey};
+    --color--anchor-background: #{$color--light-grey};
+    --color--border: #{$color--border};
+    --color--border-dark: #{$color--border-dark};
+    --color--active: #{$color--blue};
+    // Base colors, do not change with theme
+    --color--white: #{$color--white};
+    --color--grey: #{$color--grey};
+    --color--light-grey: #{$color--light-grey};
+    --color--dark-grey: #{$color--dark-grey};
+    --color--blue: #{$color--blue};
+    --color--mid-blue: #{$color--mid-blue};
+    --color--light-blue: #{$color--light-blue};
+    --color--dark-blue: #{$color--dark-blue};
+    --color--orange: #{$color--orange};
+    --color--light-orange: #{$color--light-orange};
+    --color--dark-orange: #{$color--dark-orange};
+    --color--transparent-orange: #{$color--transparent-orange};
+    --color--transparent-blue: #{$color--transparent-blue};
+}
+
+// --------------------------------- Fonts ------------------------------------
+$font--primary: 'Mulish', sans-serif;
+$font--secondary: 'PT Sans', sans-serif;
+
+$base-font-size: 16px;
+
+// Font weights
+$weight--bold: 700;
+$weight--normal: 400;
+
+// Font sizes
+$large-font-sizes: (
+    heading-one: 50px,
+    heading-two: 34px,
+    heading-three: 26px,
+    heading-four: 22px,
+    introduction: 22px,
+    body: 18px,
+    meta-large: 16px,
+    meta-small: 14px,
+    meta-tiny: 12px,
+);
+
+$medium-font-sizes: (
+    heading-one: 42px,
+    heading-two: 31px,
+    heading-three: 24px,
+    heading-four: 20px,
+    introduction: 20px,
+    body: 17px,
+    meta-large: 15px,
+    meta-small: 14px,
+    meta-tiny: 12px,
+);
+
+$small-font-sizes: (
+    heading-one: 34px,
+    heading-two: 28px,
+    heading-three: 22px,
+    heading-four: 18px,
+    introduction: 18px,
+    body: 16px,
+    meta-large: 14px,
+    meta-small: 14px,
+    meta-tiny: 12px,
+);
+
+// --------------------------------- Sizing ------------------------------------
+
+$breakpoints: ('medium' '(min-width: 599px)', 'large' '(min-width: 1023px)');
+
+// Grid
+$grid-gutters-mobile: 20px;
+$grid-gutters-tablet: 40px;
+$grid-gutters-desktop: 80px;
+
+$site-max-width: 1440px;
+$reading-column-max-width: 860px;
+
+// Vertical spacing
+// Any changes here will also need to be made in tailwind.config.js
+$spacer-mini: 15px;
+$spacer-mini-plus: 20px;
+$spacer-small: ($spacer-mini * 2); // 30px
+$spacer-small-plus: 40px;
+$spacer-medium: ($spacer-mini * 4); // 60px
+$spacer-medium-plus: 100px;
+$spacer-large: ($spacer-mini * 8); // 120px
+$spacer: 160px;
+$spacer-half: ($spacer * 0.5); // 80px
+$spacer-x-large: ($spacer-mini * 16); // 240px
+$spacer-massive: ($spacer-mini * 24); // 360px
+
+// --------------------------------- Z-index ------------------------------------
+$z-index: (
+    under: -1,
+    base: 10,
+    header: 20,
+    skip-link: 130,
+);
+
+// --------------------------------- Transitions ------------------------------------
+$transition: 0.25s ease-in-out;

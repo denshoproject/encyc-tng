@@ -1,0 +1,53 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="collection-header">
+    <div class="grid">
+        <div class="collection-header__heading-wrapper">
+            <h1 class="collection-header__title heading heading--one">
+                {{ title }}
+            </h1>
+
+            <div class="collection-header__search">
+                {% include "../search/search-form.html" %}
+            </div>
+        </div>
+
+        {% if tabs %}
+            <div class="collection-header__tabs-wrapper">
+                <ul class="collection-header__tabs">
+                    {% for tab in tabs %}
+                        <li class="collection-header__tab">
+                            <a href="{{ tab.url }}" class="collection-header__tab-link{% if tab.active %} collection-header__tab-link--active{% endif %}">
+                                {{ tab.label }}
+                            </a>
+                        <li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if topic_tags or az_tags %}
+    <div class="grid">
+        <ul class="tags">
+            <!--<li>
+                <a href="/" class="tag tag--active">All</a>
+            </li>-->
+            {% if topic_tags %}
+            {% for tag in topic_tags %}
+                <li class="tags__tag-item">
+                    <button class="tag{% if tag.active %} tag--active{% endif %}" onclick="window.location.href='{{ tag.url }}'">{{ tag.title }}</button>
+                </li>
+            {% endfor %}
+            {% endif %}
+            {% if az_tags %}
+            {% for tag in az_tags %}
+                <li class="tags__tag-item">
+                    <button class="tag{% if tag.active %} tag--active{% endif %}" onclick="window.location.href='{% querystring initial=tag.name page=None %}'">{{ tag.name }}</button>
+                </li>
+            {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

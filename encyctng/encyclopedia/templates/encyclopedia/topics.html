@@ -1,8 +1,10 @@
-{% extends "encyclopedia/base.html" %}
-{% load wagtailcore_tags %}
+{% extends "base.html" %}
+{% load static %}
 
+{% block body_class %}template-information-page{% endblock %}
 
 {% block content %}
+<div class="grid">
 
 <h1>Topics</h1>
 
@@ -16,4 +18,5 @@
 </p>
 {% endif %}{% endfor %}
 
-{% endblock %}{# content #}
+</div><!-- /grid -->
+{% endblock content %}

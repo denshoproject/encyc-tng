@@ -1,0 +1,87 @@
+@use '../config' as *;
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding-left: $grid-gutters-mobile;
+    padding-right: $grid-gutters-mobile;
+    max-width: $site-max-width;
+    margin: 0 auto;
+
+    @include media-query(medium) {
+        padding-left: $grid-gutters-tablet;
+        padding-right: $grid-gutters-tablet;
+    }
+
+    @include media-query(large) {
+        grid-template-columns: repeat(12, 1fr);
+        padding-left: $grid-gutters-desktop;
+        padding-right: $grid-gutters-desktop;
+    }
+
+    &--no-gutter {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    // Make all child elements span the full width of the grid
+    > * {
+        grid-column: 1 / -1;
+    }
+
+    // Footer grid elements
+    &__footer-about-wrapper {
+        grid-column: 1 / span 6;
+        display: grid;
+        grid-template-columns: subgrid;
+
+        @include media-query(large) {
+            grid-column: 1 / span 7;
+        }
+    }
+
+    &__footer-about {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 1 / span 7;
+        }
+    }
+
+    &__footer-quick-links {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 8 / span 5;
+        }
+    }
+
+    &__footer-bottom {
+        display: grid;
+        grid-template-columns: subgrid;
+    }
+
+    &__footer-newsletter {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 1 / span 3;
+        }
+    }
+
+    &__footer-contact {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 5 / span 3;
+        }
+    }
+
+    &__footer-company {
+        grid-column: 1 / span 2;
+
+        @include media-query(large) {
+            grid-column: 8 / span 5;
+        }
+    }
+}

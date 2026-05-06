@@ -1,0 +1,74 @@
+@use '../../config' as *;
+
+.desktop-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 40px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: var(--color--blue);
+
+    // hide the desktop menu by default
+    visibility: hidden;
+    opacity: 0;
+
+    // active state
+    &.is-visible {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    &__list {
+        display: flex;
+        align-items: center;
+        gap: 60px;
+    }
+
+    &__link {
+        cursor: pointer;
+        background-color: transparent;
+        border: 0;
+        text-decoration: none;
+        color: var(--color--white);
+        font-weight: $weight--bold;
+        padding-bottom: 5px;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--color--mid-blue);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        &:hover::after {
+            width: 100%;
+        }
+
+        @include high-contrast-mode() {
+            text-decoration: underline;
+        }
+    }
+
+    &__search {
+        flex-grow: 1;
+        max-width: 570px;
+    }
+
+    &__close {
+        cursor: pointer;
+        background-color: transparent;
+        border: 0;
+        color: var(--color--light-blue);
+    }
+}

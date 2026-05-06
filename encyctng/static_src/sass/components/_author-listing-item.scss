@@ -1,0 +1,72 @@
+@use '../config' as *;
+
+.author-listing-item {
+    max-width: 395px;
+
+    &--standalone {
+        max-width: 100%;
+
+        & + & {
+            margin-top: $spacer-small;
+        }
+    }
+
+    &--header {
+        max-width: 100%;
+        margin: $spacer-small 0;
+    }
+
+    &__heading {
+        color: var(--color--headings);
+    }
+
+    &__container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: $spacer-small;
+    }
+
+    &__image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+    }
+
+    &__link {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+        color: var(--color--headings);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-skip-ink: all;
+        transition: color $transition;
+
+        &:hover,
+        &:focus {
+            color: var(--color--links-hover);
+        }
+    }
+
+    &__link-icon {
+        color: var(--color--links);
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    &__title {
+        margin-bottom: 0;
+    }
+
+    .page__section & {
+        @include media-query(large) {
+            grid-column: 3 / span 6;
+        }
+    }
+}

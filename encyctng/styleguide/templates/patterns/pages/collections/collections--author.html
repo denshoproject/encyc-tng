@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-collections app--orange{% endblock %}
+
+{% block content %}
+    {% include "patterns/components/collection_header/collection_header.html" with title="Collections" tags=tags tabs=tabs %}
+
+    <div class="grid">
+
+        {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author detail="true" modifier="header" %}
+
+        {% if collections %}
+            <div class="listing">
+                <div class="listing__header">
+                    <h2 class="listing__heading meta meta--large">
+                        <span class="listing__header-text">
+                            <b>{{ collections|length }}</b> Articles
+                        </span>
+                    </h2>
+                </div>
+                <div class="listing__content">
+                    <h2 class="listing__category-header">1-10</h2>
+                    <ul class="listing__items">
+                        {% for article in collections %}
+                            <li class="listing__item">
+                                {% include "patterns/components/article_listing_item/article_listing_item.html" with article=article %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% include "patterns/components/pagination/pagination-bottom.html" %}
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock content %}

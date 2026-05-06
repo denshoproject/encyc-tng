@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import configparser
+from os import environ
 from pathlib import Path
 import sys
 
@@ -27,6 +28,9 @@ CONFIG_FILES = [
     '/etc/encyc/encyctng.cfg',
     '/etc/encyc/encyctng-local.cfg'
 ]
+ENCYCTNG_EDITORS = environ.get('ENCYCTNG_EDITORS')
+if ENCYCTNG_EDITORS and ENCYCTNG_EDITORS == 'true':
+    CONFIG_FILES += ['/etc/encyc/encyctng-editors.cfg']
 config = configparser.ConfigParser()
 configs_read = config.read(CONFIG_FILES)
 if not configs_read:
@@ -38,6 +42,8 @@ SECRET_KEY = config.get('security', 'secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.get('debug', 'debug')
+
+APPLICATION_ENVIRONMENT = config.get('security', 'environment')
 
 LOG_LEVEL = config.get('debug', 'log_level')
 LOG_FILE = config.get('debug', 'log_file')
@@ -54,8 +60,13 @@ CSRF_TRUSTED_ORIGINS = [
     if host.strip()
 ]
 
-CACHE_TIMEOUT = 60 * 15
-CACHE_TIMEOUT_LONG = 60 * 60 * 12
+CACHE_TIMEOUT = config.getint('performance', 'cache_timeout')
+CACHE_TIMEOUT_LONG = config.getint('performance', 'cache_timeout_long')
+
+PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
+
+ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
+DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()
 
 # Application definition
 
@@ -64,9 +75,12 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'django.contrib.sessions',
+    'django.contrib.sitemaps',
     'django.contrib.staticfiles',
     'modelcluster',
+    'ninja',
     'taggit',
     'wagtail',
     'wagtail.admin',
@@ -84,8 +98,13 @@ INSTALLED_APPS = [
     'home',
     'editors',
     'encyclopedia',
+    'info',
     'search',
+    'sources',
+    'styleguide',
 ]
+if APPLICATION_ENVIRONMENT == 'development':
+    INSTALLED_APPS += ['pattern_library']
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -96,7 +115,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
-    'encyclopedia.middleware.RedirectLegacyURLsMiddleware',
 ]
 
 ROOT_URLCONF = 'encyctng.urls'
@@ -115,9 +133,38 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'builtins': [
+                'pattern_library.loader_tags',
+            ],
         },
     },
 ]
+
+# django-pattern-library
+if DEBUG:
+    X_FRAME_OPTIONS = "SAMEORIGIN"
+PATTERN_LIBRARY = {
+    # Groups of templates for the pattern library navigation. The keys
+    # are the group titles and the values are lists of template name prefixes that will
+    # be searched to populate the groups.
+    "SECTIONS": (
+        ("styleguide", ["patterns/styleguide"]),
+        ("components", ["patterns/components"]),
+        ("pages", ["patterns/pages"]),
+        ("sprites", ["patterns/sprites"]),
+    ),
+
+    # Configure which files to detect as templates.
+    "TEMPLATE_SUFFIX": ".html",
+
+    # Set which template components should be rendered inside of,
+    # so they may use page-level component dependencies like CSS.
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
+
+    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
+    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
+    "BASE_TEMPLATE_NAMES": ["patterns/base_page.html"],
+}
 
 WSGI_APPLICATION = 'encyctng.wsgi.application'
 
@@ -136,8 +183,8 @@ DATABASES = {
     }
 }
 
-REDIS_HOST = '127.0.0.1'
-REDIS_PORT = '6379'
+REDIS_HOST = config.get('redis', 'host')
+REDIS_PORT = config.get('redis', 'port')
 REDIS_DB_CACHE = '10'
 
 CACHES = {
@@ -147,6 +194,9 @@ CACHES = {
         "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_CACHE}",
     }
 }
+
+CACHE_TIMEOUT = int(config.get('performance', 'cache_timeout'))
+CACHE_TIMEOUT_LONG = int(config.get('performance', 'cache_timeout_long'))
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -172,7 +222,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+#TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
 
 USE_I18N = True
 
@@ -188,7 +239,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
-    PROJECT_DIR / 'static',
+    PROJECT_DIR / 'static_compiled',
 ]
 
 STATIC_ROOT = BASE_DIR / 'static'
@@ -227,7 +278,7 @@ WAGTAILSEARCH_BACKENDS = {
 
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
-WAGTAILADMIN_BASE_URL = config.get('wagtail', 'base_url'),
+WAGTAILADMIN_BASE_URL = config.get('wagtail', 'base_url')
 
 # Allowed file extensions for documents in the document library.
 # This can be omitted to allow all files, but note that this may present a security risk
@@ -236,6 +287,24 @@ WAGTAILADMIN_BASE_URL = config.get('wagtail', 'base_url'),
 WAGTAILDOCS_EXTENSIONS = [
     'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
 ]
+
+WAGTAIL_WORKFLOW_ENABLED = True
+
+WAGTAIL_WORKFLOW_REQUIRE_REAPPROVAL_ON_EDIT = False
+
+# Disable commenting
+WAGTAILADMIN_COMMENTS_ENABLED = False
+
+# Limit slugs to ASCII characters
+WAGTAIL_ALLOW_UNICODE_SLUGS = False
+
+# If true, the preview panel in the page editor is automatically updated on each change.
+# If false, the preview panel is only updated when the refresh button is clicked.
+WAGTAIL_AUTO_UPDATE_PREVIEW = False
+
+TAGGIT_CASE_INSENSITIVE = False
+WAGTAIL_TAG_SPACES_ALLOWED = False
+
 
 LOGGING = {
     "version": 1,

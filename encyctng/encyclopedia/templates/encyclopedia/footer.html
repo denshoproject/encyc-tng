@@ -1,22 +1,103 @@
-<table width="100%" border="1">
-  <tr>
-    <td>
-
 <footer class="footer">
-  <div id="ccNotice">
-    <p>
-      <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" /></a>
-    </p>
-    <p>
-      &copy; Densho {% now "Y" %}. The text of this work is licensed under a
-      <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a>.
-      Where indicated, images and other primary source materials may be
-      subject to use restrictions by their respective rights holders.
-      <a href="/about/#usingandciting">More information &raquo;</a>
-    </p>
+  {# Footer top #}
+  <div class="grid">
+    <div class="grid__footer-about-wrapper">
+      <div class="footer__about grid__footer-about">
+          <h2 class="heading heading--two">
+              This Is A Live Project
+          </h2>
+          <p class="footer__about-intro intro">
+              The Encyclopedia, featuring over
+              <a class="footer__about-link" href="/">over 1,700 articles</a>,
+              is an evolving project that explores key concepts, people, events and organizations involved in the forced removal and incarceration of Japanese Americans during World War II.
+          </p>
+          <p class="footer__about-subtitle meta meta--large">
+              Written by diverse contributors and enriched with photos, documents, and videos from Densho's digital archives and other sources, it is continually updated with new articles and features.
+          </p>
+      </div>
+    </div>
+    <div class="grid__footer-quick-links">
+      <ul class="footer__quick-links">
+        <li>
+          <a class="footer__quick-link heading heading--four" href="/history/">
+            About the Incarceration
+            {% include "patterns/components/icons/icon.html" with name="arrow" classname="footer__quick-link-icon size-5 text-brand-1" %}
+          </a>
+          <p class="footer__subtitle meta meta--small">
+              A short introduction to the history of the exclusion and incarceration of Japanese Americans during WWII.
+          </p>
+        </li>
+        <li>
+          <a class="footer__quick-link heading heading--four" href="/timeline/">
+            Timeline
+            {% include "patterns/components/icons/icon.html" with name="arrow" classname="footer__quick-link-icon size-5 text-brand-1" %}
+          </a>
+          <p class="footer__subtitle">
+              A short introduction to the history of the exclusion and incarceration of Japanese Americans during WWII.
+          </p>
+        </li>
+        <li>
+          <a class="footer__quick-link heading heading--four" href="https://maps.densho.org/sitesofshame/">
+            Map
+            {% include "patterns/components/icons/icon.html" with name="external-link" classname="footer__quick-link-icon size-5 text-brand-1" %}
+          </a>
+          <p class="footer__subtitle">
+              A short introduction to the history of the exclusion and incarceration of Japanese Americans during WWII.
+          </p>
+        </li>
+        <li>
+          <a class="footer__quick-link heading heading--four" href="/terminology/">
+            Do Words Matter?
+            {% include "patterns/components/icons/icon.html" with name="arrow" classname="footer__quick-link-icon size-5 text-brand-1" %}
+          </a>
+          <p class="footer__subtitle">
+              A short introduction to the history of the exclusion and incarceration of Japanese Americans during WWII.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  {# Footer bottom #}
+  <div class="grid">
+  <div class="footer__bottom grid__footer-bottom">
+    <div class="footer__newsletter grid__footer-newsletter">
+        <h2 class="heading heading--three">
+            Stay informed
+        </h2>
+        <p class="footer__subtitle mb-spacerMiniPlus">
+            Subscribe to Densho eNews, a monthly newsletter featuring our digital archive, news, and community updates
+        </p>
+        <a href="https://www.densho.org/contact-us/">
+            {% include "patterns/components/button/button.html" with text="Subscribe" icon="arrow" %}
+        </a>
+    </div>
+    <div class="footer__contact grid__footer-contact">
+        <h2 class="heading heading--three">
+            Contact us
+        </h2>
+        <p class="footer__subtitle mb-spacerMini">
+            We are interested in hearing your comments, suggestions and questions
+        </p>
+        <a class="footer__contact-email body" href="mailto:info@densho.org">info@densho.org</a>
+        <p class="footer__subtitle">
+            Densho, 1416 South Jackson St., Seattle, WA 98144
+        </p>
+    </div>
+    <div class="footer__company grid__footer-company">
+      <p class="footer__subtitle mb-spacerMiniPlus">
+        &copy; Densho {% now "Y" %}. The text of this work is licensed under a
+        <a class="footer__subtitle-link" rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a>.
+        Where indicated, images and other primary source materials may be
+        subject to use restrictions by their respective rights holders.
+        <a class="footer__subtitle-link" href="/about/#usingandciting">More information &raquo;</a>
+      </p>
+      <a class="footer__company-link meta meta--small" href="/about/#usingandciting">
+        Using and Citing Articles
+      </a>
+      <a class="footer__company-link" href="/about/#tosprivacy">
+        Terms of Use & Privacy
+      </a>
+  </div>
   </div>
 </footer>
-
-    </td>
-  </tr>
-</table>

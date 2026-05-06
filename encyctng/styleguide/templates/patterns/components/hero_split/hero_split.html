@@ -1,0 +1,60 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="hero-split{% if hero.meta %} hero-split--meta{% endif %}">
+    <div class="hero-split__container">
+        <h1 class="hero-split__title heading heading--one">{{ hero.title }}</h1>
+        <div class="hero-split__content">
+            <ul class="hero-split__actions">
+                {% if hero.type %}
+                    <li class="hero-split__action-item hero-split__action-item--type meta meta--small">
+                        {{ hero.type }}
+                    </li>
+                {% endif %}
+                <li class="hero-split__action-item">
+                    <a href="#" class="hero-split__action-link meta meta--small" onclick="window.print(); return false;">
+                        {% include "patterns/components/icons/icon.html" with name="print" classname="hero-split__action-icon" %}
+                        <span class="hero-split__action-label">Print</span>
+                    </a>
+                </li>
+                {# if page.citation #}
+                    <li class="hero-split__action-item">
+                        <button data-modal-trigger data-modal-id="modal-cite"  class="hero-split__action-link link meta meta--small">
+                            {% include "patterns/components/icons/icon.html" with name="bookmark" classname="hero-split__action-icon" %}
+                            <span class="hero-split__action-label">Cite</span>
+                        </button>
+
+                        {% include "patterns/components/modal/modal_cite.html" with citation=page.citation %}
+                    </li>
+                {# endif #}
+            </ul>
+	    {% if page.comingsoon %}
+	    <div class="alert alert-info" style="border:5px dashed red; padding:5px; margin-bottom:15px;">
+	      <p>
+		The content in this article is still under development. A completed version will appear soon!
+	      </p>
+	    </div>
+	    {% endif %}{# comingsoon #}
+            <div class="hero-split__introduction intro">
+                <div class="sf__block sf__block--{{ block.block_type }}">
+                    {% include_block hero.introduction %}
+                </div>
+            </div>
+            {% if skip %}
+                <a href="#body" class="hero-split__skip meta meta--small">
+                    {% include "patterns/components/icons/icon.html" with name="arrow-down" classname="hero-split__skip-icon" %}
+                    Skip to Article
+                </a>
+            {% endif %}
+        </div>
+        {% if hero.meta %}
+            <div class="hero-split__meta meta meta--small">
+                {% for meta in hero.meta %}
+                    <div class="hero-split__meta-item">
+                    <span class="hero-split__meta-label">{{ meta.label }}</span>
+                    <span class="hero-split__meta-value">{{ meta.value }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

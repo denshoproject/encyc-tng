@@ -1,0 +1,63 @@
+@use '../config' as *;
+
+.collection-header {
+    $root: &;
+    background-color: var(--color--orange);
+    padding-top: $spacer-small-plus;
+
+    #{$root}__title {
+        color: var(--color--white);
+    }
+
+    &__heading-wrapper {
+        margin-bottom: $spacer-small;
+
+        @include media-query(large) {
+            display: flex;
+            align-items: center;
+            gap: $spacer-mini-plus;
+        }
+    }
+
+    &__title {
+        color: var(--color--dark-blue);
+        margin-bottom: 0;
+    }
+
+    &__tabs-wrapper {
+        position: relative;
+    }
+
+    &__tabs {
+        display: flex;
+    }
+
+    &__tab-link {
+        @include rem-font-size(14px);
+        border-bottom: 4px solid transparent;
+        color: var(--color--dark-blue);
+        display: block;
+        font-weight: $weight--bold;
+        padding: 12px $spacer-small;
+        text-decoration: none;
+        transition: background-color $transition, border $transition;
+
+        @include media-query(medium) {
+            @include rem-font-size(15px);
+        }
+
+        @include media-query(large) {
+            @include rem-font-size(18px);
+            padding: $spacer-mini $spacer-small;
+        }
+
+        &:hover {
+            background-color: $color--transparent-white;
+        }
+
+        &--active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: var(--color--dark-blue);
+        }
+    }
+}

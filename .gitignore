@@ -1,6 +1,22 @@
+# compiled static files
+/encyctng/static_compiled
+
+.DS_Store
+*.swp
+/static/
+/media/
+/tmp/
+/db/
+/.vagrant/
+/Vagrantfile.local
+.nvm/
+node_modules/
+/npm-debug.log
+.vscode
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+*.py[oc]
 *$py.class
 
 # C extensions
@@ -21,7 +37,7 @@ sdist/
 var/
 wheels/
 share/python-wheels/
-*.egg-info/
+*.egg-info
 .installed.cfg
 *.egg
 MANIFEST

@@ -1,0 +1,67 @@
+context:
+  page:
+    title: About the Encyclopedia
+    last_published_at: 2021-01-01
+    hero:
+      title: About the Encyclopedia
+      introduction: The Densho Encyclopedia is a free and publicly accessible website that provides concise, accurate, and balanced information on many aspects of the Japanese American story during World War II. It is designed and written for a non-specialist audience that includes high school and college students and instructors, multiple generations of Nikkei community members, confinement sites preservation groups, amateur and professional historians, librarians, journalists, documentarians, and the general public.
+    in_page_nav:
+      - title: 'Item 1'
+        url: '/item-1/'
+      - title: 'Item 2'
+        url: '/item-2/'
+      - title: 'Item 3'
+        url: '/item-3/'
+    related_content:
+      title: You may also like
+      items:
+        - type: 'Article'
+          title: 'Tulean Dispatch (newspaper)'
+          url: '/articles/sample-article/'
+          description: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake'
+          author: 'John Doe'
+          tags:
+            - name: 'Camps'
+              url: '/tags/tag-1/'
+            - name: 'Chroniclers'
+              url: '/tags/tag-2/'
+        - type: 'Article'
+          title: 'Tule Lake'
+          url: '/articles/sample-article/'
+          description: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake'
+          author: 'John Doe'
+          tags:
+            - name: 'Tag 1'
+              url: '/tags/tag-1/'
+            - name: 'Tag 2'
+              url: '/tags/tag-2/'
+            - name: 'Tag 3'
+              url: '/tags/tag-3/'
+        - type: 'Article'
+          title: 'Tule Lake-Butte Valley Fair and Museum of Local History'
+          url: '/articles/sample-article/'
+          description: 'This is a sample article description that provides a brief overview of the article content.'
+          author: 'John Doe'
+          tags:
+            - name: 'Tag 1'
+              url: '/tags/tag-1/'
+            - name: 'Tag 2'
+              url: '/tags/tag-2/'
+            - name: 'Tag 3'
+              url: '/tags/tag-3/'
+        - type: 'Article'
+          title: 'Sample Article Title'
+          url: '/articles/sample-article/'
+          description: 'This is a sample article description that provides a brief overview of the article content.'
+          author: 'John Doe'
+          tags:
+            - name: 'Tag 1'
+              url: '/tags/tag-1/'
+            - name: 'Tag 2'
+              url: '/tags/tag-2/'
+            - name: 'Tag 3'
+              url: '/tags/tag-3/'
+tags:
+  include_block:
+    page.body:
+      template_name: '_pattern_library_only/streamfield/body_example.html'

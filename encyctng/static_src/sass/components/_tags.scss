@@ -1,0 +1,14 @@
+@use '../config' as *;
+
+.tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    position: relative;
+    list-style: none;
+    margin: $spacer-mini-plus 0;
+
+    @include media-query(large) {
+        padding: $spacer-small-plus 0;
+    }
+}

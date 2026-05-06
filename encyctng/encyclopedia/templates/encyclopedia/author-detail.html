@@ -1,20 +1,28 @@
-{% extends "encyclopedia/base.html" %}
-{% load wagtailcore_tags %}
+{% extends "base.html" %}
+{% load static %}
 
+{% block body_class %}template-information-page{% endblock %}
 
 {% block content %}
+<div class="grid">
+    <h1>{{ author.display_name }}</h1>
 
-<h1>{{ author.display_name }}</h1>
+    {% if page.in_page_nav %}
+    {% include "patterns/components/in_page_nav/in_page_nav.html" with items=page.in_page_nav %}
+    {% endif %}
 
-<p>
-{{ author.description }}
-</p>
+    {% load wagtailcore_tags wagtailimages_tags %}
+    {% image author.image fill-200x200 format-webp class="author-listing-item__image" loading="lazy" %}
+    <div class="author-listing-item__content">
+        <p class="author-listing-item__description">{{ author.role }}</p>
+        <div>{{ author.description|richtext }}</div>
+    </div>
 
-<h3>By this author</h3>
-<ul>
-  {% for article in articles %}
-  <li><a href="{{ article.url }}">{{ article }}</a></li>
-  {% endfor %}
-</ul><!-- /articles -->
 
-{% endblock %}{# content #}
+    <h3>By this author</h3>
+    {% for article in articles %}
+    {% include "patterns/components/article_listing_item/article_listing_item.html" with article=article %}
+    {% endfor %}
+
+</div><!-- /grid -->
+{% endblock content %}

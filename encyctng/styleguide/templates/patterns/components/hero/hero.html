@@ -1,0 +1,40 @@
+{% load wagtailimages_tags %}
+
+<div class="hero">
+    <div class="hero__container">
+        <div class="hero__content">
+            <h1 class="hero__title">{{ hero.title }}</h1>
+            <!-- components/hero/hero.html -->
+            <form action="{% url "encyc-articles-search" %}" method="get" role="search" class="hero__search">
+                <label class="sr-only hero__search-label" for="hero-search">
+                    Search 1,700+ articles
+                </label>
+                <input
+                    name="query"
+                    type="input"
+                    placeholder="Search 1,700+ articles"
+                    class="hero__search-input body"
+                    id="hero-search"
+                    >
+                <button type="submit" aria-label="Search" class="hero__search-button">
+                    {% include "patterns/components/icons/icon.html" with name="magnifying-glass" classname="hero__search-icon" %}
+                </button>
+            </form>
+            {% if hero.actions %}
+                <ul class="hero__actions">
+                    {% for action in hero.actions %}
+                        <li class="hero__action">
+                        <a class="hero__action-link body" href="{{ action.url }}">
+                            {{ action.text }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div class="hero__image-container">
+            {% image hero.image fill-1000x1000 format-webp as image %}
+            <img class="hero__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+        </div>
+    </div>
+</div>

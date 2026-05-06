@@ -1,0 +1,131 @@
+@use '../../config' as *;
+
+.header {
+    $root: &;
+
+    &__wrapper {
+        @include z-index(header);
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        max-width: $site-max-width;
+        margin: 0 auto 30px;
+        padding-left: $grid-gutters-mobile;
+        padding-right: $grid-gutters-mobile;
+
+        @include media-query(medium) {
+            padding-left: $grid-gutters-tablet;
+            padding-right: $grid-gutters-tablet;
+        }
+
+        @include media-query(large) {
+            justify-content: flex-start;
+            margin-bottom: 50px;
+            padding-left: $grid-gutters-desktop;
+            padding-right: $grid-gutters-desktop;
+        }
+    }
+
+    &__home-link {
+        @include rem-font-size(14px);
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: var(--color--blue);
+        color: var(--color--white);
+        text-decoration: none;
+        padding: 13px 14px;
+
+        @include media-query(large) {
+            @include rem-font-size(17px);
+            padding: 14px 17px;
+        }
+
+        .no-scroll & {
+            background-color: var(--color--dark-blue);
+        }
+    }
+
+    &__logo {
+        max-width: 80px;
+        height: 50px;
+        margin-bottom: 5px;
+
+        @include media-query(large) {
+            max-width: 100px;
+            height: 63px;
+        }
+    }
+
+    &__logo-text {
+        text-align: center;
+        width: 86px;
+
+        @include media-query(large) {
+            width: 104px;
+        }
+    }
+
+    &__mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        visibility: hidden;
+        background-color: var(--color--blue);
+        transition: opacity $transition, visibility $transition;
+
+        &.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @include media-query(large) {
+            display: none;
+        }
+    }
+
+    &__menu-toggle {
+        background-color: transparent;
+        border: 0;
+        box-shadow: none;
+        padding: 10px $spacer-mini-plus;
+        transition: background-color $transition;
+        font-weight: $weight--bold;
+        display: block;
+
+        @include media-query(large) {
+            display: none;
+        }
+
+        &.is-open {
+            #{$root}__menu-toggle-icon {
+                &--close {
+                    display: block;
+                }
+
+                &--open {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    &__menu-toggle-icon {
+        width: 32px;
+        height: 32px;
+
+        &--close {
+            color: var(--color--light-blue);
+            display: none;
+        }
+    }
+
+    .app--orange & {
+        #{$root}__wrapper {
+            margin-bottom: 0;
+        }
+    }
+}

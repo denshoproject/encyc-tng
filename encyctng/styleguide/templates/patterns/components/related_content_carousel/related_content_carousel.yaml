@@ -1,0 +1,60 @@
+name: Related Links Block
+context:
+  title: You may also like
+  items:
+    - type: 'Article'
+      title: 'Sample Article Title'
+      url: '/articles/sample-article/'
+      description: 'This is a sample article description that provides a brief overview of the article content.'
+      author: 'John Doe'
+      tags:
+        - name: 'Tag 1'
+          url: '/tags/tag-1/'
+        - name: 'Tag 2'
+          url: '/tags/tag-2/'
+    - type: 'Article'
+      title: 'Sample Article Title'
+      url: '/articles/sample-article/'
+      description: 'This is a sample article description that provides a brief overview of the article content.'
+      author: 'John Doe'
+      tags:
+        - name: 'Tag 1'
+          url: '/tags/tag-1/'
+        - name: 'Tag 2'
+          url: '/tags/tag-2/'
+    - type: 'Article'
+      title: 'Sample Article Title'
+      url: '/articles/sample-article/'
+      description: 'This is a sample article description that provides a brief overview of the article content.'
+      author: 'John Doe'
+      tags:
+        - name: 'Tag 1'
+          url: '/tags/tag-1/'
+        - name: 'Tag 2'
+          url: '/tags/tag-2/'
+    - type: 'Article'
+      title: 'Sample Article Title'
+      url: '/articles/sample-article/'
+      description: 'This is a sample article description that provides a brief overview of the article content.'
+      author: 'John Doe'
+      tags:
+        - name: 'Tag 1'
+          url: '/tags/tag-1/'
+        - name: 'Tag 2'
+          url: '/tags/tag-2/'
+    - type: 'Article'
+      title: 'Sample Article Title'
+      url: '/articles/sample-article/'
+      description: 'This is a sample article description that provides a brief overview of the article content.'
+      author: 'John Doe'
+      tags:
+        - name: 'Tag 1'
+          url: '/tags/tag-1/'
+        - name: 'Tag 2'
+          url: '/tags/tag-2/'
+
+tags:
+  image:
+    article.image fill-340x340 format-webp as image:
+      target_var: image
+      raw:

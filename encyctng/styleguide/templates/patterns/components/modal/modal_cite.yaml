@@ -1,0 +1,28 @@
+name: Cite Modal
+context:
+  page:
+    citation:
+      title: Tule Lake
+      meta:
+        - label: Page name
+          value: Tule Lake
+        - label: 'Author(s)'
+          value: 'Densho Encyclopedia contributors'
+        - label: Publisher
+          value: Densho Encyclopedia.
+        - label: Date of last revision
+          value: 13 September 2024 22:16 PDT
+        - label: Date retrieved
+          value: 3 February 2025 01:57 PST
+        - label: Permanent URL
+          value: '<a href="#">https://encyclopedia.densho.org/Tule%20Lake</a>'
+      apa: Matsumoto, Nancy. Aki Kurose. (2018, January 16). Densho Encyclopedia. Retrieved 10:32, June 16, 2025 from https://encyclopedia.densho.org/Aki%20Kurose.
+      bibtex: ...
+      chicago: Nancy Matsumoto. "Aki Kurose," Densho Encyclopedia https://encyclopedia.densho.org/Aki%20Kurose (accessed Jun 16 2025).
+      cse:
+      mhra: Matsumoto Nancy. 'Aki Kurose', Densho Encyclopedia 25 June 2012, 22:19 UTC, <https://encyclopedia.densho.org/Aki%20Kurose> [accessed 16 Jun 2025]
+      mla: Matsumoto, Nancy. "Aki Kurose." Densho Encyclopedia. 16 Jan 2018, 16:35 PST. 16 Jun 2025, 10:32 <https://encyclopedia.densho.org/Aki%20Kurose>.
+
+
+  modal:
+    open: true

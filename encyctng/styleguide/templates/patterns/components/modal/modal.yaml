@@ -1,0 +1,20 @@
+name: Modal
+context:
+  modal:
+    id: modal-1
+    open: true
+    title: Discover the history of the Japanese American incarceration during WWII
+    content: |
+      <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+    media_type: Image
+    caption: Aerial view of the Manzanar War Relocation Center, 1942
+    densho_id: ddr-densho-37-194
+    download_url: https://densho.org/wp-content/uploads/2021/03/ddr-densho-37-194-001-001-0001-0001.pdf
+    #cite_url: https://densho.org/wp-content/uploads/2021/03/ddr-densho-37-194-001-001-0001-0001.pdf
+    #view_url: https://densho.org/wp-content/uploads/2021/03/ddr-densho-37-194-001-001-0001-0001.pdf
+
+tags:
+  image:
+    modal.image width-1000 format-webp loading="lazy":
+      raw: |
+        <img src="https://picsum.photos/1000/1000.webp" alt="kitten">

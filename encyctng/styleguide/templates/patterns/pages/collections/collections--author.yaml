@@ -1,0 +1,58 @@
+context:
+  page:
+    title: Collections
+  tabs:
+    - label: Articles by Topic
+      url: '#'
+    - label: Articles by A-Z
+      url: '#'
+    - label: Authors by A-Z
+      url: '#'
+      active: true
+  tags:
+    - name: 'All'
+    - name: 'A'
+    - name: 'B'
+    - name: 'C'
+    - name: 'D'
+    - name: 'E'
+    - name: 'F'
+    - name: 'G'
+    - name: 'H'
+    - name: 'I'
+    - name: 'J'
+    - name: 'K'
+    - name: 'L'
+    - name: 'M'
+    - name: 'N'
+    - name: 'O'
+    - name: 'P'
+    - name: 'Q'
+    - name: 'R'
+    - name: 'S'
+    - name: 'T'
+    - name: 'U'
+    - name: 'V'
+    - name: 'W'
+    - name: 'X'
+    - name: 'Y'
+    - name: 'Z'
+  collections:
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'
+    - title: 'Barbara Takei'
+      url: '/authors/sample-author/'
+      role: 'California State University, San Bernardino'

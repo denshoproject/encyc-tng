@@ -1,0 +1,26 @@
+
+{% load wagtailcore_tags %}
+
+<div class="carousel{% if type == "full_width_image" %} carousel--full-width-image{% elif type == "related_content" %} carousel--related-content{% endif %} glide" data-carousel data-slidetotal="{{ items|length }}"{% if type %} data-carousel-type="{{ type }}"{% endif %}>
+    <div data-glide-el="track" class="glide__track">
+        <ul class="glide__slides">
+            {% for item in items %}
+                <li class="glide__slide">
+                    {% if type == "full_width_image" %}
+                        {% include "patterns/components/full_width_image/full_width_image.html" with item=item modifier="no-border" %}
+                    {% elif type == "related_content" %}
+                        {% include "patterns/components/article_listing_item/article_listing_item.html" with article=item modifier="carousel" %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="carousel__controls {% if items|length < 2 %}!hidden{% endif %}">
+        <div class="carousel__controls-group"
+            data-glide-el="controls"
+            {% if control_title %}aria-controls="{{ control_title|slugify }}"{% endif %}>
+            {% include "patterns/components/carousel_control/carousel_control.html" with modifier="left" %}
+            {% include "patterns/components/carousel_control/carousel_control.html" with modifier="right" %}
+        </div>
+    </div>
+</div>

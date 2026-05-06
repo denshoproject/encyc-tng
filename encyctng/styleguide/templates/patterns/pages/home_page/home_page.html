@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-homepage app--orange{% endblock %}
+
+{% block content %}
+    <div class="page">
+        <header class="page__header">
+            {% include "patterns/components/hero/hero.html" with hero=page.hero %}
+        </header>
+        <div class="page__content">
+            {% include "patterns/components/topics/topics.html" with topics=page.topics %}
+        </div>
+    </div>
+{% endblock content %}

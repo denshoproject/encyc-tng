@@ -1,0 +1,202 @@
+context:
+  page:
+    title: Bad Day at Black Rock
+    hero:
+      title: Bad Day at Black Rock
+      type: Film
+      introduction: Critically acclaimed 1955 movie starring Spencer Tracy whose plot is built around the murder of the Issei father of a Nisei war hero in a forlorn desert town and its subsequent cover up. Though it was one of the first movies to note the discrimination Japanese Americans faced during World War II, no Japanese American characters appear in it. Bad Day at Black Rock was nominated for three Academy Awards.
+      meta:
+        - label: Title
+          value: Bad Day at Black Rock
+        - label: Date
+          value: '<a href="#">Concentration Camp</a>'
+        - label: Genre
+          value: Drama
+        - label: Director
+          value: Newell, California (41.8833 lat, -121.3667 lng)
+    authors_all:
+      author:
+        get_absolute_url: '/authors/barbara-takei/'
+        display_name: Barbara Takei
+        role: 'California State University, San Bernardino'
+        bio: 'Barbara Takei is a Japanese American author and activist. She is the daughter of the late actor and activist George Takei.'
+    cite:
+      title: Tule Lake
+      apa_style: Takei, Barbara. Tule Lake. (2024, September 13). Densho Encyclopedia. Retrieved 01:57, February 3, 2025 from https://encyclopedia.densho.org/Tule%20Lake
+      bibtex: |
+        @misc{ wiki:xxx,
+          author = "Takei, B.",
+          title = "Tule Lake --- Densho Encyclopedia{,} ",
+          year = "2025",
+          url = "https://encyclopedia.densho.org/Tule%20Lake",
+          note = "[Online; accessed 3-Feb-2025]"
+        }
+      meta:
+        - label: Page name
+          value: Tule Lake
+        - label: 'Author(s)'
+          value: 'Densho Encyclopedia contributors'
+        - label: Publisher
+          value: Densho Encyclopedia.
+        - label: Date of last revision
+          value: 13 September 2024 22:16 PDT
+        - label: Date retrieved
+          value: 3 February 2025 01:57 PST
+        - label: Permanent URL
+          value: '<a href="#">https://encyclopedia.densho.org/Tule%20Lake</a>'
+    carousel:
+      - type: Document
+        caption: 'Amicus Curiae brief filed on behalf of the states of California, Oregon and Washington in the Supreme Court case Korematsu v. United States, Oct. 1944. Courtesy of Densho'
+        url: '#'
+        modal:
+          id: modal-1
+          open: false
+          title: Discover the history of the Japanese American incarceration during WWII
+          content: |
+            <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+      - type: Image
+        caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+        url: '#'
+        modal:
+          id: modal-2
+          open: false
+          title: Discover the history of the Japanese American incarceration during WWII
+          densho_id: ddr-densho-37-194
+          content: |
+            <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+      - type: Document
+        caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+        url: '#'
+        modal:
+          id: modal-3
+          open: false
+          densho_id: ddr-densho-37-194
+          title: Discover the history of the Japanese American incarceration during WWII
+          content: |
+            <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+      - type: Image
+        caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+        url: '#'
+        modal:
+          id: modal-4
+          open: false
+          densho_id: ddr-densho-37-194
+          title: Discover the history of the Japanese American incarceration during WWII
+          content: |
+            <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+      - type: Document
+        caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+        url: '#'
+        modal:
+          id: modal-5
+          open: false
+          densho_id: ddr-densho-37-194
+          title: Discover the history of the Japanese American incarceration during WWII
+          content: |
+            <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+      - type: Image
+        caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
+        url: '#'
+        modal:
+          id: modal-6
+          open: false
+          densho_id: ddr-densho-37-194
+          title: Discover the history of the Japanese American incarceration during WWII
+          content: |
+            <p>The Japanese American incarceration during WWII was a dark chapter in American history. Over 120,000 Japanese Americans were forcibly removed from their homes and sent to concentration camps. This was a violation of their civil rights and a betrayal of the values of freedom and democracy that the United States stands for.</p>
+    related_links:
+      - title: 'Guide to the Mike Lowry Congressional Papers, 1978–1988'
+        source: University of Washington Libraries
+        url: '#'
+      - title: 'Shimabukuro, Robert Sadamu. Born in Seattle: The Campaign for Japanese American Redress'
+        source: 'Seattle: University of Washington Press, 2001'
+        url: '#'
+      - title: 'Guide to the Mike Lowry Congressional Papers, 1978–1988'
+        source: University of Washington Libraries
+        url: '#'
+    list_footnotes:
+      - note: 'Minutes of “Meeting held to discuss results of investigation,” (April 9, 1943), NARA, RG 65, box 81, item 97; Wendy L. Ng, Japanese American Internment During World War II: A History and Reference Guide (Westport, CT: Greenwood Press, 2002), 58-61; Brian Masura Hayashi, Democratizing the Enemy: The Japanese American Internment (Princeton, NJ: Princeton University Press, 2004), 144.'
+      - note: 'Minutes of “Meeting held to discuss results of investigation,” (April 9, 1943), NARA, RG 65, box 81, item 97; Wendy L. Ng, Japanese American Internment During World War II: A History and Reference Guide (Westport, CT: Greenwood Press, 2002), 58-61; Brian Masura Hayashi, Democratizing the Enemy: The Japanese American Internment (Princeton, NJ: Princeton University Press, 2004), 144.'
+      - note: 'Minutes of “Meeting held to discuss results of investigation,” (April 9, 1943), NARA, RG 65, box 81, item 97; Wendy L. Ng, Japanese American Internment During World War II: A History and Reference Guide (Westport, CT: Greenwood Press, 2002), 58-61; Brian Masura Hayashi, Democratizing the Enemy: The Japanese American Internment (Princeton, NJ: Princeton University Press, 2004), 144.'
+    related_content:
+      title: You may also like
+      items:
+        - type: 'Article'
+          title: 'Tulean Dispatch (newspaper)'
+          url: '/articles/sample-article/'
+          description: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake'
+          author: 'John Doe'
+          tags:
+            - name: 'Camps'
+              url: '/tags/tag-1/'
+            - name: 'Chroniclers'
+              url: '/tags/tag-2/'
+        - type: 'Article'
+          title: 'Tule Lake'
+          url: '/articles/sample-article/'
+          description: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake'
+          author: 'John Doe'
+          tags:
+            - name: 'Tag 1'
+              url: '/tags/tag-1/'
+            - name: 'Tag 2'
+              url: '/tags/tag-2/'
+            - name: 'Tag 3'
+              url: '/tags/tag-3/'
+        - type: 'Article'
+          title: 'Tule Lake-Butte Valley Fair and Museum of Local History'
+          url: '/articles/sample-article/'
+          description: 'This is a sample article description that provides a brief overview of the article content.'
+          author: 'John Doe'
+          tags:
+            - name: 'Tag 1'
+              url: '/tags/tag-1/'
+            - name: 'Tag 2'
+              url: '/tags/tag-2/'
+            - name: 'Tag 3'
+              url: '/tags/tag-3/'
+        - type: 'Article'
+          title: 'Sample Article Title'
+          url: '/articles/sample-article/'
+          description: 'This is a sample article description that provides a brief overview of the article content.'
+          author: 'John Doe'
+          tags:
+            - name: 'Tag 1'
+              url: '/tags/tag-1/'
+            - name: 'Tag 2'
+              url: '/tags/tag-2/'
+            - name: 'Tag 3'
+              url: '/tags/tag-3/'
+    related_media:
+      title: Related Media
+      subtitle: (Densho Digital Repository)
+      items:
+        - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 1'
+          type: Audio
+          image: False
+          url: '#'
+        - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 2'
+          type: Audio
+          image: False
+          url: '#'
+        - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 3'
+          type: Audio
+          image: False
+          url: '#'
+        - title: 'Frank Emi oral history interview - Segment 1'
+          type: Video
+          image: //picsum.photos/160/160.webp
+          url: '#'
+        - title: 'Frank Emi oral history interview - Segment 2'
+          type: Video
+          image: //picsum.photos/160/160.webp
+          url: '#'
+        - title: 'An Oral History with Mitsuhiko H. Shimizu - Segment 4'
+          type: Audio
+          image: False
+          url: '#'
+
+tags:
+  include_block:
+    page.body:
+      template_name: '_pattern_library_only/streamfield/body_example.html'

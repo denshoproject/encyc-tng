@@ -1,0 +1,31 @@
+@use '../config' as *;
+
+.button {
+    display: flex;
+    align-items: center;
+    background-color: $color--orange;
+    background-image: none;
+    border: 0;
+    border-radius: 2px;
+    box-shadow: none;
+    padding: 10px 20px;
+    transition: background-color $transition;
+    font-weight: $weight--bold;
+
+    &:hover {
+        background-color: $color--white;
+        cursor: pointer;
+    }
+
+    @include high-contrast-mode() {
+        text-decoration: underline;
+    }
+
+    @include reduced-motion() {
+        transition: none;
+    }
+
+    &__icon {
+        margin-left: 10px;
+    }
+}

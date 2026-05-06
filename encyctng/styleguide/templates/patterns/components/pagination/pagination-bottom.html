@@ -1,0 +1,51 @@
+<div class="listing__footer">
+
+<nav class="pagination meta meta--small" aria-label="Pagination">
+    <div class="pagination__container">
+
+        <ul class="pagination__list">
+
+            {% if page_obj.has_previous %}
+            <li class="pagination__item pagination__item--prev">
+                <a class="pagination__link"
+                   href="{% querystring page=page_obj.previous_page_number %}">
+                    {% include "patterns/components/icons/icon.html" with name="arrow" classname="pagination__link-icon pagination__link-icon--prev" %}
+                    <span class="pagination__link-text">Previous</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for pagenum in page_range_bottom %}
+            {% if pagenum == page_obj.paginator.ELLIPSIS %}
+            <li class="pagination__item pagination__item--divider">
+                <span aria-hidden="true">
+                    {{ page_obj.paginator.ELLIPSIS }}
+                </span>
+            </li>
+            {% else %}
+            <li class="pagination__item pagination__item--page">
+                <a class="pagination__link
+                          pagination__link{% if pagenum == page_obj.number %}--active{% endif %}"
+                   href="{% querystring page=pagenum %}">
+                    {{ pagenum }}
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="pagination__item pagination__item--next">
+                <a class="pagination__link"
+                   href="{% querystring page=page_obj.next_page_number %}">
+                    <span class="pagination__link-text">Next</span>
+                    {% include "patterns/components/icons/icon.html" with name="arrow" classname="pagination__link-icon pagination__link-icon--next" %}
+                </a>
+            </li>
+            {% endif %}
+
+        </ul><!-- /pagination__list -->
+
+    </div><!-- /pagination__container -->
+</nav>
+
+</div><!-- listing__footer -->

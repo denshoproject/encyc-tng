@@ -1,0 +1,56 @@
+// This file is the entrypoint for the main.css Webpack bundle.
+// @use or declare custom styles here to include them.
+
+// Vendor
+@use '../../../node_modules/@glidejs/glide/dist/css/glide.core.min.css';
+
+@use 'base/base';
+@use 'base/typography';
+@use 'base/fonts';
+
+// Components
+@use 'components/article-listing-item';
+@use 'components/author-listing-item';
+@use 'components/app';
+@use 'components/button';
+@use 'components/carousel';
+@use 'components/carousel-control';
+@use 'components/collection-header';
+@use 'components/full-width-image';
+@use 'components/footnotes';
+@use 'components/grid';
+@use 'components/heading';
+@use 'components/hero';
+@use 'components/hero-split';
+@use 'components/icon';
+@use 'components/listing';
+@use 'components/modal';
+@use 'components/in-page-nav';
+@use 'components/pagination';
+@use 'components/pill';
+@use 'components/related-links';
+@use 'components/related-media';
+@use 'components/rich-text';
+@use 'components/related-content-carousel';
+@use 'components/search-form';
+@use 'components/sprites-preview-icons';
+@use 'components/search';
+@use 'components/sf';
+@use 'components/skip-link';
+@use 'components/page';
+@use 'components/tag';
+@use 'components/quote-block';
+@use 'components/tags';
+@use 'components/topics';
+
+// Navigation
+@use 'components/navigation/header';
+@use 'components/navigation/footer';
+@use 'components/navigation/mobile-menu';
+@use 'components/navigation/desktop-menu';
+@use 'components/navigation/desktop-nav';
+
+// Layout
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

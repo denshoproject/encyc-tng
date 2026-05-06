@@ -1,0 +1,128 @@
+@use '../config' as *;
+
+.related-media {
+    $root: &;
+    border-top: 1px solid var(--color--border);
+    margin-bottom: $spacer-small;
+
+    @include media-query(medium) {
+        margin-bottom: $spacer-medium;
+    }
+
+    &__heading {
+        color: var(--color--headings);
+        margin-bottom: 5px;
+        padding-bottom: 0;
+    }
+
+    &__sub-heading {
+        margin-bottom: $spacer-small;
+
+        @include media-query(medium) {
+            margin-bottom: $spacer-medium;
+        }
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: $spacer-small;
+
+        @include media-query(medium) {
+            gap: $spacer-small-plus;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+    }
+
+    &__item {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        gap: $spacer-mini;
+
+        @include media-query(medium) {
+            flex-basis: calc(50% - calc(#{$spacer-small-plus} / 2));
+        }
+
+        @include media-query(large) {
+            flex-basis: calc(33.333% - calc(#{$spacer-small-plus} * 2 / 3));
+        }
+    }
+
+    &__image-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        flex-basis: 80px;
+        max-width: 80px;
+        min-width: 80px;
+        background-color: var(--color--toggle-background);
+        color: var(--color--white);
+    }
+
+    &__icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30px;
+        height: 30px;
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 2px;
+        flex: 0 1 auto;
+    }
+
+    &__external-icon {
+        color: currentColor;
+        width: 16px;
+        height: 16px;
+    }
+
+    &__type {
+        margin-bottom: 0;
+        text-transform: uppercase;
+        font-weight: $weight--bold;
+        color: var(--color--links);
+    }
+
+    &__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.5;
+    }
+
+    &__title {
+        display: inline-flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: $spacer-mini;
+        margin-bottom: 0;
+    }
+
+    &__link {
+        color: var(--color--headings);
+        transition: color $transition;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        &:hover,
+        &:focus {
+            color: var(--color--links);
+        }
+    }
+}

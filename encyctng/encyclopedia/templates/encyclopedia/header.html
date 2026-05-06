@@ -1,18 +1,28 @@
-<table id="header" width="100%" border="1">
-  <tr>
-    <td width=300>
-      <h2>
-        Densho Encyclopedia
-      </h2>
-    </td>
-    <td>
-      <h3>
-        <a href="/topics/">Browse Topics</a>
-        &bull;
-        <a href="/articles/">Contents A-Z</a>
-        &bull;
-        <a href="/authors/">Authors</a>
-      </h3>
-    </td>
-  </tr>
-</table>
+<header class="header">
+    <div class="header__mobile-overlay" data-mobile-menu-overlay></div>
+
+    <div class="header__wrapper">
+        <a href="/" class="header__home-link" aria-label="Densho Encyclopedia home">
+            <svg class="header__logo" aria-hidden="true" focusable="false" >
+                <use xlink:href="#densho-logo"></use>
+            </svg>
+            <span class="header__logo-text" aria-hidden="true">Encyclopedia</span>
+        </a>
+
+        {# Desktop navigation #}
+        {% include "encyclopedia/includes/desktop-nav.html" %}
+
+        {# Mobile menu toggle #}
+        <button class="header__menu-toggle" aria-label="Mobile menu toggle" data-mobile-menu-toggle>
+            <span>
+                {% include "patterns/components/icons/icon.html" with name="menu" classname="header__menu-toggle-icon header__menu-toggle-icon--open" %}
+            </span>
+            <span>
+                {% include "patterns/components/icons/icon.html" with name="cross-in-circle" classname="header__menu-toggle-icon header__menu-toggle-icon--close" %}
+            </span>
+        </button>
+
+        {# Mobile menu #}
+        {% include "encyclopedia/includes/mobile-menu.html" %}
+    </div>
+</header>

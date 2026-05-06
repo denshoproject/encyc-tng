@@ -1,0 +1,26 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="author-listing-item{% if modifier %} author-listing-item--{{ modifier }}{% endif %}">
+    {% if modifier == 'standalone' and forloop.first %}
+        <h2 class="author-listing-item__heading heading heading--three section-heading">Authored by</h2>
+    {% endif %}
+    <div class="author-listing-item__container">
+        {# image author.image fill-200x200 format-webp class="author-listing-item__image" loading="lazy" #}
+        <div class="author-listing-item__content">
+            <h3 class="author-listing-item__title heading heading--four">
+                <a class="author-listing-item__link" href="{{ author.get_absolute_url }}">
+                    {{ author.title }}
+                    {% include "patterns/components/icons/icon.html" with name="arrow" classname="author-listing-item__link-icon" %}
+                </a>
+            </h3>
+            <p class="author-listing-item__description">{{ author.role }}</p>
+            {% if author.description %}
+                <div class="author-listing-item__description">
+                  {% if detail %}{{ author.description|richtext }}
+                  {% else %}{{ author.description|richtext|truncatewords:50 }}
+                  {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

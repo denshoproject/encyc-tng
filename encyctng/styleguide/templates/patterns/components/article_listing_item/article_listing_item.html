@@ -1,0 +1,33 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="article-listing-item{% if modifier %} article-listing-item--{{ modifier }}{% endif %}">
+    <div class="article-listing-item__container">
+        <div class="article-listing-item__image-container">
+            {% image article.get_signature_image fill-340x340 format-webp as image %}
+            <a class="article-listing-item__link" href="{{ article.url }}"><img class="article-listing-item__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}"></a>
+        </div>
+        <div class="article-listing-item__content">
+            <p class="article-listing-item__meta meta meta--tiny">{{ article.type }}</p>
+            <h3 class="article-listing-item__title heading heading--four">
+                <a class="article-listing-item__link" href="{{ article.url }}">{{ article.title }}</a>
+            </h3>
+            <p class="article-listing-item__description">
+	      {% if type == "related_content" %}
+	      {{ article.description | truncatewords:50 }}
+	      {% else %}
+	      {{ article.description }}
+	      {% endif %}
+	    </p>
+            {% if type == "related_content" and article.author %}
+                <p class="article-listing-item__author meta meta--small">By {{ article.author }}</p>
+            {% endif %}
+            {% if article.tags %}
+                <ul class="article-listing-item__tags">
+                    {% for tag in article.tags.all %}
+                        <li class="article-listing-item__tag">{% include "patterns/components/tag/tag.html" with tag=tag classes="tag--tiny meta meta--tiny" %}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>

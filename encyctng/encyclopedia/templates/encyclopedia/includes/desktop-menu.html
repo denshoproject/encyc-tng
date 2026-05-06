@@ -1,0 +1,26 @@
+<div class="desktop-menu" data-desktop-menu>
+    <div class="desktop-menu__search">
+        {% include "patterns/components/search/search-form.html" %}
+    </div>
+
+    <ul class="desktop-menu__list">
+        <li class="desktop-menu__list-item">
+            <a href="/categories/" class="desktop-menu__link">
+                <span class="header__nav-text">Topics</span>
+            </a>
+        </li>
+        <li class="desktop-menu__list-item">
+            <a href="/contents/" class="desktop-menu__link">
+                <span class="header__nav-text">A-Z</span>
+            </a>
+        </li>
+        <li class="desktop-menu__list-item">
+            <a href="/authors/" class="desktop-menu__link">
+                <span class="header__nav-text">Authors</span>
+            </a>
+        </li>
+    </ul>
+    <button class="desktop-menu__close" data-desktop-menu-close>
+        {% include "patterns/components/icons/icon.html" with name="cross-in-circle" classname="size-7" %}
+    </button>
+</div>

@@ -4,28 +4,30 @@
 
 {% block content %}
 
-<h3>
-  <a href="{{ article.url }}">{{ article }}</a>
-</h3>
 <p>
-  {% image source.image width-1000 loading="lazy" %}
+  {% image source width-1000 loading="lazy" %}
 </p>
 <p>
-<!-- source.image.id {{ source.image.id }}<br/> -->
-<!-- source.image.filename {{ source.image.filename }}<br/> -->
-<!-- source.image.file.file.name {{ source.image.file.file.name }}<br/> -->
-{{ source.image.width }}x{{ source.image.height }}
-({{ source.image.get_file_size | filesizeformat }})
+<!-- source.id {{ source.id }}<br/> -->
+<!-- source.filename {{ source.filename }}<br/> -->
+<!-- source.file.file.name {{ source.file.file.name }}<br/> -->
+{{ source.width }}x{{ source.height }}
+({{ source.get_file_size | filesizeformat }})
 </p>
-<p>
-<!-- source.source_id {{ source.source_id }}<br/> -->
-{{ source.caption }}
-{% if source.caption2 %}<br/>{{ source.caption2 }}{% endif %}
-{% if source.courtesy %}<br/>{{ source.courtesy }}{% endif %}
-</p>
-{% if source.ext_url %}<p>
-  <a href="{{ source.ext_url }}">{{ source.ext_url }}</a>
-</p>{% endif %}
-{% if source.creative_commons %}<p>CREATIVE_COMMONS</p>{% endif %}
+
+{% for article,block in articles_blocks %}
+  <h3>
+    <a href="{{ article.url }}">{{ article }}</a>
+  </h3>
+  <p>
+  {{ block.caption }}
+  {% if block.caption2 %}<br/>{{ block.caption2 }}{% endif %}
+  {% if block.courtesy %}<br/>{{ block.courtesy }}{% endif %}
+  </p>
+  {% if block.ext_url %}<p>
+    <a href="{{ block.ext_url }}">{{ block.ext_url }}</a>
+  </p>{% endif %}
+  {% if block.creative_commons %}<p>CREATIVE_COMMONS</p>{% endif %}
+{% endfor %}
 
 {% endblock %}{# content #}

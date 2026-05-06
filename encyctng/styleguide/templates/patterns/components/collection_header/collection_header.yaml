@@ -1,0 +1,95 @@
+context:
+  title: Collection
+  search_query: Test query
+  tabs: 
+    - label: Articles by Topic
+      url: '#'
+      active: true
+    - label: Articles by A-Z
+      url: '#'
+    - label: Authors by A-Z
+      url: '#'
+  topic_tags:
+    - title: Arts
+      url: '#'
+    - title: Camps
+      url: '#'
+    - title: Chroniclers
+      url: '#'
+    - title: Communities
+      url: '#'
+    - title: Definitions
+      url: '#'
+    - title: Events
+      url: '#'
+    - title: Legal
+      url: '#'
+    - title: Military
+      url: '#'
+    - title: Newspapers
+      url: '#'
+    - title: Organizations
+      url: '#'
+    - title: People
+      url: '#'
+    - title: Postwar
+      url: '#'
+    - title: Prewar
+      url: '#'
+    - title: Redress
+      url: '#'
+    - title: Resettlement
+      url: '#'
+  az_tags:
+    - name: A
+      url: '#'
+    - name: B
+      url: '#'
+    - name: C
+      url: '#'
+    - name: D
+      url: '#'
+    - name: E
+      url: '#'
+    - name: F
+      url: '#'
+    - name: G
+      url: '#'
+    - name: H
+      url: '#'
+    - name: I
+      url: '#'
+    - name: J
+      url: '#'
+    - name: K
+      url: '#'
+    - name: L
+      url: '#'
+    - name: M
+      url: '#'
+    - name: N
+      url: '#'
+    - name: O
+      url: '#'
+    - name: P
+      url: '#'
+    - name: Q
+      url: '#'
+    - name: R
+      url: '#'
+    - name: S
+      url: '#'
+    - name: T
+      url: '#'
+    - name: U
+      url: '#'
+    - name: V
+      url: '#'
+    - name: W
+      url: '#'
+    - name: X
+      url: '#'
+    - name: Y
+      url: '#'
+    - name: Z
+      url: '#'

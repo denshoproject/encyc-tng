@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-collections app--orange{% endblock %}
+
+{% block content %}
+    {% include "patterns/components/collection_header/collection_header.html" with title="Collections" %}
+
+    <div class="grid">
+        {% if page_obj %}
+            <div class="listing">
+
+                {% include "patterns/components/pagination/pagination-top.html" with page_obj=page_obj %}
+
+                <div class="listing__content">
+                    <ul class="listing__items">
+                        {% for article in page_obj %}
+                            <li class="listing__item">
+                                {% include "patterns/components/article_listing_item/article_listing_item.html" with article=article %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                {% include "patterns/components/pagination/pagination-bottom.html" with page_obj=page_obj %}
+
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -1,0 +1,13 @@
+<div class="footnotes" id="footnotes">
+    <h2 class="footnotes__heading heading heading--three section-heading">{{ title }}</h2>
+    <ol class="footnotes__list">
+        {% for footnote in footnotes %}
+        <li class="footnotes__item meta meta--small" id="cite_note-{{ forloop.counter }}">
+            <a href="#cite_ref-{{ forloop.counter }}">
+                {% include "patterns/components/icons/icon.html" with name="arrow-up" classname="footnotes__icon" %}
+            </a>
+            {{ footnote | safe }}
+        </li>
+        {% endfor %}
+    </ol>
+</div>

@@ -31,12 +31,22 @@
         {% endblock %}
     </head>
 
-    <body class="{% block body_class %}{% endblock %}">
+    <body class="app {% block body_class %}{% endblock %}">
+        {% include "patterns/components/skip_link/skip_link.html" %}
+        {% include "patterns/sprites/sprites.html" %}
+
         {% wagtailuserbar %}
+        <div class="app__header">
+            {% include "encyclopedia/header.html" %}
+        </div>
 
-        {% block content %}{% endblock %}
+        <main class="app__content" id="main-content">
+            {% block content %}{% endblock %}
+        </main>
 
-        {% include "footer.html" %}
+        <div class="app__footer">
+            {% include "encyclopedia/footer.html" %}
+        </div>
 
         {# Global javascript #}
         <script type="text/javascript" src="{% static 'js/encyctng.js' %}"></script>

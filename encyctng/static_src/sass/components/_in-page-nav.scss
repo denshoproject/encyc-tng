@@ -1,0 +1,53 @@
+@use '../config' as *;
+
+.in-page-nav {
+    $root: &;
+    margin-bottom: $spacer-half;
+
+    &__title {
+        margin-bottom: $spacer-small;
+        padding-bottom: 0;
+        color: var(--color--headings);
+    }
+
+    &__container {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    &__item {
+        margin-bottom: 5px;
+        padding: 0;
+    }
+
+    &__link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 7px;
+        color: var(--color--body);
+        border-radius: 2px;
+        background-color: var(--color--anchor-background);
+        text-decoration: none;
+        transition: color $transition, background-color $transition;
+
+        &:hover,
+        &:focus {
+            color: var(--color--links-hover);
+            background-color: var(--color--transparent-orange);
+        }
+    }
+
+    &__link-icon {
+        color: var(--color--links);
+        height: 14px;
+        width: 14px;
+    }
+
+    .page__content & {
+        @include media-query(medium) {
+            grid-column: 3 / 11;
+        }
+    }
+}

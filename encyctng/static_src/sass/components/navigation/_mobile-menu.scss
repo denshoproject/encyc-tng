@@ -1,0 +1,53 @@
+@use '../../config' as *;
+
+.mobile-menu {
+    position: fixed;
+    width: 100%;
+    height: calc(100vh - 100px);
+    top: 100px;
+    left: 0;
+    overflow: hidden;
+    overflow-y: visible;
+    padding-left: $grid-gutters-mobile;
+    padding-right: $grid-gutters-mobile;
+    display: block;
+    // hide the mobile menu by default
+    visibility: hidden;
+    opacity: 0;
+
+    @include media-query(medium) {
+        padding-left: $grid-gutters-tablet;
+        padding-right: $grid-gutters-tablet;
+    }
+
+    @include media-query(large) {
+        display: none;
+    }
+
+    // active state
+    &.is-visible {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    &__search {
+        padding: $spacer-small 0;
+    }
+
+    &__item {
+        border-top: 1px solid var(--color--border-dark);
+        padding: $spacer-mini $spacer-mini-plus;
+
+        &:last-child {
+            border-bottom: 1px solid var(--color--border-dark);
+        }
+    }
+
+    &__link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--color--white);
+        font-weight: $weight--bold;
+    }
+}

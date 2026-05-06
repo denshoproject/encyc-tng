@@ -1,0 +1,41 @@
+@use '../config' as *;
+
+.rich-text {
+    h3,
+    h4 {
+        color: var(--color--headings);
+    }
+
+    ul {
+        list-style: outside disc;
+        margin-left: 20px;
+        margin-bottom: 20px;
+    }
+
+    ol {
+        list-style: outside decimal;
+        margin-left: 20px;
+        margin-bottom: 20px;
+    }
+
+    a {
+        color: var(--color--links);
+    }
+
+    p {
+        @include rem-font-size(16px);
+        margin-bottom: $spacer-small;
+
+        @include media-query(medium) {
+            @include rem-font-size(17x);
+        }
+
+        @include media-query(large) {
+            @include rem-font-size(18px);
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
