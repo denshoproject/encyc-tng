@@ -2084,7 +2084,9 @@ description
                 # and there's no filename in block so what do we match on?  caption?
                 if block.block_type == 'imageblock':
                     try:
-                        image = Image.objects.get(pk=sources_block['image'])
+                        image = Image.objects.get(pk=sources_block['image']['image'])
+                        image.contextual_alt_text = sources_block['image']['contextual_alt_text']
+                        image.decorative = sources_block['image']['decorative']
                         block.value['image'] = image
                     except KeyError:
                         pass
