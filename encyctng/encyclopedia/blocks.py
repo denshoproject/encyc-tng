@@ -163,7 +163,11 @@ class ImageBlock(StructBlock):
         }
         image_pk = source_pks_by_encycid['image'].get(source['encyclopedia_id'])
         if image_pk:
-            block['image'] = image_pk
+            block['image'] = {
+                'image': image_pk,
+                'contextual_alt_text': source['caption'],
+                'decorative': False,
+            }
         return block
 
     def get_context(self, value, parent_context=None):
