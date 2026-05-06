@@ -359,7 +359,11 @@ class DocumentBlock(StructBlock):
             source['encyclopedia_id']
         )
         if display_pk:
-            block['display'] = display_pk
+            block['display'] = {
+                'image': display_pk,
+                'contextual_alt_text': source['caption'],
+                'decorative': False,
+            }
         return block
 
     def get_context(self, value, parent_context=None):
