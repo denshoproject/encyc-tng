@@ -2094,7 +2094,9 @@ description
                     try:
                         video = Media.objects.get(pk=sources_block['video'])
                         block.value['video'] = video
-                        display = Image.objects.get(pk=sources_block['display'])
+                        display = Image.objects.get(pk=sources_block['display']['image'])
+                        display.contextual_alt_text = sources_block['image']['contextual_alt_text']
+                        display.decorative = sources_block['image']['decorative']
                         block.value['display'] = display
                         transcript = Media.objects.get(pk=sources_block['transcript'])
                         block.value['transcript'] = transcript
