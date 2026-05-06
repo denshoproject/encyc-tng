@@ -2084,7 +2084,9 @@ description
                 # and there's no filename in block so what do we match on?  caption?
                 if block.block_type == 'imageblock':
                     try:
-                        image = Image.objects.get(pk=sources_block['image'])
+                        image = Image.objects.get(pk=sources_block['image']['image'])
+                        image.contextual_alt_text = sources_block['image']['contextual_alt_text']
+                        image.decorative = sources_block['image']['decorative']
                         block.value['image'] = image
                     except KeyError:
                         pass
@@ -2092,7 +2094,9 @@ description
                     try:
                         video = Media.objects.get(pk=sources_block['video'])
                         block.value['video'] = video
-                        display = Image.objects.get(pk=sources_block['display'])
+                        display = Image.objects.get(pk=sources_block['display']['image'])
+                        display.contextual_alt_text = sources_block['display']['contextual_alt_text']
+                        display.decorative = sources_block['display']['decorative']
                         block.value['display'] = display
                         transcript = Media.objects.get(pk=sources_block['transcript'])
                         block.value['transcript'] = transcript
@@ -2104,7 +2108,9 @@ description
                     try:
                         document = Document.objects.get(pk=sources_block['document'])
                         block.value['document'] = document
-                        display = Image.objects.get(pk=sources_block['display'])
+                        display = Image.objects.get(pk=sources_block['display']['image'])
+                        display.contextual_alt_text = sources_block['display']['contextual_alt_text']
+                        display.decorative = sources_block['display']['decorative']
                         block.value['display'] = display
                     except KeyError:
                         pass

@@ -163,7 +163,11 @@ class ImageBlock(StructBlock):
         }
         image_pk = source_pks_by_encycid['image'].get(source['encyclopedia_id'])
         if image_pk:
-            block['image'] = image_pk
+            block['image'] = {
+                'image': image_pk,
+                'contextual_alt_text': source['caption'],
+                'decorative': False,
+            }
         return block
 
     def get_context(self, value, parent_context=None):
@@ -255,7 +259,11 @@ class VideoBlock(StructBlock):
             source['encyclopedia_id']
         )
         if display_pk:
-            block['display'] = display_pk
+            block['display'] = {
+                'image': display_pk,
+                'contextual_alt_text': source['caption'],
+                'decorative': False,
+            }
         transcript_pk = source_pks_by_encycid['document'].get(
             source['encyclopedia_id']
         )
@@ -351,7 +359,11 @@ class DocumentBlock(StructBlock):
             source['encyclopedia_id']
         )
         if display_pk:
-            block['display'] = display_pk
+            block['display'] = {
+                'image': display_pk,
+                'contextual_alt_text': source['caption'],
+                'decorative': False,
+            }
         return block
 
     def get_context(self, value, parent_context=None):
