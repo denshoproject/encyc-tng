@@ -305,6 +305,21 @@ WAGTAIL_AUTO_UPDATE_PREVIEW = False
 TAGGIT_CASE_INSENSITIVE = False
 WAGTAIL_TAG_SPACES_ALLOWED = False
 
+# Front-end cache invalidation
+# https://docs.wagtail.org/en/stable/reference/contrib/frontendcache.html
+CLOUDFLARE_EMAIL   = config.get('performance', 'cloudflare_email'),
+CLOUDFLARE_API_KEY = config.get('performance', 'cloudflare_api_key'),
+CLOUDFLARE_ZONEID  = config.get('performance', 'cloudflare_zoneid'),
+if CLOUDFLARE_EMAIL and CLOUDFLARE_API_KEY and CLOUDFLARE_ZONEID:
+    INSTALLED_APPS += ['wagtail.contrib.frontend_cache']
+    WAGTAILFRONTENDCACHE = {
+        'cloudflare': {
+            'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
+            'EMAIL': CLOUDFLARE_EMAIL,
+            'API_KEY': CLOUDFLARE_API_KEY,
+            'ZONEID': CLOUDFLARE_ZONEID,
+        },
+    }
 
 LOGGING = {
     "version": 1,
