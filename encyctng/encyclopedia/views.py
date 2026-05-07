@@ -96,8 +96,6 @@ def articles_base_query():
     articles = Article.objects.live() \
         .only('title','title_sort','description','signature_image') \
         .prefetch_related('topics')
-    # TODO Prefetching image renditions
-    # https://docs.wagtail.org/en/stable/advanced_topics/images/renditions.html
     return articles
 
 @cache_page(settings.CACHE_TIMEOUT)
