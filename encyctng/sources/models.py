@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 import os
 
-import unicodecsv
+#import unicodecsv
 
 from django.conf import settings
 from django.db import models

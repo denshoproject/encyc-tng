@@ -9,7 +9,6 @@ from django.core.cache import cache
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
-import httpx
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.models import TaggedItemBase
