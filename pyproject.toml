@@ -28,9 +28,7 @@ classifiers = [
 dynamic = ["version"]  # will read __version__ from encyctng/__init__.py
 requires-python = ">=3.13"
 dependencies = [
-    'beautifulsoup4==4.14.3',
-    'Django==6.0.3',
-    'django-click==2.5.0',
+    'django==6.0.3',
     'django-extensions==4.1',
     'django-ninja==1.6.1',
     'django-pattern-library==1.5.0',
@@ -38,19 +36,24 @@ dependencies = [
     'httpx==0.25.0',  # https://news.ycombinator.com/item?id=47514603
     'lxml==6.0.2',
     'psycopg==3.3.3',
-    'pyclean==3.6.0',
-    'python-dateutil==2.9.0.post0',
     'wagtail==7.4',
     'wagtailmedia==0.17.2',
     'walrus==0.9.8',
+]
+
+[project.optional-dependencies]
+migration = [
+    'beautifulsoup4==4.14.3',
+    'django-click==2.5.0',
+    'python-dateutil==2.9.0.post0',
     'densho-wagtail-notes @ git+https://github.com/denshoproject/densho-wagtail-notes',
     'elastictools @ git+https://github.com/denshoproject/densho-elastictools',
     #'encyc-core @ git+https://github.com/denshoproject/encyc-core',
     'encyc-core @ git+file:///opt/encyc-core@wagtail',
 ]
-
-#[project.optional-dependencies]
-#testing = []
+testing = [
+    'pyclean==3.6.0',
+]
 
 [project.urls]
 Repository = "https://github.com/denshoproject/encyc-tng"
