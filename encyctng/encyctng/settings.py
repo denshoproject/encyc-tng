@@ -313,13 +313,21 @@ CLOUDFLARE_ZONEID  = config.get('performance', 'cloudflare_zoneid'),
 if CLOUDFLARE_EMAIL and CLOUDFLARE_API_KEY and CLOUDFLARE_ZONEID:
     INSTALLED_APPS += ['wagtail.contrib.frontend_cache']
     WAGTAILFRONTENDCACHE = {
-        'cloudflare': {
+        'public': {
             'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
             'EMAIL': CLOUDFLARE_EMAIL,
             'API_KEY': CLOUDFLARE_API_KEY,
             'ZONEID': CLOUDFLARE_ZONEID,
+            'HOSTNAMES': ['encyclopedia.densho.org']
         },
-    }
+        'editors2': {
+            'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
+            'EMAIL': CLOUDFLARE_EMAIL,
+            'API_KEY': CLOUDFLARE_API_KEY,
+            'ZONEID': CLOUDFLARE_ZONEID,
+            'HOSTNAMES': ['editors2.densho.org']
+        },
+}
 
 LOGGING = {
     "version": 1,
