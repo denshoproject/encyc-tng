@@ -80,6 +80,16 @@ class NeedsEditorReportView(PageReportView):
 
 # home/index page comes from home.models.HomePage
 
+# article-detail froms from wagtail.???
+
+@cache_page(settings.CACHE_TIMEOUT)
+def related(request, article_id):
+    queryset = Article.objects.live()
+    article = get_object_or_404(queryset, id=article_id)
+    return render(request, 'patterns/components/related/related.html', {
+        'page': article,
+    })
+
 @cache_page(settings.CACHE_TIMEOUT)
 def browse(request):
     topics = {

@@ -88,18 +88,19 @@
         </section>
     {% endif %}
 
-    {% if page.related_media or page.related_content %}
         <div class="page__footer">
-            {% if page.related_media %}
-            <!-- TODO use htmx to load only if user scrolls -->
-                {% include "patterns/components/related_media/related_media.html" with title="From the archive" subtitle="(Densho Digital Repository)" items=page.related_media %}
-            {% endif %}
-
-            {% if page.related_content %}
-                {% include "patterns/components/related_content_carousel/related_content_carousel.html" with title=page.related_content.title items=page.related_content.items %}
-            {% endif %}
+	  <div hx-trigger="revealed" hx-get="{% url "encyc-related" page.id %}" hx-swap="innerHTML">
+            <div class="related-media ">
+              <div class="related-media__container grid">
+                <h2 class="related-media__heading heading heading--three section-heading">From the archive</h2>
+                <p class="related-media__sub-heading meta meta--small">(Densho Digital Repository)</p>
+              </div>
+            </div>
+          </div>
+	  {% if page.related_content %}
+	  {% include "patterns/components/related_content_carousel/related_content_carousel.html" with title=page.related_content.title items=page.related_content.items %}
+	  {% endif %}
         </div>
-    {% endif %}
 
 </div>
 {% endblock content %}
