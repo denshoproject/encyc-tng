@@ -88,7 +88,7 @@ INSTALLED_APPS = [
     'wagtail.contrib.redirects',
     'wagtail.documents',
     'wagtail.embeds',
-    'wagtail.images',
+    'encyclopedia.apps.CustomImagesAppConfig',  #'wagtail.images',
     'wagtail.search',
     'wagtail.sites',
     'wagtail.snippets',
