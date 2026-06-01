@@ -11,17 +11,17 @@ context:
     image_url: https://placehold.co/400x400
     carousel:
         publish_date: 2026-01-1 00:00:00
-        title: Amache Silk Screen Workshop
-        description: Blah blah description goes here
+        title: Carousel title will not be displayed to public
+        description: Carousel title and description are to help editors keep track
         items:
           - image: https://placehold.co/400x400
             url: '#'
-            title: Image 1
-            description: Image is a wagtail.images.models.Image
+            title: This is a carousel page
+            description: Alt text for accessibility
           - image: https://placehold.co/400x400
             url: '#'
-            title: Image 2
-            description: Image is a wagtail.images.models.Image
+            title: Another carousel page
+            description: Alt text for accessibility
     topics:
       title: Browse Topics
       items:
