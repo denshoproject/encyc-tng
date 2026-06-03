@@ -9,8 +9,7 @@ from ninja import Field, ModelSchema, NinjaAPI, Router
 from ninja.pagination import paginate, PageNumberPagination
 
 from editors.models import Author
-from .models import Article
-from .topics import topics_items
+from .models import Article, ArticleTopic
 
 
 class BaseArticleSchema(ModelSchema):
@@ -59,7 +58,7 @@ def topics_list(request: "HttpRequest"):
             ),
             'title': topic['title'],
         }
-        for topic in topics_items()
+        for topic in ArticleTopic.topics()
     ]
 
 @router.get("/topics/{slug}", url_name='topics-detail', response=List[dict])

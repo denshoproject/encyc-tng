@@ -10,7 +10,7 @@ from wagtail.models import Page
 from wagtail.models.media import Collection
 from wagtail.search import index
 
-from encyclopedia.topics import topics_items
+from encyclopedia.models import ArticleTopic
 from .blocks import HomepageCarouselImageBlock
 
 
@@ -48,7 +48,7 @@ class HomePage(Page):
     def topics(self):
         return {
             'title': 'Browse Topics',
-            'items': topics_items(),
+            'items': ArticleTopic.topics(include_images=True),
         }
 
 

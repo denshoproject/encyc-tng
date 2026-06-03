@@ -7,6 +7,7 @@ from django import forms
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from modelcluster.contrib.taggit import ClusterTaggableManager
@@ -21,6 +22,7 @@ from wagtail import hooks
 from wagtail.contrib.table_block.blocks import TableBlock
 from wagtail.contrib.typed_table_block.blocks import TypedTableBlock
 from wagtail.images.models import Image
+from wagtail.models.media import Collection
 from wagtail.models import Page, Orderable
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
@@ -34,8 +36,6 @@ from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
 from encyclopedia import footnotes
-from encyclopedia.topics import topics_items
-from home.models import HomePage
 
 
 def load_mediawiki_titles():
@@ -88,6 +88,43 @@ class ArticleTopic(models.Model):
 
     def __repr__(self):
         return f"<ArticleTopic {self.id}>"
+
+    @staticmethod
+    def topics(include_images=False):
+        """Return dict of ArticleTopics w article counts and (optionally) images
+
+        Image objects are needed for the home page topics list template
+        but they cannot be cached because they cannot be serialized to JSON,
+        so we'll only add them if requested. (Maybe I'm overthinking this?)
+        """
+        key = 'article-topics'
+        results = cache.get(key)
+        if not results:
+            topics = ArticleTopic.objects.annotate(models.Count('article')) \
+                                         .order_by('id')
+            results = [
+                {
+                    'id': topic.id,
+                    'title': topic.name,
+                    'url': reverse('encyc-articles-topic',args=[topic.id]),
+                    'articles': topic.article__count,
+                }
+                for topic in topics
+            ]
+            cache.set(key, results, settings.CACHE_TIMEOUT)
+        if include_images:
+            images = {
+                slugify(image.title): image
+                for image in Image.objects.filter(
+                        collection=Collection.objects.get(name='Topics')
+                )
+            }
+            for topic in results:
+                try:
+                    topic['image'] = images.pop(topic['id'])
+                except KeyError:
+                    pass
+        return results
 
 
 class ArticleTag(TaggedItemBase):
@@ -519,7 +556,7 @@ class Article(Page):
     @staticmethod
     def articles_by_tag():
         """Dict of Articles grouped by tag"""
-        topic_ids = [topic['id'] for topic in topics_items()]
+        topic_ids = [topic.id for topic in ArticleTopics.topics()]
         tags_articles = {tag: [] for tag in topic_ids}
         for article in Article.objects.filter(live=True).order_by('title'):
             for tag in article.tags.all():
