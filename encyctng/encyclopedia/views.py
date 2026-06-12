@@ -15,8 +15,7 @@ from wagtail.models.media import Collection
 from wagtail.search.utils import parse_query_string
 
 from editors.models import Author
-from encyclopedia.models import ArticlesIndexPage, Article
-from encyclopedia.topics import topics_items
+from encyclopedia.models import ArticlesIndexPage, Article, ArticleTopic
 from sources.models import Source
 
 PAGINATOR_ON_EACH_SIDE = 2
@@ -80,11 +79,21 @@ class NeedsEditorReportView(PageReportView):
 
 # home/index page comes from home.models.HomePage
 
+# article-detail froms from wagtail.???
+
+@cache_page(settings.CACHE_TIMEOUT)
+def related(request, article_id):
+    queryset = Article.objects.live()
+    article = get_object_or_404(queryset, id=article_id)
+    return render(request, 'patterns/components/related/related.html', {
+        'page': article,
+    })
+
 @cache_page(settings.CACHE_TIMEOUT)
 def browse(request):
     topics = {
         'title': 'Browse Topics',
-        'items': topics_items(),
+        'items': ArticleTopic.topics(),
     }
     return render(request, 'patterns/pages/topic_listing/topic_listing.html', {
         'topics': topics,
@@ -96,8 +105,6 @@ def articles_base_query():
     articles = Article.objects.live() \
         .only('title','title_sort','description','signature_image') \
         .prefetch_related('topics')
-    # TODO Prefetching image renditions
-    # https://docs.wagtail.org/en/stable/advanced_topics/images/renditions.html
     return articles
 
 @cache_page(settings.CACHE_TIMEOUT)
@@ -177,7 +184,7 @@ def articles_search(request):
     if topics and topics == ['all']:
         topics = []
     if topics:
-        topic_ids = [topic['id'] for topic in topics_items()]
+        topic_ids = [topic['id'] for topic in ArticleTopic.topics()]
         topics = [
             topic.lower() for topic in topics if topic.lower() in topic_ids
         ]
@@ -289,7 +296,7 @@ def tags_collections_topics(topics=[]):
         {'id':'all', 'title':'All'}, {'id':'arts', 'title':'Arts'}, {'id':'camps', 'title':'Camps'}, ...
     ]
     """
-    tags = topics_items()
+    tags = ArticleTopic.topics()
     tags.insert(0, {
         'id':'all', 'title':'All', 'url':reverse('encyc-articles-topic'), 'active':True
     })
@@ -304,7 +311,7 @@ def tags_collections_topics(topics=[]):
 def tags_collections_search(query, topics=[]):
     """Topic/category tags for search page with links for filtering
     """
-    tags = topics_items()
+    tags = ArticleTopic.topics()
     tags.insert(0, {
         'id':'all', 'title':'All', 'active':True,
         'url': f"{reverse('encyc-articles-search')}?query={query}",

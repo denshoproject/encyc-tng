@@ -37,16 +37,14 @@ if not configs_read:
     print(f'Cannot read config files! {CONFIG_FILES}')
     sys.exit(1)
 
+LOG_LEVEL = config.get('debug', 'log_level')
+LOG_FILE = config.get('debug', 'log_file')
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config.get('security', 'secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.get('debug', 'debug')
-
-APPLICATION_ENVIRONMENT = config.get('security', 'environment')
-
-LOG_LEVEL = config.get('debug', 'log_level')
-LOG_FILE = config.get('debug', 'log_file')
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -60,13 +58,8 @@ CSRF_TRUSTED_ORIGINS = [
     if host.strip()
 ]
 
-CACHE_TIMEOUT = config.getint('performance', 'cache_timeout')
-CACHE_TIMEOUT_LONG = config.getint('performance', 'cache_timeout_long')
+APPLICATION_ENVIRONMENT = config.get('security', 'environment')
 
-PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
-
-ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
-DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()
 
 # Application definition
 
@@ -88,7 +81,7 @@ INSTALLED_APPS = [
     'wagtail.contrib.redirects',
     'wagtail.documents',
     'wagtail.embeds',
-    'wagtail.images',
+    'encyclopedia.apps.CustomImagesAppConfig',  #'wagtail.images',
     'wagtail.search',
     'wagtail.sites',
     'wagtail.snippets',
@@ -140,32 +133,6 @@ TEMPLATES = [
     },
 ]
 
-# django-pattern-library
-if DEBUG:
-    X_FRAME_OPTIONS = "SAMEORIGIN"
-PATTERN_LIBRARY = {
-    # Groups of templates for the pattern library navigation. The keys
-    # are the group titles and the values are lists of template name prefixes that will
-    # be searched to populate the groups.
-    "SECTIONS": (
-        ("styleguide", ["patterns/styleguide"]),
-        ("components", ["patterns/components"]),
-        ("pages", ["patterns/pages"]),
-        ("sprites", ["patterns/sprites"]),
-    ),
-
-    # Configure which files to detect as templates.
-    "TEMPLATE_SUFFIX": ".html",
-
-    # Set which template components should be rendered inside of,
-    # so they may use page-level component dependencies like CSS.
-    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
-
-    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
-    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["patterns/base_page.html"],
-}
-
 WSGI_APPLICATION = 'encyctng.wsgi.application'
 
 
@@ -195,8 +162,8 @@ CACHES = {
     }
 }
 
-CACHE_TIMEOUT = int(config.get('performance', 'cache_timeout'))
-CACHE_TIMEOUT_LONG = int(config.get('performance', 'cache_timeout_long'))
+CACHE_TIMEOUT = config.getint('performance', 'cache_timeout')
+CACHE_TIMEOUT_LONG = config.getint('performance', 'cache_timeout_long')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -263,6 +230,65 @@ STORAGES = {
     },
 }
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(levelname)-8s [%(module)s.%(funcName)s]  %(message)s'
+        },
+        'simple': {
+            'format': '%(asctime)s %(levelname)-8s %(message)s'
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": LOG_LEVEL,
+            "class": "logging.FileHandler",
+            "filename": LOG_FILE,
+            'formatter': 'simple',
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": LOG_LEVEL,
+            "propagate": True,
+        },
+    },
+    'root': {
+        'level': LOG_LEVEL,
+        'handlers': ['file'],
+    },
+}
+
+
+# django-pattern-library
+if DEBUG:
+    X_FRAME_OPTIONS = "SAMEORIGIN"
+PATTERN_LIBRARY = {
+    # Groups of templates for the pattern library navigation. The keys
+    # are the group titles and the values are lists of template name prefixes that will
+    # be searched to populate the groups.
+    "SECTIONS": (
+        ("styleguide", ["patterns/styleguide"]),
+        ("components", ["patterns/components"]),
+        ("pages", ["patterns/pages"]),
+        ("sprites", ["patterns/sprites"]),
+    ),
+
+    # Configure which files to detect as templates.
+    "TEMPLATE_SUFFIX": ".html",
+
+    # Set which template components should be rendered inside of,
+    # so they may use page-level component dependencies like CSS.
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
+
+    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
+    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
+    "BASE_TEMPLATE_NAMES": ["patterns/base_page.html"],
+}
+
 
 # Wagtail settings
 
@@ -305,35 +331,34 @@ WAGTAIL_AUTO_UPDATE_PREVIEW = False
 TAGGIT_CASE_INSENSITIVE = False
 WAGTAIL_TAG_SPACES_ALLOWED = False
 
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    'formatters': {
-        'verbose': {
-            'format': '%(asctime)s %(levelname)-8s [%(module)s.%(funcName)s]  %(message)s'
+# Front-end cache invalidation
+# https://docs.wagtail.org/en/stable/reference/contrib/frontendcache.html
+CLOUDFLARE_EMAIL   = config.get('performance', 'cloudflare_email'),
+CLOUDFLARE_API_KEY = config.get('performance', 'cloudflare_api_key'),
+CLOUDFLARE_ZONEID  = config.get('performance', 'cloudflare_zoneid'),
+if CLOUDFLARE_EMAIL and CLOUDFLARE_API_KEY and CLOUDFLARE_ZONEID:
+    INSTALLED_APPS += ['wagtail.contrib.frontend_cache']
+    WAGTAILFRONTENDCACHE = {
+        'public': {
+            'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
+            'EMAIL': CLOUDFLARE_EMAIL,
+            'API_KEY': CLOUDFLARE_API_KEY,
+            'ZONEID': CLOUDFLARE_ZONEID,
+            'HOSTNAMES': ['encyclopedia.densho.org']
         },
-        'simple': {
-            'format': '%(asctime)s %(levelname)-8s %(message)s'
+        'editors2': {
+            'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
+            'EMAIL': CLOUDFLARE_EMAIL,
+            'API_KEY': CLOUDFLARE_API_KEY,
+            'ZONEID': CLOUDFLARE_ZONEID,
+            'HOSTNAMES': ['editors2.densho.org']
         },
-    },
-    "handlers": {
-        "file": {
-            "level": LOG_LEVEL,
-            "class": "logging.FileHandler",
-            "filename": LOG_FILE,
-            'formatter': 'simple',
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["file"],
-            "level": LOG_LEVEL,
-            "propagate": True,
-        },
-    },
-    'root': {
-        'level': LOG_LEVEL,
-        'handlers': ['file'],
-    },
 }
+
+
+# encyc-tng
+
+PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
+
+ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
+DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()

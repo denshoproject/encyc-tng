@@ -71,7 +71,6 @@ from encyclopedia.models import (
 )
 from encyclopedia import models as encyclopedia_models
 from encyclopedia import databoxes
-from encyclopedia.topics import topics_items
 from encyclopedia.models import ArticlesIndexPage, ArticleTopic
 from home.models import HomePageCarouselIndexPage, HomePageCarousel
 from home.blocks import HomepageCarouselImageBlock
@@ -750,7 +749,7 @@ def load_topics_by_id(basedir):
 def import_topics_images(basedir):
     topics_collection = Collection.objects.get(name='Topics')
     print(f"{topics_collection=}")
-    for topic in topics_items():
+    for topic in ArticleTopic.topics():
         tid = topic['id']
         title = topic['title']
         path = Path(basedir) / f"topics/encyctng-topics-{tid}.png"

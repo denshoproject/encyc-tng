@@ -10,6 +10,7 @@ urlpatterns = [
     path('articles-topic/<str:topic>/', views.articles_topic, name='encyc-articles-topic'),
     path('articles-topic/', views.articles_topic, name='encyc-articles-topic'),
     path('articles-az/', views.articles_az, name='encyc-articles-az'),
+    path('related/<str:article_id>/', views.related, name='encyc-related'),
     path('authors/', views.authors, name='encyc-authors'),
     path('authors/<str:slug>/', views.author, name='encyc-author'),
     path('sources/<str:encyclopedia_id>/', views.redirect_source, name='encyc-source'),
