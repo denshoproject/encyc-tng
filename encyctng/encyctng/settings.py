@@ -13,11 +13,16 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import configparser
 from os import environ
 from pathlib import Path
+import subprocess
 import sys
 
 # Build paths inside the project like this: BASE_DIR / PATH
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = PROJECT_DIR.parent
+
+VERSION_PATH = BASE_DIR / 'VERSION'
+with VERSION_PATH.open('r') as f:
+    VERSION = f.read().strip()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -45,6 +50,50 @@ SECRET_KEY = config.get('security', 'secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.get('debug', 'debug')
+
+GITPKG_DEBUG = config.getboolean('debug', 'gitpkg_debug')
+if GITPKG_DEBUG:
+    # report Git branch and commit
+    # This branch is the one with the leading '* '.
+    #try:
+    GIT_BRANCH = [
+        b.decode().replace('*','').strip()
+        for b in subprocess.check_output(['git', 'branch']).splitlines()
+        if '*' in b.decode()
+       ][0]
+
+    GIT_COMMIT = subprocess.check_output([
+        'git', 'log', '--pretty=format:%H %d %ad', '--date=iso', '-1'
+    ]).decode().replace('  ', ' ')
+
+    def package_debs(package, apt_cache_dir='/var/cache/apt/archives'):
+        """
+        @param package: str Package name
+        @param apt_cache_dir: str Absolute path
+        @returns: list of .deb files matching package and version
+        """
+        cmd = 'dpkg --status %s' % package
+        try:
+            dpkg_raw = subprocess.check_output(cmd.split(' ')).decode()
+        except subprocess.CalledProcessError:
+            return ''
+        data = {}
+        for line in dpkg_raw.splitlines():
+            if line and isinstance(line, str) and (':' in line):
+                key,val = line.split(':', 1)
+                data[key.strip().lower()] = val.strip()
+        pkg_paths = [
+            path for path in os.listdir(apt_cache_dir)
+            if (package in path) and data.get('version') and (data['version'] in path)
+        ]
+        return pkg_paths
+    
+    PACKAGES = package_debs('encyctng-%s' % GIT_BRANCH)
+
+else:
+    GIT_COMMIT = ''
+    GIT_BRANCH = ''
+    PACKAGES = 'PACKAGES'
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -125,6 +174,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'encyctng.context_processors.sitewide',
             ],
             'builtins': [
                 'pattern_library.loader_tags',
