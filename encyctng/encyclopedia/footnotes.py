@@ -79,6 +79,9 @@ class Footnotary():
         except json.JSONDecodeError:
             # footnotes are probably in old HTML format
             page.footnotes = _fix_old_footnotes(page.footnotes)
+        except TypeError:
+            # don't completely crash if there's no text
+            page.footnotes = ''
 
 
 def _extract_footnotes(html):

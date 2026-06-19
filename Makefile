@@ -186,7 +186,7 @@ install-pyproject: install-virtualenv
 	@echo "install pyproject -------------------------------------------------"
 	source $(VIRTUALENV)/bin/activate; uv sync
 
-install-encyc-tng: git-safe-dir install-encyc-tng-dirs install-configs install-redis install-virtualenv install-pyproject npm-build
+install-encyc-tng: git-safe-dir install-encyc-tng-dirs install-configs install-redis install-pyproject npm-build
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
 	apt-get install --assume-yes ffmpeg
