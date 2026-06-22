@@ -87,7 +87,22 @@ DATABOXES = {
         ],
     },
 
-    #'databox-Chapters': {},
+    'databox-Chapters': {
+        'class': 'ArticleChapter',
+        'templatetag': 'encyclopedia/databox-chapter.html',
+        'fields': [
+            {'mw': 'Author', 'tng': 'author', 'label': ''},
+            {'mw': 'Title', 'tng': 'title', 'label': ''},
+            {'mw': 'PubName', 'tng': 'publication_name', 'label': ''},
+            {'mw': 'PubEditor', 'tng': 'publication_editor', 'label': ''},
+            {'mw': 'PubDate', 'tng': 'publication_date', 'label': ''},
+            {'mw': 'PubDetails', 'tng': 'publication_details', 'label': ''},
+            {'mw': 'PubCity', 'tng': 'publication_city', 'label': ''},
+            {'mw': 'PubCompany', 'tng': 'publication_company', 'label': ''},
+            {'mw': 'Website', 'tng': 'url', 'label': 'Official URL'},
+            {'mw': 'WorldCatLink', 'tng': 'worldcat_url', 'label': ''},
+        ],
+    },
 
     'databox-Exhibitions': {
         'class': 'ArticleExhibition',
@@ -221,7 +236,28 @@ DATABOXES = {
         ],
     },
 
-    #'databox-Songs': {},
+    'databox-Songs': {
+        'class': 'ArticleSong',
+        'templatetag': 'encyclopedia/databox-song.html',
+        'fields': [
+            {'mw': 'Author', 'tng': 'author', 'label': 'Author'},
+            {'mw': 'Title', 'tng': 'title', 'label': 'Title'},
+            {'mw': 'Artist', 'tng': 'artist', 'label': 'Artist'},
+            {'mw': 'Album', 'tng': 'album', 'label': 'Album'},
+            {'mw': 'Recorded', 'tng': 'recorded', 'label': 'Recorded'},
+            {'mw': 'Type', 'tng': 'song_type', 'label': 'Type'},
+            {'mw': 'Genre', 'tng': 'genre', 'label': 'Genre'},
+            {'mw': 'Length', 'tng': 'length', 'label': 'Length'},
+            {'mw': 'Language', 'tng': 'language', 'label': 'Language'},
+            {'mw': 'Writer', 'tng': 'writer', 'label': 'Writer'},
+            {'mw': 'Composer', 'tng': 'composer', 'label': 'Composer'},
+            {'mw': 'Label', 'tng': 'label', 'label': 'Label'},
+            {'mw': 'Producer', 'tng': 'producer', 'label': 'Producer'},
+            {'mw': 'Website', 'tng': 'url', 'label': 'Official URL'},
+            {'mw': 'MBLink', 'tng': 'musicbrainz_url', 'label': 'MusicBrainz Link'},
+        ],
+    },
+
     #'databox-Test': {},
 
     'databox-Websites': {

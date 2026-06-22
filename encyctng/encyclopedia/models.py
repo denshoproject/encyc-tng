@@ -912,6 +912,40 @@ class ArticleCamp(Article):
         return databox_hero_meta(self, super(ArticleCamp, self).hero())
 
 
+#class ArticleChapter(Article):
+#    author = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    title = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    publication_name = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    publication_editor = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    publication_date = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    publication_details = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    publication_city = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    publication_company = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    url = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    worldcat_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+#
+#    metadata_panels = [
+#        FieldPanel(fieldname)
+#        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleChapter']
+#    ]
+#    edit_handler = TabbedInterface([
+#        ObjectList(Article.content_panels, heading='Content'),
+#        ObjectList(metadata_panels, heading='Metadata'),
+#        ObjectList(Article.promote_panels, heading='Promote'),
+#        ObjectList(Article.settings_panels, heading='Settings'),
+#    ])
+#    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPa#ge']
+#    template = 'patterns/pages/article/chapter.html'
+#
+#    class Meta:
+#        db_table = "encyclopedia_article_chapters"
+#        verbose_name = "Chapter"
+#        verbose_name_plural = "Chapters"
+#
+#    def hero(self):
+#        return databox_hero_meta(self, super(ArticleChapter, self).hero())
+
+
 class ArticleExhibition(Article):
     first_date = models.CharField(blank=True, max_length=DATABOX_MAX)
     final_date = models.CharField(blank=True, max_length=DATABOX_MAX)
@@ -1145,6 +1179,46 @@ class ArticlePlay(Article):
 
     def hero(self):
         return databox_hero_meta(self, super(ArticlePlay, self).hero())
+
+
+#class ArticleSong(Article):
+#    website_type = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    author = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    title = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    artist = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    album = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    recorded = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    song_type = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    genre = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    length = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    language = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    writer = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    composer = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    label = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    url = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    musicbrainz = models.CharField(blank=True, max_length=DATABOX_MAX)
+#
+#    metadata_panels = [
+#        FieldPanel(fieldname)
+#        for fieldname in databoxes.ARTICLE_CLASS_FIELDNAMES['ArticleSong']
+#    ]
+#    edit_handler = TabbedInterface([
+#        ObjectList(Article.content_panels, heading='Content'),
+#        ObjectList(metadata_panels, heading='Metadata'),
+#        ObjectList(Article.promote_panels, heading='Promote'),
+#        ObjectList(Article.settings_panels, heading='Settings'),
+#    ])
+#    parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPa#ge']
+#    template = 'patterns/pages/article/song.html'
+#
+#    class Meta:
+#        db_table = "encyclopedia_article_songs"
+#        verbose_name = "Song"
+#        verbose_name_plural = "Songs"
+#
+#    def hero(self):
+#        return databox_hero_meta(self, super(ArticleSong, self).hero())
 
 
 class ArticleWebsite(Article):
