@@ -947,6 +947,7 @@ class ArticleCamp(Article):
 
 
 class ArticleExhibition(Article):
+    name = models.CharField(blank=True, max_length=DATABOX_MAX)
     first_date = models.CharField(blank=True, max_length=DATABOX_MAX)
     final_date = models.CharField(blank=True, max_length=DATABOX_MAX)
     location = models.CharField(blank=True, max_length=DATABOX_MAX)
@@ -1069,7 +1070,6 @@ class ArticleMagazine(Article):
 
 
 class ArticleNewspaper(Article):
-    peak_date = models.CharField(blank=True, max_length=DATABOX_MAX)
     publication_name = models.CharField(blank=True, max_length=DATABOX_MAX)
     camp_article = models.CharField(blank=True, max_length=DATABOX_MAX)
     publication_start_date = models.CharField(blank=True, max_length=DATABOX_MAX)

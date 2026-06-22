@@ -108,6 +108,7 @@ DATABOXES = {
         'class': 'ArticleExhibition',
         'templatetag': 'encyclopedia/databox-exhibition.html',
         'fields': [
+            {'mw': 'Name', 'tng': 'name', 'label': 'Name of Exhibition'},
             {'mw': 'FirstDate', 'tng': 'first_date', 'label': 'Date of first opening'},
             {'mw': 'FinalDate', 'tng': 'final_date', 'label': 'Date of final opening'},
             {'mw': 'Location', 'tng': 'location', 'label': 'Location'},
