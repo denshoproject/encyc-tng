@@ -1910,6 +1910,9 @@ description
             # TODO what to do with <div id="citationAuthor">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'citationAuthor':
                 continue
+            # TODO what to do with <div id="RelatedArticlesDisplay">?
+            if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'RelatedArticlesDisplay':
+                continue
             if tag.name == 'div' and tag.has_attr('class') and ('alert-info' in tag['class']):
                 # <div class="alert alert-info">...little available research
                 # <div class="alert alert-info">...still under development
