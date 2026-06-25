@@ -940,6 +940,7 @@ class Articles():
 
         logger.info('')
         errors = []
+        titles_related_articles = {}
         num = len(titles)
         start = datetime.now()
         for n,title in enumerate(titles):
@@ -991,7 +992,7 @@ class Articles():
             logger.info(f"{n+1}/{num} [ARTICLE ] {title=}")
             click.secho(f"{n+1}/{num} [ARTICLE ] {title=}", bold=True)
             try:
-                article = Articles.import_article(
+                article,related_articles = Articles.import_article(
                     mw, mwpage, mwtext, pagedata, revisions,
                     mw_titles, mw_titles_slugs, url_prefix,
                     topics_by_id,
@@ -1001,6 +1002,7 @@ class Articles():
                     user=user,
                     dryrun=dryrun,
                 )
+                titles_related_articles[article.title] = related_articles
                 logger.info(f"ok")
                 logger.debug(f"{datetime.now() - start} {n+1}/{num} ok | {title}\n")
             except PageIsRedirectException as err:
@@ -1047,6 +1049,7 @@ class Articles():
         sources_remaining_json_path = '/tmp/sources-by-headword-remaining.jsonl'
         with Path(sources_remaining_json_path).open('w') as f:
             f.write(text)
+        return titles_related_articles
 
     @staticmethod
     def report_sources_remaining(jsonl_path):
@@ -2137,6 +2140,53 @@ description
         if div:
             return [li.a['title'] for li in div.find_all('li')]
         return []
+
+    @staticmethod
+    def assign_related_articles(titles_related_articles):
+        """Assign related_articles for Articles that have them
+
+        titles_related_articles: dict maps article titles to related articles
+        Construct a StreamBlock paragraph containing links to the related article IDs
+        (Wagtail internal links used the id/pk rather than the slug
+        {
+            'type': 'paragraph',
+            'value': '<p><a linktype="page" id="1">Title1</a></p><p><a linktype="page" id="2">Title2</a></p>',
+        }
+        Save everything at once instead of piecemeal
+        """
+        updated_articles = []
+        # prep data
+        articles_by_title = {}
+        for article in Article.objects.all():
+            articles_by_title[article.title] = article
+        # update
+        n = 0
+        num = len(titles_related_articles.items())
+        for n,item in enumerate(titles_related_articles.items()):
+            title,related_titles = item
+            print(f"{n}/{num} {title}")
+            if not related_titles:
+                continue
+            article = articles_by_title[title]
+            related_articles = []
+            for t in related_titles:
+                a = articles_by_title.get(t, None)
+                if a:
+                    print(f"- {a}")
+                    related_articles.append(a)
+            # assemble StreamField
+            html = ''.join([
+                f'<p><a linktype="page" id="{a.id}">{a.title}</a></p>'
+                for a in related_articles
+            ])
+            block = {
+                'type': 'paragraph',
+                'value': html,
+            }
+            article.related_articles = [block]  # bc StreamField is a list?
+            updated_articles.append(article)
+        # save updated_articles all at once
+        Article.objects.bulk_update(updated_articles, ['related_articles'])
 
     @staticmethod
     def log_error(title, error, path=None):
