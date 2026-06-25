@@ -1445,9 +1445,8 @@ description
         if 'Pages_Needing_Editor_Attention' in all_categories:
             article.tags.add('needseditor')
 
-        # TODO collect related articles and attach when we have Wagtail IDs
-        # TODO write related articles to file? database?
-        related_articles = Articles.parse_related_articles(mwtext)
+        # collect related articles and attach when we have Wagtail IDs
+        related_articles = Articles.parse_related_articles(mw, mwtext)
 
         # description and body streamblocks
         article.description = mwpage.description
@@ -2118,7 +2117,7 @@ description
                         pass
 
     @staticmethod
-    def parse_related_articles(mwtext):
+    def parse_related_articles(mw, mwtext):
         """Parse mwtext and return list of related articles
 
         <div id="RelatedArticlesDisplay">
@@ -2132,10 +2131,11 @@ description
         </div>
         </div>
         """
-        soup = BeautifulSoup(mwtext, 'lxml')
+        html = mw.mw.parse(text=mwtext)['text']['*']
+        soup = BeautifulSoup(html, 'lxml')
         div = soup.find(id='RelatedArticlesSectionDisplay')
         if div:
-            return [(li.a['href'],li.a['title']) for li in div.find_all('li')]
+            return [li.a['title'] for li in div.find_all('li')]
         return []
 
     @staticmethod
