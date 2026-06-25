@@ -819,8 +819,8 @@ class ArticleArticle(Article):
 
     class Meta:
         db_table = "encyclopedia_article_articles"
-        verbose_name = "Article/essay/story/etc"
-        verbose_name_plural = "Articles/essays/stories/etc"
+        verbose_name = "Article"
+        verbose_name_plural = "Articles"
 
     def hero(self):
         return databox_hero_meta(self, super(ArticleArticle, self).hero())
