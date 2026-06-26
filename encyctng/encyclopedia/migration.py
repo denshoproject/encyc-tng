@@ -836,6 +836,9 @@ def initial_homepage_carousel(basedir):
 class PageIsRedirectException(Exception):
     pass
 
+class NoPublishException(Exception):
+    pass
+
 class UnhandledTagException(Exception):
     pass
 
@@ -1013,6 +1016,9 @@ class Articles():
                 Articles.log_error(title, err, errfile)
                 if errorquit:
                     return
+            except NoPublishException as err:
+                logger.info(f"NoPublishException: {mwpage.title}\n")
+                continue
             except UnhandledTagException as err:
                 logger.error(f"UnhandledTagException: {mwpage.title} : {err}\n")
                 Articles.log_error(title, err, errfile)
@@ -1906,6 +1912,7 @@ description
                 continue
             if tag.name in ['i', 'li', 'pre', 'ul', 'dl']:
                 continue
+
             # TODO what to do with <div id="authorByline">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
                 continue
@@ -1915,6 +1922,9 @@ description
             # TODO what to do with <div id="RelatedArticlesDisplay">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'RelatedArticlesDisplay':
                 continue
+            # <div class="alert nopublish-encycfront encyc-remove">
+            if tag.name == 'div' and tag.has_attr('class') and ('nopublish-encycfront' in tag['class']):
+                raise NoPublishException(f"Marked for non-publication: nopublish-encycfront")
             if tag.name == 'div' and tag.has_attr('class') and ('alert-info' in tag['class']):
                 # <div class="alert alert-info">...little available research
                 # <div class="alert alert-info">...still under development
@@ -1925,6 +1935,15 @@ description
                 if 'still under development' in str(tag.contents):
                     article.tags.add('underdevelopment')
                     continue
+            # <div class="rgonly">
+            if tag.name == 'div' and tag.has_attr('class') and ('rgonly' in tag['class']):
+                tag.decompose()
+                continue
+            # <div class="mightalsolike">
+            if tag.name == 'div' and tag.has_attr('class') and ('mightalsolike' in tag['class']):
+                # keep contents but throw away the div tag
+                tag.unwrap()
+                continue
             # drop RG Media Type databoxes
             if tag.name == 'tbody' and table_is_rgmediatype_databox(tag):
                 tag.decompose()
@@ -1932,6 +1951,7 @@ description
             # ignore tables.  TODO handle tables?
             if tag.name in ['table', 'tbody']:
                 continue
+
             if tag.name == 'p':
                 block = {
                     'type': 'paragraph',
