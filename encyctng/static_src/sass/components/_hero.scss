@@ -115,10 +115,7 @@
     }
 
     &__image-container {
-        max-height: 343px;
-
         @include media-query(large) {
-            max-height: 100%;
             position: absolute;
             right: 0;
             top: 0;

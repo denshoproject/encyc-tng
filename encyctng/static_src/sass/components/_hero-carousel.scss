@@ -5,10 +5,12 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    background-color: var(--color--background);
 
     &__viewport {
         overflow: hidden;
         position: relative;
+        max-width: 100lvw;
 
         @include media-query(large) {
             height: 800px;
@@ -91,17 +93,11 @@
 
     &__controls {
         display: flex;
-        flex-direction: row;
-        flex-shrink: 0;
         justify-content: flex-end;
-        padding: 0 $spacer-mini $spacer-mini;
-        margin-top: $grid-gutters-mobile;
-        margin-right: $grid-gutters-mobile;
-        background-color: var(--color--background);
+        padding: $grid-gutters-mobile;
 
         @include media-query(large) {
             align-self: flex-end;
-            padding: 0;
         }
     }
 }
