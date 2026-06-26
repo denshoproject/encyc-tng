@@ -1919,7 +1919,7 @@ description
                 # <div class="alert alert-info">...little available research
                 # <div class="alert alert-info">...still under development
                 # article tags attached in import_article
-                if 'little available research' in tag.contents:
+                if 'little available research' in str(tag.contents):
                     article.tags.add('needsmoreresearch')
                     continue
                 if 'still under development' in str(tag.contents):
