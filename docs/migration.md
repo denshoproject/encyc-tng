@@ -194,7 +194,13 @@ jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
 from pathlib import Path
 from encyclopedia import migration
 basedir = Path('/opt/encyc-tng/data')
-migration.Articles.import_articles(basedir, jsonl_path, user=user)
+titles_related_articles = migration.Articles.import_articles(basedir, jsonl_path, user=user)
+```
+
+Populate `Article.related_articles` fields
+```
+from encyclopedia import migration
+migration.Articles.assign_related_articles(titles_related_articles)
 ```
 
 And then rewrite internal URLs

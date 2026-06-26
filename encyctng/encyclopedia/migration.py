@@ -836,6 +836,9 @@ def initial_homepage_carousel(basedir):
 class PageIsRedirectException(Exception):
     pass
 
+class NoPublishException(Exception):
+    pass
+
 class UnhandledTagException(Exception):
     pass
 
@@ -940,6 +943,7 @@ class Articles():
 
         logger.info('')
         errors = []
+        titles_related_articles = {}
         num = len(titles)
         start = datetime.now()
         for n,title in enumerate(titles):
@@ -991,7 +995,7 @@ class Articles():
             logger.info(f"{n+1}/{num} [ARTICLE ] {title=}")
             click.secho(f"{n+1}/{num} [ARTICLE ] {title=}", bold=True)
             try:
-                article = Articles.import_article(
+                article,related_articles = Articles.import_article(
                     mw, mwpage, mwtext, pagedata, revisions,
                     mw_titles, mw_titles_slugs, url_prefix,
                     topics_by_id,
@@ -1001,6 +1005,7 @@ class Articles():
                     user=user,
                     dryrun=dryrun,
                 )
+                titles_related_articles[article.title] = related_articles
                 logger.info(f"ok")
                 logger.debug(f"{datetime.now() - start} {n+1}/{num} ok | {title}\n")
             except PageIsRedirectException as err:
@@ -1011,6 +1016,9 @@ class Articles():
                 Articles.log_error(title, err, errfile)
                 if errorquit:
                     return
+            except NoPublishException as err:
+                logger.info(f"NoPublishException: {mwpage.title}\n")
+                continue
             except UnhandledTagException as err:
                 logger.error(f"UnhandledTagException: {mwpage.title} : {err}\n")
                 Articles.log_error(title, err, errfile)
@@ -1047,6 +1055,7 @@ class Articles():
         sources_remaining_json_path = '/tmp/sources-by-headword-remaining.jsonl'
         with Path(sources_remaining_json_path).open('w') as f:
             f.write(text)
+        return titles_related_articles
 
     @staticmethod
     def report_sources_remaining(jsonl_path):
@@ -1445,9 +1454,8 @@ description
         if 'Pages_Needing_Editor_Attention' in all_categories:
             article.tags.add('needseditor')
 
-        # TODO collect related articles and attach when we have Wagtail IDs
-        # TODO write related articles to file? database?
-        related_articles = Articles.parse_related_articles(mwtext)
+        # collect related articles and attach when we have Wagtail IDs
+        related_articles = Articles.parse_related_articles(mw, mwtext)
 
         # description and body streamblocks
         article.description = mwpage.description
@@ -1904,22 +1912,38 @@ description
                 continue
             if tag.name in ['i', 'li', 'pre', 'ul', 'dl']:
                 continue
+
             # TODO what to do with <div id="authorByline">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'authorByline':
                 continue
             # TODO what to do with <div id="citationAuthor">?
             if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'citationAuthor':
                 continue
+            # TODO what to do with <div id="RelatedArticlesDisplay">?
+            if tag.name == 'div' and tag.has_attr('id') and tag['id'] == 'RelatedArticlesDisplay':
+                continue
+            # <div class="alert nopublish-encycfront encyc-remove">
+            if tag.name == 'div' and tag.has_attr('class') and ('nopublish-encycfront' in tag['class']):
+                raise NoPublishException(f"Marked for non-publication: nopublish-encycfront")
             if tag.name == 'div' and tag.has_attr('class') and ('alert-info' in tag['class']):
                 # <div class="alert alert-info">...little available research
                 # <div class="alert alert-info">...still under development
                 # article tags attached in import_article
-                if 'little available research' in tag.contents:
+                if 'little available research' in str(tag.contents):
                     article.tags.add('needsmoreresearch')
                     continue
                 if 'still under development' in str(tag.contents):
                     article.tags.add('underdevelopment')
                     continue
+            # <div class="rgonly">
+            if tag.name == 'div' and tag.has_attr('class') and ('rgonly' in tag['class']):
+                tag.decompose()
+                continue
+            # <div class="mightalsolike">
+            if tag.name == 'div' and tag.has_attr('class') and ('mightalsolike' in tag['class']):
+                # keep contents but throw away the div tag
+                tag.unwrap()
+                continue
             # drop RG Media Type databoxes
             if tag.name == 'tbody' and table_is_rgmediatype_databox(tag):
                 tag.decompose()
@@ -1927,6 +1951,7 @@ description
             # ignore tables.  TODO handle tables?
             if tag.name in ['table', 'tbody']:
                 continue
+
             if tag.name == 'p':
                 block = {
                     'type': 'paragraph',
@@ -2115,7 +2140,7 @@ description
                         pass
 
     @staticmethod
-    def parse_related_articles(mwtext):
+    def parse_related_articles(mw, mwtext):
         """Parse mwtext and return list of related articles
 
         <div id="RelatedArticlesDisplay">
@@ -2129,11 +2154,59 @@ description
         </div>
         </div>
         """
-        soup = BeautifulSoup(mwtext, 'lxml')
+        html = mw.mw.parse(text=mwtext)['text']['*']
+        soup = BeautifulSoup(html, 'lxml')
         div = soup.find(id='RelatedArticlesSectionDisplay')
         if div:
-            return [(li.a['href'],li.a['title']) for li in div.find_all('li')]
+            return [li.a['title'] for li in div.find_all('li')]
         return []
+
+    @staticmethod
+    def assign_related_articles(titles_related_articles):
+        """Assign related_articles for Articles that have them
+
+        titles_related_articles: dict maps article titles to related articles
+        Construct a StreamBlock paragraph containing links to the related article IDs
+        (Wagtail internal links used the id/pk rather than the slug
+        {
+            'type': 'paragraph',
+            'value': '<p><a linktype="page" id="1">Title1</a></p><p><a linktype="page" id="2">Title2</a></p>',
+        }
+        Save everything at once instead of piecemeal
+        """
+        updated_articles = []
+        # prep data
+        articles_by_title = {}
+        for article in Article.objects.all():
+            articles_by_title[article.title] = article
+        # update
+        n = 0
+        num = len(titles_related_articles.items())
+        for n,item in enumerate(titles_related_articles.items()):
+            title,related_titles = item
+            print(f"{n}/{num} {title}")
+            if not related_titles:
+                continue
+            article = articles_by_title[title]
+            related_articles = []
+            for t in related_titles:
+                a = articles_by_title.get(t, None)
+                if a:
+                    print(f"- {a}")
+                    related_articles.append(a)
+            # assemble StreamField
+            html = ''.join([
+                f'<p><a linktype="page" id="{a.id}">{a.title}</a></p>'
+                for a in related_articles
+            ])
+            block = {
+                'type': 'paragraph',
+                'value': html,
+            }
+            article.related_articles = [block]  # bc StreamField is a list?
+            updated_articles.append(article)
+        # save updated_articles all at once
+        Article.objects.bulk_update(updated_articles, ['related_articles'])
 
     @staticmethod
     def log_error(title, error, path=None):

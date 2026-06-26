@@ -207,6 +207,11 @@ install-encyc-tng-dirs:
 	chown -R encyc:root $(MEDIA_BASE)
 	chmod -R 755 $(MEDIA_BASE)
 
+install-migration:
+	@echo ""
+	@echo "install migration -------------------------------------------------"
+	source $(VIRTUALENV)/bin/activate; uv pip install .[migration]
+
 install-encyc-tng-testing:
 	@echo ""
 	@echo "install encyc-tng -------------------------------------------------"
