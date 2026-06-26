@@ -26,6 +26,7 @@
         <script type="text/javascript" src="{% static 'js/htmx.min.js' %}"></script>
 
         {# Global stylesheets #}
+        <link href="//vjs.zencdn.net/8.23.9/video-js.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="{% static 'css/encyctng.css' %}">
 
         {% block extra_css %}
@@ -52,6 +53,7 @@
 
         {# Global javascript #}
         <script type="text/javascript" src="{% static 'js/encyctng.js' %}"></script>
+        <script src="//vjs.zencdn.net/8.23.9/video.min.js"></script>
 
         {% block extra_js %}
         {# Override this in templates to add extra javascript #}

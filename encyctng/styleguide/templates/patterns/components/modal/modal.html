@@ -9,11 +9,32 @@
             </button>
             <div class="modal__body">
                 <div class="modal__media-container">
-                    {% if modal.video %}
-                        {{ modal.video }}
-                    {% elif modal.image %}
-                        {% image modal.image width-1000 format-webp loading="lazy" %}
-                    {% endif %}
+
+{% if modal.video %}
+<video
+    id="{{ modal.id }}"
+    class="video-js"
+    controls
+    preload="auto"
+    poster="{{ modal.view_url }}"
+    data-setup='{}'>
+    <source src="{{ modal.download_url }}" type="video/mp4"></source>
+    <!-- <source src="//vjs.zencdn.net/v/oceans.webm" type="video/webm"></source> -->
+    <!-- <source src="//vjs.zencdn.net/v/oceans.ogv" type="video/ogg"></source>   -->
+    <p class="vjs-no-js">
+        To view this video please enable JavaScript, and consider upgrading to a
+        web browser that
+        <a href="https://videojs.com/html5-video-support/" target="_blank">
+            supports HTML5 video
+        </a>
+    </p>
+</video>
+
+{% elif modal.image %}
+{% image modal.image width-1000 format-webp loading="lazy" %}
+
+{% endif %}
+
                 </div>
                 <div class="modal__text">
                     <p class="modal__media-type meta meta--small">{{ modal.media_type }}</p>
