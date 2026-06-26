@@ -7,13 +7,18 @@
     width: 100%;
     background-color: var(--color--background);
 
+    @include media-query(large) {
+        height: 100%;
+        background-color: transparent;
+    }
+
     &__viewport {
         overflow: hidden;
         position: relative;
         max-width: 100lvw;
 
         @include media-query(large) {
-            height: 800px;
+            height: calc(800px + $spacer-large);
         }
     }
 
@@ -98,6 +103,9 @@
 
         @include media-query(large) {
             align-self: flex-end;
+            position: absolute;
+            bottom: 0;
+            transform: translateY(100%);
         }
     }
 }
