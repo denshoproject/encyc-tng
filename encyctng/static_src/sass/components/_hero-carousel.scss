@@ -66,7 +66,8 @@
             bottom: 0;
             z-index: 1;
             width: 70%;
-            min-width: 420px;
+            // Make sure the card is fully present at the smallest desktop breakpoint width.
+            min-width: 340px;
             padding-right: $spacer-medium-plus;
         }
     }

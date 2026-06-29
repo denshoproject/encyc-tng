@@ -14,7 +14,7 @@
         display: flex;
         align-items: center;
         margin-left: 25px;
-        gap: 40px;
+        gap: max(40px, 2vw);
     }
 
     &__link {

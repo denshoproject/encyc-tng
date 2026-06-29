@@ -120,7 +120,8 @@
             right: 0;
             top: -$spacer-large;
             height: calc(800px + $spacer-large);
-            width: 50%;
+            // Make sure there is enough space for the desktop nav.
+            width: min(50vw, calc(100vw - 680px));
         }
     }
 
