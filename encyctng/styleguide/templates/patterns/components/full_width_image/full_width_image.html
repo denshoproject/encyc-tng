@@ -3,7 +3,8 @@
 <div class="full-width-image{% if modifier %} full-width-image--{{ modifier }}{% endif %}">
     <div class="full-width-image__container meta meta--small">
         <div class="full-width-image__wrapper">
-            {% image item.image width-1000 format-webp as image %}
+            {% if item.display %}{% image item.display width-1000 format-webp as image %}
+            {% elif item.image %}{% image item.image   width-1000 format-webp as image %}{% endif %}
             <img class="full-width-image__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
         </div>
         <p class="full-width-image__type">{{ item.type }}</p>

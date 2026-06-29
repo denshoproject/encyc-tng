@@ -193,14 +193,19 @@ class VideoBlockStructValue(StructValue):
             encyclopedia_id = filename
             download_url = source.file.url
             cite_url = f"/cite/{source.title}/"
-            view_url = f"/sources/{source_type}/{source.title}/"
         else:
+            filename = None
             encyclopedia_id = None
             download_url = None
             cite_url = None
+        display_type = 'display'
+        display = self.get(display_type)
+        if display:
+            view_url = display.file.url
+        else:
             view_url = None
         return {
-            'id': self.get('id'),
+            'id': filename,
             'open': False,
             'media_type': 'Video',
             'video': source,
