@@ -1,0 +1,22 @@
+name: Hero carousel
+context:
+  carousel:
+    items:
+      - url: '#'
+        title: Yuri Kochiyama
+        description: Prominent Japanese American human rights activist in Harlem (1960s–1999) and Oakland (1999–present)
+      - url: '#'
+        title: Fred Korematsu
+        description: Civil rights activist who challenged the forced removal and incarceration of Japanese Americans during World War II
+      - title: Title only
+      - description: Description only
+      - image_only_placeholder: true
+tags:
+  image:
+    'item.image fill-1000x1000 format-webp as img':
+      target_var: img
+      raw:
+        url: 'https://placehold.co/1000x1000'
+        alt: Placeholder
+        width: 1000
+        height: 1000

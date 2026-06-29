@@ -9,6 +9,7 @@ class Carousel {
     constructor(node) {
         this.node = node;
         this.slideTotal = this.node.dataset.slidetotal;
+        this.isHero = this.node.dataset.carouselType === 'hero';
         this.createSlideshow();
         this.bindEvents();
     }
@@ -27,37 +28,9 @@ class Carousel {
         return minGutter;
     }
 
-    bindEvents() {
-        this.slideshow.on('run.after', () => {
-            this.updateAriaRoles();
-            this.updateLiveRegion();
-        });
-
-        // Update peek values on window resize with debounce
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                const peek = Carousel.calculatePeek();
-                const newConfig = {
-                    peek: {
-                        before: peek,
-                        after: peek,
-                    },
-                };
-                this.slideshow.update(newConfig);
-            }, 100);
-        });
-
-        // Start the slideshow
-        this.slideshow.mount({ ArrowDisabler });
-        this.updateAriaRoles();
-        this.setLiveRegion();
-    }
-
-    createSlideshow() {
+    static defaultConfig() {
         const peek = Carousel.calculatePeek();
-        const config = {
+        return {
             type: 'slider',
             startAt: 0,
             gap: 10,
@@ -89,6 +62,65 @@ class Carousel {
                 },
             },
         };
+    }
+
+    static heroConfig() {
+        return {
+            type: 'slider',
+            startAt: 0,
+            gap: 0,
+            keyboard: false,
+            perTouch: 1,
+            touchRatio: 0.5,
+            touchAngle: 45,
+            swipeThreshold: 120,
+            dragThreshold: 120,
+            // Single-slide carousel.
+            perView: 1,
+            rewind: false,
+            autoplay: false,
+            bound: true,
+            peek: {
+                before: 0,
+                after: 0,
+            },
+        };
+    }
+
+    bindEvents() {
+        this.slideshow.on('run.after', () => {
+            this.updateAriaRoles();
+            this.updateLiveRegion();
+        });
+
+        if (!this.isHero) {
+            // Update peek values on window resize with debounce
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const peek = Carousel.calculatePeek();
+                    const newConfig = {
+                        peek: {
+                            before: peek,
+                            after: peek,
+                        },
+                    };
+                    this.slideshow.update(newConfig);
+                }, 100);
+            });
+        }
+
+        // Start the slideshow
+        this.slideshow.mount({ ArrowDisabler });
+        this.updateAriaRoles();
+        this.setLiveRegion();
+    }
+
+    createSlideshow() {
+        const config = this.isHero
+            ? Carousel.heroConfig()
+            : Carousel.defaultConfig();
         this.slideshow = new Glide(this.node, config);
     }
 

@@ -8,20 +8,17 @@ context:
           url: '#'
         - text: Browse by A-Z
           url: '#'
-    image_url: https://placehold.co/400x400
-    carousel:
+      carousel:
         publish_date: 2026-01-1 00:00:00
         title: Carousel title will not be displayed to public
         description: Carousel title and description are to help editors keep track
         items:
-          - image: https://placehold.co/400x400
-            url: '#'
-            title: This is a carousel page
-            description: Alt text for accessibility
-          - image: https://placehold.co/400x400
-            url: '#'
-            title: Another carousel page
-            description: Alt text for accessibility
+          - url: '#'
+            title: Yuri Kochiyama
+            description: Prominent Japanese American human rights activist in Harlem (1960s–1999) and Oakland (1999–present)
+          - url: '#'
+            title: Fred Korematsu
+            description: Civil rights activist who challenged the forced removal and incarceration of Japanese Americans during World War II
     topics:
       title: Browse Topics
       items:
@@ -73,10 +70,13 @@ context:
 
 tags:
   image:
-    'item.image fill-400x400 format-webp as img':
+    'item.image fill-1000x1000 format-webp as img':
       target_var: img
       raw:
-        url: 'https://placehold.co/400x400'
+        url: 'https://placehold.co/1000x1000'
+        alt: Placeholder
+        width: 1000
+        height: 1000
   pageurl:
     item:
       raw: '#'
