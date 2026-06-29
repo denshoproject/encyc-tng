@@ -8,6 +8,9 @@ context:
       - url: '#'
         title: Fred Korematsu
         description: Civil rights activist who challenged the forced removal and incarceration of Japanese Americans during World War II
+      - title: Title only
+      - description: Description only
+      - image_only_placeholder: true
 tags:
   image:
     'item.image fill-1000x1000 format-webp as img':

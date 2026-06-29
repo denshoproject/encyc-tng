@@ -9,10 +9,18 @@
                         {% image item.image fill-1000x1000 format-webp as img %}
                         <img class="hero-carousel__image" src="{{ img.url }}" alt="{{ img.alt }}" width="{{ img.width }}" height="{{ img.height }}" loading="lazy">
                         <div class="hero-carousel__card">
-                            <h2 class="hero-carousel__title heading heading--four">
-                                <a class="hero-carousel__link" href="{{ item.url }}">{{ item.title }}
-                                    {% include "patterns/components/icons/icon.html" with name="arrow" classname="hero-carousel__icon" %}</a>
-                            </h2>
+                            {% if item.title %}
+                                <h2 class="hero-carousel__title heading heading--four">
+                                    {% if item.url %}
+                                        <a class="hero-carousel__link" href="{{ item.url }}">
+                                            {{ item.title }}
+                                            {% include "patterns/components/icons/icon.html" with name="arrow" classname="hero-carousel__icon" %}
+                                        </a>
+                                    {% else %}
+                                        {{ item.title }}
+                                    {% endif %}
+                                </h2>
+                            {% endif %}
                             {% if item.description %}<p class="hero-carousel__description body">{{ item.description }}</p>{% endif %}
                         </div>
                     </li>
