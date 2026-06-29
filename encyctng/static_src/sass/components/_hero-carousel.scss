@@ -100,12 +100,12 @@
     &__controls {
         display: flex;
         justify-content: flex-end;
+        align-self: flex-end;
+        position: absolute;
+        bottom: 0;
         padding: $grid-gutters-mobile;
 
         @include media-query(large) {
-            align-self: flex-end;
-            position: absolute;
-            bottom: 0;
             transform: translateY(100%);
         }
     }
