@@ -908,9 +908,9 @@ class Articles():
             try:
                 mwpage,mwtext = Articles.load_mwpage(mw, title)
                 pagedata = json.loads(mwpage.pagedata(mw, title))['parse']
-                revisions = Articles.download_article_revisions(mw, mwpage)
+                mwrevisions = Articles.download_article_revisions(mw, mwpage)
                 mwppath,mwtpath,pgdpath,revpath,errpath = Articles.dump_article(
-                    mwpage, mwtext, pagedata, revisions, basedir
+                    mwpage, mwtext, pagedata, mwrevisions, basedir
                 )
             except Exception as err:
                 logger.error(f"{datetime.now() - start} {n+1}/{num} ERR {err} | \"{title}\"\n")
@@ -964,7 +964,7 @@ class Articles():
                 continue
 
             try:
-                mwpage,mwtext,pagedata,revisions,pgerrors = Articles.load_article(
+                mwpage,mwtext,pagedata,mwrevisions,pgerrors = Articles.load_article(
                     basedir, title
                 )
                 if justload:
@@ -996,7 +996,7 @@ class Articles():
             click.secho(f"{n+1}/{num} [ARTICLE ] {title=}", bold=True)
             try:
                 article,related_articles = Articles.import_article(
-                    mw, mwpage, mwtext, pagedata, revisions,
+                    mw, mwpage, mwtext, pagedata, mwrevisions,
                     mw_titles, mw_titles_slugs, url_prefix,
                     topics_by_id,
                     authors_by_names, authors_alts,
@@ -1212,7 +1212,7 @@ class Articles():
         return mwppath,mwtpath,pgdpath,revpath,errpath
 
     @staticmethod
-    def dump_article(mwpage, mwtext, pagedata, revisions, basedir):
+    def dump_article(mwpage, mwtext, pagedata, mwrevisions, basedir):
         mwppath,mwtpath,pgdpath,revpath,errpath = Articles.cache_paths(
             basedir, mwpage.title
         )
@@ -1228,7 +1228,7 @@ class Articles():
         with pgdpath.open('w') as f:
             f.write(json.dumps(pagedata))
         with revpath.open('w') as f:
-            f.write(json.dumps(revisions))
+            f.write(json.dumps(mwrevisions))
         with errpath.open('w') as f:
             f.write(json.dumps(errors))
         return mwppath,mwtpath,pgdpath,revpath,errpath
@@ -1253,15 +1253,15 @@ class Articles():
             pagedata = None
         try:
             with revpath.open('r') as f:
-                revisions = json.loads(f.read())
+                mwrevisions = json.loads(f.read())
         except FileNotFoundError:
-            revisions = None
+            mwrevisions = None
         try:
             with errpath.open('r') as f:
                 errors = json.loads(f.read())
         except FileNotFoundError:
             errors = None
-        return mwpage,mwtext,pagedata,revisions,errors
+        return mwpage,mwtext,pagedata,mwrevisions,errors
 
     @staticmethod
     def process_redirects(basedir):
@@ -1389,7 +1389,7 @@ description
     # https://docs.wagtail.org/en/stable/topics/streamfield.html#modifying-streamfield-data
 
     @staticmethod
-    def import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, topics_by_id, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user, dryrun=False):
+    def import_article(mw, mwpage, mwtext, pagedata, mwrevisions, mw_titles, mw_titles_slugs, url_prefix, topics_by_id, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user, dryrun=False):
         article_class,databox,databox_name = Articles.article_type(mwpage)
         logger.info(f"{article_class=}")
         try:
@@ -1410,7 +1410,7 @@ description
                 logger.info(f"{index_page}.add_child(instance={article})")
                 result = index_page.add_child(instance=article)
                 #article.save_revision()
-                Articles.apply_article_revisions(article, revisions)
+                Articles.apply_article_revisions(article, mwrevisions)
                 article_is_new = False
 
         if mwpage.title_sort:
@@ -1636,15 +1636,15 @@ description
             'comment': '/* For More Information */'
         }
         """
-        revisions = [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]
-        for r in revisions:
+        mwrevisions = [r for r in mw.mw.pages.get(name=mwpage.title).revisions()]
+        for r in mwrevisions:
             r['timestamp'] = Articles._convert_struct_time_to_datetime(
                 r['timestamp']
             ).isoformat()
-        return revisions
+        return mwrevisions
 
     @staticmethod
-    def apply_article_revisions(article, revisions):
+    def apply_article_revisions(article, mwrevisions):
         """Add Mediawiki revisions to Article
 
         Mediawiki revisions accessible through mwclient are just the metadata.
@@ -1656,7 +1656,7 @@ description
         """
         revisions_saved = []
         log_entries = []
-        for r in revisions:
+        for r in mwrevisions:
             ts = parser.parse(r['timestamp']).replace(tzinfo=DATEUTIL_DEFAULT_TZINFO)
             #rstr = '; '.join([f"{k}:{v}" for k,v in r.items()])
             #rstr = '\n '.join([f"{k}:{v}" for k,v in r.items()])
@@ -2654,9 +2654,9 @@ def test_import_article(title, user):
     mw = wiki.MediaWiki()
     authors_by_names,authors_alts, sources_collection,sources_by_headword, source_pks_by_encycid, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
     index_page = Articles.prep_wagtail()
-    mwpage,mwtext,pagedata,revisions,pgerrors = Articles.load_article(basedir, title)
-    revisions = Articles.download_article_revisions(mw, mwpage)
-    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, revisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user)
+    mwpage,mwtext,pagedata,mwrevisions,pgerrors = Articles.load_article(basedir, title)
+    mwrevisions = Articles.download_article_revisions(mw, mwpage)
+    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mwrevisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user)
     return article,related_articles
 
 
