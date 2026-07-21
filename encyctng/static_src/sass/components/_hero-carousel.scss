@@ -1,0 +1,112 @@
+@use '../config' as *;
+
+.hero-carousel {
+    $root: &;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--color--background);
+
+    @include media-query(large) {
+        height: 100%;
+        background-color: transparent;
+    }
+
+    &__viewport {
+        overflow: hidden;
+        position: relative;
+        max-width: 100lvw;
+
+        @include media-query(large) {
+            height: calc(800px + $spacer-large);
+        }
+    }
+
+    .glide__track {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    &__slides {
+        height: 100%;
+    }
+
+    &__slide {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        width: 100%;
+
+        @include media-query(large) {
+            display: block;
+        }
+    }
+
+    &__image {
+        width: 100%;
+        height: 343px;
+        object-fit: cover;
+        object-position: center;
+
+        @include media-query(large) {
+            height: 100%;
+        }
+    }
+
+    &__card {
+        padding: $spacer-small-plus;
+        background-color: var(--color--background);
+        color: var(--color--headings);
+
+        @include media-query(large) {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            width: 70%;
+            // Make sure the card is fully present at the smallest desktop breakpoint width.
+            min-width: 340px;
+            padding-right: $spacer-medium-plus;
+        }
+    }
+
+    &__title {
+        margin: 0 0 $spacer-mini;
+    }
+
+    &__link {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacer-mini;
+        color: var(--color--headings);
+
+        &:hover,
+        &:focus {
+            color: var(--color--links);
+
+            #{$root}__icon {
+                color: var(--color--links);
+            }
+        }
+    }
+
+    &__icon {
+        flex-shrink: 0;
+        color: var(--color--links);
+    }
+
+    &__controls {
+        display: flex;
+        justify-content: flex-end;
+        align-self: flex-end;
+        position: absolute;
+        bottom: 0;
+        padding: $grid-gutters-mobile;
+
+        @include media-query(large) {
+            transform: translateY(100%);
+        }
+    }
+}

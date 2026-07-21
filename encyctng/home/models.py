@@ -27,7 +27,7 @@ class HomePage(Page):
             'image': latest_homepage_image(),
             'carousel': {},
         }
-        carousel = HomePageCarousel()
+        carousel = HomePageCarousel.latest()
         if carousel:
             context['carousel'] = {
                 'publish_date': carousel.publish_date,

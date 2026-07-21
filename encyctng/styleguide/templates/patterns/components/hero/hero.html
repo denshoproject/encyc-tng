@@ -33,8 +33,12 @@
             {% endif %}
         </div>
         <div class="hero__image-container">
-            {% image hero.image fill-1000x1000 format-webp as image %}
-            <img class="hero__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+            {% if hero.carousel.items %}
+                {% include "patterns/components/hero_carousel/hero_carousel.html" with carousel=hero.carousel %}
+            {% elif hero.image %}
+                {% image hero.image fill-1000x1000 format-webp as image %}
+                <img class="hero__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+            {% endif %}
         </div>
     </div>
 </div>

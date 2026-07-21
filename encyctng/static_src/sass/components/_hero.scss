@@ -115,15 +115,13 @@
     }
 
     &__image-container {
-        max-height: 343px;
-
         @include media-query(large) {
-            max-height: 100%;
             position: absolute;
             right: 0;
-            top: 0;
-            height: 800px;
-            width: 50%;
+            top: -$spacer-large;
+            height: calc(800px + $spacer-large);
+            // Make sure there is enough space for the desktop nav.
+            width: min(50vw, calc(100vw - 680px));
         }
     }
 
