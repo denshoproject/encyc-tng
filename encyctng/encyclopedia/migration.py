@@ -1419,10 +1419,12 @@ description
             article.title_sort = slugify(mwpage.title)
         article.mw_page_id = pagedata['pageid']
         article.mw_url = mwpage.url_title
+        article.mw_lastmod_ts = mwpage.lastmod.replace(tzinfo=TIME_ZONE)
+        article.mw_lastmod_revid = pagedata['revid']
+        article.mw_first_published_ts = None
+        article.mw_first_published_revid = None
 
         Articles.set_databox_fields(article, databox, databox_name)
-
-        #article.lastmod = mwpage.lastmod
 
         authors = []
         if mwpage.authors and mwpage.authors.get('parsed'):

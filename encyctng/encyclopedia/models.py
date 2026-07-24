@@ -190,6 +190,10 @@ class Article(Page):
     tags = ClusterTaggableManager(through=ArticleTag, blank=True)
     mw_page_id = models.IntegerField(blank=True, null=True)
     mw_url = models.CharField(max_length=255, blank=True, null=True)
+    mw_lastmod_ts = models.DateTimeField(blank=True, null=True)
+    mw_lastmod_revid = models.IntegerField(blank=True, null=True)
+    mw_first_published_ts = models.DateTimeField(blank=True, null=True)
+    mw_first_published_revid = models.IntegerField(blank=True, null=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('description'),
