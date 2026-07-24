@@ -364,6 +364,8 @@ WAGTAILDOCS_EXTENSIONS = [
     'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
 ]
 
+WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
+
 WAGTAIL_WORKFLOW_ENABLED = True
 
 WAGTAIL_WORKFLOW_REQUIRE_REAPPROVAL_ON_EDIT = False
