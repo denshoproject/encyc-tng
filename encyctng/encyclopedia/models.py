@@ -188,6 +188,7 @@ class Article(Page):
     related_json = models.TextField(blank=True, null=True, editable=False)
     topics = models.ManyToManyField(ArticleTopic, blank=True)
     tags = ClusterTaggableManager(through=ArticleTag, blank=True)
+    mw_page_id = models.IntegerField(blank=True, null=True)
     mw_url = models.CharField(max_length=255, blank=True, null=True)
 
     search_fields = Page.search_fields + [
