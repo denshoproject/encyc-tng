@@ -344,6 +344,10 @@ PATTERN_LIBRARY = {
 
 WAGTAIL_SITE_NAME = 'Densho Encyclopedia'
 
+# Base URL to use when referring to full URLs within the Wagtail admin backend -
+# e.g. in notification emails. Don't include '/admin' or a trailing slash
+WAGTAILADMIN_BASE_URL = config.get('wagtail', 'base_url')
+
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
 WAGTAILSEARCH_BACKENDS = {
@@ -352,9 +356,20 @@ WAGTAILSEARCH_BACKENDS = {
     }
 }
 
-# Base URL to use when referring to full URLs within the Wagtail admin backend -
-# e.g. in notification emails. Don't include '/admin' or a trailing slash
-WAGTAILADMIN_BASE_URL = config.get('wagtail', 'base_url')
+# Disable commenting
+WAGTAILADMIN_COMMENTS_ENABLED = False
+
+# Limit slugs to ASCII characters
+WAGTAIL_ALLOW_UNICODE_SLUGS = False
+
+# disable autosave for now
+WAGTAIL_AUTOSAVE_INTERVAL = 0
+
+# If true, the preview panel in the page editor is automatically updated on each change.
+# If false, the preview panel is only updated when the refresh button is clicked.
+WAGTAIL_AUTO_UPDATE_PREVIEW = False
+
+WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
 # Allowed file extensions for documents in the document library.
 # This can be omitted to allow all files, but note that this may present a security risk
@@ -364,22 +379,11 @@ WAGTAILDOCS_EXTENSIONS = [
     'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
 ]
 
-WAGTAIL_WORKFLOW_ENABLED = True
-
-WAGTAIL_WORKFLOW_REQUIRE_REAPPROVAL_ON_EDIT = False
-
-# Disable commenting
-WAGTAILADMIN_COMMENTS_ENABLED = False
-
-# Limit slugs to ASCII characters
-WAGTAIL_ALLOW_UNICODE_SLUGS = False
-
-# If true, the preview panel in the page editor is automatically updated on each change.
-# If false, the preview panel is only updated when the refresh button is clicked.
-WAGTAIL_AUTO_UPDATE_PREVIEW = False
-
 TAGGIT_CASE_INSENSITIVE = False
 WAGTAIL_TAG_SPACES_ALLOWED = False
+
+WAGTAIL_WORKFLOW_ENABLED = True
+WAGTAIL_WORKFLOW_REQUIRE_REAPPROVAL_ON_EDIT = False
 
 # Front-end cache invalidation
 # https://docs.wagtail.org/en/stable/reference/contrib/frontendcache.html
@@ -412,3 +416,5 @@ PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
 
 ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
 DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()
+
+MIGRATION_COMPLETED = datetime(2026, 7, 24, 19, 0, 0)
