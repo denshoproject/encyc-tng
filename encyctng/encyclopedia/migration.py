@@ -1423,6 +1423,7 @@ description
         article.mw_lastmod_revid = pagedata['revid']
         article.mw_first_published_ts = None
         article.mw_first_published_revid = None
+        article.mw_migration_ts = datetime.now(tz=TIME_ZONE)
 
         Articles.set_databox_fields(article, databox, databox_name)
 
@@ -1520,6 +1521,7 @@ description
                         article.authors.remove(author)
 
             # aka save draft
+            article.mw_migration_ts = datetime.now(tz=TIME_ZONE)
             article.save_revision()
 
             # apply workflow statuses
@@ -1539,9 +1541,11 @@ description
                             debug=True,
                         )
                     article.live = False
+                    article.mw_migration_ts = datetime.now(tz=TIME_ZONE)
                     article.save()
             else:
                 # published article
+                article.mw_migration_ts = datetime.now(tz=TIME_ZONE)
                 article.save_revision().publish()
 
         wm = MediawikiWagtail(
@@ -2651,15 +2655,15 @@ def test_import_article(title, user):
     #from pathlib import Path
     #from encyc import wiki
     #from encyclopedia.migration import Authors, Articles
-    jsonl_path = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
+    sources_jsonl = '/opt/encyc-tng/data/densho-psms-sources.jsonl'
     basedir = Path('/opt/encyc-tng/data')
     url_prefix = '/wiki/'
     mw = wiki.MediaWiki()
-    authors_by_names,authors_alts, sources_collection,sources_by_headword, source_pks_by_encycid, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, jsonl_path)
+    topics_by_id, authors_by_names,authors_alts, sources_collection,sources_by_headword,source_pks_by_encycid, saved_titles,mw_titles,mw_titles_slugs, redirects = Articles.load_articles_metadata(basedir, sources_jsonl)
     index_page = Articles.prep_wagtail()
     mwpage,mwtext,pagedata,mwrevisions,pgerrors = Articles.load_article(basedir, title)
     mwrevisions = Articles.download_article_revisions(mw, mwpage)
-    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mwrevisions, mw_titles, mw_titles_slugs, url_prefix, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user)
+    article,related_articles = Articles.import_article(mw, mwpage, mwtext, pagedata, mwrevisions, mw_titles, mw_titles_slugs, url_prefix, topics_by_id, authors_by_names, authors_alts, sources_collection, sources_by_headword, source_pks_by_encycid, index_page, user=user, dryrun=False)
     return article,related_articles
 
 

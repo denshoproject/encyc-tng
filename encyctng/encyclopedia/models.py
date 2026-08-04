@@ -194,6 +194,7 @@ class Article(Page):
     mw_lastmod_revid = models.IntegerField(blank=True, null=True)
     mw_first_published_ts = models.DateTimeField(blank=True, null=True)
     mw_first_published_revid = models.IntegerField(blank=True, null=True)
+    mw_migration_ts = models.DateTimeField(blank=True, null=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('description'),
@@ -520,6 +521,23 @@ class Article(Page):
                 soup.html.unwrap()
                 soup.body.unwrap()
                 block['value'] = str(soup)
+
+    def first_published(self):
+        """Mediawiki first pub date unless *first* published after the Migration
+        """
+        if self.mw_page_id:
+            # TODO make this work
+            return None
+        return self.first_published_at
+
+    def last_published(self):
+        """Mediawiki lastmod date unless published after the Migration
+        """
+        if self.mw_page_id \
+        and self.mw_lastmod_ts \
+        and self.last_published_at.date() == settings.MIGRATION_DATE:
+            return self.mw_lastmod_ts
+        return self.last_published_at
 
     @staticmethod
     def articles_by_author():
