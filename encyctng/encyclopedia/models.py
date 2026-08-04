@@ -13,6 +13,7 @@ from django.utils.text import slugify
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.models import TaggedItemBase
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import (
     FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel)
 from wagtail.admin.panels import TabbedInterface, ObjectList
@@ -74,6 +75,33 @@ class ArticlesIndexPage(Page):
         articles = self.get_children().live().order_by('-first_published_at')
         context['articles'] = articles
         return context
+
+
+class ArticleForm(WagtailAdminPageForm):
+    """Validate fields on Article edit form"""
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Prevent users from clobbering other Articles' titles
+        # Technically we check the *slug* for uniqueness
+        article = super().__dict__['instance']
+        slug = slugify(cleaned_data['title'])
+        used = None
+        if article.id:  # existing article
+            try:
+                used = Article.objects.filter(slug=slug).exclude(id=article.id)
+            except Article.DoesNotExist:
+                pass
+        else:  # new article
+            try:
+                used = Article.objects.filter(slug=slug)
+            except Article.DoesNotExist:
+                pass
+        if used:
+            self.add_error('title', 'Title is used by another article.')
+
+        return cleaned_data
 
 
 class ArticleTopic(models.Model):
@@ -194,6 +222,7 @@ class Article(Page):
     mw_lastmod_revid = models.IntegerField(blank=True, null=True)
     mw_first_published_ts = models.DateTimeField(blank=True, null=True)
     mw_first_published_revid = models.IntegerField(blank=True, null=True)
+    mw_migration_ts = models.DateTimeField(blank=True, null=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('description'),
@@ -215,6 +244,7 @@ class Article(Page):
         ], heading='Metadata'),
     ]
     settings_panels = []
+    base_form_class = ArticleForm
 
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     subpage_types = []
@@ -520,6 +550,23 @@ class Article(Page):
                 soup.html.unwrap()
                 soup.body.unwrap()
                 block['value'] = str(soup)
+
+    def first_published(self):
+        """Mediawiki first pub date unless *first* published after the Migration
+        """
+        if self.mw_page_id:
+            # TODO make this work
+            return None
+        return self.first_published_at
+
+    def last_published(self):
+        """Mediawiki lastmod date unless published after the Migration
+        """
+        if self.mw_page_id \
+        and self.mw_lastmod_ts \
+        and self.last_published_at.date() == settings.MIGRATION_DATE:
+            return self.mw_lastmod_ts
+        return self.last_published_at
 
     @staticmethod
     def articles_by_author():

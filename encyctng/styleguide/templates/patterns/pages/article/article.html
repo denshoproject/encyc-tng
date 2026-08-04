@@ -69,15 +69,27 @@
     {% endif %}
 
     {% with authors=page.authors_all %}
-        {% if authors %}
-            <section class="page__section">
-                <div class="page__section-container grid">
-                    {% for author in authors %}
-                        {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author modifier="standalone" %}
-                    {% endfor %}
+        <section class="page__section">
+            <div class="page__section-container grid">
+
+                {% if authors %}
+                {% for author in authors %}
+                {% include "patterns/components/author_listing_item/author_listing_item.html" with author=author modifier="standalone" %}
+                {% endfor %}
+                {% endif %}
+
+                <div class="sf__block sf__block--heading">
+	            <h3></h3>
+                    <strong>
+                      {% if page.first_published %}
+		      First published {{ page.first_published | date:"j F Y" }}<br/>
+		      {% endif %}
+                    Last modified   {{ page.last_published  | date:"j F Y" }}
+                    </strong>
                 </div>
-            </section>
-        {% endif %}
+
+            </div>
+        </section>
     {% endwith %}
 
     {% if page.related_links %}
