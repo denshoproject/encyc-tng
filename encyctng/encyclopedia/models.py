@@ -13,6 +13,7 @@ from django.utils.text import slugify
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from taggit.models import TaggedItemBase
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import (
     FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel)
 from wagtail.admin.panels import TabbedInterface, ObjectList
@@ -74,6 +75,33 @@ class ArticlesIndexPage(Page):
         articles = self.get_children().live().order_by('-first_published_at')
         context['articles'] = articles
         return context
+
+
+class ArticleForm(WagtailAdminPageForm):
+    """Validate fields on Article edit form"""
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Prevent users from clobbering other Articles' titles
+        # Technically we check the *slug* for uniqueness
+        article = super().__dict__['instance']
+        slug = slugify(cleaned_data['title'])
+        used = None
+        if article.id:  # existing article
+            try:
+                used = Article.objects.filter(slug=slug).exclude(id=article.id)
+            except Article.DoesNotExist:
+                pass
+        else:  # new article
+            try:
+                used = Article.objects.filter(slug=slug)
+            except Article.DoesNotExist:
+                pass
+        if used:
+            self.add_error('title', 'Title is used by another article.')
+
+        return cleaned_data
 
 
 class ArticleTopic(models.Model):
@@ -216,6 +244,7 @@ class Article(Page):
         ], heading='Metadata'),
     ]
     settings_panels = []
+    base_form_class = ArticleForm
 
     parent_page_types = ['wagtailcore.Page', 'home.HomePage', 'encyclopedia.ArticlesIndexPage']
     subpage_types = []
