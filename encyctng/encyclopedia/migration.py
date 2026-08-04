@@ -1423,6 +1423,7 @@ description
         article.mw_lastmod_revid = pagedata['revid']
         article.mw_first_published_ts = None
         article.mw_first_published_revid = None
+        article.mw_migration_ts = datetime.now(tz=TIME_ZONE)
 
         Articles.set_databox_fields(article, databox, databox_name)
 
@@ -1520,6 +1521,7 @@ description
                         article.authors.remove(author)
 
             # aka save draft
+            article.mw_migration_ts = datetime.now(tz=TIME_ZONE)
             article.save_revision()
 
             # apply workflow statuses
@@ -1539,9 +1541,11 @@ description
                             debug=True,
                         )
                     article.live = False
+                    article.mw_migration_ts = datetime.now(tz=TIME_ZONE)
                     article.save()
             else:
                 # published article
+                article.mw_migration_ts = datetime.now(tz=TIME_ZONE)
                 article.save_revision().publish()
 
         wm = MediawikiWagtail(

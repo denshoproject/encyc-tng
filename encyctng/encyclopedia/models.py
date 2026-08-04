@@ -194,6 +194,7 @@ class Article(Page):
     mw_lastmod_revid = models.IntegerField(blank=True, null=True)
     mw_first_published_ts = models.DateTimeField(blank=True, null=True)
     mw_first_published_revid = models.IntegerField(blank=True, null=True)
+    mw_migration_ts = models.DateTimeField(blank=True, null=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('description'),
