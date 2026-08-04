@@ -2244,7 +2244,7 @@ description
         return errors_by_sig
 
     @staticmethod
-    def rewrite_article_urls(redirects):
+    def rewrite_article_urls(redirects, titles=[]):
         """Rewrite internal links in a block to Wagtail format
 
         From <a href="/wiki/the-slugified-title" title="The Slugified Title">
@@ -2252,7 +2252,11 @@ description
         """
         logger.info(f"Articles.rewrite_article_urls()")
         article_ids_by_url = Articles.get_article_ids_by_url()
-        articles = Article.objects.order_by('title_sort')
+        if titles:
+            articles = Article.objects.filter(title__in=titles).order_by('title_sort')
+        else:
+            articles = Article.objects.all()
+        articles = articles.order_by('title_sort')
         num = len(articles)
         for n,article in enumerate(articles):
             click.secho(f"{n+1}/{num} {article.title}", bold=True)
