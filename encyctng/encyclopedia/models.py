@@ -535,7 +535,7 @@ class Article(Page):
         """
         if self.mw_page_id \
         and self.mw_lastmod_ts \
-        and self.last_published_at.date() == settings.MIGRATION_DATE:
+        and self.last_published_at.date() == self.mw_migration_ts.date():
             return self.mw_lastmod_ts
         return self.last_published_at
 

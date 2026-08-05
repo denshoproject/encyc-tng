@@ -418,6 +418,3 @@ PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
 
 ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
 DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()
-
-MIGRATION_DATE = date(2026, 7, 24)
-MIGRATION_COMPLETED = datetime(2026, 7, 24, 19, 0, 0, tzinfo=zoneinfo.ZoneInfo(TIME_ZONE))
