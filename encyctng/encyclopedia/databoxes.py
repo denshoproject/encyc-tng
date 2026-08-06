@@ -21,7 +21,7 @@ DATABOXES = {
         ],
     },
 
-    'databox-Articles': {
+    'databox-Essays/Articles': {
         'class': 'ArticleArticle',
         'templatetag': 'encyclopedia/databox-article.html',
         'fields': [
