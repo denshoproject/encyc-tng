@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 import random
 from urllib.parse import urlparse
@@ -535,8 +536,15 @@ class Article(Page):
         """
         if self.mw_page_id \
         and self.mw_lastmod_ts \
-        and self.last_published_at.date() == self.mw_migration_ts.date():
-            return self.mw_lastmod_ts
+        and self.last_published_at and self.mw_migration_ts:
+            # Article.mw_migration_ts didn't perfectly sync with the old
+            # settings.MIGRATION_COMPLETED (timezone mismatch when setting
+            # default value?)
+            # So: if Wagtail last_publish date within 24h of page's migration
+            # timestamp then use mw_lastmod_ts
+            delta = self.last_published_at - self.mw_migration_ts
+            if delta <= timedelta(days=1):
+                return self.mw_lastmod_ts
         return self.last_published_at
 
     @staticmethod
