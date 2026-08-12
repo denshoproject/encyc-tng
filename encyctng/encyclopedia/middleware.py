@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from bs4.formatter import HTMLFormatter
+from wagtail.models.sites import Site
 
 from encyclopedia.models import Article
 from encyclopedia import footnotes
@@ -12,7 +13,9 @@ class ArticleMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
-        self.SITE_DOMAINS = ['encyctng.lan']
+        self.SITE_DOMAINS = [
+            s.hostname for s in Site.objects.all() if s.hostname != 'localhost'
+        ]
 
     def __call__(self, request):
         response = self.get_response(request)
