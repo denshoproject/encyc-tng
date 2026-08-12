@@ -1,6 +1,6 @@
 from pathlib import Path
 import random
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 from bs4 import BeautifulSoup
 from django import forms
@@ -567,6 +567,29 @@ class Article(Page):
         and self.last_published_at.date() == settings.MIGRATION_DATE:
             return self.mw_lastmod_ts
         return self.last_published_at
+
+    @staticmethod
+    def rewrite_internal_urls(soup, site_domains):
+        """middleware: Rewrite internal urls
+
+        We are using Wagtail Sites because of our encyclopedia/editors2 setup.
+        Because of this, Wagtail renders each internal link with the domain name
+        that was in use when the link was created.
+        This results in misdirected links when pages are viewed on the *other*
+        domain.
+
+        This function is called by encyclopedia.middleware.ArticleMiddleware,
+        after pages are rendered.
+        """
+        for block in soup.find_all('p'):
+            for a in block.find_all('a'):
+                if not a.get('href'):
+                    continue
+                scheme,netloc,path,params,query,fragment = urlparse(a['href'])
+                if netloc in site_domains:
+                    a['href'] = urlunparse(('','',path,params,query,fragment))
+                    a['class'] = 'internal'
+        return soup
 
     @staticmethod
     def articles_by_author():

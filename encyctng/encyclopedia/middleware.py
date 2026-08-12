@@ -27,6 +27,8 @@ class ArticleMiddleware:
 
         html = footnotes.fix_ref_tags(response.rendered_content)
         soup = BeautifulSoup(html, 'lxml')
+        # make internal URLs /relative/
+        soup = Article.rewrite_internal_urls(soup, self.SITE_DOMAINS)
         # do footnotes
         soup = footnotes.rewrite_body(soup)
         response.content = str(soup)
