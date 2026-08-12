@@ -11,6 +11,10 @@ class ArticleMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         # ignore anything that is not an Article
+        if request.META['PATH_INFO'].startswith('/cms/'):
+            return response
+        if request.META['PATH_INFO'].startswith('/api/'):
+            return response
         try:
             assert isinstance(response.context_data['page'], Article)
         except AttributeError:
