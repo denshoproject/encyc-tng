@@ -371,8 +371,6 @@ WAGTAIL_AUTOSAVE_INTERVAL = 0
 # If false, the preview panel is only updated when the refresh button is clicked.
 WAGTAIL_AUTO_UPDATE_PREVIEW = False
 
-WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
-
 # Allowed file extensions for documents in the document library.
 # This can be omitted to allow all files, but note that this may present a security risk
 # if untrusted users are allowed to upload files -
@@ -380,6 +378,18 @@ WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 WAGTAILDOCS_EXTENSIONS = [
     'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
 ]
+
+WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
+
+# see https://github.com/torchbox/wagtailmedia
+WAGTAILMEDIA = {
+    "AUDIO_EXTENSIONS": [
+        "aac", "aiff", "flac", "m4a", "m4b", "mp3", "ogg", "wav",
+    ],
+    "VIDEO_EXTENSIONS": [
+        "avi", "h264", "m4v", "mkv", "mov", "mp4", "mpeg", "mpg", "ogv", "webm",
+    ],
+}
 
 TAGGIT_CASE_INSENSITIVE = False
 WAGTAIL_TAG_SPACES_ALLOWED = False
