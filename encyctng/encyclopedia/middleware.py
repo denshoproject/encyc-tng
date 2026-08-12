@@ -1,7 +1,10 @@
 from bs4 import BeautifulSoup
+from bs4.formatter import HTMLFormatter
 
 from encyclopedia.models import Article
 from encyclopedia import footnotes
+
+FORMATTER = HTMLFormatter(indent=4)
 
 
 class ArticleMiddleware:
@@ -31,6 +34,6 @@ class ArticleMiddleware:
         soup = Article.rewrite_internal_urls(soup, self.SITE_DOMAINS)
         # do footnotes
         soup = footnotes.rewrite_body(soup)
-        response.content = str(soup)
+        response.content = soup.prettify(formatter=FORMATTER)
 
         return response
