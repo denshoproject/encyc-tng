@@ -1,4 +1,7 @@
+from bs4 import BeautifulSoup
+
 from encyclopedia.models import Article
+from encyclopedia import footnotes
 
 
 class ArticleMiddleware:
@@ -21,5 +24,11 @@ class ArticleMiddleware:
             return response
         except AssertionError:
             return response
+
+        html = footnotes.fix_ref_tags(response.rendered_content)
+        soup = BeautifulSoup(html, 'lxml')
+        # do footnotes
+        soup = footnotes.rewrite_body(soup)
+        response.content = str(soup)
 
         return response

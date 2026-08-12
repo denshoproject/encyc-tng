@@ -161,6 +161,45 @@ def _rewrite_body_html(html, n):
         n += 1
     return str(soup),n
 
+
+def fix_ref_tags(html):
+    """Fix <ref> tags might have been escaped
+    # TODO make this a regex!!!
+    """
+    for broken,fixed in REF_TAGS:
+        html = html.replace(broken,fixed)
+    return html
+
+def rewrite_body(soup):
+    """Replace <ref>footnotes</ref> in page body with links to footnotes
+
+    BEFORE
+        <ref>Footnote text</ref>
+    AFTER
+        <sup class="reference" id="cite_ref-1">
+          <a class="" href="#cite_note-1">
+            [1]
+          </a>
+        </sup>
+    """
+    # rewrite <ref> tags as <li> with backlinks
+    n = 1
+    for p in soup.find_all('p'):
+        for item in p.find_all('ref'):
+            ref_name  = f"cite_ref-{n}"
+            note_name = f"cite_note-{n}"
+            # insert <a name> before
+            anchor = soup.new_tag('a')
+            anchor['name'] = ref_name
+            item.insert_before(anchor)
+            # rewrite <ref> as <a href>
+            item.name = 'a'
+            item['href'] = f"#{note_name}"
+            item.string = f"[{n}]"
+            # increment
+            n += 1
+    return soup
+
 def _rewrite_footnotes_html(html):
     """Replace <refs> in footnotes field with <li>notes</li> and backlinks
 
