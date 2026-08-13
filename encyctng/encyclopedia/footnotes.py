@@ -3,6 +3,10 @@ import json
 from bs4 import BeautifulSoup
 
 
+class FootnoteException(Exception):
+    pass
+
+
 # footnote tags - see docstring for Footnotary
 REF_TAGS = [
     ('&lt;ref&gt;','<ref>'),
@@ -191,7 +195,11 @@ def rewrite_body(soup):
             # insert <a name> before
             anchor = soup.new_tag('a')
             anchor['name'] = ref_name
-            item.insert_before(anchor)
+            try:
+                item.insert_before(anchor)
+            except ValueError as err:
+                if 'Element has no parent' in err.args[0]:
+                    raise FootnoteException('Footnote Error: Every <ref> tag must have a corresponding </ref> tag.')
             # rewrite <ref> as <a href>
             item.name = 'a'
             item['href'] = f"#{note_name}"
