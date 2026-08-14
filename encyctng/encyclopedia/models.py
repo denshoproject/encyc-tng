@@ -1,4 +1,5 @@
 from datetime import timedelta
+import json
 from pathlib import Path
 import random
 from urllib.parse import urlparse, urlunparse
@@ -531,6 +532,14 @@ class Article(Page):
             'title': 'You may also like',
             'items': self._related_articles,
         }
+
+    def list_footnotes(self):
+        """For self.footnotes to be a list
+        It's not converted in page preview for whatever reason
+        """
+        if isinstance(self.footnotes, str):
+            return json.loads(self.footnotes)
+        return self.footnotes
 
     @staticmethod
     def remove_description_footnotes(articles):
