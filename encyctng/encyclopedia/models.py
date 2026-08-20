@@ -39,6 +39,7 @@ from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
 from encyclopedia import footnotes
+from encyclopedia import util
 
 
 def load_mediawiki_titles():
@@ -760,6 +761,23 @@ def prep_footnotes(page, request, serve_args, serve_kwargs):
             fields=ARTICLE_FOOTNOTE_FIELDS,
             block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
         )
+
+@hooks.register('before_serve_page')
+def prep_media_popups(page, request, serve_args, serve_kwargs):
+    """Assign each image/document/video block an id so popups work
+
+    The various templates for each block (full_width_image, modal)
+    need to have the same IDs so the buttons work.
+    The values don't need to persist, they just need to match
+    in the context of the page.
+    """
+    if isinstance(page, Article):
+        for block in page.body:
+            block_type = block.block_type
+            if block.block_type in ['imageblock','videoblock','documentblock']:
+                modal_id = util.random_string(5)
+                block.value['modal_id'] = modal_id
+                setattr(block, 'modal_id', modal_id)
 
 def placeholder_image():
     """Return a placeholder Image object

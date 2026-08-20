@@ -1,11 +1,12 @@
 name: Full width images
 context:
   item:
+    modal_id: modal-id-1
     type: Image
     caption: 'Segregated Japanese Americans from the Manzanar concentration camp, California arriving at Tule Lake, 1943, Tule Lake concentration camp, California. Courtesy of the National Archives and Records...'
     url: '#'
     modal:
-      id: modal-image-1
+      modal_id: modal-id-1
       open: false
       title: Discover the history of the Japanese American incarceration during WWII
       content: |
