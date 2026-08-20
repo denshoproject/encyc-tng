@@ -4,12 +4,18 @@
     <div class="full-width-image__container meta meta--small">
         <div class="full-width-image__wrapper">
             {% if item.display %}{% image item.display width-1000 format-webp as image %}
-            {% elif item.image %}{% image item.image   width-1000 format-webp as image %}{% endif %}
-            <img class="full-width-image__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
+            {% elif item.image %}{% image item.image   width-1000 format-webp as image %}
+	    {% endif %}
+            <img class="full-width-image__image" loading="lazy"
+		 width="{{ image.width }}" height="{{ image.height }}"
+		 src="{{ image.url }}"
+		 alt="{{ image.alt }}">
         </div>
         <p class="full-width-image__type">{{ item.type }}</p>
         <p class="full-width-image__caption">{{ item.caption }}</p>
-        <button class="full-width-image__button meta meta--small" data-modal-trigger data-modal-id="{{ item.modal_id }}" aria-label="View more information about this image">
+        <button class="full-width-image__button meta meta--small"
+		data-modal-trigger data-modal-id="{{ item.modal_id }}"
+		aria-label="View more information about this image">
             {% include "patterns/components/icons/icon.html" with name="expand" classname="full-width-image__icon" %}
             <span class="full-width-image__button-text">More info</span>
         </button>
