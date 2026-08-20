@@ -118,7 +118,7 @@ class ImageBlockStructValue(StructValue):
             cite_url = None
             view_url = None
         return {
-            'id': self.get('id'),
+            'modal_id': self.get('modal_id'),
             'open': False,
             'media_type': 'Image',
             'image': source,
@@ -205,7 +205,7 @@ class VideoBlockStructValue(StructValue):
         else:
             view_url = None
         return {
-            'id': filename,
+            'modal_id': self.get('modal_id'),
             'open': False,
             'media_type': 'Video',
             'video': source,
@@ -306,7 +306,7 @@ class DocumentBlockStructValue(StructValue):
             cite_url = None
             view_url = None
         return {
-            'id': self.get('id'),
+            'modal_id': self.get('modal_id'),
             'open': False,
             'media_type': 'Document',
             'document': source,
