@@ -19,10 +19,11 @@ class ArticleMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
+
         # ignore anything that is not an Article
-        if request.META['PATH_INFO'].startswith('/cms/'):
+        if not hasattr(response, 'template_name'):
             return response
-        if request.META['PATH_INFO'].startswith('/api/'):
+        if not response.template_name == 'patterns/pages/article/article.html':
             return response
         try:
             assert isinstance(response.context_data['page'], Article)
@@ -31,6 +32,7 @@ class ArticleMiddleware:
         except AssertionError:
             return response
 
+        # process rendered HTML
         html = footnotes.fix_ref_tags(response.rendered_content)
         soup = BeautifulSoup(html, 'lxml')
         # make internal URLs /relative/
