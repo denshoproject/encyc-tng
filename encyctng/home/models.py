@@ -10,7 +10,8 @@ from wagtail.models import Page
 from wagtail.models.media import Collection
 from wagtail.search import index
 
-from encyclopedia.models import ArticleTopic
+from encyclopedia.models import ArticleTopic, SITE_DOMAINS
+from encyclopedia.util import relativize_site_url
 from .blocks import HomepageCarouselImageBlock
 
 
@@ -37,6 +38,9 @@ class HomePage(Page):
                     {
                         'image': block.value['image'],
                         'url': block.value['article_url'],
+                        'relative_url': relativize_site_url(
+                            block.value['article_url'], SITE_DOMAINS
+                        ),
                         'title': block.value['article_title'],
                         'description': block.value['description'],
                     }
