@@ -1,11 +1,38 @@
 from django.urls import path, reverse
+from django.utils.html import escape
 
 from wagtail.admin.menu import AdminOnlyMenuItem
 from wagtail import hooks
+from wagtail.rich_text.pages import PageLinkHandler
 
+from .models import SITE_DOMAINS
 from .views import UnpublishedChangesReportView
 from .views import ComingSoonReportView, NeedsEditorReportView
+from .util import relativize_site_url
 
+
+# Article
+
+class ArticleLinkHandler(PageLinkHandler):
+    """Rewrite internal page links to make them /relative/
+    """
+    identifier = "page"
+
+    @classmethod
+    def expand_db_attributes_many(cls, attrs_list: list[dict]) -> list[str]:
+        return [
+            '<a class="internal" href="%s">' % escape(
+                relativize_site_url(page.localized.url, SITE_DOMAINS)
+            ) if page else "<a>"
+            for page in cls.get_many(attrs_list)
+        ]
+
+@hooks.register('register_rich_text_features')
+def register_link_handler(features):
+    features.register_link_type(ArticleLinkHandler)
+
+
+# reports
 
 @hooks.register('register_reports_menu_item')
 def register_unpublished_changes_report_menu_item():

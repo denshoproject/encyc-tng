@@ -25,6 +25,7 @@ from wagtail.contrib.typed_table_block.blocks import TypedTableBlock
 from wagtail.images.models import Image
 from wagtail.models.media import Collection
 from wagtail.models import Page, Orderable
+from wagtail.models.sites import Site
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
 
@@ -37,6 +38,10 @@ from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
 from encyclopedia import footnotes
+
+SITE_DOMAINS = [
+    s.hostname for s in Site.objects.all() if s.hostname != 'localhost'
+]
 
 
 def load_mediawiki_titles():
