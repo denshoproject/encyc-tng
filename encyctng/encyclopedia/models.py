@@ -38,6 +38,7 @@ from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
 from encyclopedia import footnotes
+from .util import relativize_site_url
 
 SITE_DOMAINS = [
     s.hostname for s in Site.objects.all() if s.hostname != 'localhost'
@@ -535,6 +536,10 @@ class Article(Page):
             'title': 'You may also like',
             'items': self._related_articles,
         }
+
+    def relative_url(self, request=None):
+        url = super().relative_url(self.get_site(), request=request)
+        return relativize_site_url(url, SITE_DOMAINS)
 
     @staticmethod
     def remove_description_footnotes(articles):
