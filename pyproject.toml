@@ -31,6 +31,7 @@ dependencies = [
     'bpython==0.26',
     'django==6.0.3',
     'django-extensions==4.1',
+    'django-log-request-id',
     'django-ninja==1.6.1',
     'django-pattern-library==1.5.0',
     'gunicorn==25.1.0',
