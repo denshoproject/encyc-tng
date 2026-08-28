@@ -130,6 +130,7 @@ INSTALLED_APPS = [
     'wagtail.admin',
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
+    'wagtail.contrib.table_block',
     'wagtail.documents',
     'wagtail.embeds',
     'encyclopedia.apps.CustomImagesAppConfig',  #'wagtail.images',
