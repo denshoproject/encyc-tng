@@ -22,8 +22,6 @@ from wagtail.admin.panels import TabbedInterface, ObjectList
 from wagtail.blocks import CharBlock, RichTextBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail import hooks
-from wagtail.contrib.table_block.blocks import TableBlock
-from wagtail.contrib.typed_table_block.blocks import TypedTableBlock
 from wagtail.images.models import Image
 from wagtail.models.media import Collection
 from wagtail.models import Page, Orderable
@@ -33,7 +31,7 @@ from wagtail.snippets.models import register_snippet
 
 from editors.models import Author
 from encyclopedia.blocks import (
-    ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
+    ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock, TableBlock,
     ImageBlock, VideoBlock, DocumentBlock,
 )
 from encyclopedia.citations import Citation
@@ -207,6 +205,7 @@ class Article(Page):
             ('paragraph', ArticleTextBlock()),
             ('embed', EncycStreamBlock()),
             ('quote', QuoteBlock()),
+            ('table', TableBlock()),
             ('imageblock', ImageBlock()),
             ('videoblock', VideoBlock()),
             ('documentblock', DocumentBlock()),

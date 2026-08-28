@@ -8,6 +8,7 @@ from wagtail.blocks import (
     BooleanBlock, CharBlock, TextBlock, RichTextBlock, URLBlock, ChoiceBlock,
     StreamBlock, StructBlock, StructValue,
 )
+from wagtail.contrib.table_block.blocks import TableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageBlock as WagtailImageBlock
@@ -438,6 +439,36 @@ class QuoteBlock(StructBlock):
     class Meta:
         icon = 'openquote'
         template = 'patterns/components/quote_block/quote_block.html'
+
+
+DEFAULT_TABLE_OPTIONS = {
+    "minSpareRows": 1,
+    "startRows": 5,
+    "startCols": 5,
+    "colHeaders": False,
+    "rowHeaders": False,
+    "contextMenu": [
+        "row_above",
+        "row_below",
+        "remove_row",
+        "---------",
+        "col_left",
+        "col_right",
+        "remove_col",
+        "---------",
+        "undo",
+        "redo",
+    ],
+    "editor": "text",
+    "stretchH": "all",
+    #"height": 108,
+    #"language": language,
+    "renderer": "text",
+    "autoColumnSize": False,
+}
+
+class TableBlock(StreamBlock):
+    table = TableBlock(table_options=DEFAULT_TABLE_OPTIONS)
 
 
 class DataboxCampBlock(StructBlock):
