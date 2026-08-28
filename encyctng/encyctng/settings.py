@@ -151,6 +151,7 @@ if APPLICATION_ENVIRONMENT == 'development':
     INSTALLED_APPS += ['pattern_library']
 
 MIDDLEWARE = [
+    'log_request_id.middleware.RequestIDMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -283,23 +284,46 @@ STORAGES = {
     },
 }
 
+LOG_REQUEST_ID_HEADER = "HTTP_X_REQUEST_ID"
+GENERATE_REQUEST_ID_IF_NOT_IN_HEADER = True
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     'formatters': {
         'verbose': {
-            'format': '%(asctime)s %(levelname)-8s [%(module)s.%(funcName)s]  %(message)s'
+            'format': '%(asctime)s %(request_id)s %(levelname)-8s [%(module)s.%(funcName)s]  %(message)s'
         },
         'simple': {
-            'format': '%(asctime)s %(levelname)-8s %(message)s'
+            'format': '%(asctime)s %(request_id)s %(levelname)-8s %(message)s'
+        },
+    },
+    'filters': {
+        'request_id': {
+            '()': 'log_request_id.filters.RequestIDFilter'
+        },
+        # only log when settings.DEBUG == False
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
         },
     },
     "handlers": {
-        "file": {
-            "level": LOG_LEVEL,
-            "class": "logging.FileHandler",
-            "filename": LOG_FILE,
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'filters': ['request_id'],
             'formatter': 'simple',
+        },
+        'file': {
+            'level': LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': '/var/log/encyc/encyctng.log',
+            'filters': ['request_id'],
+            'formatter': 'verbose',
         },
     },
     "loggers": {
