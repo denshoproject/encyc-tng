@@ -51,7 +51,7 @@ LOG_FILE = config.get('debug', 'log_file')
 SECRET_KEY = config.get('security', 'secret_key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config.get('debug', 'debug')
+DEBUG = config.getboolean('debug', 'debug')
 
 GITPKG_DEBUG = config.getboolean('debug', 'gitpkg_debug')
 if GITPKG_DEBUG:
