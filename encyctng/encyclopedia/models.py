@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from django import forms
 from django.conf import settings
 from django.core.cache import cache
-from django.db import models
+from django.db import connection, models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -728,6 +728,32 @@ class Article(Page):
         elif block.block_type == 'quotation':
             block.value['quotation'] = html
         return block
+
+    @staticmethod
+    def convert_to_class(article, target_class, user):
+        """Convert Article to another Article type, preserving data and history
+        """
+        # Change article.content_type_id,
+        target = target_class()
+        query_update = f"UPDATE wagtailcore_page " \
+            f"SET content_type_id={target.content_type_id} " \
+            f"WHERE id={article.id}"
+        # create new encyclopedia_article_databox record, unless it's an Article
+        query_insert = None
+        if not target_class == Article:
+            query_insert = f"INSERT INTO {target._meta.db_table} " \
+                f"(article_ptr_id) VALUES ({article.id})"
+        # delete old encyclopedia_article_databox record, unless it's an Article
+        query_delete = None
+        if not article.__class__ == Article:
+            query_delete = f"DELETE FROM {article._meta.db_table} " \
+                f"WHERE article_ptr_id = {article.id}"
+        with connection.cursor() as c:
+            c.execute(query_insert)
+            if query_update:
+                c.execute(query_update)
+            if query_delete:
+                c.execute(query_delete)
 
 
 ARTICLE_FOOTNOTE_FIELDS = {
