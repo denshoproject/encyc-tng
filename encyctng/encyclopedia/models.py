@@ -733,6 +733,38 @@ class Article(Page):
     def convert_to_class(article, target_class, user):
         """Convert Article to another Article type, preserving data and history
         """
+        # copy old databox key/values into a paragraph block
+        article_class_fieldnames = {
+            databox['class']: [
+                {
+                    'fieldname':field['tng'],
+                    'label':field['label']
+                }
+                for field in databox['fields']
+            ]
+            for key,databox in databoxes.DATABOXES.items()
+        }
+        class_name = article.__class__.__name__
+        lines = []
+        for field in article_class_fieldnames[class_name]:
+            fieldname = field['fieldname']
+            label = field['label']
+            value = getattr(article, fieldname, None)
+            if value:
+                lines.append(f"{label}: {value}")
+        # insert block at top of article
+        if lines:
+            text = '<br/>'.join(lines).strip()
+            block = ('paragraph', text)
+            article.body.insert(0, block)
+            # save it
+            article.save_revision(
+                user=user,
+                changed=True,
+                log_action=False,
+                previous_revision=article.latest_revision,
+                clean=False,
+            )
         # Change article.content_type_id,
         target = target_class()
         query_update = f"UPDATE wagtailcore_page " \
