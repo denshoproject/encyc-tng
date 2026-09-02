@@ -780,12 +780,17 @@ class Article(Page):
         if not article.__class__ == Article:
             query_delete = f"DELETE FROM {article._meta.db_table} " \
                 f"WHERE article_ptr_id = {article.id}"
+        # update content_type_id in revisions
+        query_update_revisions = f"UPDATE wagtailcore_revision " \
+            f"SET content_type_id={target.content_type_id} " \
+            f"WHERE object_id='{article.id}'"
         with connection.cursor() as c:
             c.execute(query_insert)
             if query_update:
                 c.execute(query_update)
             if query_delete:
                 c.execute(query_delete)
+            c.execute(query_update_revisions)
 
 
 ARTICLE_FOOTNOTE_FIELDS = {
