@@ -44,28 +44,31 @@ if not configs_read:
     print(f'Cannot read config files! {CONFIG_FILES}')
     sys.exit(1)
 
-LOG_LEVEL = config.get('debug', 'log_level')
-LOG_FILE = config.get('debug', 'log_file')
+LOG_LEVEL = config.get('django', 'log_level')
+LOG_FILE = config.get('django', 'log_file')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config.getboolean('debug', 'debug')
+DEBUG = config.getboolean('django', 'debug')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config.get('security', 'secret_key')
+SECRET_KEY = config.get('django', 'secret_key')
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in config.get('security', 'allowed_hosts').strip().split(',')
+    for host in config.get('django', 'allowed_hosts').strip().split(',')
     if host.strip()
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     host.strip()
-    for host in config.get('security', 'csrf_origins').strip().split(',')
+    for host in config.get('django', 'csrf_origins').strip().split(',')
     if host.strip()
 ]
 
-APPLICATION_ENVIRONMENT = config.get('security', 'environment')
+CSRF_COOKIE_SECURE = config.getboolean('django', 'csrf_cookie_secure')
+SESSION_COOKIE_SECURE = config.getboolean('django', 'session_cookie_secure')
+
+APPLICATION_ENVIRONMENT = config.get('encyctng', 'environment')
 
 
 # Django
@@ -146,23 +149,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'encyctng.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        "ENGINE": config.get('database', 'engine'),
-        'NAME': config.get('database', 'name'),
-        'HOST': config.get('database', 'host'),
-        'PORT': config.get('database', 'port'),
-        'USER': config.get('database', 'username'),
-        'PASSWORD': config.get('database', 'password'),
+        "ENGINE": config.get('django', 'database_engine'),
+        'NAME': config.get('django', 'database_name'),
+        'HOST': config.get('django', 'database_host'),
+        'PORT': config.get('django', 'database_port'),
+        'USER': config.get('django', 'database_username'),
+        'PASSWORD': config.get('django', 'database_password'),
     }
 }
 
-REDIS_HOST = config.get('redis', 'host')
-REDIS_PORT = config.get('redis', 'port')
+REDIS_HOST = config.get('django', 'redis_host')
+REDIS_PORT = config.get('django', 'redis_port')
 REDIS_DB_CACHE = '10'
 
 CACHES = {
@@ -173,8 +175,8 @@ CACHES = {
     }
 }
 
-CACHE_TIMEOUT = config.getint('performance', 'cache_timeout')
-CACHE_TIMEOUT_LONG = config.getint('performance', 'cache_timeout_long')
+CACHE_TIMEOUT = config.getint('django', 'cache_timeout')
+CACHE_TIMEOUT_LONG = config.getint('django', 'cache_timeout_long')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -194,6 +196,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -207,7 +211,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_ROOT = config.get('media', 'static_root')
+STATIC_ROOT = config.get('django', 'static_root')
 STATIC_URL = '/static/'
 
 STATICFILES_FINDERS = [
@@ -236,7 +240,7 @@ STORAGES = {
 
 # Media files (uploads)
 
-MEDIA_ROOT = config.get('media', 'media_root')
+MEDIA_ROOT = config.get('django', 'media_root')
 MEDIA_URL = '/media/'
 
 # Logging and error reporting
@@ -354,9 +358,9 @@ WAGTAIL_WORKFLOW_REQUIRE_REAPPROVAL_ON_EDIT = False
 
 # Front-end cache invalidation
 # https://docs.wagtail.org/en/stable/reference/contrib/frontendcache.html
-CLOUDFLARE_EMAIL   = config.get('performance', 'cloudflare_email'),
-CLOUDFLARE_API_KEY = config.get('performance', 'cloudflare_api_key'),
-CLOUDFLARE_ZONEID  = config.get('performance', 'cloudflare_zoneid'),
+CLOUDFLARE_EMAIL   = config.get('wagtail', 'cloudflare_email'),
+CLOUDFLARE_API_KEY = config.get('wagtail', 'cloudflare_api_key'),
+CLOUDFLARE_ZONEID  = config.get('wagtail', 'cloudflare_zoneid'),
 if CLOUDFLARE_EMAIL and CLOUDFLARE_API_KEY and CLOUDFLARE_ZONEID:
     INSTALLED_APPS += ['wagtail.contrib.frontend_cache']
     WAGTAILFRONTENDCACHE = {
@@ -407,10 +411,10 @@ PATTERN_LIBRARY = {
 
 PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
 
-ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
-DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()
+ENCYC_TOPICS_PATH = config.get('encyctng', 'encyc_topics_path').strip()
+DDR_VOCAB_TOPICS_PATH = config.get('encyctng', 'vocab_topics_path').strip()
 
-GITPKG_DEBUG = config.getboolean('debug', 'gitpkg_debug')
+GITPKG_DEBUG = config.getboolean('encyctng', 'gitpkg_debug')
 if GITPKG_DEBUG:
     # report Git branch and commit
     # This branch is the one with the leading '* '.
