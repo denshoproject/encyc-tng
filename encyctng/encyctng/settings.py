@@ -47,55 +47,11 @@ if not configs_read:
 LOG_LEVEL = config.get('debug', 'log_level')
 LOG_FILE = config.get('debug', 'log_file')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config.get('security', 'secret_key')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.getboolean('debug', 'debug')
 
-GITPKG_DEBUG = config.getboolean('debug', 'gitpkg_debug')
-if GITPKG_DEBUG:
-    # report Git branch and commit
-    # This branch is the one with the leading '* '.
-    #try:
-    GIT_BRANCH = [
-        b.decode().replace('*','').strip()
-        for b in subprocess.check_output(['git', 'branch']).splitlines()
-        if '*' in b.decode()
-       ][0]
-
-    GIT_COMMIT = subprocess.check_output([
-        'git', 'log', '--pretty=format:%H %d %ad', '--date=iso', '-1'
-    ]).decode().replace('  ', ' ')
-
-    def package_debs(package, apt_cache_dir='/var/cache/apt/archives'):
-        """
-        @param package: str Package name
-        @param apt_cache_dir: str Absolute path
-        @returns: list of .deb files matching package and version
-        """
-        cmd = 'dpkg --status %s' % package
-        try:
-            dpkg_raw = subprocess.check_output(cmd.split(' ')).decode()
-        except subprocess.CalledProcessError:
-            return ''
-        data = {}
-        for line in dpkg_raw.splitlines():
-            if line and isinstance(line, str) and (':' in line):
-                key,val = line.split(':', 1)
-                data[key.strip().lower()] = val.strip()
-        pkg_paths = [
-            path for path in os.listdir(apt_cache_dir)
-            if (package in path) and data.get('version') and (data['version'] in path)
-        ]
-        return pkg_paths
-    
-    PACKAGES = package_debs('encyctng-%s' % GIT_BRANCH)
-
-else:
-    GIT_COMMIT = ''
-    GIT_BRANCH = ''
-    PACKAGES = 'PACKAGES'
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = config.get('security', 'secret_key')
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -112,7 +68,7 @@ CSRF_TRUSTED_ORIGINS = [
 APPLICATION_ENVIRONMENT = config.get('security', 'environment')
 
 
-# Application definition
+# Django
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -238,22 +194,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+USE_I18N = True
 
 #TIME_ZONE = 'UTC'
 TIME_ZONE = 'America/Los_Angeles'
-
-USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
+
+STATIC_ROOT = BASE_DIR / 'static'
+STATIC_URL = '/static/'
 
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -263,12 +218,6 @@ STATICFILES_FINDERS = [
 STATICFILES_DIRS = [
     PROJECT_DIR / 'static_compiled',
 ]
-
-STATIC_ROOT = BASE_DIR / 'static'
-STATIC_URL = '/static/'
-
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = '/media/'
 
 # Default storage settings, with the staticfiles storage updated.
 # See https://docs.djangoproject.com/en/5.0/ref/settings/#std-setting-STORAGES
@@ -284,6 +233,13 @@ STORAGES = {
         'BACKEND': 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage',
     },
 }
+
+# Media files (uploads)
+
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
+# Logging and error reporting
 
 LOG_REQUEST_ID_HEADER = "HTTP_X_REQUEST_ID"
 GENERATE_REQUEST_ID_IF_NOT_IN_HEADER = True
@@ -338,33 +294,6 @@ LOGGING = {
         'level': LOG_LEVEL,
         'handlers': ['file'],
     },
-}
-
-
-# django-pattern-library
-if DEBUG:
-    X_FRAME_OPTIONS = "SAMEORIGIN"
-PATTERN_LIBRARY = {
-    # Groups of templates for the pattern library navigation. The keys
-    # are the group titles and the values are lists of template name prefixes that will
-    # be searched to populate the groups.
-    "SECTIONS": (
-        ("styleguide", ["patterns/styleguide"]),
-        ("components", ["patterns/components"]),
-        ("pages", ["patterns/pages"]),
-        ("sprites", ["patterns/sprites"]),
-    ),
-
-    # Configure which files to detect as templates.
-    "TEMPLATE_SUFFIX": ".html",
-
-    # Set which template components should be rendered inside of,
-    # so they may use page-level component dependencies like CSS.
-    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
-
-    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
-    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["patterns/base_page.html"],
 }
 
 
@@ -447,6 +376,32 @@ if CLOUDFLARE_EMAIL and CLOUDFLARE_API_KEY and CLOUDFLARE_ZONEID:
         },
 }
 
+# django-pattern-library
+if DEBUG:
+    X_FRAME_OPTIONS = "SAMEORIGIN"
+PATTERN_LIBRARY = {
+    # Groups of templates for the pattern library navigation. The keys
+    # are the group titles and the values are lists of template name prefixes that will
+    # be searched to populate the groups.
+    "SECTIONS": (
+        ("styleguide", ["patterns/styleguide"]),
+        ("components", ["patterns/components"]),
+        ("pages", ["patterns/pages"]),
+        ("sprites", ["patterns/sprites"]),
+    ),
+
+    # Configure which files to detect as templates.
+    "TEMPLATE_SUFFIX": ".html",
+
+    # Set which template components should be rendered inside of,
+    # so they may use page-level component dependencies like CSS.
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
+
+    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
+    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
+    "BASE_TEMPLATE_NAMES": ["patterns/base_page.html"],
+}
+
 
 # encyc-tng
 
@@ -454,3 +409,47 @@ PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
 
 ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
 DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()
+
+GITPKG_DEBUG = config.getboolean('debug', 'gitpkg_debug')
+if GITPKG_DEBUG:
+    # report Git branch and commit
+    # This branch is the one with the leading '* '.
+    #try:
+    GIT_BRANCH = [
+        b.decode().replace('*','').strip()
+        for b in subprocess.check_output(['git', 'branch']).splitlines()
+        if '*' in b.decode()
+       ][0]
+
+    GIT_COMMIT = subprocess.check_output([
+        'git', 'log', '--pretty=format:%H %d %ad', '--date=iso', '-1'
+    ]).decode().replace('  ', ' ')
+
+    def package_debs(package, apt_cache_dir='/var/cache/apt/archives'):
+        """
+        @param package: str Package name
+        @param apt_cache_dir: str Absolute path
+        @returns: list of .deb files matching package and version
+        """
+        cmd = 'dpkg --status %s' % package
+        try:
+            dpkg_raw = subprocess.check_output(cmd.split(' ')).decode()
+        except subprocess.CalledProcessError:
+            return ''
+        data = {}
+        for line in dpkg_raw.splitlines():
+            if line and isinstance(line, str) and (':' in line):
+                key,val = line.split(':', 1)
+                data[key.strip().lower()] = val.strip()
+        pkg_paths = [
+            path for path in os.listdir(apt_cache_dir)
+            if (package in path) and data.get('version') and (data['version'] in path)
+        ]
+        return pkg_paths
+
+    PACKAGES = package_debs('encyctng-%s' % GIT_BRANCH)
+
+else:
+    GIT_COMMIT = ''
+    GIT_BRANCH = ''
+    PACKAGES = 'PACKAGES'
