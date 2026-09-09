@@ -390,6 +390,18 @@ class DDRObjectBlock(StructBlock):
         template = 'encyclopedia/blocks/ddrobject.html'
 
 
+HEADING_LEVEL_NAMES = {
+    'h2': 'two',
+    'h3': 'three',
+    'h4': 'four',
+}
+class HeadingStructValue(StructValue):
+    def heading_level(self):
+        size = self.get('size', 'h2')
+        if size and (size in HEADING_LEVEL_NAMES.keys()):
+            return HEADING_LEVEL_NAMES[size]
+        return 'two'
+
 class HeadingBlock(StructBlock):
     heading_text = CharBlock(classname='title', required=True)
     size = ChoiceBlock(
@@ -413,6 +425,7 @@ class HeadingBlock(StructBlock):
     class Meta:
         icon = 'title'
         template = 'patterns/components/heading/heading.html'
+        value_class = HeadingStructValue
 
 
 class EncycStreamBlock(StreamBlock):

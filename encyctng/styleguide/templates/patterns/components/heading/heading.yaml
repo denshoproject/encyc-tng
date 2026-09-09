@@ -1,3 +1,4 @@
-name: Hero
+name: Heading
 context:
-  heading: Test heading
+  heading_text: Test heading
+  size: h2
