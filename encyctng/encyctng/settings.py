@@ -112,15 +112,15 @@ if APPLICATION_ENVIRONMENT == 'development':
 
 MIDDLEWARE = [
     'log_request_id.middleware.RequestIDMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'encyclopedia.middleware.ArticleMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+    'encyclopedia.middleware.ArticleMiddleware',
 ]
 
 ROOT_URLCONF = 'encyctng.urls'
