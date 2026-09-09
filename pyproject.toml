@@ -28,10 +28,11 @@ classifiers = [
 dynamic = ["version"]  # will read __version__ from encyctng/__init__.py
 requires-python = ">=3.13"
 dependencies = [
+    'beautifulsoup4==4.14.3',
     'bpython==0.26',
-    'django==6.0.3',
+    'django==6.1.1',
     'django-extensions==4.1',
-    'django-log-request-id',
+    'django-log-request-id==2.1.2',
     'django-ninja==1.6.1',
     'django-pattern-library==1.5.0',
     'gunicorn==25.1.0',
@@ -45,7 +46,6 @@ dependencies = [
 
 [project.optional-dependencies]
 migration = [
-    'beautifulsoup4==4.14.3',
     'django-click==2.5.0',
     'python-dateutil==2.9.0.post0',
     'densho-wagtail-notes @ git+https://github.com/denshoproject/densho-wagtail-notes',

@@ -228,6 +228,15 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = config.get('django', 'media_root')
 MEDIA_URL = '/media/'
 
+# Email
+# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    },
+}
+
 # Logging and error reporting
 
 LOG_REQUEST_ID_HEADER = "HTTP_X_REQUEST_ID"
