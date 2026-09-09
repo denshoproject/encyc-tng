@@ -1,4 +1,6 @@
 <a name="{{ value.heading_text | slugify }}"></a>
-<h2 class="heading heading--two section-heading">
+{% if value.size %}
+<{{ value.size }} class="heading heading--{{ value.heading_level }} section-heading">
     {{ value.heading_text }}
-</h2>
+</{{ value.size}}>
+{% endif %}
