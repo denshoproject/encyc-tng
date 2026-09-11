@@ -112,15 +112,15 @@ if APPLICATION_ENVIRONMENT == 'development':
 
 MIDDLEWARE = [
     'log_request_id.middleware.RequestIDMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'encyclopedia.middleware.ArticleMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+    'encyclopedia.middleware.ArticleMiddleware',
 ]
 
 ROOT_URLCONF = 'encyctng.urls'
@@ -134,7 +134,6 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -146,6 +145,10 @@ TEMPLATES = [
         },
     },
 ]
+if DEBUG:
+    TEMPLATES[0]['OPTIONS']['context_processors'].insert(
+        0, 'django.template.context_processors.debug'
+    )
 
 WSGI_APPLICATION = 'encyctng.wsgi.application'
 
@@ -227,6 +230,15 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = config.get('django', 'media_root')
 MEDIA_URL = '/media/'
+
+# Email
+# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    },
+}
 
 # Logging and error reporting
 
