@@ -1,12 +1,14 @@
+from datetime import timedelta
+import json
 from pathlib import Path
 import random
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 from bs4 import BeautifulSoup
 from django import forms
 from django.conf import settings
 from django.core.cache import cache
-from django.db import models
+from django.db import connection, models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -20,23 +22,28 @@ from wagtail.admin.panels import TabbedInterface, ObjectList
 from wagtail.blocks import CharBlock, RichTextBlock
 from wagtail.fields import RichTextField, StreamField
 from wagtail import hooks
-from wagtail.contrib.table_block.blocks import TableBlock
-from wagtail.contrib.typed_table_block.blocks import TypedTableBlock
 from wagtail.images.models import Image
 from wagtail.models.media import Collection
 from wagtail.models import Page, Orderable
+from wagtail.models.sites import Site
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
 
 from editors.models import Author
 from encyclopedia.blocks import (
-    ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock,
+    ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock, TableBlock,
     ImageBlock, VideoBlock, DocumentBlock,
 )
 from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
 from encyclopedia import footnotes
+from encyclopedia import util
+
+
+SITE_DOMAINS = [
+    s.hostname for s in Site.objects.all() if s.hostname != 'localhost'
+]
 
 
 def load_mediawiki_titles():
@@ -198,6 +205,7 @@ class Article(Page):
             ('paragraph', ArticleTextBlock()),
             ('embed', EncycStreamBlock()),
             ('quote', QuoteBlock()),
+            ('table', TableBlock()),
             ('imageblock', ImageBlock()),
             ('videoblock', VideoBlock()),
             ('documentblock', DocumentBlock()),
@@ -531,6 +539,18 @@ class Article(Page):
             'items': self._related_articles,
         }
 
+    def list_footnotes(self):
+        """For self.footnotes to be a list
+        It's not converted in page preview for whatever reason
+        """
+        if isinstance(self.footnotes, str):
+            return json.loads(self.footnotes)
+        return self.footnotes
+
+    def relative_url(self, request=None):
+        url = super().relative_url(self.get_site(), request=request)
+        return util.relativize_site_url(url, SITE_DOMAINS)
+
     @staticmethod
     def remove_description_footnotes(articles):
         """Remove footnote <ref> tags from descriptions for display in lists
@@ -564,9 +584,39 @@ class Article(Page):
         """
         if self.mw_page_id \
         and self.mw_lastmod_ts \
-        and self.last_published_at.date() == settings.MIGRATION_DATE:
-            return self.mw_lastmod_ts
+        and self.last_published_at and self.mw_migration_ts:
+            # Article.mw_migration_ts didn't perfectly sync with the old
+            # settings.MIGRATION_COMPLETED (timezone mismatch when setting
+            # default value?)
+            # So: if Wagtail last_publish date within 24h of page's migration
+            # timestamp then use mw_lastmod_ts
+            delta = self.last_published_at - self.mw_migration_ts
+            if delta <= timedelta(days=1):
+                return self.mw_lastmod_ts
         return self.last_published_at
+
+    @staticmethod
+    def rewrite_internal_urls(soup, site_domains):
+        """middleware: Rewrite internal urls
+
+        We are using Wagtail Sites because of our encyclopedia/editors2 setup.
+        Because of this, Wagtail renders each internal link with the domain name
+        that was in use when the link was created.
+        This results in misdirected links when pages are viewed on the *other*
+        domain.
+
+        This function is called by encyclopedia.middleware.ArticleMiddleware,
+        after pages are rendered.
+        """
+        for block in soup.find_all('p'):
+            for a in block.find_all('a'):
+                if not a.get('href'):
+                    continue
+                scheme,netloc,path,params,query,fragment = urlparse(a['href'])
+                if netloc in site_domains:
+                    a['href'] = urlunparse(('','',path,params,query,fragment))
+                    a['class'] = 'internal'
+        return soup
 
     @staticmethod
     def articles_by_author():
@@ -679,6 +729,69 @@ class Article(Page):
             block.value['quotation'] = html
         return block
 
+    @staticmethod
+    def convert_to_class(article, target_class, user):
+        """Convert Article to another Article type, preserving data and history
+        """
+        # copy old databox key/values into a paragraph block
+        article_class_fieldnames = {
+            databox['class']: [
+                {
+                    'fieldname':field['tng'],
+                    'label':field['label']
+                }
+                for field in databox['fields']
+            ]
+            for key,databox in databoxes.DATABOXES.items()
+        }
+        class_name = article.__class__.__name__
+        lines = []
+        for field in article_class_fieldnames[class_name]:
+            fieldname = field['fieldname']
+            label = field['label']
+            value = getattr(article, fieldname, None)
+            if value:
+                lines.append(f"{label}: {value}")
+        # insert block at top of article
+        if lines:
+            text = '<br/>'.join(lines).strip()
+            block = ('paragraph', text)
+            article.body.insert(0, block)
+            # save it
+            article.save_revision(
+                user=user,
+                changed=True,
+                log_action=False,
+                previous_revision=article.latest_revision,
+                clean=False,
+            )
+        # Change article.content_type_id,
+        target = target_class()
+        query_update = f"UPDATE wagtailcore_page " \
+            f"SET content_type_id={target.content_type_id} " \
+            f"WHERE id={article.id}"
+        # create new encyclopedia_article_databox record, unless it's an Article
+        query_insert = None
+        if not target_class == Article:
+            query_insert = f"INSERT INTO {target._meta.db_table} " \
+                f"(article_ptr_id) VALUES ({article.id})"
+        # delete old encyclopedia_article_databox record, unless it's an Article
+        query_delete = None
+        if not article.__class__ == Article:
+            query_delete = f"DELETE FROM {article._meta.db_table} " \
+                f"WHERE article_ptr_id = {article.id}"
+        # update content_type_id in revisions
+        query_update_revisions = f"UPDATE wagtailcore_revision " \
+            f"SET content_type_id={target.content_type_id} " \
+            f"WHERE object_id='{article.id}'"
+        with connection.cursor() as c:
+            c.execute(query_insert)
+            if query_update:
+                c.execute(query_update)
+            if query_delete:
+                c.execute(query_delete)
+            c.execute(query_update_revisions)
+
 
 ARTICLE_FOOTNOTE_FIELDS = {
     'richtextfields': [],
@@ -720,6 +833,23 @@ def prep_footnotes(page, request, serve_args, serve_kwargs):
             fields=ARTICLE_FOOTNOTE_FIELDS,
             block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
         )
+
+@hooks.register('before_serve_page')
+def prep_media_popups(page, request, serve_args, serve_kwargs):
+    """Assign each image/document/video block an id so popups work
+
+    The various templates for each block (full_width_image, modal)
+    need to have the same IDs so the buttons work.
+    The values don't need to persist, they just need to match
+    in the context of the page.
+    """
+    if isinstance(page, Article):
+        for block in page.body:
+            block_type = block.block_type
+            if block.block_type in ['imageblock','videoblock','documentblock']:
+                modal_id = util.random_string(5)
+                block.value['modal_id'] = modal_id
+                setattr(block, 'modal_id', modal_id)
 
 def placeholder_image():
     """Return a placeholder Image object
@@ -879,23 +1009,23 @@ class ArticleArticle(Article):
 
 
 class ArticleBook(Article):
-    book_title = models.CharField(blank=True, max_length=DATABOX_MAX)
-    author = models.CharField(blank=True, max_length=DATABOX_MAX)
-    illustrator = models.CharField(blank=True, max_length=DATABOX_MAX)
-    title_orig = models.CharField(blank=True, max_length=DATABOX_MAX)
-    country = models.CharField(blank=True, max_length=DATABOX_MAX)
-    language = models.CharField(blank=True, max_length=DATABOX_MAX)
-    series = models.CharField(blank=True, max_length=DATABOX_MAX)
-    genre = models.CharField(blank=True, max_length=DATABOX_MAX)
-    publisher = models.CharField(blank=True, max_length=DATABOX_MAX)
-    pubdate = models.CharField(blank=True, max_length=DATABOX_MAX)
-    publisher_current = models.CharField(blank=True, max_length=DATABOX_MAX)
-    pubdate_current = models.CharField(blank=True, max_length=DATABOX_MAX)
-    media_type = models.CharField(blank=True, max_length=DATABOX_MAX)
-    pages = models.CharField(blank=True, max_length=DATABOX_MAX)
-    awards = models.CharField(blank=True, max_length=DATABOX_MAX)
-    isbn = models.CharField(blank=True, max_length=DATABOX_MAX)
-    worldcat_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    book_title = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    author = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    illustrator = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    title_orig = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    country = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    language = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    series = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    genre = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    publisher = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    pubdate = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    publisher_current = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    pubdate_current = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    media_type = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    pages = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    awards = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    isbn = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    worldcat_url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)
@@ -920,27 +1050,27 @@ class ArticleBook(Article):
 
 
 class ArticleCamp(Article):
-    sos_uid = models.CharField(blank=True, max_length=DATABOX_MAX)
-    densho_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    usg_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    facility_type = models.CharField(blank=True, max_length=DATABOX_MAX)
-    admin_agency = models.CharField(blank=True, max_length=DATABOX_MAX)
-    date_opened = models.CharField(blank=True, max_length=DATABOX_MAX)
-    date_closed = models.CharField(blank=True, max_length=DATABOX_MAX)
-    location_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    city_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    state_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    facility_descr = models.CharField(blank=True, max_length=DATABOX_MAX)
-    gis_lat = models.CharField(blank=True, max_length=DATABOX_MAX)
-    gis_long = models.CharField(blank=True, max_length=DATABOX_MAX)
-    gis_tgn_id = models.CharField(blank=True, max_length=DATABOX_MAX)
-    current_disposition = models.CharField(blank=True, max_length=DATABOX_MAX)
-    population_descr = models.CharField(blank=True, max_length=DATABOX_MAX)
-    exit_destination = models.CharField(blank=True, max_length=DATABOX_MAX)
-    peak_population = models.CharField(blank=True, max_length=DATABOX_MAX)
-    peak_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    nps_link = models.CharField(blank=True, max_length=DATABOX_MAX)
-    official_link = models.CharField(blank=True, max_length=DATABOX_MAX)
+    sos_uid = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    densho_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    usg_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    facility_type = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    admin_agency = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    date_opened = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    date_closed = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    location_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    city_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    state_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    facility_descr = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    gis_lat = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    gis_long = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    gis_tgn_id = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    current_disposition = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    population_descr = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    exit_destination = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    peak_population = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    peak_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    nps_link = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    official_link = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)
@@ -965,16 +1095,16 @@ class ArticleCamp(Article):
 
 
 #class ArticleChapter(Article):
-#    author = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    title = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    publication_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    publication_editor = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    publication_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    publication_details = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    publication_city = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    publication_company = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    url = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    worldcat_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    author = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    title = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    publication_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    publication_editor = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    publication_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    publication_details = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    publication_city = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    publication_company = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    worldcat_url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 #
 #    metadata_panels = [
 #        FieldPanel(fieldname)
@@ -999,15 +1129,15 @@ class ArticleCamp(Article):
 
 
 class ArticleExhibition(Article):
-    name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    first_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    final_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    location = models.CharField(blank=True, max_length=DATABOX_MAX)
-    organization = models.CharField(blank=True, max_length=DATABOX_MAX)
-    curator = models.CharField(blank=True, max_length=DATABOX_MAX)
-    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
-    key_staff = models.CharField(blank=True, max_length=DATABOX_MAX)
-    url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    first_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    final_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    location = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    organization = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    curator = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    producer = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    key_staff = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)
@@ -1032,30 +1162,30 @@ class ArticleExhibition(Article):
 
 
 class ArticleFilm(Article):
-    film_title = models.CharField(blank=True, max_length=DATABOX_MAX)
-    film_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    genre = models.CharField(blank=True, max_length=DATABOX_MAX)
-    released = models.CharField(blank=True, max_length=DATABOX_MAX)
-    director = models.CharField(blank=True, max_length=DATABOX_MAX)
-    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
-    writer = models.CharField(blank=True, max_length=DATABOX_MAX)
-    screenplay = models.CharField(blank=True, max_length=DATABOX_MAX)
-    story = models.CharField(blank=True, max_length=DATABOX_MAX)
-    based_on = models.CharField(blank=True, max_length=DATABOX_MAX)
-    narrator = models.CharField(blank=True, max_length=DATABOX_MAX)
-    starring = models.CharField(blank=True, max_length=DATABOX_MAX)
-    music = models.CharField(blank=True, max_length=DATABOX_MAX)
-    cinematography = models.CharField(blank=True, max_length=DATABOX_MAX)
-    editing = models.CharField(blank=True, max_length=DATABOX_MAX)
-    studio = models.CharField(blank=True, max_length=DATABOX_MAX)
-    distributor = models.CharField(blank=True, max_length=DATABOX_MAX)
-    runtime = models.CharField(blank=True, max_length=DATABOX_MAX)
-    country = models.CharField(blank=True, max_length=DATABOX_MAX)
-    language = models.CharField(blank=True, max_length=DATABOX_MAX)
-    budget = models.CharField(blank=True, max_length=DATABOX_MAX)
-    gross = models.CharField(blank=True, max_length=DATABOX_MAX)
-    imdb_url = models.CharField(blank=True, max_length=DATABOX_MAX)
-    trailer_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    film_title = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    film_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    genre = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    released = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    director = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    producer = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    writer = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    screenplay = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    story = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    based_on = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    narrator = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    starring = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    music = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    cinematography = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    editing = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    studio = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    distributor = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    runtime = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    country = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    language = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    budget = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    gross = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    imdb_url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    trailer_url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)
@@ -1080,24 +1210,24 @@ class ArticleFilm(Article):
 
 
 class ArticleMagazine(Article):
-    magazine_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    year_founded = models.CharField(blank=True, max_length=DATABOX_MAX)
-    first_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    final_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    final_issue = models.CharField(blank=True, max_length=DATABOX_MAX)
-    frequency = models.CharField(blank=True, max_length=DATABOX_MAX)
-    editor = models.CharField(blank=True, max_length=DATABOX_MAX)
-    former_editors = models.CharField(blank=True, max_length=DATABOX_MAX)
-    staff_writers = models.CharField(blank=True, max_length=DATABOX_MAX)
-    photographers = models.CharField(blank=True, max_length=DATABOX_MAX)
-    founder = models.CharField(blank=True, max_length=DATABOX_MAX)
-    publisher = models.CharField(blank=True, max_length=DATABOX_MAX)
-    company = models.CharField(blank=True, max_length=DATABOX_MAX)
-    circulation = models.CharField(blank=True, max_length=DATABOX_MAX)
-    country = models.CharField(blank=True, max_length=DATABOX_MAX)
-    language = models.CharField(blank=True, max_length=DATABOX_MAX)
-    issn = models.CharField(blank=True, max_length=DATABOX_MAX)
-    worldcat_url = models.CharField(blank=True, max_length=DATABOX_MAX)
+    magazine_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    year_founded = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    first_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    final_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    final_issue = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    frequency = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    editor = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    former_editors = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    staff_writers = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    photographers = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    founder = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    publisher = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    company = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    circulation = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    country = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    language = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    issn = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    worldcat_url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)
@@ -1122,14 +1252,14 @@ class ArticleMagazine(Article):
 
 
 class ArticleNewspaper(Article):
-    publication_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    camp_article = models.CharField(blank=True, max_length=DATABOX_MAX)
-    publication_start_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    publication_end_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    predecessor_pub = models.CharField(blank=True, max_length=DATABOX_MAX)
-    successor_pub = models.CharField(blank=True, max_length=DATABOX_MAX)
-    mode_of_production = models.CharField(blank=True, max_length=DATABOX_MAX)
-    staff = models.CharField(blank=True, max_length=DATABOX_MAX)
+    publication_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    camp_article = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    publication_start_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    publication_end_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    predecessor_pub = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    successor_pub = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    mode_of_production = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    staff = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)
@@ -1154,19 +1284,19 @@ class ArticleNewspaper(Article):
 
 
 class ArticlePerson(Article):
-    first_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    last_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    display_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    birth_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    death_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    birth_location = models.CharField(blank=True, max_length=DATABOX_MAX)
-    gender = models.CharField(blank=True, max_length=DATABOX_MAX)
-    ethnicity = models.CharField(blank=True, max_length=DATABOX_MAX)
-    generation = models.CharField(blank=True, max_length=DATABOX_MAX)
-    nationality = models.CharField(blank=True, max_length=DATABOX_MAX)
-    external_url = models.CharField(blank=True, max_length=DATABOX_MAX)
-    primary_geography = models.CharField(blank=True, max_length=DATABOX_MAX)
-    religion = models.CharField(blank=True, max_length=DATABOX_MAX)
+    first_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    last_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    display_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    birth_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    death_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    birth_location = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    gender = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    ethnicity = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    generation = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    nationality = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    external_url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    primary_geography = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    religion = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)
@@ -1191,25 +1321,25 @@ class ArticlePerson(Article):
 
 
 class ArticlePlay(Article):
-    play_name = models.CharField(blank=True, max_length=DATABOX_MAX)
-    first_data = models.CharField(blank=True, max_length=DATABOX_MAX)
-    final_date = models.CharField(blank=True, max_length=DATABOX_MAX)
-    location = models.CharField(blank=True, max_length=DATABOX_MAX)
-    writer = models.CharField(blank=True, max_length=DATABOX_MAX)
-    director = models.CharField(blank=True, max_length=DATABOX_MAX)
-    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
-    creative = models.CharField(blank=True, max_length=DATABOX_MAX)
-    technical = models.CharField(blank=True, max_length=DATABOX_MAX)
-    characters = models.CharField(blank=True, max_length=DATABOX_MAX)
-    official_url = models.CharField(blank=True, max_length=DATABOX_MAX)
-    playbill_url = models.CharField(blank=True, max_length=DATABOX_MAX)
-    ibdb_id = models.CharField(blank=True, max_length=DATABOX_MAX)
-    iodb_id = models.CharField(blank=True, max_length=DATABOX_MAX)
-    theatricalia_id = models.CharField(blank=True, max_length=DATABOX_MAX)
-    publisher = models.CharField(blank=True, max_length=DATABOX_MAX)
-    pubdate = models.CharField(blank=True, max_length=DATABOX_MAX)
-    current_publisher = models.CharField(blank=True, max_length=DATABOX_MAX)
-    current_pubdate = models.CharField(blank=True, max_length=DATABOX_MAX)
+    play_name = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    first_data = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    final_date = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    location = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    writer = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    director = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    producer = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    creative = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    technical = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    characters = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    official_url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    playbill_url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    ibdb_id = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    iodb_id = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    theatricalia_id = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    publisher = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    pubdate = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    current_publisher = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    current_pubdate = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)
@@ -1234,22 +1364,22 @@ class ArticlePlay(Article):
 
 
 #class ArticleSong(Article):
-#    website_type = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    author = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    title = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    artist = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    album = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    recorded = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    song_type = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    genre = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    length = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    language = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    writer = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    composer = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    label = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    producer = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    url = models.CharField(blank=True, max_length=DATABOX_MAX)
-#    musicbrainz = models.CharField(blank=True, max_length=DATABOX_MAX)
+#    website_type = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    author = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    title = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    artist = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    album = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    recorded = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    song_type = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    genre = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    length = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    language = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    writer = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    composer = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    label = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    producer = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+#    musicbrainz = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 #
 #    metadata_panels = [
 #        FieldPanel(fieldname)
@@ -1274,13 +1404,13 @@ class ArticlePlay(Article):
 
 
 class ArticleWebsite(Article):
-    website_type = models.CharField(blank=True, max_length=DATABOX_MAX)
-    url = models.CharField(blank=True, max_length=DATABOX_MAX)
-    website_title = models.CharField(blank=True, max_length=DATABOX_MAX)
-    creator = models.CharField(blank=True, max_length=DATABOX_MAX)
-    active = models.CharField(blank=True, max_length=DATABOX_MAX)
-    has_blog = models.CharField(blank=True, max_length=DATABOX_MAX)
-    primary_sources = models.CharField(blank=True, max_length=DATABOX_MAX)
+    website_type = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    url = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    website_title = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    creator = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    active = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    has_blog = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
+    primary_sources = models.CharField(null=True, blank=True, max_length=DATABOX_MAX)
 
     metadata_panels = [
         FieldPanel(fieldname)

@@ -44,16 +44,374 @@ if not configs_read:
     print(f'Cannot read config files! {CONFIG_FILES}')
     sys.exit(1)
 
-LOG_LEVEL = config.get('debug', 'log_level')
-LOG_FILE = config.get('debug', 'log_file')
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config.get('security', 'secret_key')
+LOG_LEVEL = config.get('django', 'log_level')
+LOG_FILE = config.get('django', 'log_file')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config.get('debug', 'debug')
+DEBUG = config.getboolean('django', 'debug')
 
-GITPKG_DEBUG = config.getboolean('debug', 'gitpkg_debug')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = config.get('django', 'secret_key')
+
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in config.get('django', 'allowed_hosts').strip().split(',')
+    if host.strip()
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    host.strip()
+    for host in config.get('django', 'csrf_origins').strip().split(',')
+    if host.strip()
+]
+
+CSRF_COOKIE_SECURE = config.getboolean('django', 'csrf_cookie_secure')
+SESSION_COOKIE_SECURE = config.getboolean('django', 'session_cookie_secure')
+
+APPLICATION_ENVIRONMENT = config.get('encyctng', 'environment')
+
+
+# Django
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.messages',
+    'django.contrib.postgres',
+    'django.contrib.sessions',
+    'django.contrib.sitemaps',
+    'django.contrib.staticfiles',
+    'modelcluster',
+    'ninja',
+    'taggit',
+    'wagtail',
+    'wagtail.admin',
+    'wagtail.contrib.forms',
+    'wagtail.contrib.redirects',
+    'wagtail.contrib.table_block',
+    'wagtail.documents',
+    'wagtail.embeds',
+    'encyclopedia.apps.CustomImagesAppConfig',  #'wagtail.images',
+    'wagtail.search',
+    'wagtail.sites',
+    'wagtail.snippets',
+    'wagtail.users',
+    'wagtailmedia',
+    #
+    'home',
+    'editors',
+    'encyclopedia',
+    'info',
+    'search',
+    'sources',
+    'styleguide',
+]
+if APPLICATION_ENVIRONMENT == 'development':
+    INSTALLED_APPS += ['pattern_library']
+
+MIDDLEWARE = [
+    'log_request_id.middleware.RequestIDMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+    'encyclopedia.middleware.ArticleMiddleware',
+]
+
+ROOT_URLCONF = 'encyctng.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            PROJECT_DIR / 'templates',
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'encyctng.context_processors.sitewide',
+            ],
+            'builtins': [
+                'pattern_library.loader_tags',
+            ],
+        },
+    },
+]
+if DEBUG:
+    TEMPLATES[0]['OPTIONS']['context_processors'].insert(
+        0, 'django.template.context_processors.debug'
+    )
+
+WSGI_APPLICATION = 'encyctng.wsgi.application'
+
+# Database
+# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        "ENGINE": config.get('django', 'database_engine'),
+        'NAME': config.get('django', 'database_name'),
+        'HOST': config.get('django', 'database_host'),
+        'PORT': config.get('django', 'database_port'),
+        'USER': config.get('django', 'database_username'),
+        'PASSWORD': config.get('django', 'database_password'),
+    }
+}
+
+REDIS_HOST = config.get('django', 'redis_host')
+REDIS_PORT = config.get('django', 'redis_port')
+REDIS_DB_CACHE = '10'
+
+CACHES = {
+    "default": {
+        #'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_CACHE}",
+    }
+}
+
+CACHE_TIMEOUT = config.getint('django', 'cache_timeout')
+CACHE_TIMEOUT_LONG = config.getint('django', 'cache_timeout_long')
+
+# Password validation
+# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+# Internationalization
+# https://docs.djangoproject.com/en/5.0/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+USE_I18N = True
+
+#TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
+USE_TZ = True
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.0/howto/static-files/
+
+# Points to STATIC_ROOT
+STATIC_URL = '/static/'
+
+# Directory from which Nginx will serve static files
+STATIC_ROOT = config.get('django', 'static_root')
+
+# Directories where collectstatic will look for static files
+STATICFILES_DIRS = [
+    PROJECT_DIR / 'static_compiled',
+    '/opt/encyc-tng-assets/static',
+]
+
+# Media files (uploads)
+
+MEDIA_ROOT = config.get('django', 'media_root')
+MEDIA_URL = '/media/'
+
+# Email
+# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    },
+}
+
+# Logging and error reporting
+
+LOG_REQUEST_ID_HEADER = "HTTP_X_REQUEST_ID"
+GENERATE_REQUEST_ID_IF_NOT_IN_HEADER = True
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(request_id)s %(levelname)-8s [%(module)s.%(funcName)s]  %(message)s'
+        },
+        'simple': {
+            'format': '%(asctime)s %(request_id)s %(levelname)-8s %(message)s'
+        },
+    },
+    'filters': {
+        'request_id': {
+            '()': 'log_request_id.filters.RequestIDFilter'
+        },
+        # only log when settings.DEBUG == False
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+    },
+    "handlers": {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'filters': ['request_id'],
+            'formatter': 'simple',
+        },
+        'file': {
+            'level': LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': '/var/log/encyc/encyctng.log',
+            'filters': ['request_id'],
+            'formatter': 'verbose',
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": LOG_LEVEL,
+            "propagate": True,
+        },
+    },
+    'root': {
+        'level': LOG_LEVEL,
+        'handlers': ['file'],
+    },
+}
+
+
+# Wagtail settings
+
+WAGTAIL_SITE_NAME = 'Densho Encyclopedia'
+
+# Base URL to use when referring to full URLs within the Wagtail admin backend -
+# e.g. in notification emails. Don't include '/admin' or a trailing slash
+WAGTAILADMIN_BASE_URL = config.get('wagtail', 'base_url')
+
+# Search
+# https://docs.wagtail.org/en/stable/topics/search/backends.html
+WAGTAILSEARCH_BACKENDS = {
+    'default': {
+        'BACKEND': 'wagtail.search.backends.database',
+    }
+}
+
+# Disable commenting
+WAGTAILADMIN_COMMENTS_ENABLED = False
+
+# Limit slugs to ASCII characters
+WAGTAIL_ALLOW_UNICODE_SLUGS = False
+
+# disable autosave for now
+WAGTAIL_AUTOSAVE_INTERVAL = 0
+
+# If true, the preview panel in the page editor is automatically updated on each change.
+# If false, the preview panel is only updated when the refresh button is clicked.
+WAGTAIL_AUTO_UPDATE_PREVIEW = False
+
+# Allowed file extensions for documents in the document library.
+# This can be omitted to allow all files, but note that this may present a security risk
+# if untrusted users are allowed to upload files -
+# see https://docs.wagtail.org/en/stable/advanced_topics/deploying.html#user-uploaded-files
+WAGTAILDOCS_EXTENSIONS = [
+    'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
+]
+
+WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
+
+# see https://github.com/torchbox/wagtailmedia
+WAGTAILMEDIA = {
+    "AUDIO_EXTENSIONS": [
+        "aac", "aiff", "flac", "m4a", "m4b", "mp3", "ogg", "wav",
+    ],
+    "VIDEO_EXTENSIONS": [
+        "avi", "h264", "m4v", "mkv", "mov", "mp4", "mpeg", "mpg", "ogv", "webm",
+    ],
+}
+
+TAGGIT_CASE_INSENSITIVE = False
+WAGTAIL_TAG_SPACES_ALLOWED = False
+
+WAGTAIL_WORKFLOW_ENABLED = True
+WAGTAIL_WORKFLOW_REQUIRE_REAPPROVAL_ON_EDIT = False
+
+# Front-end cache invalidation
+# https://docs.wagtail.org/en/stable/reference/contrib/frontendcache.html
+CLOUDFLARE_EMAIL   = config.get('wagtail', 'cloudflare_email'),
+CLOUDFLARE_API_KEY = config.get('wagtail', 'cloudflare_api_key'),
+CLOUDFLARE_ZONEID  = config.get('wagtail', 'cloudflare_zoneid'),
+if CLOUDFLARE_EMAIL and CLOUDFLARE_API_KEY and CLOUDFLARE_ZONEID:
+    INSTALLED_APPS += ['wagtail.contrib.frontend_cache']
+    WAGTAILFRONTENDCACHE = {
+        'public': {
+            'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
+            'EMAIL': CLOUDFLARE_EMAIL,
+            'API_KEY': CLOUDFLARE_API_KEY,
+            'ZONEID': CLOUDFLARE_ZONEID,
+            'HOSTNAMES': ['encyclopedia.densho.org']
+        },
+        'editors2': {
+            'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
+            'EMAIL': CLOUDFLARE_EMAIL,
+            'API_KEY': CLOUDFLARE_API_KEY,
+            'ZONEID': CLOUDFLARE_ZONEID,
+            'HOSTNAMES': ['editors2.densho.org']
+        },
+}
+
+# django-pattern-library
+if DEBUG:
+    X_FRAME_OPTIONS = "SAMEORIGIN"
+PATTERN_LIBRARY = {
+    # Groups of templates for the pattern library navigation. The keys
+    # are the group titles and the values are lists of template name prefixes that will
+    # be searched to populate the groups.
+    "SECTIONS": (
+        ("styleguide", ["patterns/styleguide"]),
+        ("components", ["patterns/components"]),
+        ("pages", ["patterns/pages"]),
+        ("sprites", ["patterns/sprites"]),
+    ),
+
+    # Configure which files to detect as templates.
+    "TEMPLATE_SUFFIX": ".html",
+
+    # Set which template components should be rendered inside of,
+    # so they may use page-level component dependencies like CSS.
+    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
+
+    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
+    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
+    "BASE_TEMPLATE_NAMES": ["patterns/base_page.html"],
+}
+
+
+# encyc-tng
+
+PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
+
+ENCYC_TOPICS_PATH = config.get('encyctng', 'encyc_topics_path').strip()
+DDR_VOCAB_TOPICS_PATH = config.get('encyctng', 'vocab_topics_path').strip()
+
+GITPKG_DEBUG = config.getboolean('encyctng', 'gitpkg_debug')
 if GITPKG_DEBUG:
     # report Git branch and commit
     # This branch is the one with the leading '* '.
@@ -89,335 +447,10 @@ if GITPKG_DEBUG:
             if (package in path) and data.get('version') and (data['version'] in path)
         ]
         return pkg_paths
-    
+
     PACKAGES = package_debs('encyctng-%s' % GIT_BRANCH)
 
 else:
     GIT_COMMIT = ''
     GIT_BRANCH = ''
     PACKAGES = 'PACKAGES'
-
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in config.get('security', 'allowed_hosts').strip().split(',')
-    if host.strip()
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    host.strip()
-    for host in config.get('security', 'csrf_origins').strip().split(',')
-    if host.strip()
-]
-
-APPLICATION_ENVIRONMENT = config.get('security', 'environment')
-
-
-# Application definition
-
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.messages',
-    'django.contrib.postgres',
-    'django.contrib.sessions',
-    'django.contrib.sitemaps',
-    'django.contrib.staticfiles',
-    'modelcluster',
-    'ninja',
-    'taggit',
-    'wagtail',
-    'wagtail.admin',
-    'wagtail.contrib.forms',
-    'wagtail.contrib.redirects',
-    'wagtail.documents',
-    'wagtail.embeds',
-    'encyclopedia.apps.CustomImagesAppConfig',  #'wagtail.images',
-    'wagtail.search',
-    'wagtail.sites',
-    'wagtail.snippets',
-    'wagtail.users',
-    'wagtailmedia',
-    #
-    'home',
-    'editors',
-    'encyclopedia',
-    'info',
-    'search',
-    'sources',
-    'styleguide',
-]
-if APPLICATION_ENVIRONMENT == 'development':
-    INSTALLED_APPS += ['pattern_library']
-
-MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
-]
-
-ROOT_URLCONF = 'encyctng.urls'
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            PROJECT_DIR / 'templates',
-        ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'encyctng.context_processors.sitewide',
-            ],
-            'builtins': [
-                'pattern_library.loader_tags',
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = 'encyctng.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        "ENGINE": config.get('database', 'engine'),
-        'NAME': config.get('database', 'name'),
-        'HOST': config.get('database', 'host'),
-        'PORT': config.get('database', 'port'),
-        'USER': config.get('database', 'username'),
-        'PASSWORD': config.get('database', 'password'),
-    }
-}
-
-REDIS_HOST = config.get('redis', 'host')
-REDIS_PORT = config.get('redis', 'port')
-REDIS_DB_CACHE = '10'
-
-CACHES = {
-    "default": {
-        #'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB_CACHE}",
-    }
-}
-
-CACHE_TIMEOUT = config.getint('performance', 'cache_timeout')
-CACHE_TIMEOUT_LONG = config.getint('performance', 'cache_timeout_long')
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-#TIME_ZONE = 'UTC'
-TIME_ZONE = 'America/Los_Angeles'
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-]
-
-STATICFILES_DIRS = [
-    PROJECT_DIR / 'static_compiled',
-]
-
-STATIC_ROOT = BASE_DIR / 'static'
-STATIC_URL = '/static/'
-
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = '/media/'
-
-# Default storage settings, with the staticfiles storage updated.
-# See https://docs.djangoproject.com/en/5.0/ref/settings/#std-setting-STORAGES
-STORAGES = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    # ManifestStaticFilesStorage is recommended in production, to prevent
-    # outdated JavaScript / CSS assets being served from cache
-    # (e.g. after a Wagtail upgrade).
-    # See https://docs.djangoproject.com/en/5.0/ref/contrib/staticfiles/#manifeststaticfilesstorage
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage',
-    },
-}
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    'formatters': {
-        'verbose': {
-            'format': '%(asctime)s %(levelname)-8s [%(module)s.%(funcName)s]  %(message)s'
-        },
-        'simple': {
-            'format': '%(asctime)s %(levelname)-8s %(message)s'
-        },
-    },
-    "handlers": {
-        "file": {
-            "level": LOG_LEVEL,
-            "class": "logging.FileHandler",
-            "filename": LOG_FILE,
-            'formatter': 'simple',
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["file"],
-            "level": LOG_LEVEL,
-            "propagate": True,
-        },
-    },
-    'root': {
-        'level': LOG_LEVEL,
-        'handlers': ['file'],
-    },
-}
-
-
-# django-pattern-library
-if DEBUG:
-    X_FRAME_OPTIONS = "SAMEORIGIN"
-PATTERN_LIBRARY = {
-    # Groups of templates for the pattern library navigation. The keys
-    # are the group titles and the values are lists of template name prefixes that will
-    # be searched to populate the groups.
-    "SECTIONS": (
-        ("styleguide", ["patterns/styleguide"]),
-        ("components", ["patterns/components"]),
-        ("pages", ["patterns/pages"]),
-        ("sprites", ["patterns/sprites"]),
-    ),
-
-    # Configure which files to detect as templates.
-    "TEMPLATE_SUFFIX": ".html",
-
-    # Set which template components should be rendered inside of,
-    # so they may use page-level component dependencies like CSS.
-    "PATTERN_BASE_TEMPLATE_NAME": "patterns/base.html",
-
-    # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
-    # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["patterns/base_page.html"],
-}
-
-
-# Wagtail settings
-
-WAGTAIL_SITE_NAME = 'Densho Encyclopedia'
-
-# Base URL to use when referring to full URLs within the Wagtail admin backend -
-# e.g. in notification emails. Don't include '/admin' or a trailing slash
-WAGTAILADMIN_BASE_URL = config.get('wagtail', 'base_url')
-
-# Search
-# https://docs.wagtail.org/en/stable/topics/search/backends.html
-WAGTAILSEARCH_BACKENDS = {
-    'default': {
-        'BACKEND': 'wagtail.search.backends.database',
-    }
-}
-
-# Disable commenting
-WAGTAILADMIN_COMMENTS_ENABLED = False
-
-# Limit slugs to ASCII characters
-WAGTAIL_ALLOW_UNICODE_SLUGS = False
-
-# disable autosave for now
-WAGTAIL_AUTOSAVE_INTERVAL = 0
-
-# If true, the preview panel in the page editor is automatically updated on each change.
-# If false, the preview panel is only updated when the refresh button is clicked.
-WAGTAIL_AUTO_UPDATE_PREVIEW = False
-
-WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
-
-# Allowed file extensions for documents in the document library.
-# This can be omitted to allow all files, but note that this may present a security risk
-# if untrusted users are allowed to upload files -
-# see https://docs.wagtail.org/en/stable/advanced_topics/deploying.html#user-uploaded-files
-WAGTAILDOCS_EXTENSIONS = [
-    'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
-]
-
-TAGGIT_CASE_INSENSITIVE = False
-WAGTAIL_TAG_SPACES_ALLOWED = False
-
-WAGTAIL_WORKFLOW_ENABLED = True
-WAGTAIL_WORKFLOW_REQUIRE_REAPPROVAL_ON_EDIT = False
-
-# Front-end cache invalidation
-# https://docs.wagtail.org/en/stable/reference/contrib/frontendcache.html
-CLOUDFLARE_EMAIL   = config.get('performance', 'cloudflare_email'),
-CLOUDFLARE_API_KEY = config.get('performance', 'cloudflare_api_key'),
-CLOUDFLARE_ZONEID  = config.get('performance', 'cloudflare_zoneid'),
-if CLOUDFLARE_EMAIL and CLOUDFLARE_API_KEY and CLOUDFLARE_ZONEID:
-    INSTALLED_APPS += ['wagtail.contrib.frontend_cache']
-    WAGTAILFRONTENDCACHE = {
-        'public': {
-            'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
-            'EMAIL': CLOUDFLARE_EMAIL,
-            'API_KEY': CLOUDFLARE_API_KEY,
-            'ZONEID': CLOUDFLARE_ZONEID,
-            'HOSTNAMES': ['encyclopedia.densho.org']
-        },
-        'editors2': {
-            'BACKEND': 'wagtail.contrib.frontend_cache.backends.CloudflareBackend',
-            'EMAIL': CLOUDFLARE_EMAIL,
-            'API_KEY': CLOUDFLARE_API_KEY,
-            'ZONEID': CLOUDFLARE_ZONEID,
-            'HOSTNAMES': ['editors2.densho.org']
-        },
-}
-
-
-# encyc-tng
-
-PAGINATION_MAX_PER_PAGE_SIZE = 100  # django-ninja
-
-ENCYC_TOPICS_PATH = config.get('topics', 'encyc_topics_path').strip()
-DDR_VOCAB_TOPICS_PATH = config.get('ddr', 'vocab_topics_path').strip()
-
-MIGRATION_DATE = date(2026, 7, 24)
-MIGRATION_COMPLETED = datetime(2026, 7, 24, 19, 0, 0, tzinfo=zoneinfo.ZoneInfo(TIME_ZONE))

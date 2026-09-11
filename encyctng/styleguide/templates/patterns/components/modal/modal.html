@@ -1,6 +1,6 @@
 {% load wagtailimages_tags %}
 
-<dialog class="modal" data-modal id="modal-{{ modal.id }}" {% if modal.open %}open{% endif %}>
+<dialog class="modal" data-modal id="{{ modal.modal_id }}" {% if modal.open %}open{% endif %}>
     <div class="modal__container">
         <div class="modal__content" data-modal-content>
             <button class="modal__close" data-modal-close aria-label="Close modal">
@@ -12,7 +12,7 @@
 
 {% if modal.video %}
 <video
-    id="{{ modal.id }}"
+    id="{{ modal.modal_id }}"
     class="video-js"
     controls
     preload="auto"
@@ -55,7 +55,7 @@
                             <span>Download full size <span>(5.3 MB)</span></span>
                         </a>
                     </li>
-<!--
+		    <!--
                     <li class="modal__action">
                         <a href="{{ modal.cite_url }}" class="modal__action-link modal__action-link--cite meta meta--small">
                             {% include "patterns/components/icons/icon.html" with name="bookmark" classname="modal__meta-icon" %}
@@ -68,8 +68,21 @@
                             View primary source
                         </a>
                     </li>
--->                </ul>
-                <p class="modal__legal">© Densho 2025. This primary source is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License. <a href="#">More information</a></p>
+		    -->
+                </ul>
+
+                <p id="rightsStatement" class="modal__legal">
+		  {% if modal.creative_commons %}
+		  <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png" /></a><br/>
+		  &copy; Densho {% now "Y" %}.
+		  This primary source is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a>.
+		  <a href="/about/#usingandciting">More information</a>
+		  {% else %}
+		  The Densho Encyclopedia has included this primary source by prior agreement with the rights holder or under fair-use doctrine. For more information about licensing and use restrictions, please contact the original rights holder. If you are the rights holder and believe that the work is being used improperly, please
+		  <a href="/about/#contact">contact</a> us.
+		  {% endif %}
+		</p><!-- #rightsStatement -->
+
             </div>
         </div>
     </div>

@@ -11,8 +11,8 @@
                         <div class="hero-carousel__card">
                             {% if item.title %}
                                 <h2 class="hero-carousel__title heading heading--four">
-                                    {% if item.url %}
-                                        <a class="hero-carousel__link" href="{{ item.url }}">
+                                    {% if item.relative_url %}
+                                        <a class="hero-carousel__link internal" href="{{ item.relative_url }}">
                                             {{ item.title }}
                                             {% include "patterns/components/icons/icon.html" with name="arrow" classname="hero-carousel__icon" %}
                                         </a>

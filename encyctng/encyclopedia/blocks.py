@@ -8,6 +8,7 @@ from wagtail.blocks import (
     BooleanBlock, CharBlock, TextBlock, RichTextBlock, URLBlock, ChoiceBlock,
     StreamBlock, StructBlock, StructValue,
 )
+from wagtail.contrib.table_block.blocks import TableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageBlock as WagtailImageBlock
@@ -118,7 +119,7 @@ class ImageBlockStructValue(StructValue):
             cite_url = None
             view_url = None
         return {
-            'id': self.get('id'),
+            'modal_id': self.get('modal_id'),
             'open': False,
             'media_type': 'Image',
             'image': source,
@@ -205,7 +206,7 @@ class VideoBlockStructValue(StructValue):
         else:
             view_url = None
         return {
-            'id': filename,
+            'modal_id': self.get('modal_id'),
             'open': False,
             'media_type': 'Video',
             'video': source,
@@ -306,7 +307,7 @@ class DocumentBlockStructValue(StructValue):
             cite_url = None
             view_url = None
         return {
-            'id': self.get('id'),
+            'modal_id': self.get('modal_id'),
             'open': False,
             'media_type': 'Document',
             'document': source,
@@ -389,6 +390,18 @@ class DDRObjectBlock(StructBlock):
         template = 'encyclopedia/blocks/ddrobject.html'
 
 
+HEADING_LEVEL_NAMES = {
+    'h2': 'two',
+    'h3': 'three',
+    'h4': 'four',
+}
+class HeadingStructValue(StructValue):
+    def heading_level(self):
+        size = self.get('size', 'h2')
+        if size and (size in HEADING_LEVEL_NAMES.keys()):
+            return HEADING_LEVEL_NAMES[size]
+        return 'two'
+
 class HeadingBlock(StructBlock):
     heading_text = CharBlock(classname='title', required=True)
     size = ChoiceBlock(
@@ -412,6 +425,7 @@ class HeadingBlock(StructBlock):
     class Meta:
         icon = 'title'
         template = 'patterns/components/heading/heading.html'
+        value_class = HeadingStructValue
 
 
 class EncycStreamBlock(StreamBlock):
@@ -438,6 +452,36 @@ class QuoteBlock(StructBlock):
     class Meta:
         icon = 'openquote'
         template = 'patterns/components/quote_block/quote_block.html'
+
+
+DEFAULT_TABLE_OPTIONS = {
+    "minSpareRows": 1,
+    "startRows": 5,
+    "startCols": 5,
+    "colHeaders": False,
+    "rowHeaders": False,
+    "contextMenu": [
+        "row_above",
+        "row_below",
+        "remove_row",
+        "---------",
+        "col_left",
+        "col_right",
+        "remove_col",
+        "---------",
+        "undo",
+        "redo",
+    ],
+    "editor": "text",
+    "stretchH": "all",
+    #"height": 108,
+    #"language": language,
+    "renderer": "text",
+    "autoColumnSize": False,
+}
+
+class TableBlock(StreamBlock):
+    table = TableBlock(table_options=DEFAULT_TABLE_OPTIONS)
 
 
 class DataboxCampBlock(StructBlock):

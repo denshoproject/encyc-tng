@@ -128,10 +128,7 @@ remove-supervisor:
 
 install-virtualenv:
 	@echo ""
-	@echo "install-virtualenv -----------------------------------------------------"
-	apt-get install --assume-yes extrepo
-	extrepo enable uv
-	apt-get install --assume-yes uv
+	@echo "install-virtualenv (assumes uv is installed)---------------------------"
 	uv venv --relocatable --managed-python --allow-existing --python /usr/bin/python3
 
 install-nodejs:
@@ -200,8 +197,7 @@ install-encyc-tng-dirs:
 	chmod -R 755 $(LOG_BASE)
 	-mkdir -p $(MEDIA_BASE)
 # static dir
-	ln -sf $(INSTALL_ASSETS)/static $(INSTALLDIR)/static
-	ln -sf $(INSTALLDIR)/static $(STATIC_ROOT)
+	-mkdir -p $(STATIC_ROOT)
 # media dir
 	-mkdir -p $(MEDIA_ROOT)
 	chown -R encyc:root $(MEDIA_BASE)
