@@ -310,15 +310,40 @@ class Article(Page):
             'meta': [],
         }
 
-    def contents(self):
-        """Generate Table-of-Contents block from article headings"""
-        return [
-            {
-                'title': block.value['heading_text'],
-                'url': f"#{slugify(block.value['heading_text'])}"
-            }
-            for block in self.body if block.block_type in ['heading']
-        ]
+    def table_of_contents(self):
+        """Makes Table-of-Contents dict from article.body blocks
+
+        Also modifies heading blocks to add numbering.
+        """
+        toc = []
+        # list to track index for each layer of header
+        numbers = [0,0,0,0,0,0]  # [h1,h2,h3,h4,h5,h6]
+        for block in self.body:
+            if block.block_type in ['heading']:
+                # make an int of the current header size e.g. 'h2' > 2
+                size = block.value['size']
+                h = int(size.replace('h',''))
+                # reset sub-headers for each parent header
+                for index,n in enumerate(numbers):
+                    if index > h:
+                        numbers[index] = 0
+                # increment header for the current level `h`
+                numbers[h] = numbers[h] + 1
+                # add to header title and url
+                marker = '.'.join([str(n) for n in numbers[2:] if n > 0])
+                name = f"{marker}-{slugify(block.value['heading_text'])}"
+                # add marker and name to block
+                block.value['marker'] = marker
+                block.value['name'] = name
+                # table-of-contents dict
+                toc.append({
+                    'level': size,
+                    'indent': (h-1) * 40,  # TODO move to encyctng.css
+                    'marker': marker,
+                    'name': name,
+                    'title': block.value['heading_text'],
+                })
+        return toc
 
     def list_footnotes(self):
         return []
