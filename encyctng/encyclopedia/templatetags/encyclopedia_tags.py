@@ -8,15 +8,11 @@ register = template.Library()
 
 
 @register.simple_tag
-def article_toc(article):
+def article_table_of_contents(article):
     """Generate Table-of-Contents block from article headings"""
-    headings = [
-        block.value for block in article.body if block.block_type in ['heading']
-    ]
-    for heading in headings:
-        heading['url'] = f"#{slugify(heading['heading_text'])}"
-    return template.loader.get_template('encyclopedia/article-toc.html').render({
-        'headings': headings,
+    template_name = 'patterns/components/table_of_contents/table_of_contents.html'
+    return template.loader.get_template(template_name).render({
+        'table_of_contents': article.table_of_contents(),
     })
 
 @register.simple_tag
