@@ -340,12 +340,14 @@ class Article(Page):
                     block.value['marker'] = marker
                     block.value['name'] = name
                 # table-of-contents dict
-                toc.append({
+                item = {
                     'level': size,
                     'indent': (h-1) * 40,  # TODO move to encyctng.css
-                    'name': name,
                     'title': title,
-                })
+                }
+                if not request.is_preview:
+                    item['name'] = name
+                toc.append(item)
         return toc
 
     def list_footnotes(self):
