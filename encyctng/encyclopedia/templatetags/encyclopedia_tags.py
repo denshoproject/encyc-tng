@@ -8,11 +8,11 @@ register = template.Library()
 
 
 @register.simple_tag
-def article_table_of_contents(article):
+def article_table_of_contents(article, request):
     """Generate Table-of-Contents block from article headings"""
     template_name = 'patterns/components/table_of_contents/table_of_contents.html'
     return template.loader.get_template(template_name).render({
-        'table_of_contents': article.table_of_contents(),
+        'table_of_contents': article.table_of_contents(request),
     })
 
 @register.simple_tag
