@@ -315,6 +315,12 @@ class Article(Page):
 
         Also modifies heading blocks to add numbering.
         """
+        # Wagtail calls this function multiple times during page rendering.
+        # This function is not idempotent (heading titles are modified).
+        # We don't want heading nmbers to appear multiple times,
+        # so run this function only the first time. Sigh...
+        if hasattr(self,'_table_of_contents') and self._table_of_contents:
+            return self._table_of_contents
         toc = []
         # list to track index for each layer of header
         numbers = [0,0,0,0,0,0]  # [h1,h2,h3,h4,h5,h6]
@@ -348,6 +354,7 @@ class Article(Page):
                 if not request.is_preview:
                     item['name'] = name
                 toc.append(item)
+        self._table_of_contents = toc
         return toc
 
     def list_footnotes(self):
