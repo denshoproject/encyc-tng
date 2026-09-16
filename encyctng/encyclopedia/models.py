@@ -310,7 +310,7 @@ class Article(Page):
             'meta': [],
         }
 
-    def table_of_contents(self):
+    def table_of_contents(self, request):
         """Makes Table-of-Contents dict from article.body blocks
 
         Also modifies heading blocks to add numbering.
@@ -333,8 +333,9 @@ class Article(Page):
                 marker = '.'.join([str(n) for n in numbers[2:] if n > 0])
                 name = f"{marker}-{slugify(block.value['heading_text'])}"
                 # add marker and name to block
-                block.value['marker'] = marker
-                block.value['name'] = name
+                if not request.is_preview:
+                    block.value['marker'] = marker
+                    block.value['name'] = name
                 # table-of-contents dict
                 toc.append({
                     'level': size,
