@@ -1,8 +1,8 @@
 <a name="{{ value.name }}"></a>
 {% if value.size %}
 <{{ value.size }} class="heading heading--{{ value.size }} section-heading">
-  <a href="#toc{{ value.marker }}" style="text-decoration: none;">
-    {{ value.marker }}. {{ value.heading_text }}
+  <a href="#toc-{{ value.name }}" style="text-decoration: none;">
+    {{ value.heading_text }}
   </a>
 </{{ value.size}}>
 {% endif %}

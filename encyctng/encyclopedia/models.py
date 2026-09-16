@@ -320,6 +320,7 @@ class Article(Page):
         numbers = [0,0,0,0,0,0]  # [h1,h2,h3,h4,h5,h6]
         for block in self.body:
             if block.block_type in ['heading']:
+                title = block.value['heading_text']
                 # make an int of the current header size e.g. 'h2' > 2
                 size = block.value['size']
                 h = int(size.replace('h',''))
@@ -331,8 +332,10 @@ class Article(Page):
                 numbers[h] = numbers[h] + 1
                 # add to header title and url
                 marker = '.'.join([str(n) for n in numbers[2:] if n > 0])
-                name = f"{marker}-{slugify(block.value['heading_text'])}"
+                name = f"{marker}-{slugify(title)}"
+                title = f"{marker}. {title}"
                 # add marker and name to block
+                block.value['heading_text'] = title
                 if not request.is_preview:
                     block.value['marker'] = marker
                     block.value['name'] = name
@@ -340,9 +343,8 @@ class Article(Page):
                 toc.append({
                     'level': size,
                     'indent': (h-1) * 40,  # TODO move to encyctng.css
-                    'marker': marker,
                     'name': name,
-                    'title': block.value['heading_text'],
+                    'title': title,
                 })
         return toc
 

@@ -1,6 +1,5 @@
 name: Heading
 context:
   size: h3
-  heading_text: Test heading
+  heading_text: 2.1 Test heading
   name: 2.1-test-heading
-  marker: 2.1
