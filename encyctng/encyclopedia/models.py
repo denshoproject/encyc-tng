@@ -342,6 +342,8 @@ class Article(Page):
                 title = f"{marker}. {title}"
                 # add marker and name to block
                 block.value['heading_text'] = title
+                # ...unless we're in preview mode because adding extra fields
+                # to HeadingBlock in preview mode causes an error
                 if not request.is_preview:
                     block.value['marker'] = marker
                     block.value['name'] = name
