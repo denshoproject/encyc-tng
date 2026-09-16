@@ -3,26 +3,21 @@ context:
   items:
     - title: 'Heading'
       name: '1-heading'
-      marker: '1'
       level: '2'
       indent: 0
     - title: 'Sub Heading'
       name: '1.1-sub-heading'
-      marker: '1.1'
       level: '3'
       indent: 40
     - title: 'Another Heading'
       name: '2-another-heading'
-      marker: '2'
       level: '2'
       indent: 0
     - title: 'Another Sub Heading'
       name: '2.1-another-sub-heading'
-      marker: '2.1'
       level: '3'
       indent: 40
     - title: 'Yet Another Sub Heading'
       name: '2.2-yet-another-sub-heading'
-      marker: '2.2'
       level: '3'
       indent: 40

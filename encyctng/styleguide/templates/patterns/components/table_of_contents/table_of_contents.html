@@ -1,10 +1,10 @@
 <ul class="in-page-nav__container">
   {% for item in table_of_contents %}
   <li class="in-page-nav__item toc-level_{{ item.level }}">
-    <a name="toc{{ item.marker }}" href="#{{ item.name }}"
+    <a name="toc-{{ item.name }}" {% if item.name %}href="#{{ item.name }}"{% endif %}
        class="in-page-nav__link meta meta--large"
        style="padding-left: {{ item.indent }}px;">
-      {{ item.marker }}. {{ item.title }}
+      {{ item.title }}
     </a>
   </li><!-- .in-page-nav__item -->
   {% endfor %}

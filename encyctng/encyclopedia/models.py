@@ -315,11 +315,18 @@ class Article(Page):
 
         Also modifies heading blocks to add numbering.
         """
+        # Wagtail calls this function multiple times during page rendering.
+        # This function is not idempotent (heading titles are modified).
+        # We don't want heading nmbers to appear multiple times,
+        # so run this function only the first time. Sigh...
+        if hasattr(self,'_table_of_contents') and self._table_of_contents:
+            return self._table_of_contents
         toc = []
         # list to track index for each layer of header
         numbers = [0,0,0,0,0,0]  # [h1,h2,h3,h4,h5,h6]
         for block in self.body:
             if block.block_type in ['heading']:
+                title = block.value['heading_text']
                 # make an int of the current header size e.g. 'h2' > 2
                 size = block.value['size']
                 h = int(size.replace('h',''))
@@ -331,19 +338,25 @@ class Article(Page):
                 numbers[h] = numbers[h] + 1
                 # add to header title and url
                 marker = '.'.join([str(n) for n in numbers[2:] if n > 0])
-                name = f"{marker}-{slugify(block.value['heading_text'])}"
+                name = f"{marker}-{slugify(title)}"
+                title = f"{marker}. {title}"
                 # add marker and name to block
+                block.value['heading_text'] = title
+                # ...unless we're in preview mode because adding extra fields
+                # to HeadingBlock in preview mode causes an error
                 if not request.is_preview:
                     block.value['marker'] = marker
                     block.value['name'] = name
                 # table-of-contents dict
-                toc.append({
+                item = {
                     'level': size,
                     'indent': (h-1) * 40,  # TODO move to encyctng.css
-                    'marker': marker,
-                    'name': name,
-                    'title': block.value['heading_text'],
-                })
+                    'title': title,
+                }
+                if not request.is_preview:
+                    item['name'] = name
+                toc.append(item)
+        self._table_of_contents = toc
         return toc
 
     def list_footnotes(self):
