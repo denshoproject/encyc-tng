@@ -84,7 +84,17 @@ class NeedsEditorReportView(PageReportView):
 @cache_page(settings.CACHE_TIMEOUT)
 def related(request, article_id):
     queryset = Article.objects.live()
-    article = get_object_or_404(queryset, id=article_id)
+    try:
+        article = get_object_or_404(queryset, id=article_id)
+        related_media = article.related_media()
+    except Exception as err:
+        path_info = request.META['PATH_INFO']
+        return render(request, 'patterns/components/hxget_error/hxget_error.html', {
+            'path_info': path_info,
+            'view': 'encyclopedia.views.related',
+            'title': err.__class__.__name__,
+            'description': err.args[0],
+        })
     return render(request, 'patterns/components/related/related.html', {
         'page': article,
     })

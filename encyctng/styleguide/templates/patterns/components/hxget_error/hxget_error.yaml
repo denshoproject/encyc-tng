@@ -1,0 +1,6 @@
+name: HTMX hx-get error
+context:
+  path_info: /related/53/
+  view: encyclopedia.views.related
+  title: hx-get ERROR
+  description: Something happened

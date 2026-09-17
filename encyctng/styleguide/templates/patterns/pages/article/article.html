@@ -106,14 +106,22 @@
     {% endif %}
 
         <div class="page__footer">
-	  <div hx-trigger="revealed" hx-get="{% url "encyc-related" page.id %}" hx-swap="innerHTML">
-            <div class="related-media ">
-              <div class="related-media__container grid">
-                <h2 class="related-media__heading heading heading--three section-heading">From the archive</h2>
-                <p class="related-media__sub-heading meta meta--small">(Densho Digital Repository)</p>
+          <div class="related-media">
+            <div class="related-media__container grid">
+
+              <h2 class="related-media__heading heading heading--three section-heading">
+		From the archive
+	      </h2>
+              <p class="related-media__sub-heading meta meta--small">
+		(Densho Digital Repository)
+	      </p>
+	      <div hx-trigger="revealed"
+		   hx-get="{% url "encyc-related" page.id %}"
+		   hx-swap="innerHTML">
               </div>
-            </div>
-          </div>
+
+            </div><!-- .related-media__container -->
+          </div><!-- .related-media -->
 	  {% if page.related_content %}
 	  {% include "patterns/components/related_content_carousel/related_content_carousel.html" with title=page.related_content.title items=page.related_content.items %}
 	  {% endif %}
