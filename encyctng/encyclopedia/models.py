@@ -412,6 +412,73 @@ class Article(Page):
         #return placeholder_image()
         return None
 
+    def gather_blocks(self):
+        """Returns Article.body blocks with adjacent media blocks in carousels
+        """
+        blocks = []
+        CAROUSEL_BLOCK_TYPES = ['imageblock', 'documentblock', 'videoblock',]
+        stack = []
+        for n,block in enumerate(self.body):
+            # just append non-media
+            if block.block_type not in CAROUSEL_BLOCK_TYPES:
+                blocks.append(block)
+                continue
+            # everything else is a media block
+            # make decision key
+            key = []
+            if stack:
+                key.append('ListNotEmpty')
+            else:
+                key.append('ListEmpty')
+            try:
+                next = self.body[n+1]
+                if next.block_type in CAROUSEL_BLOCK_TYPES:
+                    key.append('NextIsMedia')
+                else:
+                    key.append('NextNotMedia')
+            except IndexError:
+                key.append('NoNext')
+            key = ':'.join(key)
+            print(f"{key=}")
+            # functions
+            def add_to_stack(stack, block):
+                """Add block to stack"""
+                stack.append(block)
+                return
+            def finalize_stack(stack, block):
+                """add block to list, wrap list, add to newbody, empty list"""
+                stack.append(block)
+                carousel_blocks = []
+                while(stack):
+                    carousel_blocks.append(stack.pop())
+                carousel_blocks.reverse()
+                return carousel_blocks
+            # decide what to do
+            decision_matrix = {
+                'ListEmpty:NoNext':          finalize_stack,
+                'ListEmpty:NextNotMedia':    finalize_stack,
+                'ListEmpty:NextIsMedia':     add_to_stack,
+                'ListNotEmpty:NextIsMedia':  add_to_stack,
+                'ListNotEmpty:NextNotMedia': finalize_stack,
+                'ListNotEmpty:NoNext':       finalize_stack,
+            }
+            function = decision_matrix.get(key)
+            print(f"{function=}")
+            # do it
+            if function:
+                block_or_blocks = function(stack, block)
+                if block_or_blocks:
+                    if len(block_or_blocks) == 1:
+                        # single media block is not in a carousel
+                        blocks.append(block_or_blocks[0])
+                    else:
+                        blocks.append({
+                            'carousel': True,
+                            'items': block_or_blocks,
+                        })
+
+        return blocks
+
     def carousel(self):
         """Image blocks at the top of self.body are gathered into carousel
         """

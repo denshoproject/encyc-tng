@@ -10,7 +10,7 @@
     </header>
 
     <div class="page__carousel">
-        {% include "patterns/components/carousel/carousel.html" with items=page.carousel type="full_width_image" %}
+        {# include "patterns/components/carousel/carousel.html" with items=page.carousel type="full_width_image" #}
     </div>
 
     <div class="page__content" id="body">
@@ -23,10 +23,16 @@
             </nav><!-- .in-page-nav -->
 
             <div class="sf grid grid--no-gutter">
-                {% for block in page.body %}
-                    <div class="sf__block sf__block--{{ block.block_type }}">
-                        {% include_block block %}
-                    </div>
+                {% for block in page.gather_blocks %}
+	            {% if block.carousel %}
+                        <div class="page__carousel">
+                        {% include "patterns/components/carousel/carousel.html" with items=block.items type="full_width_image" %}
+                        </div>
+                    {% else %}
+                        <div class="sf__block sf__block--{{ block.block_type }}">
+                            {% include_block block %}
+                        </div>
+		    {% endif %}
                 {% endfor %}
             </div>
         </div>
