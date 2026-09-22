@@ -412,7 +412,7 @@ class Article(Page):
         #return placeholder_image()
         return None
 
-    def gather_blocks(self):
+    def body_with_carousels(self):
         """Returns Article.body blocks with adjacent media blocks in carousels
 
         The logic is like this:

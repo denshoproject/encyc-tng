@@ -23,7 +23,7 @@
             </nav><!-- .in-page-nav -->
 
             <div class="sf grid grid--no-gutter">
-                {% for block in page.gather_blocks %}
+                {% for block in page.body_with_carousels %}
 	            {% if block.carousel %}
                         <div class="page__carousel">
                         {% include "patterns/components/carousel/carousel.html" with items=block.items type="full_width_image" %}
