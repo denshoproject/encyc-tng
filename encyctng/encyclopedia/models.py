@@ -412,6 +412,107 @@ class Article(Page):
         #return placeholder_image()
         return None
 
+    def body_with_carousels(self):
+        """Returns Article.body blocks with adjacent media blocks in carousels
+
+        The logic is like this:
+        - Iterate through the blocks in Article.body, making a new list.
+        - Each block's type is checked. If it's not a media block it just gets
+          added to the new list. Anything that is left is a media block.
+        - Each media block is compared to the next block (if any).
+        - If the next block is also a media block, the block is added to
+          a list (stack).
+        - If the next block is NOT a media block, or there are no more blocks,
+          the stack of media blocks is finalized.
+        - If the stack only has one block, that block is added to the new list
+          as a single block.
+        - Otherwise the list of blocks is wrapped in a data structure that
+          the article template can recognie and that the carousel template
+          can understand.
+        The flow is out of order so the action functions and decision matrix
+        are not defined again for each block.
+
+        TODO would popping blocks off self.body be more memory-efficient?
+        """
+        # action functions
+        def add_to_stack(stack, block):
+            """Add block to stack"""
+            stack.append(block)
+            return
+        def finalize_stack(stack, block):
+            """add block to list, wrap list, add to newbody, empty list"""
+            if not stack:
+                return block
+            stack.append(block)
+            items = []
+            while(stack):
+                block = stack.pop()
+                modal = block.value.modal()
+                item = {
+                    'type': modal['media_type'],
+                    'image': modal.get('image',None),
+                    'caption': modal['caption'],
+                    'url': '#',
+                    'modal_id': modal['modal_id'],
+                    'modal': modal,
+                }
+                if block.block_type in ['documentblock','videoblock']:
+                    item['image'] = block.value['display']
+                    item['modal']['image'] = block.value['display']
+                items.append(item)
+            items.reverse()
+            return items
+        DECISION_MATRIX = {
+            'ListEmpty:NoNext':          finalize_stack,
+            'ListEmpty:NextNotMedia':    finalize_stack,
+            'ListEmpty:NextIsMedia':     add_to_stack,
+            'ListNotEmpty:NextIsMedia':  add_to_stack,
+            'ListNotEmpty:NextNotMedia': finalize_stack,
+            'ListNotEmpty:NoNext':       finalize_stack,
+        }
+
+        CAROUSEL_BLOCK_TYPES = ['imageblock', 'documentblock', 'videoblock',]
+        blocks = []
+        stack = []
+        for n,block in enumerate(self.body):
+            # just append non-media
+            if block.block_type not in CAROUSEL_BLOCK_TYPES:
+                blocks.append(block)
+                # stack is reset whenever we have a non-media block
+                stack = []
+                continue
+            # compare this block to the next and make decision key
+            key = []
+            if stack:
+                key.append('ListNotEmpty')
+            else:
+                key.append('ListEmpty')
+            try:
+                next = self.body[n+1]
+                if next.block_type in CAROUSEL_BLOCK_TYPES:
+                    key.append('NextIsMedia')
+                else:
+                    key.append('NextNotMedia')
+            except IndexError:
+                key.append('NoNext')
+            key = ':'.join(key)
+            # use the key to decide which function to run
+            action = DECISION_MATRIX.get(key)
+            block_or_blocks = action(stack, block)
+            if block_or_blocks:
+                if isinstance(block_or_blocks, list):
+                    # Django templates cannot use `if isinstance` to tell
+                    # lists from single blocks so wrap the list in a dict
+                    # with 'carousel' == True
+                    blocks.append({
+                        'carousel': True,
+                        'items': block_or_blocks,
+                    })
+                else:
+                    # add single blocks as just single blocks
+                    blocks.append(block_or_blocks)
+        return blocks
+
     def carousel(self):
         """Image blocks at the top of self.body are gathered into carousel
         """

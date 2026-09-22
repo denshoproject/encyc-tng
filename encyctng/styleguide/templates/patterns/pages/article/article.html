@@ -10,7 +10,7 @@
     </header>
 
     <div class="page__carousel">
-        {% include "patterns/components/carousel/carousel.html" with items=page.carousel type="full_width_image" %}
+        {# include "patterns/components/carousel/carousel.html" with items=page.carousel type="full_width_image" #}
     </div>
 
     <div class="page__content" id="body">
@@ -23,44 +23,17 @@
             </nav><!-- .in-page-nav -->
 
             <div class="sf grid grid--no-gutter">
-                {% for block in page.body %}
-                    <div class="sf__block sf__block--{{ block.block_type }}">
-                        {% include_block block %}
-                    </div>
+                {% for block in page.body_with_carousels %}
+	            {% if block.carousel %}
+                        <div class="page__carousel">
+                        {% include "patterns/components/carousel/carousel.html" with items=block.items type="full_width_image" %}
+                        </div>
+                    {% else %}
+                        <div class="sf__block sf__block--{{ block.block_type }}">
+                            {% include_block block %}
+                        </div>
+		    {% endif %}
                 {% endfor %}
-                <!--
-                {# placeholders until https://github.com/denshoproject/encyc-tng/issues/60 is resolved #}
-                <div class="sf__block sf__block--heading">
-                    {% include "patterns/components/heading/heading.html" with heading="Test heading" %}
-                </div>
-                <div class="sf__block sf__block--rich_text">
-                    {% include "patterns/components/rich_text/rich_text.html" %}
-                </div>
-                <div class="sf__block sf__block--heading">
-                    {% include "patterns/components/heading/heading.html" with heading="Test heading" %}
-                </div>
-                <div class="sf__block sf__block--rich_text">
-                    {% include "patterns/components/rich_text/rich_text.html" %}
-                </div>
-                <div class="sf__block sf__block--rich_text">
-                    {% include "patterns/components/rich_text/rich_text.html" %}
-                </div>
-                <div class="sf__block sf__block--full_width_image">
-                    {% include "patterns/components/full_width_image/full_width_image.html" %}
-                </div>
-                <div class="sf__block sf__block--rich_text">
-                    {% include "patterns/components/rich_text/rich_text.html" %}
-                </div>
-                <div class="sf__block sf__block--quote_block">
-                    {% include "patterns/components/quote_block/quote_block.html" %}
-                </div>
-                <div class="sf__block sf__block--rich_text">
-                    {% include "patterns/components/rich_text/rich_text.html" %}
-                </div>
-                <div class="sf__block sf__block--heading">
-                    {% include "patterns/components/rich_text/rich_text.html" %}
-                </div>
-                -->
             </div>
         </div>
     </div>
