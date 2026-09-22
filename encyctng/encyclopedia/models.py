@@ -422,6 +422,8 @@ class Article(Page):
             # just append non-media
             if block.block_type not in CAROUSEL_BLOCK_TYPES:
                 blocks.append(block)
+                # stack is reset whenever we have a non-media block
+                stack = []
                 continue
             # everything else is a media block
             # make decision key
@@ -439,20 +441,33 @@ class Article(Page):
             except IndexError:
                 key.append('NoNext')
             key = ':'.join(key)
-            print(f"{key=}")
             # functions
             def add_to_stack(stack, block):
                 """Add block to stack"""
                 stack.append(block)
                 return
             def finalize_stack(stack, block):
-                """add block to list, wrap list, add to newbody, empty list"""
+                """add block to list*, wrap list*, add to newbody, empty list
+                """
+                if not stack:
+                    # don't bother wrapping the list if there's only one block
+                    return block
                 stack.append(block)
-                carousel_blocks = []
+                items = []
                 while(stack):
-                    carousel_blocks.append(stack.pop())
-                carousel_blocks.reverse()
-                return carousel_blocks
+                    block = stack.pop()
+                    modal = block.value.modal()
+                    item = {
+                        'type': modal['media_type'],
+                        'image': modal.get('image',None),
+                        'caption': modal['caption'],
+                        'url': '#',
+                        'modal_id': modal['modal_id'],
+                        'modal': modal,
+                    }
+                    items.append(item)
+                items.reverse()
+                return items
             # decide what to do
             decision_matrix = {
                 'ListEmpty:NoNext':          finalize_stack,
@@ -463,19 +478,20 @@ class Article(Page):
                 'ListNotEmpty:NoNext':       finalize_stack,
             }
             function = decision_matrix.get(key)
-            print(f"{function=}")
-            # do it
-            if function:
-                block_or_blocks = function(stack, block)
-                if block_or_blocks:
-                    if len(block_or_blocks) == 1:
-                        # single media block is not in a carousel
-                        blocks.append(block_or_blocks[0])
-                    else:
-                        blocks.append({
-                            'carousel': True,
-                            'items': block_or_blocks,
-                        })
+            # see what happens
+            block_or_blocks = function(stack, block)
+            if block_or_blocks:
+                if isinstance(block_or_blocks, list):
+                    # Django templates cannot use `if isinstance` to tell
+                    # lists from single blocks so wrap the list in a dict
+                    # with 'carousel' == True
+                    blocks.append({
+                        'carousel': True,
+                        'items': block_or_blocks,
+                    })
+                else:
+                    # single media block is just a block
+                    blocks.append(block_or_blocks)
 
         return blocks
 
