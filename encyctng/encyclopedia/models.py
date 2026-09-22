@@ -414,9 +414,62 @@ class Article(Page):
 
     def gather_blocks(self):
         """Returns Article.body blocks with adjacent media blocks in carousels
+
+        The logic is like this:
+        - Iterate through the blocks in Article.body, making a new list.
+        - Each block's type is checked. If it's not a media block it just gets
+          added to the new list. Anything that is left is a media block.
+        - Each media block is compared to the next block (if any).
+        - If the next block is also a media block, the block is added to
+          a list (stack).
+        - If the next block is NOT a media block, or there are no more blocks,
+          the stack of media blocks is finalized.
+        - If the stack only has one block, that block is added to the new list
+          as a single block.
+        - Otherwise the list of blocks is wrapped in a data structure that
+          the article template can recognie and that the carousel template
+          can understand.
+        The flow is out of order so the action functions and decision matrix
+        are not defined again for each block.
+
+        TODO would popping blocks off self.body be more memory-efficient?
         """
-        blocks = []
+        # action functions
+        def add_to_stack(stack, block):
+            """Add block to stack"""
+            stack.append(block)
+            return
+        def finalize_stack(stack, block):
+            """add block to list, wrap list, add to newbody, empty list"""
+            if not stack:
+                return block
+            stack.append(block)
+            items = []
+            while(stack):
+                # item data structure is just like Article.carousel() items
+                block = stack.pop()
+                modal = block.value.modal()
+                items.append({
+                    'type': modal['media_type'],
+                    'image': modal.get('image',None),
+                    'caption': modal['caption'],
+                    'url': '#',
+                    'modal_id': modal['modal_id'],
+                    'modal': modal,
+                })
+            items.reverse()
+            return items
+        DECISION_MATRIX = {
+            'ListEmpty:NoNext':          finalize_stack,
+            'ListEmpty:NextNotMedia':    finalize_stack,
+            'ListEmpty:NextIsMedia':     add_to_stack,
+            'ListNotEmpty:NextIsMedia':  add_to_stack,
+            'ListNotEmpty:NextNotMedia': finalize_stack,
+            'ListNotEmpty:NoNext':       finalize_stack,
+        }
+
         CAROUSEL_BLOCK_TYPES = ['imageblock', 'documentblock', 'videoblock',]
+        blocks = []
         stack = []
         for n,block in enumerate(self.body):
             # just append non-media
@@ -425,8 +478,7 @@ class Article(Page):
                 # stack is reset whenever we have a non-media block
                 stack = []
                 continue
-            # everything else is a media block
-            # make decision key
+            # compare this block to the next and make decision key
             key = []
             if stack:
                 key.append('ListNotEmpty')
@@ -441,45 +493,9 @@ class Article(Page):
             except IndexError:
                 key.append('NoNext')
             key = ':'.join(key)
-            # functions
-            def add_to_stack(stack, block):
-                """Add block to stack"""
-                stack.append(block)
-                return
-            def finalize_stack(stack, block):
-                """add block to list*, wrap list*, add to newbody, empty list
-                """
-                if not stack:
-                    # don't bother wrapping the list if there's only one block
-                    return block
-                stack.append(block)
-                items = []
-                while(stack):
-                    block = stack.pop()
-                    modal = block.value.modal()
-                    item = {
-                        'type': modal['media_type'],
-                        'image': modal.get('image',None),
-                        'caption': modal['caption'],
-                        'url': '#',
-                        'modal_id': modal['modal_id'],
-                        'modal': modal,
-                    }
-                    items.append(item)
-                items.reverse()
-                return items
-            # decide what to do
-            decision_matrix = {
-                'ListEmpty:NoNext':          finalize_stack,
-                'ListEmpty:NextNotMedia':    finalize_stack,
-                'ListEmpty:NextIsMedia':     add_to_stack,
-                'ListNotEmpty:NextIsMedia':  add_to_stack,
-                'ListNotEmpty:NextNotMedia': finalize_stack,
-                'ListNotEmpty:NoNext':       finalize_stack,
-            }
-            function = decision_matrix.get(key)
-            # see what happens
-            block_or_blocks = function(stack, block)
+            # use the key to decide which function to run
+            action = DECISION_MATRIX.get(key)
+            block_or_blocks = action(stack, block)
             if block_or_blocks:
                 if isinstance(block_or_blocks, list):
                     # Django templates cannot use `if isinstance` to tell
@@ -490,9 +506,8 @@ class Article(Page):
                         'items': block_or_blocks,
                     })
                 else:
-                    # single media block is just a block
+                    # add single blocks as just single blocks
                     blocks.append(block_or_blocks)
-
         return blocks
 
     def carousel(self):
