@@ -446,17 +446,20 @@ class Article(Page):
             stack.append(block)
             items = []
             while(stack):
-                # item data structure is just like Article.carousel() items
                 block = stack.pop()
                 modal = block.value.modal()
-                items.append({
+                item = {
                     'type': modal['media_type'],
                     'image': modal.get('image',None),
                     'caption': modal['caption'],
                     'url': '#',
                     'modal_id': modal['modal_id'],
                     'modal': modal,
-                })
+                }
+                if block.block_type in ['documentblock','videoblock']:
+                    item['image'] = block.value['display']
+                    item['modal']['image'] = block.value['display']
+                items.append(item)
             items.reverse()
             return items
         DECISION_MATRIX = {
