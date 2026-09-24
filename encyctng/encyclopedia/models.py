@@ -1014,50 +1014,6 @@ class MediawikiWagtail(models.Model):
         verbose_name_plural = 'Mediawiki-Wagtail'
 
 
-# Article -> sources ---------------------------------------------------
-
-BLOCK_TYPES = ['imageblock','documentblock','videoblock']
-
-BLOCKTYPE_OBJECTTYPE = {
-    'imageblock': 'image',
-    'documentblock': 'document',
-    'videoblock': 'video',
-}
-
-OBJECTTYPE_BLOCKTYPE = {
-    'image': 'imageblock',
-    'document': 'documentblock',
-    'video': 'videoblock',
-}
-
-class ArticleSources():
-    """
-    """
-
-    @staticmethod
-    def source_article_blocks(source):
-        articles = [page.article for page,ref in source.get_usage()]
-        articles_blocks = [
-            (
-                article,
-                ArticleSources.source_article_block(
-                    source._meta.model_name, source.id, article
-                ).value
-            )
-            for article in articles
-        ]
-        return articles_blocks
-
-    @staticmethod
-    def source_article_block(source_type, source_id, article):
-        for block in article.body:
-            if BLOCKTYPE_OBJECTTYPE.get(block.block_type) == source_type:
-                obj = block.value[source_type]
-                if obj.id == source_id:
-                    return block
-        return None
-
-
 # databox articles -----------------------------------------------------
 
 DATABOX_MAX = 1024
