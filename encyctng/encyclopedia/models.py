@@ -34,6 +34,9 @@ from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock, TableBlock,
     ImageBlock, VideoBlock, DocumentBlock,
 )
+from encyclopedia.blocks import (
+    MEDIA_BLOCK_TYPES, CAROUSEL_BLOCK_TYPES, MEDIA_THUMBNAIL_BLOCK_TYPES
+)
 from encyclopedia.citations import Citation
 from encyclopedia import databoxes
 from encyclopedia import ddr
@@ -368,7 +371,6 @@ class Article(Page):
     def media_blocks(self):
         """Generator that returns only Article's media blocks
         """
-        MEDIA_BLOCK_TYPES = ['imageblock','videoblock','documentblock']
         for block in self.body:
             if block.block_type in MEDIA_BLOCK_TYPES:
                 yield block
@@ -471,12 +473,11 @@ class Article(Page):
             'ListNotEmpty:NoNext':       finalize_stack,
         }
 
-        CAROUSEL_BLOCK_TYPES = ['imageblock', 'documentblock', 'videoblock',]
         blocks = []
         stack = []
         for n,block in enumerate(self.body):
             # just append non-media
-            if block.block_type not in CAROUSEL_BLOCK_TYPES:
+            if block.block_type not in MEDIA_BLOCK_TYPES:
                 blocks.append(block)
                 # stack is reset whenever we have a non-media block
                 stack = []
@@ -489,7 +490,7 @@ class Article(Page):
                 key.append('ListEmpty')
             try:
                 next = self.body[n+1]
-                if next.block_type in CAROUSEL_BLOCK_TYPES:
+                if next.block_type in MEDIA_BLOCK_TYPES:
                     key.append('NextIsMedia')
                 else:
                     key.append('NextNotMedia')
@@ -582,8 +583,6 @@ class Article(Page):
         """
         if hasattr(self, '_carousel_blocks') and self._carousel_blocks:
             return self._carousel_blocks
-        MEDIA_BLOCK_TYPES = ['imageblock', 'videoblock', 'documentblock']
-        CAROUSEL_BLOCK_TYPES = ['imageblock']
         self._carousel_blocks = []
         # we only want media blocks that appear at the beginning of Article.body,
         # before the text
@@ -986,7 +985,7 @@ def prep_media_popups(page, request, serve_args, serve_kwargs):
     if isinstance(page, Article):
         for block in page.body:
             block_type = block.block_type
-            if block.block_type in ['imageblock','videoblock','documentblock']:
+            if block.block_type in MEDIA_BLOCK_TYPES:
                 modal_id = util.random_string(5)
                 block.value['modal_id'] = modal_id
                 setattr(block, 'modal_id', modal_id)

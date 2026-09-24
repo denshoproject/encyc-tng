@@ -14,6 +14,22 @@ from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageBlock as WagtailImageBlock
 from wagtailmedia.blocks import VideoChooserBlock
 
+# list of media block types needed when parsing Article.body
+MEDIA_BLOCK_TYPES = [
+    'imageblock',
+    'videoblock',
+    'documentblock',
+]
+
+# media blocks that can appear in a carousel
+CAROUSEL_BLOCK_TYPES = MEDIA_BLOCK_TYPES
+
+# media blocks that are not still images and have a display image
+MEDIA_THUMBNAIL_BLOCK_TYPES = [
+    'videoblock',
+    'documentblock',
+]
+
 
 class ArticleTextBlock(RichTextBlock):
     class Meta:
