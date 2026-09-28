@@ -184,7 +184,7 @@ class VideoBlockStructValue(StructValue):
             self.get('caption'), self.get('caption2'),
             self.get('courtesy'),
         ])
-        ddr_id = 'DDR ID HERE'
+        ddr_id = ''
         if 'ddr-' in self.get('ext_url', ''):
             ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
         source_type = 'video'
@@ -290,7 +290,7 @@ class DocumentBlockStructValue(StructValue):
             self.get('caption'), self.get('caption2'),
             self.get('courtesy'),
         ])
-        ddr_id = 'DDR ID HERE'
+        ddr_id = ''
         if 'ddr-' in self.get('ext_url', ''):
             ddr_id = urlparse(self.get('ext_url')).path.replace('/','')
         source_type = 'document'
