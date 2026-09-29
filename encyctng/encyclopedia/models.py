@@ -931,6 +931,28 @@ class Article(Page):
                 c.execute(query_delete)
             c.execute(query_update_revisions)
 
+@hooks.register('after_create_page')
+def do_after_page_create(request, page):
+    after_page_update(request, page)
+
+@hooks.register('after_edit_page')
+def do_after_page_edit(request, page):
+    after_page_update(request, page)
+
+def after_page_update(request, page):
+    # TODO save first Image to self.image
+    if isinstance(page, Article):
+        footnotes.Footnotary.update_footnotes(
+            page, request=request,
+            fields=ARTICLE_FOOTNOTE_FIELDS,
+            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
+        )
+        new_revision = page.save_revision()
+        if page.live:
+            # page has been created and published at the same time,
+            # so ensure that the updated title is on the published version too
+            new_revision.publish()
+
 
 ARTICLE_FOOTNOTE_FIELDS = {
     'richtextfields': [],
@@ -941,26 +963,6 @@ ARTICLE_FOOTNOTE_BLOCK_TYPES = [
     'paragraph',
     'quote',
 ]
-
-@hooks.register('after_create_page')
-def do_after_page_create(request, page):
-    # TODO save first Image to self.image
-    if isinstance(page, Article):
-        return footnotes.Footnotary.update_footnotes(
-            page, request=request,
-            fields=ARTICLE_FOOTNOTE_FIELDS,
-            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
-        )
-
-@hooks.register('after_edit_page')
-def do_after_page_edit(request, page):
-    # TODO save first Image to self.image
-    if isinstance(page, Article):
-        return footnotes.Footnotary.update_footnotes(
-            page, request=request,
-            fields=ARTICLE_FOOTNOTE_FIELDS,
-            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
-        )
 
 @hooks.register('before_serve_page')
 def prep_footnotes(page, request, serve_args, serve_kwargs):

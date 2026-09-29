@@ -22,7 +22,7 @@ class Footnotary():
     """
 
     @staticmethod
-    def update_footnotes(page, fields, block_types, request=None, save=True):
+    def update_footnotes(page, fields, block_types, request=None):
         """Copy Mediawiki-style <ref> footnotes from page body to a Footnotes block
 
         Run in after_create_page and after_edit_page hooks.
@@ -51,13 +51,6 @@ class Footnotary():
         footnotes = _extract_footnotes(html)
         # and save as JSON, replacing the old footnotes block
         page.footnotes = json.dumps(footnotes)
-        # save the page
-        if save:
-            new_revision = page.save_revision()
-        if save and page.live:
-            # page has been created and published at the same time,
-            # so ensure that the updated title is on the published version too
-            new_revision.publish()
 
     @staticmethod
     def prep_footnotes(page, fields, block_types, request):
