@@ -33,6 +33,11 @@
 {% elif modal.image %}
 {% image modal.image width-1000 format-webp loading="lazy" %}
 
+{% elif modal.image_url %}
+<img class="full-width-image__image"
+     src="{{ modal.image_url }}"
+     alt="{{ modal.caption }}" />
+
 {% endif %}
 
                 </div>
@@ -49,12 +54,17 @@
                 </div>
                 {% endif %}{# modal.densho_id #}
                 <ul class="modal__actions">
+		  {% if modal.download_url %}
                     <li class="modal__action">
                         <a href="{{ modal.download_url }}" class="modal__download">
                             {% include "patterns/components/icons/icon.html" with name="download" classname="modal__download-icon" %}
                             <span>Download full size <span>(5.3 MB)</span></span>
                         </a>
                     </li>
+		  {% endif %}
+		    {% if modal.object_url %}
+		    <a href="{{ modal.object_url }}">DDR object</a>
+		  {% endif %}
 		    <!--
                     <li class="modal__action">
                         <a href="{{ modal.cite_url }}" class="modal__action-link modal__action-link--cite meta meta--small">

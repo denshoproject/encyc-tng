@@ -14,11 +14,14 @@ from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageBlock as WagtailImageBlock
 from wagtailmedia.blocks import VideoChooserBlock
 
+from encyclopedia import ddr
+
 # list of media block types needed when parsing Article.body
 MEDIA_BLOCK_TYPES = [
     'imageblock',
     'videoblock',
     'documentblock',
+    'ddrobjectblock',
 ]
 
 # media blocks that can appear in a carousel
@@ -395,15 +398,40 @@ class DocumentBlock(StructBlock):
         return context
 
 
+class DDRObjectBlockStructValue(StructValue):
+    def modal(self):
+        return {
+            'modal_id': self.get('modal_id'),
+            'open': False,
+            'media_type': 'Image',
+            'title': self.get('caption'),
+            'caption': self.get('caption'),
+            'object_url': self.get('object_url'),
+            'image_url': self.get('image_url'),
+        }
+
 class DDRObjectBlock(StructBlock):
-    identifier = CharBlock(required=True, help_text='DDR Identifier')
+    object_url = CharBlock(required=True, help_text='DDR Object URL')
+    image_url = TextBlock(required=False)
     caption = TextBlock(required=False)
-    caption_extended = TextBlock(required=False)
 
     class Meta:
         icon = 'image'
         label = 'DDR Object'
-        template = 'encyclopedia/blocks/ddrobject.html'
+        template = 'patterns/components/ddrobject/ddrobject.html'
+        value_class = DDRObjectBlockStructValue
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # add our block value as the "item" variable for the template
+        context['item'] = value
+        #context['item']['modal_id'] = self.id
+        return context
+
+    def update_ddrobject_embeds(article, request=None):
+        for block in article.body:
+            if block.block_type == 'ddrobjectblock':
+                block.value['image_url'] = ddr.get_ddrobject_embed_info(block)
 
 
 HEADING_LEVEL_NAMES = {

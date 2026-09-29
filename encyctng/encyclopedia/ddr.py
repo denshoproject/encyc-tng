@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from urllib.parse import urlsplit, urlunsplit
 
 import httpx
 
@@ -61,3 +62,21 @@ def ddr_objects(title, term_id=None, limit=DDR_OBJECTS_LIMIT):
 #        if HTTPStatus(response.status_code).is_success:
 #            return response.json()['objects']
 #        return []
+
+
+def get_ddrobject_embed_info(block):
+    object_url = block.value['object_url']
+    scheme,netloc,path,query,fragment = urlsplit(object_url)
+    if (scheme != 'https') or (netloc != 'ddr.densho.org'):
+        raise Exception(f"Malformed DDREmbedBlock URL: {object_url}")
+    api_path = f"/api/0.2{path}"
+    api_url = urlunsplit((scheme,netloc,api_path,'',''))
+    r = httpx.get(api_url, timeout=3)
+    if not r.status_code == HTTPStatus.OK:
+        raise Exception(
+            f"HTTP Error: {r.status_code} {r.reason_phrase} for {api_url}"
+        )
+    data = r.json()
+    if data:
+        return data['links']['img']
+    return ''

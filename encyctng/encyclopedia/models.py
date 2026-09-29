@@ -33,6 +33,7 @@ from editors.models import Author
 from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock, TableBlock,
     ImageBlock, VideoBlock, DocumentBlock,
+    DDRObjectBlock,
 )
 from encyclopedia.blocks import (
     MEDIA_BLOCK_TYPES, CAROUSEL_BLOCK_TYPES, MEDIA_THUMBNAIL_BLOCK_TYPES
@@ -212,6 +213,7 @@ class Article(Page):
             ('imageblock', ImageBlock()),
             ('videoblock', VideoBlock()),
             ('documentblock', DocumentBlock()),
+            ('ddrobjectblock', DDRObjectBlock()),
         ],
         blank=True,
         use_json_field=True,
@@ -942,6 +944,9 @@ def do_after_page_edit(request, page):
 def after_page_update(request, page):
     # TODO save first Image to self.image
     if isinstance(page, Article):
+        DDRObjectBlock.update_ddrobject_embeds(
+            page, request,
+        )
         footnotes.Footnotary.update_footnotes(
             page, request=request,
             fields=ARTICLE_FOOTNOTE_FIELDS,
