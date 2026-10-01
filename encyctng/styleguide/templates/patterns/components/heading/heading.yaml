@@ -1,4 +1,5 @@
 name: Heading
 context:
-  heading_text: Test heading
-  size: h2
+  size: h3
+  heading_text: 2.1 Test heading
+  name: 2.1-test-heading

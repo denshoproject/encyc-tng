@@ -294,7 +294,7 @@ uninstall-daemons-configs:
 	-rm $(SUPERVISOR_GUNICORN_CONF)
 
 
-npm-build: install-nodejs collectstatic
+npm-build: install-nodejs
 	@echo ""
 	@echo "npm-build -----------------------------------------------------------"
 	source $(INSTALL_NVM)/nvm.sh; npm run build:prod

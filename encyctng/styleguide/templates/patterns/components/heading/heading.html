@@ -1,6 +1,8 @@
-<a name="{{ value.heading_text | slugify }}"></a>
+{% if value.name %}<a name="{{ value.name }}"></a>{% endif %}
 {% if value.size %}
-<{{ value.size }} class="heading heading--{{ value.heading_level }} section-heading">
+<{{ value.size }} class="heading heading--{{ value.size }} section-heading">
+  <a {% if value.name %}href="#toc-{{ value.name }}"{% endif %} style="text-decoration: none;">
     {{ value.heading_text }}
+  </a>
 </{{ value.size}}>
 {% endif %}

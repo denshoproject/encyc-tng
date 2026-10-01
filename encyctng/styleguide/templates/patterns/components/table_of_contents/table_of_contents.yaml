@@ -1,0 +1,23 @@
+name: Table of Contents
+context:
+  items:
+    - title: 'Heading'
+      name: '1-heading'
+      level: '2'
+      indent: 0
+    - title: 'Sub Heading'
+      name: '1.1-sub-heading'
+      level: '3'
+      indent: 40
+    - title: 'Another Heading'
+      name: '2-another-heading'
+      level: '2'
+      indent: 0
+    - title: 'Another Sub Heading'
+      name: '2.1-another-sub-heading'
+      level: '3'
+      indent: 40
+    - title: 'Yet Another Sub Heading'
+      name: '2.2-yet-another-sub-heading'
+      level: '3'
+      indent: 40
