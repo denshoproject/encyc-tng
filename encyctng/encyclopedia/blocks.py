@@ -12,6 +12,7 @@ from wagtail.contrib.table_block.blocks import TableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageBlock as WagtailImageBlock
+from wagtail.rich_text import RichText
 from wagtailmedia.blocks import VideoChooserBlock
 
 from encyclopedia import ddr
@@ -406,6 +407,7 @@ class DDRObjectBlockStructValue(StructValue):
             'media_type': 'Image',
             'title': self.get('caption'),
             'caption': self.get('caption'),
+            'courtesy': self.get('courtesy'),
             'object_url': self.get('object_url'),
             'image_url': self.get('image_url'),
         }
@@ -413,7 +415,8 @@ class DDRObjectBlockStructValue(StructValue):
 class DDRObjectBlock(StructBlock):
     object_url = CharBlock(required=True, help_text='DDR Object URL')
     image_url = TextBlock(required=False)
-    caption = TextBlock(required=False)
+    caption = RichTextBlock(required=False)
+    courtesy = RichTextBlock(required=False)
 
     class Meta:
         icon = 'image'
@@ -433,6 +436,15 @@ class DDRObjectBlock(StructBlock):
             if block.block_type == 'ddrobjectblock':
                 data = ddr.get_ddrobject_embed_info(block)
                 block.value['image_url'] = data['links']['img']
+                if not block.value['caption']:
+                    text = '\n'.join([
+                        data['title'].strip(),
+                        data['description'].strip(),
+                    ])
+                    block.value['caption'] = RichText(text)
+                if not block.value['courtesy']:
+                    text = data['credit'].strip()
+                    block.value['courtesy'] = RichText(text)
 
 
 HEADING_LEVEL_NAMES = {
