@@ -431,7 +431,8 @@ class DDRObjectBlock(StructBlock):
     def update_ddrobject_embeds(article, request=None):
         for block in article.body:
             if block.block_type == 'ddrobjectblock':
-                block.value['image_url'] = ddr.get_ddrobject_embed_info(block)
+                data = ddr.get_ddrobject_embed_info(block)
+                block.value['image_url'] = data['links']['img']
 
 
 HEADING_LEVEL_NAMES = {

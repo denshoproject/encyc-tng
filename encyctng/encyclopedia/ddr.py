@@ -78,5 +78,5 @@ def get_ddrobject_embed_info(block):
         )
     data = r.json()
     if data:
-        return data['links']['img']
-    return ''
+        return data
+    return {}
