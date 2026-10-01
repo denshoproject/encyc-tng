@@ -410,6 +410,7 @@ class DDRObjectBlockStructValue(StructValue):
             'courtesy': self.get('courtesy'),
             'object_url': self.get('object_url'),
             'image_url': self.get('image_url'),
+            'ddr_rights': self.get('rights'),
         }
 
 class DDRObjectBlock(StructBlock):
@@ -417,6 +418,7 @@ class DDRObjectBlock(StructBlock):
     image_url = TextBlock(required=False)
     caption = RichTextBlock(required=False)
     courtesy = RichTextBlock(required=False)
+    rights = CharBlock(required=False)
 
     class Meta:
         icon = 'image'
@@ -445,6 +447,7 @@ class DDRObjectBlock(StructBlock):
                 if not block.value['courtesy']:
                     text = data['credit'].strip()
                     block.value['courtesy'] = RichText(text)
+                block.value['rights'] = data.get('rights')
 
 
 HEADING_LEVEL_NAMES = {

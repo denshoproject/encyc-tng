@@ -4,8 +4,10 @@ context:
     object_url: https://ddr.densho.org/ddr-densho-10-1/
     image_url: https://ddr.densho.org/media/ddr-densho-10/ddr-densho-10-1-mezzanine-c85f8d0f91-a.jpg
     caption: Nisei soldier and the staff of the Minidoka Irrigator
+    rights: pcc
     modal:
       modal_id: modal-id-1
       open: false
       title: Nisei soldier and the staff of the Minidoka Irrigator
       content: Nisei soldier and the staff of the Minidoka Irrigator
+      ddr_rights: pcc

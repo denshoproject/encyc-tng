@@ -13,6 +13,7 @@ context:
     #cite_url: https://densho.org/wp-content/uploads/2021/03/ddr-densho-37-194-001-001-0001-0001.pdf
     #view_url: https://densho.org/wp-content/uploads/2021/03/ddr-densho-37-194-001-001-0001-0001.pdf
     creative_commons: True
+    ddr_rights: pcc
 
 tags:
   image:
