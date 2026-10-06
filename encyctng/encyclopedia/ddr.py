@@ -66,6 +66,10 @@ def ddr_objects(title, term_id=None, limit=DDR_OBJECTS_LIMIT):
 
 def get_ddrobject_embed_info(block):
     object_url = block.value['object_url']
+    # interviews are out of scope for DDRObject
+    if 'interview' in object_url:
+        raise Exception(f"Interviews cannot be embedded: {object_url}")
+    # get from API
     scheme,netloc,path,query,fragment = urlsplit(object_url)
     if (scheme != 'https') or (netloc != 'ddr.densho.org'):
         raise Exception(f"Malformed DDREmbedBlock URL: {object_url}")
@@ -78,5 +82,9 @@ def get_ddrobject_embed_info(block):
         )
     data = r.json()
     if data:
+        # video in general is out of scope for DDRObject
+        if data.get('format') == 'av':
+            raise Exception(f"Video objects cannot be embedded: {object_url}")
+        # passed all the tests
         return data
     return {}
