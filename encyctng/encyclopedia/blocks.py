@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -400,7 +401,17 @@ class DocumentBlock(StructBlock):
 
 
 class DDRObjectBlockStructValue(StructValue):
+    def meta(self):
+        """Sometimes you get back a dict, sometimes it's a str. It's Wagtail"""
+        metadata = self.get('metadata')
+        if not isinstance(metadata, dict):
+            metadata = json.loads(
+                self.get('metadata').replace("'", '"')
+            )
+        return metadata
+
     def modal(self):
+        metadata = self.meta()
         return {
             'modal_id': self.get('modal_id'),
             'open': False,
@@ -409,16 +420,15 @@ class DDRObjectBlockStructValue(StructValue):
             'caption': self.get('caption'),
             'courtesy': self.get('courtesy'),
             'object_url': self.get('object_url'),
-            'image_url': self.get('image_url'),
-            'ddr_rights': self.get('rights'),
+            'image_url': metadata.get('image_url'),
+            'ddr_rights': metadata.get('rights'),
         }
 
 class DDRObjectBlock(StructBlock):
     object_url = CharBlock(required=True, help_text='DDR Object URL')
-    image_url = TextBlock(required=False)
+    metadata = TextBlock(required=False)
     caption = RichTextBlock(required=False)
     courtesy = RichTextBlock(required=False)
-    rights = CharBlock(required=False)
 
     class Meta:
         icon = 'image'
@@ -437,7 +447,12 @@ class DDRObjectBlock(StructBlock):
         for block in article.body:
             if block.block_type == 'ddrobjectblock':
                 data = ddr.get_ddrobject_embed_info(block)
-                block.value['image_url'] = data['links']['img']
+                # metadata
+                block.value['metadata'] = {
+                    'image_url': data['links']['img'].strip(),
+                    'rights': data.get('rights').strip(),
+                }
+                # don't populate caption,courtesy unless empty
                 if not block.value['caption']:
                     text = '\n'.join([
                         data['title'].strip(),
@@ -447,7 +462,6 @@ class DDRObjectBlock(StructBlock):
                 if not block.value['courtesy']:
                     text = data['credit'].strip()
                     block.value['courtesy'] = RichText(text)
-                block.value['rights'] = data.get('rights')
 
 
 HEADING_LEVEL_NAMES = {
