@@ -13,7 +13,7 @@
             </h3>
             <p class="article-listing-item__description">
 	      {% if type == "related_content" %}
-	      {{ article.description | truncatewords:50 }}
+	      {{ article.description | truncatewords_html:50 }}
 	      {% else %}
 	      {{ article.description }}
 	      {% endif %}
