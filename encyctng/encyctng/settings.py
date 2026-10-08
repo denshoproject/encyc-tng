@@ -231,6 +231,8 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = config.get('django', 'media_root')
 MEDIA_URL = '/media/'
 
+# Security check that Wagtail seems to exceed often.
+# Wagtail devs themselves raise this value.
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 
 # Email
