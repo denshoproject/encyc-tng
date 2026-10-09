@@ -11,24 +11,11 @@
                 <div class="modal__media-container">
 
 {% if modal.video %}
-<video
-    id="{{ modal.modal_id }}"
-    class="video-js"
-    controls
-    preload="auto"
-    poster="{{ modal.view_url }}"
-    data-setup='{}'>
-    <source src="{{ modal.download_url }}" type="video/mp4"></source>
-    <!-- <source src="//vjs.zencdn.net/v/oceans.webm" type="video/webm"></source> -->
-    <!-- <source src="//vjs.zencdn.net/v/oceans.ogv" type="video/ogg"></source>   -->
-    <p class="vjs-no-js">
-        To view this video please enable JavaScript, and consider upgrading to a
-        web browser that
-        <a href="https://videojs.com/html5-video-support/" target="_blank">
-            supports HTML5 video
-        </a>
-    </p>
-</video>
+<video-player id="{{ modal.modal_id }}" poster="{{ modal.view_url }}">
+  <video-compat-skin style="display:block; width:100%; aspect-ratio:16/9;">
+    <video src="{{ modal.download_url }}" playsinline></video>
+  </video-compat-skin>
+</video-player>
 
 {% elif modal.image %}
 {% image modal.image width-1000 format-webp loading="lazy" %}
