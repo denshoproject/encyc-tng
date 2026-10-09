@@ -421,6 +421,8 @@ class DDRObjectBlockStructValue(StructValue):
             'courtesy': self.get('courtesy'),
             'object_url': self.get('object_url'),
             'image_url': metadata.get('image_url'),
+            'download_url': metadata.get('download_url'),
+            'download_size': metadata.get('download_size'),
             'ddr_rights': metadata.get('rights'),
             'densho_id': metadata.get('ddr_id'),
         }
@@ -452,6 +454,8 @@ class DDRObjectBlock(StructBlock):
                 block.value['metadata'] = {
                     'ddr_id': data.get('id').strip(),
                     'image_url': data['links']['img'].strip(),
+                    'download_url': data['links']['download'].strip(),
+                    'download_size': data['size'],
                     'rights': data.get('rights').strip(),
                 }
                 # don't populate caption,courtesy unless empty
