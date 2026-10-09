@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from urllib.parse import urlsplit, urlunsplit
 
 import httpx
 
@@ -61,3 +62,39 @@ def ddr_objects(title, term_id=None, limit=DDR_OBJECTS_LIMIT):
 #        if HTTPStatus(response.status_code).is_success:
 #            return response.json()['objects']
 #        return []
+
+
+def get_ddrobject_embed_info(block):
+    object_url = block.value['object_url']
+    # interviews are out of scope for DDRObject
+    if 'interview' in object_url:
+        raise Exception(f"Interviews cannot be embedded: {object_url}")
+    # get from API
+    scheme,netloc,path,query,fragment = urlsplit(object_url)
+    if (scheme != 'https') or (netloc != 'ddr.densho.org'):
+        raise Exception(f"Malformed DDREmbedBlock URL: {object_url}")
+    api_path = f"/api/0.2{path}"
+    api_url = urlunsplit((scheme,netloc,api_path,'',''))
+    r = httpx.get(api_url, timeout=3)
+    if not r.status_code == HTTPStatus.OK:
+        raise Exception(
+            f"HTTP Error: {r.status_code} {r.reason_phrase} for {api_url}"
+        )
+    data = r.json()
+    # only entities/objects
+    if not (data.get('model')) or (data['model'] != 'entity'):
+        raise Exception(f"Only objects. No collections or files: {object_url}")
+    # video in general is out of scope for DDRObject
+    if data.get('format') == 'av':
+        raise Exception(f"Video objects cannot be embedded: {object_url}")
+    # signature file with full-size download link
+    signature_id = data.get('signature_id')
+    file_path = f"/api/0.2/{signature_id}/"
+    file_url = urlunsplit((scheme,netloc,file_path,'',''))
+    r = httpx.get(file_url, timeout=3)
+    if r.status_code == HTTPStatus.OK:
+        fdata = r.json()
+        data['links']['download'] = fdata['links']['download']
+        data['size'] = fdata['size']
+    # passed all the tests
+    return data

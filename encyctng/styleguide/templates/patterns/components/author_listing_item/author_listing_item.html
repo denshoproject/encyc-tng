@@ -17,7 +17,7 @@
             {% if author.description %}
                 <div class="author-listing-item__description">
                   {% if detail %}{{ author.description|richtext }}
-                  {% else %}{{ author.description|richtext|truncatewords:50 }}
+                  {% else %}{{ author.description|richtext|truncatewords_html:50 }}
                   {% endif %}
                 </div>
             {% endif %}

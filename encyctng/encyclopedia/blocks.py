@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -12,7 +13,27 @@ from wagtail.contrib.table_block.blocks import TableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageBlock as WagtailImageBlock
+from wagtail.rich_text import RichText
 from wagtailmedia.blocks import VideoChooserBlock
+
+from encyclopedia import ddr
+
+# list of media block types needed when parsing Article.body
+MEDIA_BLOCK_TYPES = [
+    'imageblock',
+    'videoblock',
+    'documentblock',
+    'ddrobjectblock',
+]
+
+# media blocks that can appear in a carousel
+CAROUSEL_BLOCK_TYPES = MEDIA_BLOCK_TYPES
+
+# media blocks that are not still images and have a display image
+MEDIA_THUMBNAIL_BLOCK_TYPES = [
+    'videoblock',
+    'documentblock',
+]
 
 
 class ArticleTextBlock(RichTextBlock):
@@ -111,11 +132,13 @@ class ImageBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
+            download_size = source.file.size
             cite_url = f"/cite/{source.title}/"
             view_url = f"/sources/{source_type}/{source.title}/"
         else:
             encyclopedia_id = None
             download_url = None
+            download_size = None
             cite_url = None
             view_url = None
         return {
@@ -128,6 +151,7 @@ class ImageBlockStructValue(StructValue):
             'caption': caption,
             'densho_id': ddr_id,
             'download_url': download_url,
+            'download_size': download_size,
             'cite_url': cite_url,
             'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
@@ -193,11 +217,13 @@ class VideoBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
+            download_size = source.file.size
             cite_url = f"/cite/{source.title}/"
         else:
             filename = None
             encyclopedia_id = None
             download_url = None
+            download_size = None
             cite_url = None
         display_type = 'display'
         display = self.get(display_type)
@@ -215,6 +241,7 @@ class VideoBlockStructValue(StructValue):
             'caption': caption,
             'densho_id': ddr_id,
             'download_url': download_url,
+            'download_size': download_size,
             'cite_url': cite_url,
             'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
@@ -299,11 +326,13 @@ class DocumentBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
+            download_size = source.file.size
             cite_url = f"/cite/{source.title}/"
             view_url = f"/sources/{source_type}/{source.title}/"
         else:
             encyclopedia_id = None
             download_url = None
+            download_size = None
             cite_url = None
             view_url = None
         return {
@@ -316,6 +345,7 @@ class DocumentBlockStructValue(StructValue):
             'caption': caption,
             'densho_id': ddr_id,
             'download_url': download_url,
+            'download_size': download_size,
             'cite_url': cite_url,
             'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
@@ -379,15 +409,74 @@ class DocumentBlock(StructBlock):
         return context
 
 
+class DDRObjectBlockStructValue(StructValue):
+    def meta(self):
+        """Sometimes you get back a dict, sometimes it's a str. It's Wagtail"""
+        metadata = self.get('metadata')
+        if not isinstance(metadata, dict):
+            metadata = json.loads(
+                self.get('metadata').replace("'", '"')
+            )
+        return metadata
+
+    def modal(self):
+        metadata = self.meta()
+        return {
+            'modal_id': self.get('modal_id'),
+            'open': False,
+            'media_type': 'Image',
+            'title': self.get('caption'),
+            'caption': self.get('caption'),
+            'courtesy': self.get('courtesy'),
+            'object_url': self.get('object_url'),
+            'image_url': metadata.get('image_url'),
+            'download_url': metadata.get('download_url'),
+            'download_size': metadata.get('download_size'),
+            'ddr_rights': metadata.get('rights'),
+            'densho_id': metadata.get('ddr_id'),
+        }
+
 class DDRObjectBlock(StructBlock):
-    identifier = CharBlock(required=True, help_text='DDR Identifier')
-    caption = TextBlock(required=False)
-    caption_extended = TextBlock(required=False)
+    object_url = CharBlock(required=True, help_text='DDR Object URL')
+    metadata = TextBlock(required=False)
+    caption = RichTextBlock(required=False)
+    courtesy = RichTextBlock(required=False)
 
     class Meta:
         icon = 'image'
         label = 'DDR Object'
-        template = 'encyclopedia/blocks/ddrobject.html'
+        template = 'patterns/components/ddrobject/ddrobject.html'
+        value_class = DDRObjectBlockStructValue
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # add our block value as the "item" variable for the template
+        context['item'] = value
+        #context['item']['modal_id'] = self.id
+        return context
+
+    def update_ddrobject_embeds(article, request=None):
+        for block in article.body:
+            if block.block_type == 'ddrobjectblock':
+                data = ddr.get_ddrobject_embed_info(block)
+                # metadata
+                block.value['metadata'] = {
+                    'ddr_id': data.get('id').strip(),
+                    'image_url': data['links']['img'].strip(),
+                    'download_url': data['links']['download'].strip(),
+                    'download_size': data['size'],
+                    'rights': data.get('rights').strip(),
+                }
+                # don't populate caption,courtesy unless empty
+                if not block.value['caption']:
+                    text = '\n'.join([
+                        data['title'].strip(),
+                        data['description'].strip(),
+                    ])
+                    block.value['caption'] = RichText(text)
+                if not block.value['courtesy']:
+                    text = data['credit'].strip()
+                    block.value['courtesy'] = RichText(text)
 
 
 HEADING_LEVEL_NAMES = {

@@ -33,6 +33,10 @@ from editors.models import Author
 from encyclopedia.blocks import (
     ArticleTextBlock, EncycStreamBlock, HeadingBlock, QuoteBlock, TableBlock,
     ImageBlock, VideoBlock, DocumentBlock,
+    DDRObjectBlock,
+)
+from encyclopedia.blocks import (
+    MEDIA_BLOCK_TYPES, CAROUSEL_BLOCK_TYPES, MEDIA_THUMBNAIL_BLOCK_TYPES
 )
 from encyclopedia.citations import Citation
 from encyclopedia import databoxes
@@ -209,6 +213,7 @@ class Article(Page):
             ('imageblock', ImageBlock()),
             ('videoblock', VideoBlock()),
             ('documentblock', DocumentBlock()),
+            ('ddrobjectblock', DDRObjectBlock()),
         ],
         blank=True,
         use_json_field=True,
@@ -368,7 +373,6 @@ class Article(Page):
     def media_blocks(self):
         """Generator that returns only Article's media blocks
         """
-        MEDIA_BLOCK_TYPES = ['imageblock','videoblock','documentblock']
         for block in self.body:
             if block.block_type in MEDIA_BLOCK_TYPES:
                 yield block
@@ -471,12 +475,11 @@ class Article(Page):
             'ListNotEmpty:NoNext':       finalize_stack,
         }
 
-        CAROUSEL_BLOCK_TYPES = ['imageblock', 'documentblock', 'videoblock',]
         blocks = []
         stack = []
         for n,block in enumerate(self.body):
             # just append non-media
-            if block.block_type not in CAROUSEL_BLOCK_TYPES:
+            if block.block_type not in MEDIA_BLOCK_TYPES:
                 blocks.append(block)
                 # stack is reset whenever we have a non-media block
                 stack = []
@@ -489,7 +492,7 @@ class Article(Page):
                 key.append('ListEmpty')
             try:
                 next = self.body[n+1]
-                if next.block_type in CAROUSEL_BLOCK_TYPES:
+                if next.block_type in MEDIA_BLOCK_TYPES:
                     key.append('NextIsMedia')
                 else:
                     key.append('NextNotMedia')
@@ -582,8 +585,6 @@ class Article(Page):
         """
         if hasattr(self, '_carousel_blocks') and self._carousel_blocks:
             return self._carousel_blocks
-        MEDIA_BLOCK_TYPES = ['imageblock', 'videoblock', 'documentblock']
-        CAROUSEL_BLOCK_TYPES = ['imageblock']
         self._carousel_blocks = []
         # we only want media blocks that appear at the beginning of Article.body,
         # before the text
@@ -932,6 +933,31 @@ class Article(Page):
                 c.execute(query_delete)
             c.execute(query_update_revisions)
 
+@hooks.register('after_create_page')
+def do_after_page_create(request, page):
+    after_page_update(request, page)
+
+@hooks.register('after_edit_page')
+def do_after_page_edit(request, page):
+    after_page_update(request, page)
+
+def after_page_update(request, page):
+    # TODO save first Image to self.image
+    if isinstance(page, Article):
+        DDRObjectBlock.update_ddrobject_embeds(
+            page, request,
+        )
+        footnotes.Footnotary.update_footnotes(
+            page, request=request,
+            fields=ARTICLE_FOOTNOTE_FIELDS,
+            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
+        )
+        new_revision = page.save_revision()
+        if page.live:
+            # page has been created and published at the same time,
+            # so ensure that the updated title is on the published version too
+            new_revision.publish()
+
 
 ARTICLE_FOOTNOTE_FIELDS = {
     'richtextfields': [],
@@ -942,26 +968,6 @@ ARTICLE_FOOTNOTE_BLOCK_TYPES = [
     'paragraph',
     'quote',
 ]
-
-@hooks.register('after_create_page')
-def do_after_page_create(request, page):
-    # TODO save first Image to self.image
-    if isinstance(page, Article):
-        return footnotes.Footnotary.update_footnotes(
-            page, request=request,
-            fields=ARTICLE_FOOTNOTE_FIELDS,
-            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
-        )
-
-@hooks.register('after_edit_page')
-def do_after_page_edit(request, page):
-    # TODO save first Image to self.image
-    if isinstance(page, Article):
-        return footnotes.Footnotary.update_footnotes(
-            page, request=request,
-            fields=ARTICLE_FOOTNOTE_FIELDS,
-            block_types=ARTICLE_FOOTNOTE_BLOCK_TYPES,
-        )
 
 @hooks.register('before_serve_page')
 def prep_footnotes(page, request, serve_args, serve_kwargs):
@@ -986,7 +992,7 @@ def prep_media_popups(page, request, serve_args, serve_kwargs):
     if isinstance(page, Article):
         for block in page.body:
             block_type = block.block_type
-            if block.block_type in ['imageblock','videoblock','documentblock']:
+            if block.block_type in MEDIA_BLOCK_TYPES:
                 modal_id = util.random_string(5)
                 block.value['modal_id'] = modal_id
                 setattr(block, 'modal_id', modal_id)
@@ -1012,50 +1018,6 @@ class MediawikiWagtail(models.Model):
     class Meta:
         verbose_name = 'Mediawiki-Wagtail'
         verbose_name_plural = 'Mediawiki-Wagtail'
-
-
-# Article -> sources ---------------------------------------------------
-
-BLOCK_TYPES = ['imageblock','documentblock','videoblock']
-
-BLOCKTYPE_OBJECTTYPE = {
-    'imageblock': 'image',
-    'documentblock': 'document',
-    'videoblock': 'video',
-}
-
-OBJECTTYPE_BLOCKTYPE = {
-    'image': 'imageblock',
-    'document': 'documentblock',
-    'video': 'videoblock',
-}
-
-class ArticleSources():
-    """
-    """
-
-    @staticmethod
-    def source_article_blocks(source):
-        articles = [page.article for page,ref in source.get_usage()]
-        articles_blocks = [
-            (
-                article,
-                ArticleSources.source_article_block(
-                    source._meta.model_name, source.id, article
-                ).value
-            )
-            for article in articles
-        ]
-        return articles_blocks
-
-    @staticmethod
-    def source_article_block(source_type, source_id, article):
-        for block in article.body:
-            if BLOCKTYPE_OBJECTTYPE.get(block.block_type) == source_type:
-                obj = block.value[source_type]
-                if obj.id == source_id:
-                    return block
-        return None
 
 
 # databox articles -----------------------------------------------------
