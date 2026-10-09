@@ -50,7 +50,9 @@
                 {% if modal.densho_id %}
                 <div class="modal__meta-header">
                     <span class="modal__id">Densho ID</span>
-                    <h2 class="heading heading--four">{{ modal.densho_id }}</h2>
+                    <h2 class="heading heading--four">
+		      <a href="{{ modal.object_url }}">{{ modal.densho_id }}</a>
+		    </h2>
                 </div>
                 {% endif %}{# modal.densho_id #}
                 <ul class="modal__actions">
@@ -61,9 +63,6 @@
                             <span>Download full size <span>(5.3 MB)</span></span>
                         </a>
                     </li>
-		  {% endif %}
-		    {% if modal.object_url %}
-		    <a href="{{ modal.object_url }}">DDR object</a>
 		  {% endif %}
 		    <!--
                     <li class="modal__action">

@@ -422,6 +422,7 @@ class DDRObjectBlockStructValue(StructValue):
             'object_url': self.get('object_url'),
             'image_url': metadata.get('image_url'),
             'ddr_rights': metadata.get('rights'),
+            'densho_id': metadata.get('ddr_id'),
         }
 
 class DDRObjectBlock(StructBlock):
@@ -449,6 +450,7 @@ class DDRObjectBlock(StructBlock):
                 data = ddr.get_ddrobject_embed_info(block)
                 # metadata
                 block.value['metadata'] = {
+                    'ddr_id': data.get('id').strip(),
                     'image_url': data['links']['img'].strip(),
                     'rights': data.get('rights').strip(),
                 }
