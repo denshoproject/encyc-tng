@@ -132,11 +132,13 @@ class ImageBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
+            download_size = source.file.size
             cite_url = f"/cite/{source.title}/"
             view_url = f"/sources/{source_type}/{source.title}/"
         else:
             encyclopedia_id = None
             download_url = None
+            download_size = None
             cite_url = None
             view_url = None
         return {
@@ -149,7 +151,7 @@ class ImageBlockStructValue(StructValue):
             'caption': caption,
             'densho_id': ddr_id,
             'download_url': download_url,
-            'download_size': None,
+            'download_size': download_size,
             'cite_url': cite_url,
             'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
@@ -215,11 +217,13 @@ class VideoBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
+            download_size = source.file.size
             cite_url = f"/cite/{source.title}/"
         else:
             filename = None
             encyclopedia_id = None
             download_url = None
+            download_size = None
             cite_url = None
         display_type = 'display'
         display = self.get(display_type)
@@ -237,7 +241,7 @@ class VideoBlockStructValue(StructValue):
             'caption': caption,
             'densho_id': ddr_id,
             'download_url': download_url,
-            'download_size': None,
+            'download_size': download_size,
             'cite_url': cite_url,
             'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
@@ -322,11 +326,13 @@ class DocumentBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
+            download_size = source.file.size
             cite_url = f"/cite/{source.title}/"
             view_url = f"/sources/{source_type}/{source.title}/"
         else:
             encyclopedia_id = None
             download_url = None
+            download_size = None
             cite_url = None
             view_url = None
         return {
@@ -339,7 +345,7 @@ class DocumentBlockStructValue(StructValue):
             'caption': caption,
             'densho_id': ddr_id,
             'download_url': download_url,
-            'download_size': None,
+            'download_size': download_size,
             'cite_url': cite_url,
             'view_url': view_url,
             'creative_commons': self.get('creative_commons'),
