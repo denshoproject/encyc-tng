@@ -60,7 +60,12 @@
                     <li class="modal__action">
                         <a href="{{ modal.download_url }}" class="modal__download">
                             {% include "patterns/components/icons/icon.html" with name="download" classname="modal__download-icon" %}
-                            <span>Download full size <span>(5.3 MB)</span></span>
+			    <span>
+			      Download full size
+                              {% if modal.download_size %}
+                              <span>({{ modal.download_size | filesizeformat }})</span>
+                              {% endif %}
+			    </span>
                         </a>
                     </li>
 		  {% endif %}
