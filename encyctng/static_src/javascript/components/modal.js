@@ -68,6 +68,10 @@ class Modal {
             }
         });
 
+	this.node.addEventListener('close', () => {
+            this.close();
+	});
+
         if (this.closeButton) {
             this.closeButton.addEventListener('click', () => {
                 this.close();
