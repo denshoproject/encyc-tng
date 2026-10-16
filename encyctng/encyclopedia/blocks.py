@@ -443,6 +443,7 @@ class DDRObjectBlockStructValue(StructValue):
             'download_size': metadata.get('download_size'),
             'ddr_rights': metadata.get('rights'),
             'densho_id': metadata.get('ddr_id'),
+            'model': metadata.get('model',''),
         }
 
 class DDRObjectBlock(StructBlock):
@@ -471,6 +472,7 @@ class DDRObjectBlock(StructBlock):
                 # metadata
                 block.value['metadata'] = {
                     'ddr_id': data.get('id').strip(),
+                    'model': data.get('model').strip(),
                     'image_url': data['links']['img'].strip(),
                     'download_url': data['links']['download'].strip(),
                     'download_size': data['size'],
