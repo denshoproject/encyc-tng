@@ -132,7 +132,10 @@ class ImageBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
-            download_size = source.file.size
+            try:
+                download_size = source.file.size
+            except FileNotFoundError:
+                download_size = None
             cite_url = f"/cite/{source.title}/"
             view_url = f"/sources/{source_type}/{source.title}/"
         else:
@@ -217,7 +220,10 @@ class VideoBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
-            download_size = source.file.size
+            try:
+                download_size = source.file.size
+            except FileNotFoundError:
+                download_size = None
             cite_url = f"/cite/{source.title}/"
         else:
             filename = None
@@ -326,7 +332,10 @@ class DocumentBlockStructValue(StructValue):
             filename = Path(source.file.name).name
             encyclopedia_id = filename
             download_url = source.file.url
-            download_size = source.file.size
+            try:
+                download_size = source.file.size
+            except FileNotFoundError:
+                download_size = None
             cite_url = f"/cite/{source.title}/"
             view_url = f"/sources/{source_type}/{source.title}/"
         else:
