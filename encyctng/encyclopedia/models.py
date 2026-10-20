@@ -204,6 +204,10 @@ class Article(Page):
         on_delete=models.SET_NULL,
         related_name='+'
     )
+    signature_url = models.URLField(
+        null=True,
+        blank=True,
+    )
     body = StreamField([
             ('heading', HeadingBlock()),
             ('paragraph', ArticleTextBlock()),
