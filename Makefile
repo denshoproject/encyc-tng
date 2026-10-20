@@ -210,9 +210,9 @@ install-migration:
 
 install-encyc-tng-testing:
 	@echo ""
-	@echo "install encyc-tng -------------------------------------------------"
+	@echo "install encyc-tng-testing -----------------------------------------"
 	source $(VIRTUALENV)/bin/activate; uv pip install .[testing]
-	npm install -g pa11y-ci
+	source $(INSTALL_NVM)/nvm.sh; npm install -g pa11y-ci
 
 git-safe-dir:
 	@echo ""
