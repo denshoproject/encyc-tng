@@ -262,6 +262,7 @@ class VideoBlock(StructBlock):
         source.rtmp_path
         source.transcript_path
     """
+    signature = BooleanBlock(required=False)
     video = VideoChooserBlock(required=False)
     display = WagtailImageBlock(required=False)
     transcript = DocumentChooserBlock(required=False)
@@ -367,6 +368,7 @@ class DocumentBlock(StructBlock):
         source.original_size
         document_download_url
     """
+    signature = BooleanBlock(required=False)
     document = DocumentChooserBlock(required=True)
     display = WagtailImageBlock(required=False)
     caption = TextBlock(required=False)
@@ -447,6 +449,7 @@ class DDRObjectBlockStructValue(StructValue):
         }
 
 class DDRObjectBlock(StructBlock):
+    signature = BooleanBlock(required=False)
     object_url = CharBlock(required=True, help_text='DDR Object URL')
     metadata = TextBlock(required=False)
     caption = RichTextBlock(required=False)
