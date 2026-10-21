@@ -55,11 +55,28 @@ class SitePage(Page):
 
     parent_page_types = ['wagtailcore.Page', 'info.SitePagesIndexPage']
     subpage_types = []
-    template = 'patterns/pages/article/article.html'
+    template = 'patterns/pages/information_page/information_page.html'
 
     class Meta:
         verbose_name = "Site Article"
         verbose_name_plural = "Site Articles"
+
+    def hero(self):
+        """For top-of-article components
+        templates/patterns/components/hero_split/hero_split.html
+        """
+        return {
+            'title': self.title,
+            'type': 'article',
+            'introduction': self.description,
+            'meta': [],
+        }
+
+    def table_of_contents(self, request):
+        """For empty table of contents template
+        templates/patterns/components/table_of_contents/table_of_contents.html
+        """
+        return []
 
     def dump_to_jsonl(self):
         """Dump page.body StreamFields to .jsonl text
