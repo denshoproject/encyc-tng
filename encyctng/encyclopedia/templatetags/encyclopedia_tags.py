@@ -10,9 +10,13 @@ register = template.Library()
 @register.simple_tag
 def article_table_of_contents(article, request):
     """Generate Table-of-Contents block from article headings"""
+    try:
+        toc = article.table_of_contents(request)
+    except AttributeError:
+        toc = []
     template_name = 'patterns/components/table_of_contents/table_of_contents.html'
     return template.loader.get_template(template_name).render({
-        'table_of_contents': article.table_of_contents(request),
+        'table_of_contents': toc,
     })
 
 @register.simple_tag

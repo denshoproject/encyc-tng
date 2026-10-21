@@ -15,12 +15,8 @@
 
     <div class="page__content" id="body">
         <div class="grid">
-            <nav class="in-page-nav" aria-label="In Page Navigation">
-                <h2 class="in-page-nav__title section-heading heading heading--three">
-                    Contents
-                </h2>
-		{% article_table_of_contents page request %}
-            </nav><!-- .in-page-nav -->
+
+	    {% article_table_of_contents page request %}
 
             <div class="sf grid grid--no-gutter">
                 {% for block in page.body_with_carousels %}
