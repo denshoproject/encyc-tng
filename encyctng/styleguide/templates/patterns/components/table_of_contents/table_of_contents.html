@@ -1,11 +1,18 @@
-<ul class="in-page-nav__container">
-  {% for item in table_of_contents %}
-  <li class="in-page-nav__item toc-level_{{ item.level }}">
-    <a name="toc-{{ item.name }}" {% if item.name %}href="#{{ item.name }}"{% endif %}
-       class="in-page-nav__link meta meta--large"
-       style="padding-left: {{ item.indent }}px;">
-      {{ item.title }}
-    </a>
-  </li><!-- .in-page-nav__item -->
-  {% endfor %}
-</ul><!-- .in-page-nav__container -->
+{% if table_of_contents %}
+<nav class="in-page-nav" aria-label="In Page Navigation">
+  <h2 class="in-page-nav__title section-heading heading heading--three">
+    Contents
+  </h2>
+  <ul class="in-page-nav__container">
+    {% for item in table_of_contents %}
+    <li class="in-page-nav__item toc-level_{{ item.level }}">
+      <a name="toc-{{ item.name }}" {% if item.name %}href="#{{ item.name }}"{% endif %}
+	 class="in-page-nav__link meta meta--large"
+	 style="padding-left: {{ item.indent }}px;">
+	{{ item.title }}
+      </a>
+    </li><!-- .in-page-nav__item -->
+    {% endfor %}
+  </ul><!-- .in-page-nav__container -->
+</nav><!-- .in-page-nav -->
+{% endif %}
