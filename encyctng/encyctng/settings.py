@@ -163,6 +163,13 @@ DATABASES = {
         'PORT': config.get('django', 'database_port'),
         'USER': config.get('django', 'database_username'),
         'PASSWORD': config.get('django', 'database_password'),
+        # To enable testing w Postgres,
+        # edit /etc/postgresql/17/main/pg_hba.conf
+        # to give user encyctng access to encyctngtest and postgres,
+        # and run ALTER USER encyctng CREATEDB;
+        'TEST': {
+            'NAME': 'encyctngtest',
+        },
     }
 }
 
