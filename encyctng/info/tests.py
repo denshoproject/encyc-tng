@@ -8,7 +8,7 @@ from .models import SitePagesIndexPage, SitePage
 
 class SiteViews(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUpTestData(cls):
         root = Page.get_first_root_node()
         Site.objects.create(
             hostname='testserver',

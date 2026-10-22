@@ -49,7 +49,7 @@ class AuthorDetailView(TestCase):
 
 class SearchView(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUpTestData(cls):
         root = Page.get_first_root_node()
         Site.objects.create(
             hostname='testserver',
@@ -79,7 +79,7 @@ class SearchView(TestCase):
 
 class ArticleView(WagtailPageTestCase):
     @classmethod
-    def setUp(cls):
+    def setUpTestData(cls):
         root = Page.get_first_root_node()
         Site.objects.create(
             hostname='testserver',
@@ -110,7 +110,7 @@ class ArticleView(WagtailPageTestCase):
 
 class ArticleRelatedView(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUpTestData(cls):
         root = Page.get_first_root_node()
         Site.objects.create(
             hostname='testserver',
