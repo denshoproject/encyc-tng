@@ -473,14 +473,14 @@ class DDRObjectBlock(StructBlock):
             if block.block_type == 'ddrobjectblock':
                 data = ddr.get_ddrobject_embed_info(block)
                 # metadata
-                block.value['metadata'] = {
+                block.value['metadata'] = json.dumps({
                     'ddr_id': data.get('id').strip(),
                     'model': data.get('model').strip(),
                     'image_url': data['links']['img'].strip(),
                     'download_url': data['links']['download'].strip(),
                     'download_size': data['size'],
                     'rights': data.get('rights').strip(),
-                }
+                })
                 # don't populate caption,courtesy unless empty
                 if not block.value['caption']:
                     text = '\n'.join([

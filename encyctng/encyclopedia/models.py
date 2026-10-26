@@ -419,21 +419,29 @@ class Article(Page):
         # Get the first ImageBlock where signature is checked
         # If it has an image, that's the signature image
         for block in self.media_blocks():
-            if block.value.get('signature', None):
-                if block.value.get('image', None):  # image
-                    return block.value['image']
-                elif block.value.get('display', None):  # video,document
-                    return block.value['display']
-                elif block.value.get('object_url', None):  # ddrobject
-                    return block.value.meta().get('image_url')
+            if block.block_type in MEDIA_BLOCK_TYPES:
+                if block.value.get('signature', None):
+                    if block.block_type == 'imageblock':  # image
+                        return block.value['image']
+                    elif block.block_type in MEDIA_THUMBNAIL_BLOCK_TYPES:
+                        return block.value['display']
+                    elif block.block_type == 'ddrobjectblock':
+                        meta = block.value.get('metadata', {})
+                        if isinstance(meta, str):
+                            meta = json.loads(meta)
+                        return meta.get('image_url')
         # Didn't find one, so just get the first image
         for block in self.media_blocks():
-            if block.value.get('image', None):  # image
-                return block.value['image']
-            elif block.value.get('display', None):  # video,document
-                return block.value['display']
-            elif block.value.get('object_url', None):  # ddrobject
-                return block.value.meta().get('image_url')
+            if block.block_type in MEDIA_BLOCK_TYPES:
+                if block.block_type == 'imageblock':  # image
+                    return block.value['image']
+                elif block.block_type in MEDIA_THUMBNAIL_BLOCK_TYPES:
+                    return block.value['display']
+                elif block.block_type == 'ddrobjectblock':
+                    meta = block.value.get('metadata', {})
+                    if isinstance(meta, str):
+                        meta = json.loads(meta)
+                    return meta.get('image_url')
         # We want to know if images are missing from media blocks
         # If signature is still blank at this point just return None
 
