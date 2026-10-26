@@ -276,6 +276,8 @@ class Article(Page):
         if not self.title_sort:
             self.title_sort = slugify(self.title)
         self.slug = slugify(self.slug)  # force slug/url to be all-ASCII
+        # get DDRobjectBlock data before choosing signature
+        DDRObjectBlock.update_ddrobject_embeds(self)
         self.set_signature()
         super(Article, self).save(*args, **kwargs)
 
@@ -973,9 +975,6 @@ def do_after_page_edit(request, page):
 def after_page_update(request, page):
     # TODO save first Image to self.image
     if isinstance(page, Article):
-        DDRObjectBlock.update_ddrobject_embeds(
-            page, request,
-        )
         footnotes.Footnotary.update_footnotes(
             page, request=request,
             fields=ARTICLE_FOOTNOTE_FIELDS,
