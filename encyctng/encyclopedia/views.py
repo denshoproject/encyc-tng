@@ -113,7 +113,8 @@ def articles_base_query():
     """Base query used by all the list views
     """
     articles = Article.objects.live() \
-        .only('title','title_sort','description','signature_image') \
+        .only('title_sort','signature_image','title','description') \
+        .order_by('title_sort') \
         .prefetch_related('topics')
     return articles
 
