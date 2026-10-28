@@ -346,6 +346,12 @@ WAGTAILDOCS_EXTENSIONS = [
     'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
 ]
 
+# Allowed file extensions for image files
+# see https://docs.wagtail.org/en/stable/advanced_topics/deploying.html#user-uploaded-files
+WAGTAILIMAGES_EXTENSIONS = [
+    'avif', 'gif', 'jpg', 'jpeg', 'png', 'webp',
+]
+
 WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
 # see https://github.com/torchbox/wagtailmedia
