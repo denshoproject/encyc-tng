@@ -471,3 +471,5 @@ else:
     GIT_COMMIT = ''
     GIT_BRANCH = ''
     PACKAGES = 'PACKAGES'
+
+PLACEHOLDER_IMAGE = config.get('encyctng', 'placeholder_image').strip()

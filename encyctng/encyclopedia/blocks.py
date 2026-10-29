@@ -262,6 +262,7 @@ class VideoBlock(StructBlock):
         source.rtmp_path
         source.transcript_path
     """
+    signature = BooleanBlock(required=False)
     video = VideoChooserBlock(required=False)
     display = WagtailImageBlock(required=False)
     transcript = DocumentChooserBlock(required=False)
@@ -367,6 +368,7 @@ class DocumentBlock(StructBlock):
         source.original_size
         document_download_url
     """
+    signature = BooleanBlock(required=False)
     document = DocumentChooserBlock(required=True)
     display = WagtailImageBlock(required=False)
     caption = TextBlock(required=False)
@@ -447,6 +449,7 @@ class DDRObjectBlockStructValue(StructValue):
         }
 
 class DDRObjectBlock(StructBlock):
+    signature = BooleanBlock(required=False)
     object_url = CharBlock(required=True, help_text='DDR Object URL')
     metadata = TextBlock(required=False)
     caption = RichTextBlock(required=False)
@@ -470,14 +473,14 @@ class DDRObjectBlock(StructBlock):
             if block.block_type == 'ddrobjectblock':
                 data = ddr.get_ddrobject_embed_info(block)
                 # metadata
-                block.value['metadata'] = {
+                block.value['metadata'] = json.dumps({
                     'ddr_id': data.get('id').strip(),
                     'model': data.get('model').strip(),
                     'image_url': data['links']['img'].strip(),
                     'download_url': data['links']['download'].strip(),
                     'download_size': data['size'],
                     'rights': data.get('rights').strip(),
-                }
+                })
                 # don't populate caption,courtesy unless empty
                 if not block.value['caption']:
                     text = '\n'.join([

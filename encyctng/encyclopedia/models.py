@@ -204,6 +204,10 @@ class Article(Page):
         on_delete=models.SET_NULL,
         related_name='+'
     )
+    signature_url = models.URLField(
+        null=True,
+        blank=True,
+    )
     body = StreamField([
             ('heading', HeadingBlock()),
             ('paragraph', ArticleTextBlock()),
@@ -272,7 +276,9 @@ class Article(Page):
         if not self.title_sort:
             self.title_sort = slugify(self.title)
         self.slug = slugify(self.slug)  # force slug/url to be all-ASCII
-        self.signature_image = self.get_signature_image()
+        # get DDRobjectBlock data before choosing signature
+        DDRObjectBlock.update_ddrobject_embeds(self)
+        self.set_signature()
         super(Article, self).save(*args, **kwargs)
 
     def initial(self):
@@ -377,10 +383,30 @@ class Article(Page):
             if block.block_type in MEDIA_BLOCK_TYPES:
                 yield block
 
-    def get_signature_image(self, force=False):
-        """Scans media blocks and returns the signature image
+    def set_signature(self):
+        """Get signature and assign to signature_image/_url
+
+        Article signature can be one of
+        - Image.image (Wagtail Image object)
+        - Video/Document.display (Wagtail Image object)
+        - DDRObject.meta.image_url (str)
+        and will be assigned to .signature_image or .signature_url
+        Default is both are blank.
+        """
+        signature = self.choose_signature()
+        # it's one or the other
+        if isinstance(signature, str):
+            self.signature_image = None
+            self.signature_url = signature
+        else:
+            self.signature_image = signature
+            self.signature_url = None
+
+    def choose_signature(self):
+        """Scans media blocks and chooses the Article.signature_image/_url
 
         Article.signature_image is the image that is shown in lists.
+        Article.signature_url is an offsite image ie DDRObject
 
         This function
         - Iterates through article.body blocks
@@ -392,29 +418,34 @@ class Article(Page):
         There might be multiple media Blocks with checkboxes but that's the
         author's problem.
         """
-        if self.signature_image and not force:
-            return self.signature_image
-        # placeholder if no media blocks
-        if len([b for b in self.media_blocks()]) == 0:
-            return placeholder_image()
         # Get the first ImageBlock where signature is checked
         # If it has an image, that's the signature image
         for block in self.media_blocks():
-            if block.value.get('signature', None):
-                if block.value.get('image', None):
-                    return block.value['image']
-                elif block.value.get('display', None):
-                    return block.value['display']
+            if block.block_type in MEDIA_BLOCK_TYPES:
+                if block.value.get('signature', None):
+                    if block.block_type == 'imageblock':  # image
+                        return block.value['image']
+                    elif block.block_type in MEDIA_THUMBNAIL_BLOCK_TYPES:
+                        return block.value['display']
+                    elif block.block_type == 'ddrobjectblock':
+                        meta = block.value.get('metadata', {})
+                        if isinstance(meta, str):
+                            meta = json.loads(meta)
+                        return meta.get('image_url')
         # Didn't find one, so just get the first image
         for block in self.media_blocks():
-            if block.value.get('image', None):
-                return block.value['image']
-            elif block.value.get('display', None):
-                return block.value['display']
+            if block.block_type in MEDIA_BLOCK_TYPES:
+                if block.block_type == 'imageblock':  # image
+                    return block.value['image']
+                elif block.block_type in MEDIA_THUMBNAIL_BLOCK_TYPES:
+                    return block.value['display']
+                elif block.block_type == 'ddrobjectblock':
+                    meta = block.value.get('metadata', {})
+                    if isinstance(meta, str):
+                        meta = json.loads(meta)
+                    return meta.get('image_url')
         # We want to know if images are missing from media blocks
         # If signature is still blank at this point just return None
-        #return placeholder_image()
-        return None
 
     def body_with_carousels(self):
         """Returns Article.body blocks with adjacent media blocks in carousels
@@ -944,9 +975,6 @@ def do_after_page_edit(request, page):
 def after_page_update(request, page):
     # TODO save first Image to self.image
     if isinstance(page, Article):
-        DDRObjectBlock.update_ddrobject_embeds(
-            page, request,
-        )
         footnotes.Footnotary.update_footnotes(
             page, request=request,
             fields=ARTICLE_FOOTNOTE_FIELDS,
