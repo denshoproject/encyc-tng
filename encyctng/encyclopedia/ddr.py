@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from urllib.parse import urlsplit, urlunsplit
 
-import httpx
+import httpx2
 
 from . import vocab
 
@@ -32,7 +32,7 @@ def ddr_objects(title, term_id=None, limit=DDR_OBJECTS_LIMIT):
     objects = []
     for term in terms:
         url = f"{API_BASE}/facet/topics/{term['id']}/objects/?format=json"
-        data = httpx.get(url, timeout=3).json()
+        data = httpx2.get(url, timeout=3).json()
         for o in data['objects']:
             objects.append(o)
     return objects[:limit]
@@ -58,7 +58,7 @@ def ddr_objects(title, term_id=None, limit=DDR_OBJECTS_LIMIT):
 #
 #    def get_objects(term_id=None):
 #        url = f"{API_BASE}/facet/topics/{term_id}/objects/?format=json"
-#        response = httpx.get(url)
+#        response = httpx2.get(url)
 #        if HTTPStatus(response.status_code).is_success:
 #            return response.json()['objects']
 #        return []
@@ -75,7 +75,7 @@ def get_ddrobject_embed_info(block):
         raise Exception(f"Malformed DDREmbedBlock URL: {object_url}")
     api_path = f"/api/0.2{path}"
     api_url = urlunsplit((scheme,netloc,api_path,'',''))
-    r = httpx.get(api_url, timeout=3)
+    r = httpx2.get(api_url, timeout=3)
     if not r.status_code == HTTPStatus.OK:
         raise Exception(
             f"HTTP Error: {r.status_code} {r.reason_phrase} for {api_url}"
@@ -91,7 +91,7 @@ def get_ddrobject_embed_info(block):
     signature_id = data.get('signature_id')
     file_path = f"/api/0.2/{signature_id}/"
     file_url = urlunsplit((scheme,netloc,file_path,'',''))
-    r = httpx.get(file_url, timeout=3)
+    r = httpx2.get(file_url, timeout=3)
     if r.status_code == HTTPStatus.OK:
         fdata = r.json()
         data['links']['download'] = fdata['links']['download']
