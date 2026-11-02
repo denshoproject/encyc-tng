@@ -180,7 +180,7 @@ def articles_az(request):
     })
 
 @cache_page(settings.CACHE_TIMEOUT)
-def articles_search(request):
+def search(request):
     """Search Articles
 
     For whatever reason, Wagtail can't just filter on ManyToManyFields.
