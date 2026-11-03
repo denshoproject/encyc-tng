@@ -37,7 +37,7 @@ from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.text import slugify
 import djclick as click  # https://github.com/GaretJax/django-click
-import httpx
+import httpx2
 from psycopg.errors import NotNullViolation
 from wagtail.contrib.redirects.models import Redirect
 from wagtail.documents.models import Document
@@ -2391,7 +2391,7 @@ description
         csvpath = '/tmp/articles-current-tng.csv'
         encycfront_titles = [
             a['title']
-            for a in httpx.get('https://encyclopedia.densho.org/api/0.1/articles/').json()
+            for a in httpx2.get('https://encyclopedia.densho.org/api/0.1/articles/').json()
         ]
         encyctng_titles = [a.title for a in Article.objects.live()]
         #both = [t for t in encycfront_titles if t in encyctng_titles]
@@ -2673,7 +2673,7 @@ def test_import_article(title, user):
 
 def title_status(title, schema='http', domain='encyctng.local'):
     url = f"{schema}://{domain}/{slugify(title)}/"
-    r = httpx.get(url)
+    r = httpx2.get(url)
     if HTTPStatus(r.status_code).is_server_error:
         soup = BeautifulSoup(r.content, 'lxml')
         header = soup.find('header', id='summary')

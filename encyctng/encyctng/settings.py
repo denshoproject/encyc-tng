@@ -163,6 +163,13 @@ DATABASES = {
         'PORT': config.get('django', 'database_port'),
         'USER': config.get('django', 'database_username'),
         'PASSWORD': config.get('django', 'database_password'),
+        # To enable testing w Postgres,
+        # edit /etc/postgresql/17/main/pg_hba.conf
+        # to give user encyctng access to encyctngtest and postgres,
+        # and run ALTER USER encyctng CREATEDB;
+        'TEST': {
+            'NAME': 'encyctngtest',
+        },
     }
 }
 
@@ -339,6 +346,12 @@ WAGTAILDOCS_EXTENSIONS = [
     'csv', 'docx', 'key', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xlsx', 'zip',
 ]
 
+# Allowed file extensions for image files
+# see https://docs.wagtail.org/en/stable/advanced_topics/deploying.html#user-uploaded-files
+WAGTAILIMAGES_EXTENSIONS = [
+    'avif', 'gif', 'jpg', 'jpeg', 'png', 'webp',
+]
+
 WAGTAILIMAGES_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
 # see https://github.com/torchbox/wagtailmedia
@@ -458,3 +471,5 @@ else:
     GIT_COMMIT = ''
     GIT_BRANCH = ''
     PACKAGES = 'PACKAGES'
+
+PLACEHOLDER_IMAGE = config.get('encyctng', 'placeholder_image').strip()

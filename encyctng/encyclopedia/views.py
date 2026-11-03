@@ -113,7 +113,8 @@ def articles_base_query():
     """Base query used by all the list views
     """
     articles = Article.objects.live() \
-        .only('title','title_sort','description','signature_image') \
+        .only('title_sort','signature_image','title','description') \
+        .order_by('title_sort') \
         .prefetch_related('topics')
     return articles
 
@@ -179,7 +180,7 @@ def articles_az(request):
     })
 
 @cache_page(settings.CACHE_TIMEOUT)
-def articles_search(request):
+def search(request):
     """Search Articles
 
     For whatever reason, Wagtail can't just filter on ManyToManyFields.
@@ -187,9 +188,7 @@ def articles_search(request):
     https://stackoverflow.com/questions/43082438/how-do-you-filter-search-results-in-wagtail-based-on-a-manytomanyfield?rq=4
     https://groups.google.com/g/wagtail/c/k2-E4h2oLtI/m/uPOzbuwKBgAJ
     """
-    query_string = request.GET.get('query', None).strip()
-    if not query_string:
-        assert False  # redirect to A-Z list? Topics list?
+    query_string = request.GET.get('query', '').strip()
     topics = request.GET.get('topics', '').split(' ')
     if topics and topics == ['all']:
         topics = []
@@ -213,6 +212,10 @@ def articles_search(request):
     #from wagtail.contrib.search_promotions.models import Query
     #Query.get(query).add_hit()
     Article.remove_description_footnotes(articles)
+    if articles:
+        topic_tags = tags_collections_search(query_string, topics)
+    else:
+        topic_tags = tags_collections_topics([])
 
     paginator = Paginator(articles, page_size)
     page_obj = paginator.get_page(page_number)
@@ -225,7 +228,7 @@ def articles_search(request):
     return render(request, 'patterns/pages/collections/collections-search.html', {
         'query': query_string,
         'tabs': collections_authors_tabs(url=reverse('encyc-articles-search'), search=1),
-        'topic_tags': tags_collections_search(query_string, topics),
+        'topic_tags': topic_tags,
         'page_obj': page_obj,
         'page_range': page_range,
         'page_range_bottom': page_range_bottom,

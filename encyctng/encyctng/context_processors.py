@@ -18,4 +18,5 @@ def sitewide(request):
         'host': os.uname()[1],
         'pid': os.getpid(),
         'time': datetime.now().isoformat(),
+        'placeholder_image': settings.PLACEHOLDER_IMAGE,
     }

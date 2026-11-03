@@ -3,8 +3,14 @@
 <div class="article-listing-item{% if modifier %} article-listing-item--{{ modifier }}{% endif %}">
     <div class="article-listing-item__container">
         <div class="article-listing-item__image-container">
-            {% image article.get_signature_image fill-340x340 format-webp as image %}
+          {% if article.signature_image %}
+            {% image article.signature_image fill-340x340 format-webp as image %}
             <a class="article-listing-item__link" href="{{ article.relative_url }}"><img class="article-listing-item__image" src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}"></a>
+          {% elif article.signature_url %}
+	    <a class="article-listing-item__link" href="{{ article.relative_url }}"><img class="article-listing-item__image" src="{{ article.signature_url }}"></a>
+          {% else %}
+	    <a class="article-listing-item__link" href="{{ article.relative_url }}"><img class="article-listing-item__image" src="{{ placeholder_image }}"></a>
+          {% endif %}
         </div>
         <div class="article-listing-item__content">
             <p class="article-listing-item__meta meta meta--tiny">{{ article.type }}</p>
