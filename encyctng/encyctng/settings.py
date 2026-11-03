@@ -44,14 +44,14 @@ if not configs_read:
     print(f'Cannot read config files! {CONFIG_FILES}')
     sys.exit(1)
 
-LOG_LEVEL = config.get('django', 'log_level')
 LOG_FILE = config.get('django', 'log_file')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config.getboolean('django', 'debug')
+LOG_LEVEL = config.get('django', 'log_level')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config.get('django', 'secret_key')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = config.getboolean('django', 'debug')
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -77,9 +77,9 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.postgres',
-    'django.contrib.sessions',
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
     'modelcluster',
@@ -212,10 +212,11 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'America/Los_Angeles'
+
 USE_I18N = True
 
-#TIME_ZONE = 'UTC'
-TIME_ZONE = 'America/Los_Angeles'
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -250,6 +251,7 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
 
 # Logging and error reporting
 
