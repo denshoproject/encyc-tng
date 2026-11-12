@@ -43,8 +43,8 @@
                                 Chicago style
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-chicago"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.chicago }}</textarea>
+                                <div id="modal__citation-value-chicago"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.chicago | safe }}</div>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-chicago"
                                         aria-label="Copy Chicago style citation to clipboard">
@@ -62,8 +62,8 @@
                                 MLA style
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-mla"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.mla }}</textarea>
+                                <div id="modal__citation-value-mla"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.mla | safe }}</div>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-mla"
                                         aria-label="Copy MLA style citation to clipboard">
@@ -81,10 +81,8 @@
                                 APA style
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-apa"
-                                          class="modal__citation-textarea meta meta--small" readonly>
-				  {{ citation.apa }}
-				</textarea>
+                                <div id="modal__citation-value-apa"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.apa | safe }}</div>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-apa"
                                         aria-label="Copy APA style citation to clipboard">
@@ -102,8 +100,8 @@
                                 CBE/CSE style
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-cse"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.cse }}</textarea>
+                                <div id="modal__citation-value-cse"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.cse | safe }}</div>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-cse"
                                         aria-label="Copy CBE/CSE style citation to clipboard">
@@ -121,8 +119,8 @@
                                 MHRA style
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-mhra"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.mhra }}</textarea>
+                                <div id="modal__citation-value-mhra"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.mhra | safe }}</div>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-mhra"
                                         aria-label="Copy MHRA style citation to clipboard">
@@ -141,7 +139,7 @@
                             </label>
                             <div class="modal__copy-container">
                                 <textarea id="modal__citation-value-bibtex"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.bibtex }}</textarea>
+					  class="modal__citation-textarea meta meta--small" readonly>{{ citation.bibtex | safe }}</textarea>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-bibtex"
                                         aria-label="Copy BibTeX citation to clipboard">
