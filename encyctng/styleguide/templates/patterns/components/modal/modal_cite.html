@@ -35,51 +35,16 @@
                         Citation styles for ‘{{ citation.title }}’
                     </h2>
 
-                    <div class="modal__sub-section">
-                        <div class="modal__citation-item">
-                            <label for="modal__citation-value-apa"
-                                   class="modal__citation-label heading heading--four">
-                                APA style
-                            </label>
-                            <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-apa"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.apa }}</textarea>
-                                <button class="modal__copy-button"
-                                        data-clipboard-target="#modal__citation-value-apa"
-                                        aria-label="Copy APA style citation to clipboard">
-                                    {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal__sub-section">
-                        <div class="modal__citation-item">
-                            <label for="modal__citation-value-bibtex"
-                                   class="modal__citation-label heading heading--four">
-                                BibTeX
-                            </label>
-                            <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-bibtex"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.bibtex }}</textarea>
-                                <button class="modal__copy-button"
-                                        data-clipboard-target="#modal__citation-value-bibtex"
-                                        aria-label="Copy BibTeX citation to clipboard">
-                                    {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal__sub-section">
+                    <!-- Chicago -->
+		    <div class="modal__sub-section">
                         <div class="modal__citation-item">
                             <label for="modal__citation-value-chicago"
                                    class="modal__citation-label heading heading--four">
                                 Chicago style
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-chicago"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.chicago }}</textarea>
+                                <div id="modal__citation-value-chicago"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.chicago | safe }}</div>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-chicago"
                                         aria-label="Copy Chicago style citation to clipboard">
@@ -89,15 +54,54 @@
                         </div>
                     </div>
 
-                    <div class="modal__sub-section">
+                    <!-- MLA -->
+		    <div class="modal__sub-section">
+                        <div class="modal__citation-item">
+                            <label for="modal__citation-value-mla"
+                                   class="modal__citation-label heading heading--four">
+                                MLA style
+                            </label>
+                            <div class="modal__copy-container">
+                                <div id="modal__citation-value-mla"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.mla | safe }}</div>
+                                <button class="modal__copy-button"
+                                        data-clipboard-target="#modal__citation-value-mla"
+                                        aria-label="Copy MLA style citation to clipboard">
+                                    {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- APA -->
+		    <div class="modal__sub-section">
+                        <div class="modal__citation-item">
+                            <label for="modal__citation-value-apa"
+                                   class="modal__citation-label heading heading--four">
+                                APA style
+                            </label>
+                            <div class="modal__copy-container">
+                                <div id="modal__citation-value-apa"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.apa | safe }}</div>
+                                <button class="modal__copy-button"
+                                        data-clipboard-target="#modal__citation-value-apa"
+                                        aria-label="Copy APA style citation to clipboard">
+                                    {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CBE/CSE -->
+		    <div class="modal__sub-section">
                         <div class="modal__citation-item">
                             <label for="modal__citation-value-cse"
                                    class="modal__citation-label heading heading--four">
                                 CBE/CSE style
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-cse"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.cse }}</textarea>
+                                <div id="modal__citation-value-cse"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.cse | safe }}</div>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-cse"
                                         aria-label="Copy CBE/CSE style citation to clipboard">
@@ -107,15 +111,16 @@
                         </div>
                     </div>
 
-                    <div class="modal__sub-section">
+                    <!-- MHRA -->
+		    <div class="modal__sub-section">
                         <div class="modal__citation-item">
                             <label for="modal__citation-value-mhra"
                                    class="modal__citation-label heading heading--four">
                                 MHRA style
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-mhra"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.mhra }}</textarea>
+                                <div id="modal__citation-value-mhra"
+                                     class="modal__citation-textarea meta meta--small" readonly>{{ citation.mhra | safe }}</div>
                                 <button class="modal__copy-button"
                                         data-clipboard-target="#modal__citation-value-mhra"
                                         aria-label="Copy MHRA style citation to clipboard">
@@ -125,18 +130,19 @@
                         </div>
                     </div>
 
-                    <div class="modal__sub-section">
+                    <!-- BibTeX -->
+		    <div class="modal__sub-section">
                         <div class="modal__citation-item">
-                            <label for="modal__citation-value-mla"
+                            <label for="modal__citation-value-bibtex"
                                    class="modal__citation-label heading heading--four">
-                                MLA style
+                                BibTeX
                             </label>
                             <div class="modal__copy-container">
-                                <textarea id="modal__citation-value-mla"
-                                          class="modal__citation-textarea meta meta--small" readonly>{{ citation.mla }}</textarea>
+                                <textarea id="modal__citation-value-bibtex"
+					  class="modal__citation-textarea meta meta--small" readonly>{{ citation.bibtex | safe }}</textarea>
                                 <button class="modal__copy-button"
-                                        data-clipboard-target="#modal__citation-value-mla"
-                                        aria-label="Copy MLA style citation to clipboard">
+                                        data-clipboard-target="#modal__citation-value-bibtex"
+                                        aria-label="Copy BibTeX citation to clipboard">
                                     {% include "patterns/components/icons/icon.html" with name="copy" classname="modal__copy-icon" %}
                                 </button>
                             </div>
